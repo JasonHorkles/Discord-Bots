@@ -1,0 +1,21 @@
+{
+  "data": {
+    "timelines": [
+      {
+        "timestep": "current",
+        "startTime": "2021-08-22T14:49:00-06:00",
+        "endTime": "2021-08-22T14:49:00-06:00",
+        "intervals": [
+          {
+            "startTime": "2021-08-22T14:49:00-06:00",
+            "values": {
+              "treeIndex": -1,
+              "grassIndex": -1,
+              "weedIndex": -1
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
