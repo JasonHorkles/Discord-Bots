@@ -14,11 +14,13 @@ import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class Wordle extends ListenerAdapter {
@@ -27,42 +29,74 @@ public class Wordle extends ListenerAdapter {
     // dictionary of words
     // keyboard
     // timed challenge with threads
-    private static final HashMap<TextChannel, Member> player = new HashMap<>();
+    private static final HashMap<TextChannel, Member> players = new HashMap<>();
     private static final HashMap<TextChannel, String> words = new HashMap<>();
     private static final HashMap<TextChannel, Integer> attempt = new HashMap<>();
     private static final HashMap<TextChannel, ArrayList<Message>> messages = new HashMap<>();
-    public static final HashMap<TextChannel, ScheduledFuture<?>> deleteChannel = new HashMap<>();
+    private static final HashMap<TextChannel, ScheduledFuture<?>> deleteChannel = new HashMap<>();
 
-    public void startGame(Member player, TextChannel channel, @Nullable String word) {
-        new GameManager().sendEndGameMessage(channel, "wordle");
+    public TextChannel startGame(Member player, @Nullable TextChannel channel, @Nullable String word) throws IOException {
+        if (word == null) {
+            // Get words
+            String page = "https://raw.githubusercontent.com/JasonHorkles/Discord-Bots/main/Phoenella/words.txt";
+            Connection conn = Jsoup.connect(page);
 
-        Wordle.player.put(channel, player);
-        words.put(channel, Objects.requireNonNullElse(word, "underconstruction").toUpperCase());
+            Document doc = conn.get();
+            String wordList = doc.body().text();
+            Scanner scanner = new Scanner(wordList);
+            ArrayList<String> words = new ArrayList<>();
+
+            while (scanner.hasNext()) try {
+                words.add(scanner.next());
+            } catch (NoSuchElementException ignored) {
+            }
+
+            Random r = new Random();
+            word = words.get(r.nextInt(words.size()));
+        }
+
+        String obfuscatedWord;
+        obfuscatedWord = UUID.nameUUIDFromBytes(word.getBytes()).toString();
+
+        // Scan thru for duplicates
+        if (players.containsValue(player)) for (TextChannel channels : players.keySet())
+            if (players.get(channels) == player) if (Objects.equals(channels.getTopic(), obfuscatedWord)) return null;
+
+        if (channel == null) channel = new GameManager().createChannel(GameManager.Game.WORDLE,
+            new ArrayList<>(Collections.singleton(player)));
+
+        players.put(channel, player);
+        words.put(channel, word.toUpperCase());
         attempt.put(channel, 0);
 
+        channel.getManager().setTopic(obfuscatedWord).queue();
+
+        TextChannel finalChannel = channel;
         Thread game = new Thread(() -> {
             ArrayList<Message> lines = new ArrayList<>();
             StringBuilder empties = new StringBuilder();
-            empties.append("<:empty:959950240516046868> ".repeat(words.get(channel).length()));
+            empties.append("<:empty:959950240516046868> ".repeat(words.get(finalChannel).length()));
             for (int x = 0; x < 6; x++)
                 try {
-                    lines.add(channel.sendMessage(empties).complete());
+                    lines.add(finalChannel.sendMessage(empties).complete());
                 } catch (ErrorResponseException ignored) {
                 }
 
             try {
-                messages.put(channel, lines);
+                messages.put(finalChannel, lines);
 
-                channel.sendMessage(player.getAsMention()).complete().delete()
+                finalChannel.sendMessage(player.getAsMention()).complete().delete()
                     .queueAfter(100, TimeUnit.MILLISECONDS, null,
                         new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
 
-                channel.putPermissionOverride(player).setAllow(Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL)
+                finalChannel.putPermissionOverride(player).setAllow(Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL)
                     .queue();
             } catch (ErrorResponseException ignored) {
             }
         });
         game.start();
+
+        return channel;
     }
 
     @Override
@@ -111,7 +145,7 @@ public class Wordle extends ListenerAdapter {
         if (event.getComponentId().equals("restartgame:wordle")) {
             event.deferEdit().queue();
             TextChannel channel = event.getTextChannel();
-            player.remove(channel);
+            players.remove(channel);
             words.remove(channel);
             attempt.remove(channel);
             messages.remove(channel);
@@ -123,16 +157,22 @@ public class Wordle extends ListenerAdapter {
                 } catch (InterruptedException | ExecutionException | TimeoutException e) {
                     e.printStackTrace();
                 }
-                Executors.newSingleThreadScheduledExecutor()
-                    .schedule(new Thread(() -> new Wordle().startGame(event.getMember(), channel, null)), 1,
-                        TimeUnit.SECONDS);
+                Executors.newSingleThreadScheduledExecutor().schedule(new Thread(() -> {
+                    new GameManager().sendEndGameMessage(channel, GameManager.Game.WORDLE);
+                    try {
+                        new Wordle().startGame(event.getMember(), channel, null);
+                    } catch (IOException e) {
+                        channel.sendMessage("Uh oh! I couldn't get a new word! Please try again later.").queue();
+                        e.printStackTrace();
+                    }
+                }), 1, TimeUnit.SECONDS);
             });
             delete.start();
         }
     }
 
     private void endGame(TextChannel channel) {
-        player.remove(channel);
+        players.remove(channel);
         words.remove(channel);
         attempt.remove(channel);
         messages.remove(channel);
@@ -144,7 +184,7 @@ public class Wordle extends ListenerAdapter {
     }
 
     private void sendRetryMsg(TextChannel channel, String message) {
-        channel.putPermissionOverride(player.get(channel)).setDeny(Permission.MESSAGE_SEND)
+        channel.putPermissionOverride(players.get(channel)).setDeny(Permission.MESSAGE_SEND)
             .setAllow(Permission.VIEW_CHANNEL).queue();
         channel.sendMessage(message)
             .setActionRow(Button.success("restartgame:wordle", "New word!").withEmoji(Emoji.fromUnicode("🔁"))).queue();

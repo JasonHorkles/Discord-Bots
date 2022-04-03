@@ -21,7 +21,7 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.*;
@@ -32,7 +32,7 @@ public class Phoenella extends ListenerAdapter {
 
     private static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
 
-    public static void main(String[] args) throws LoginException, InterruptedException, FileNotFoundException, ExecutionException, TimeoutException {
+    public static void main(String[] args) throws LoginException, InterruptedException, IOException, ExecutionException, TimeoutException {
         System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());

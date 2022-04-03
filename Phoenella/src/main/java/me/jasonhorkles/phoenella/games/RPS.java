@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class RPS extends ListenerAdapter {
@@ -24,14 +25,14 @@ public class RPS extends ListenerAdapter {
     private static final HashMap<Member, String> player1Selection = new HashMap<>();
     private static final HashMap<Member, String> player2Selection = new HashMap<>();
 
-    public void startGame(ArrayList<Member> playerList, TextChannel channel) {
+    public TextChannel startGame(ArrayList<Member> playerList) {
+        TextChannel channel = new GameManager().createChannel(GameManager.Game.RPS, playerList);
+
         player1.put(channel, playerList.get(0));
         player2.put(channel, playerList.get(1));
         round.put(channel, 0);
         points.put(playerList.get(0), 0);
         points.put(playerList.get(1), 0);
-
-        new GameManager().sendEndGameMessage(channel, "rps");
 
         channel.sendMessage(
                 "__**How to play:**__\nBeat your opponent, win 2/3 times\n\n*The game will start in 5 seconds...*")
@@ -47,6 +48,8 @@ public class RPS extends ListenerAdapter {
         for (Member player : playerList) mentions.append(player.getAsMention());
         channel.sendMessage(mentions).complete().delete()
             .queueAfter(100, TimeUnit.MILLISECONDS, null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
+
+        return channel;
     }
 
     @Override
@@ -107,9 +110,9 @@ public class RPS extends ListenerAdapter {
                             channel.sendMessage(player1Local.getAsMention() + " wins!").queue();
                         else channel.sendMessage(player2Local.getAsMention() + " wins!").queue();
 
-                        event.getTextChannel().delete().queueAfter(15, TimeUnit.SECONDS, null,
-                            new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
-                        endGame(channel);
+                        Executors.newSingleThreadScheduledExecutor()
+                            .schedule(() -> endGame(channel), 15, TimeUnit.SECONDS);
+
                         return;
                     }
 

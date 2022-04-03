@@ -3,6 +3,8 @@ package me.jasonhorkles.phoenella;
 import com.mattmalec.pterodactyl4j.PteroBuilder;
 import com.mattmalec.pterodactyl4j.client.entities.ClientServer;
 import com.mattmalec.pterodactyl4j.client.entities.PteroClient;
+import me.jasonhorkles.phoenella.games.RPS;
+import me.jasonhorkles.phoenella.games.Wordle;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
@@ -37,52 +39,62 @@ public class Events extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         if (!event.isFromGuild()) return;
         if (event.getGuild().getIdLong() != 729083627308056597L) return;
+
         Member member = event.getMember();
         if (member.getUser().isBot()) return;
 
+        TextChannel channel = event.getTextChannel();
+        Message message = event.getMessage();
+
+        // Wordle suggestions
+        if (channel.getIdLong() == 960213547944661042L) {
+            Thread async = new Thread(() -> {
+                message.addReaction("⬆️").complete();
+                message.addReaction("⬇️").complete();
+            });
+            async.start();
+            return;
+        }
+
         boolean isReply = false;
-        if (event.getMessage().getMessageReference() != null)
-            if (event.getMessage().getMessageReference().getMessage().getAuthor().equals(Phoenella.api.getSelfUser()))
+        if (message.getMessageReference() != null)
+            if (message.getMessageReference().getMessage().getAuthor().equals(Phoenella.api.getSelfUser()))
                 isReply = true;
 
-        if (event.getMessage().getContentStripped().toLowerCase().contains("phoe") || isReply) {
+        if (message.getContentStripped().toLowerCase().contains("phoe") || isReply) {
 
-            if ((event.getMessage().getContentRaw().toLowerCase().contains("phoenix") || event.getMessage()
-                .getContentRaw().toLowerCase().contains("`phoe`")) && !isReply) return;
+            if ((message.getContentRaw().toLowerCase().contains("phoenix") || message.getContentRaw().toLowerCase()
+                .contains("`phoe`")) && !isReply) return;
 
-            String message = event.getMessage().getContentStripped().toLowerCase().replace("phoenella", "")
-                .replace("phoe", "").trim();
+            String text = message.getContentStripped().toLowerCase().replace("phoenella", "").replace("phoe", "")
+                .trim();
 
             // Utility
 
-            if (message.contains("update members")) {
+            if (text.contains("update members")) {
                 if (member.getIdLong() != 277291758503723010L) {
-                    event.getMessage().reply("no").queue();
+                    message.reply("no").queue();
                     return;
                 }
 
-                new Utils().sendMessage(null, event.getMessage(), "Updating members... See console for details.",
-                    false);
+                new Utils().sendMessage(null, message, "Updating members... See console for details.", false);
                 new Utils().runNameCheckForGuild(event.getGuild());
                 return;
             }
 
-            if (message.contains("stop") || message.contains("shut down"))
-                if (member.getIdLong() == 277291758503723010L) {
-                    event.getMessage().reply("Shutting down...").mentionRepliedUser(false).queue();
-                    PteroClient api = PteroBuilder.createClient(new Secrets().getPteroUrl(),
-                        new Secrets().getPteroApiKey());
-                    api.retrieveServerByIdentifier("af9d05bc").flatMap(ClientServer::stop).executeAsync();
-                    return;
-                }
-
-            if (message.contains("restart")) if (member.getIdLong() == 277291758503723010L) {
-                event.getMessage().reply("Restarting...").mentionRepliedUser(false).complete();
-                System.exit(0);
+            if (text.contains("stop") || text.contains("shut down")) if (member.getIdLong() == 277291758503723010L) {
+                message.reply("Shutting down...").mentionRepliedUser(false).queue();
+                PteroClient api = PteroBuilder.createClient(new Secrets().getPteroUrl(),
+                    new Secrets().getPteroApiKey());
+                api.retrieveServerByIdentifier("af9d05bc").flatMap(ClientServer::stop).executeAsync();
                 return;
             }
 
-            TextChannel channel = event.getTextChannel();
+            if (text.contains("restart")) if (member.getIdLong() == 277291758503723010L) {
+                message.reply("Restarting...").mentionRepliedUser(false).complete();
+                System.exit(0);
+                return;
+            }
 
             // Don't say anything if in a game channel
             if (channel.getParentCategory() != null)
@@ -99,7 +111,7 @@ public class Events extends ListenerAdapter {
                 e.printStackTrace();
             }
 
-            if (message.contains("un-shush") || message.contains("unshush") || message.contains("speak")) {
+            if (text.contains("un-shush") || text.contains("unshush") || text.contains("speak")) {
                 if (!member.hasPermission(Permission.MESSAGE_MANAGE)) return;
 
                 try {
@@ -109,17 +121,17 @@ public class Events extends ListenerAdapter {
                     fileWriter.close();
                 } catch (IOException e) {
                     e.printStackTrace();
-                    event.getMessage().reply(":see_no_evil: Uh oh! There's an error! <@277291758503723010>")
+                    message.reply(":see_no_evil: Uh oh! There's an error! <@277291758503723010>")
                         .mentionRepliedUser(false).queue();
                 }
 
-                event.getMessage().addReaction("\uD83D\uDE2E").queue();
+                message.addReaction("\uD83D\uDE2E").queue();
                 return;
             }
 
             if (disabledChannels.contains(channel.getId())) return;
 
-            if (message.contains("shut up") || message.contains("shush") || message.contains("be quiet")) {
+            if (text.contains("shut up") || text.contains("shush") || text.contains("be quiet")) {
                 if (!member.hasPermission(Permission.MESSAGE_MANAGE)) return;
 
                 try {
@@ -129,52 +141,67 @@ public class Events extends ListenerAdapter {
                     fileWriter.close();
                 } catch (IOException e) {
                     e.printStackTrace();
-                    event.getMessage().reply(":see_no_evil: Uh oh! There's an error! <@277291758503723010>")
+                    message.reply(":see_no_evil: Uh oh! There's an error! <@277291758503723010>")
                         .mentionRepliedUser(false).queue();
                 }
 
-                event.getMessage().addReaction("🙊").queue();
+                message.addReaction("🙊").queue();
                 return;
             }
 
             // Fun
 
-            if (message.contains("say ")) {
+            if (text.contains("say ")) {
                 if (member.getIdLong() != 277291758503723010L) {
                     new Utils().sendMessage(channel, null, "no", false);
                     return;
                 }
 
-                channel.sendMessage(event.getMessage().getContentRaw().replaceAll("(?i).*say ", "")).queue();
-                event.getMessage().delete().queue();
+                channel.sendMessage(message.getContentRaw().replaceAll("(?i).*say ", "")).queue();
+                message.delete().queue();
                 return;
             }
 
-            boolean allCaps = event.getMessage().getContentStripped()
-                .equals(event.getMessage().getContentStripped().toUpperCase());
+            boolean allCaps = message.getContentStripped().equals(message.getContentStripped().toUpperCase());
 
             String msg = "Well dadgum, something went wrong!";
 
-            if (message.contains("play rock paper scissors") || message.contains("play rps")) {
+            if (text.contains("play rock paper scissors") || text.contains("play rps")) {
                 channel.sendTyping().complete();
-                TextChannel gameChannel = new GameManager().createGame(GameManager.Game.RPS, event.getMessage(), member,
-                    true, null);
-                if (gameChannel == null) event.getMessage().reply("You must ping an opponent in your message!").queue();
-                else {
-                    event.getMessage().addReaction("👍").queue();
-                    event.getMessage().reply("Game created in " + gameChannel.getAsMention()).complete().delete()
+
+                if (message.getMentionedMembers().isEmpty() || message.getMentionedMembers()
+                    .get(0) == member || message.getMentionedMembers().get(0).getUser().isBot()) {
+                    message.reply("You must ping an opponent in your message!").queue();
+                    return;
+
+                } else {
+                    ArrayList<Member> players = new ArrayList<>();
+                    players.add(member);
+                    players.add(message.getMentionedMembers().get(0));
+
+                    TextChannel gameChannel = new RPS().startGame(players);
+                    message.addReaction("👍").queue();
+                    message.reply("Game created in " + gameChannel.getAsMention()).complete().delete()
                         .queueAfter(15, TimeUnit.SECONDS);
                 }
                 return;
             }
 
-            if (message.contains("play wordle") || message.contains("wordle me")) {
+            if (text.contains("play wordle") || text.contains("wordle me")) {
                 channel.sendTyping().complete();
-                TextChannel gameChannel = new GameManager().createGame(GameManager.Game.WORDLE, event.getMessage(),
-                    member, false, null);
-                event.getMessage().addReaction("👍").queue();
-                event.getMessage().reply("Game created in " + gameChannel.getAsMention()).complete().delete()
-                    .queueAfter(15, TimeUnit.SECONDS);
+                try {
+                    TextChannel gameChannel = new Wordle().startGame(member, null, null);
+                    message.addReaction("👍").queue();
+                    if (gameChannel == null)
+                        message.reply("You already have a game with that word active!").complete().delete()
+                            .queueAfter(5, TimeUnit.SECONDS);
+                    else message.reply("Game created in " + gameChannel.getAsMention()).complete().delete()
+                        .queueAfter(15, TimeUnit.SECONDS);
+                } catch (IOException e) {
+                    message.reply("Couldn't generate a random word! Please try again later.").complete().delete()
+                        .queueAfter(30, TimeUnit.SECONDS);
+                    e.printStackTrace();
+                }
                 return;
             }
 
@@ -183,8 +210,8 @@ public class Events extends ListenerAdapter {
 
             // Message cooldowns
             for (String s : messageCooldown)
-                if (s.equalsIgnoreCase(message)) {
-                    event.getMessage().addReaction("\uD83E\uDD2B").queue();
+                if (s.equalsIgnoreCase(text)) {
+                    message.addReaction("\uD83E\uDD2B").queue();
                     return;
                 }
 
@@ -219,11 +246,11 @@ public class Events extends ListenerAdapter {
                 }
             } else channelCooldown.put(channel, 1);
 
-            messageCooldown.add(message);
+            messageCooldown.add(text);
             TimerTask task = new TimerTask() {
                 @Override
                 public void run() {
-                    messageCooldown.remove(message);
+                    messageCooldown.remove(text);
                 }
             };
             Timer timer = new Timer("Message Cooldown");
@@ -233,35 +260,35 @@ public class Events extends ListenerAdapter {
 
             Random r = new Random();
 
-            if (message.equals("")) {
+            if (text.equals("")) {
                 msg = new Utils().getFirstName(member);
 
                 new Utils().sendMessage(channel, null, msg, allCaps);
                 return;
             }
 
-            if (message.equals("?")) {
+            if (text.equals("?")) {
                 msg = new Utils().getFirstName(member) + "?";
 
                 new Utils().sendMessage(channel, null, msg, allCaps);
                 return;
             }
 
-            if (message.equals("!")) {
+            if (text.equals("!")) {
                 msg = "WHAT DO YOU WANT " + new Utils().getFirstName(member) + " AAAAAAAAAAAAAAAAAAAAA";
 
                 new Utils().sendMessage(channel, null, msg, true);
                 return;
             }
 
-            if (message.length() <= 1) {
+            if (text.length() <= 1) {
                 msg = "can you speak english please";
 
                 new Utils().sendMessage(channel, null, msg, allCaps);
                 return;
             }
 
-            if (message.startsWith("hi") || message.endsWith("hi") || message.contains("hello")) {
+            if (text.startsWith("hi") || text.endsWith("hi") || text.contains("hello")) {
                 int number = r.nextInt(4);
                 switch (number) {
                     case 0 -> msg = "hi " + new Utils().getFirstName(member);
@@ -274,7 +301,7 @@ public class Events extends ListenerAdapter {
                 return;
             }
 
-            if (message.startsWith("ily") || message.endsWith("ily")) {
+            if (text.startsWith("ily") || text.endsWith("ily")) {
                 int number = r.nextInt(4);
                 switch (number) {
                     case 0 -> msg = "I love **YOU**!";
@@ -287,7 +314,7 @@ public class Events extends ListenerAdapter {
                 return;
             }
 
-            if (message.contains("thank") || message.contains("thx")) {
+            if (text.contains("thank") || text.contains("thx")) {
                 int number = r.nextInt(4);
                 switch (number) {
                     case 0 -> msg = "you're welcome!";
@@ -300,7 +327,7 @@ public class Events extends ListenerAdapter {
                 return;
             }
 
-            if (message.contains("color")) {
+            if (text.contains("color")) {
                 int red = r.nextInt(256);
                 int green = r.nextInt(256);
                 int blue = r.nextInt(256);
@@ -314,8 +341,8 @@ public class Events extends ListenerAdapter {
                 return;
             }
 
-            if ((message.contains("what") || message.contains("plz")) && (message.contains("time") || message.contains(
-                "date") || message.contains("day") || message.contains("month") || message.contains("year"))) {
+            if ((text.contains("what") || text.contains("plz")) && (text.contains("time") || text.contains(
+                "date") || text.contains("day") || text.contains("month") || text.contains("year"))) {
                 msg = "It's currently";
 
                 if (allCaps) msg = msg.toUpperCase();
@@ -325,14 +352,14 @@ public class Events extends ListenerAdapter {
                 return;
             }
 
-            if (message.replace(" ", "").contains("9+10")) {
+            if (text.replace(" ", "").contains("9+10")) {
                 msg = "21";
 
                 new Utils().sendMessage(channel, null, msg, allCaps);
                 return;
             }
 
-            if (message.contains("random person")) {
+            if (text.contains("random person")) {
                 List<Member> members = event.getGuild().getMembers();
                 Member randomMember = members.get(r.nextInt(members.size() - 1));
                 msg = new Utils().getFirstName(randomMember);
@@ -341,23 +368,22 @@ public class Events extends ListenerAdapter {
                 return;
             }
 
-            if (message.contains("game list")) {
+            if (text.contains("game list")) {
                 msg = "Rock Paper Scissors (RPS)\nWordle";
 
                 channel.sendMessage(msg).queue();
                 return;
             }
 
-            if (message.contains("search ")) {
-                msg = new Utils().lookUp(message.replace("search ", ""), new Utils().getFirstName(member))
-                    .toLowerCase();
+            if (text.contains("search ")) {
+                msg = new Utils().lookUp(text.replace("search ", ""), new Utils().getFirstName(member)).toLowerCase();
                 if (msg.equals("501")) msg = "i'm not gonna search that";
 
-                new Utils().sendMessage(null, event.getMessage(), msg, allCaps);
+                new Utils().sendMessage(null, message, msg, allCaps);
                 return;
             }
 
-            msg = new Utils().lookUp(message, new Utils().getFirstName(member));
+            msg = new Utils().lookUp(text, new Utils().getFirstName(member));
             if (msg.equals("501")) {
                 int number = r.nextInt(19);
                 switch (number) {
@@ -382,7 +408,7 @@ public class Events extends ListenerAdapter {
                     case 18 -> msg = "of course not!";
                 }
             }
-            new Utils().sendMessage(null, event.getMessage(), msg, allCaps);
+            new Utils().sendMessage(null, message, msg, allCaps);
         }
     }
 
@@ -511,9 +537,15 @@ public class Events extends ListenerAdapter {
         if (event.getComponentId().startsWith("playwordle:")) {
             String word = event.getComponentId().replace("playwordle:", "");
             event.reply("Creating a game...").setEphemeral(true).queue();
-            TextChannel gameChannel = new GameManager().createGame(GameManager.Game.WORDLE, null, event.getMember(),
-                false, word);
-            event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
+            try {
+                TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, word);
+                if (gameChannel == null)
+                    event.getHook().editOriginal("You already have a game with that word active!").queue();
+                else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
+            } catch (IOException e) {
+                event.reply("Couldn't generate a random word! Please try again later.").setEphemeral(true).queue();
+                e.printStackTrace();
+            }
         }
     }
 }
