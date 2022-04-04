@@ -25,9 +25,7 @@ import java.util.concurrent.*;
 
 public class Wordle extends ListenerAdapter {
     //todo list
-    // suggestions for nonexistent words
     // keyboard
-    // make word report button
     // show plays in user generated words
     // timed challenge with threads
     private static final ArrayList<String> wordList = new ArrayList<>();
@@ -173,45 +171,51 @@ public class Wordle extends ListenerAdapter {
         messages.get(channel).get(attempt.get(channel)).editMessage(builder).queue();
         attempt.put(channel, attempt.get(channel) + 1);
 
-        if (input.equals(answer)) sendRetryMsg(channel, "Well done!");
-        else if (attempt.get(channel) > 5) sendRetryMsg(channel, "The word was **" + answer.toLowerCase() + "**!");
+        if (input.equals(answer)) sendRetryMsg(channel, "Well done!", answer);
+        else if (attempt.get(channel) > 5)
+            sendRetryMsg(channel, "The word was **" + answer.toLowerCase() + "**!", answer);
     }
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        if (event.getComponentId().equals("endgame:wordle")) {
-            event.deferEdit().queue();
-            endGame(event.getTextChannel());
-            return;
-        }
+        switch (event.getComponentId()) {
+            case "deletemsg" -> {
+                event.deferEdit().queue();
+                event.getMessage().delete().queue();
+            }
 
-        if (event.getComponentId().equals("restartgame:wordle")) {
-            event.deferEdit().queue();
-            TextChannel channel = event.getTextChannel();
-            players.remove(channel);
-            answers.remove(channel);
-            attempt.remove(channel);
-            messages.remove(channel);
-            deleteChannel.get(channel).cancel(true);
-            deleteChannel.remove(channel);
-            Thread delete = new Thread(() -> {
-                try {
-                    channel.purgeMessages(new Utils().getMessages(channel, 25).get(30, TimeUnit.SECONDS));
-                } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                    e.printStackTrace();
-                }
-                Executors.newSingleThreadScheduledExecutor().schedule(new Thread(() -> {
-                    new GameManager().sendEndGameMessage(channel, GameManager.Game.WORDLE);
+            case "endgame:wordle" -> {
+                event.deferEdit().queue();
+                endGame(event.getTextChannel());
+            }
+
+            case "restartgame:wordle" -> {
+                event.deferEdit().queue();
+                TextChannel channel = event.getTextChannel();
+                players.remove(channel);
+                answers.remove(channel);
+                attempt.remove(channel);
+                messages.remove(channel);
+                deleteChannel.get(channel).cancel(true);
+                deleteChannel.remove(channel);
+                Thread delete = new Thread(() -> {
                     try {
-                        new Wordle().startGame(event.getMember(), channel, null);
-                    } catch (IOException e) {
-                        channel.sendMessage("Uh oh! I couldn't get a new word! Please try again later.").queue();
+                        channel.purgeMessages(new Utils().getMessages(channel, 25).get(30, TimeUnit.SECONDS));
+                    } catch (InterruptedException | ExecutionException | TimeoutException e) {
                         e.printStackTrace();
                     }
-                }), 1, TimeUnit.SECONDS);
-            });
-            delete.start();
-            return;
+                    Executors.newSingleThreadScheduledExecutor().schedule(new Thread(() -> {
+                        new GameManager().sendEndGameMessage(channel, GameManager.Game.WORDLE);
+                        try {
+                            new Wordle().startGame(event.getMember(), channel, null);
+                        } catch (IOException e) {
+                            channel.sendMessage("Uh oh! I couldn't get a new word! Please try again later.").queue();
+                            e.printStackTrace();
+                        }
+                    }), 1, TimeUnit.SECONDS);
+                });
+                delete.start();
+            }
         }
 
         if (event.getComponentId().startsWith("playwordle:")) {
@@ -234,14 +238,20 @@ public class Wordle extends ListenerAdapter {
             event.editButton(event.getButton().asDisabled()).complete();
             //noinspection ConstantConditions
             event.getJDA().getTextChannelById(960213547944661042L).sendMessage(
-                    "Word request from " + event.getMember().getAsMention() + ": **" + event.getComponentId()
+                    ":inbox_tray: Word request from " + event.getMember().getAsMention() + ": **" + event.getComponentId()
                         .replace("wordlerequest:", "") + "**")
                 .setActionRow(Button.danger("deletemsg", Emoji.fromUnicode("✖️"))).queue();
+            return;
         }
 
-        if (event.getComponentId().equals("deletemsg")) {
+        if (event.getComponentId().startsWith("reportword:")) {
             event.deferEdit().queue();
-            event.getMessage().delete().queue();
+            event.editButton(event.getButton().asDisabled()).complete();
+            //noinspection ConstantConditions
+            event.getJDA().getTextChannelById(960213547944661042L).sendMessage(
+                    ":warning: Word report from " + event.getMember().getAsMention() + ": **" + event.getComponentId()
+                        .replace("reportword:", "") + "**")
+                .setActionRow(Button.danger("deletemsg", Emoji.fromUnicode("✖️"))).queue();
         }
     }
 
@@ -257,11 +267,15 @@ public class Wordle extends ListenerAdapter {
         new GameManager().deleteGame(channel);
     }
 
-    private void sendRetryMsg(TextChannel channel, String message) {
+    private void sendRetryMsg(TextChannel channel, String message, String answer) {
         channel.putPermissionOverride(players.get(channel)).setDeny(Permission.MESSAGE_SEND)
             .setAllow(Permission.VIEW_CHANNEL).queue();
-        channel.sendMessage(message)
-            .setActionRow(Button.success("restartgame:wordle", "New word!").withEmoji(Emoji.fromUnicode("🔁"))).queue();
+
+        if (isUserGenerated.get(channel)) channel.sendMessage(message)
+            .setActionRow(Button.success("restartgame:wordle", "New word").withEmoji(Emoji.fromUnicode("🔁"))).queue();
+        else channel.sendMessage(message)
+            .setActionRow(Button.danger("reportword:" + answer, "Report word").withEmoji(Emoji.fromUnicode("🚩")),
+                Button.success("restartgame:wordle", "New word").withEmoji(Emoji.fromUnicode("🔁"))).queue();
 
         deleteChannel.put(channel, Executors.newSingleThreadScheduledExecutor()
             .schedule(() -> new Wordle().endGame(channel), 1, TimeUnit.MINUTES));
