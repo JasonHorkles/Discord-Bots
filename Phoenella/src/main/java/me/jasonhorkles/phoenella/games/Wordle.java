@@ -25,23 +25,23 @@ import java.util.concurrent.*;
 
 public class Wordle extends ListenerAdapter {
     //todo list
+    // https://github.com/JasonHorkles/Discord-Bots/issues/2
     // keyboard
-    // start game channel
     // make word report button
     // show plays in user generated words
     // timed challenge with threads
     private static final ArrayList<String> wordList = new ArrayList<>();
     private static final HashMap<TextChannel, Member> players = new HashMap<>();
     private static final HashMap<TextChannel, Boolean> isUserGenerated = new HashMap<>();
-    private static final HashMap<TextChannel, String> words = new HashMap<>();
+    private static final HashMap<TextChannel, String> answers = new HashMap<>();
     private static final HashMap<TextChannel, Integer> attempt = new HashMap<>();
     private static final HashMap<TextChannel, ArrayList<Message>> messages = new HashMap<>();
     private static final HashMap<TextChannel, Message> keyboard = new HashMap<>();
     private static final HashMap<TextChannel, ScheduledFuture<?>> deleteChannel = new HashMap<>();
 
-    public TextChannel startGame(Member player, @Nullable TextChannel channel, @Nullable String word) throws IOException {
+    public TextChannel startGame(Member player, @Nullable TextChannel channel, @Nullable String answer) throws IOException {
         boolean isUserGenerated = true;
-        if (word == null || word.equals("null")) {
+        if (answer == null || answer.equals("null")) {
             // Get words
             String page = "https://raw.githubusercontent.com/JasonHorkles/Discord-Bots/main/Phoenella/words.txt";
             Connection conn = Jsoup.connect(page);
@@ -56,32 +56,32 @@ public class Wordle extends ListenerAdapter {
             }
 
             Random r = new Random();
-            word = wordList.get(r.nextInt(wordList.size()));
+            answer = wordList.get(r.nextInt(wordList.size()));
             isUserGenerated = false;
         }
 
-        String obfuscatedWord;
-        obfuscatedWord = UUID.nameUUIDFromBytes(word.getBytes()).toString();
+        String obfuscatedAnswer;
+        obfuscatedAnswer = UUID.nameUUIDFromBytes(answer.getBytes()).toString();
 
         // Scan thru for duplicates
         if (players.containsValue(player)) for (TextChannel channels : players.keySet())
-            if (players.get(channels) == player) if (Objects.equals(channels.getTopic(), obfuscatedWord)) return null;
+            if (players.get(channels) == player) if (Objects.equals(channels.getTopic(), obfuscatedAnswer)) return null;
 
         if (channel == null) channel = new GameManager().createChannel(GameManager.Game.WORDLE,
             new ArrayList<>(Collections.singleton(player)));
 
         Wordle.isUserGenerated.put(channel, isUserGenerated);
         players.put(channel, player);
-        words.put(channel, word.toUpperCase());
+        answers.put(channel, answer.toUpperCase());
         attempt.put(channel, 0);
 
-        channel.getManager().setTopic(obfuscatedWord).queue();
+        channel.getManager().setTopic(obfuscatedAnswer).queue();
 
         TextChannel finalChannel = channel;
         Thread game = new Thread(() -> {
             ArrayList<Message> lines = new ArrayList<>();
             StringBuilder empties = new StringBuilder();
-            empties.append("<:empty:959950240516046868> ".repeat(words.get(finalChannel).length()));
+            empties.append("<:empty:959950240516046868> ".repeat(answers.get(finalChannel).length()));
             try {
                 for (int x = 0; x < 6; x++)
                     lines.add(finalChannel.sendMessage(empties).complete());
@@ -125,39 +125,55 @@ public class Wordle extends ListenerAdapter {
         if (event.getAuthor().isBot()) return;
 
         Message message = event.getMessage();
-        String strippedMessage = message.getContentStripped().replaceAll("[^a-zA-Z]", "").toUpperCase();
+        String input = message.getContentStripped().replaceAll("[^a-zA-Z]", "").toUpperCase();
         TextChannel channel = event.getTextChannel();
+        String answer = answers.get(channel);
 
         message.delete().queueAfter(500, TimeUnit.MILLISECONDS);
 
-        if (strippedMessage.length() != words.get(channel).length()) {
+        if (input.length() != answer.length()) {
             message.reply("Invalid length!").complete().delete().queueAfter(3, TimeUnit.SECONDS);
             return;
         }
 
-        if (!isUserGenerated.get(channel)) if (!wordList.toString().contains(strippedMessage)) {
-            message.reply("**" + strippedMessage + "** isn't in my dictionary!").complete().delete()
+        if (!isUserGenerated.get(channel)) if (!wordList.toString().contains(input)) {
+            message.reply("**" + input + "** isn't in my dictionary!").complete().delete()
                 .queueAfter(3, TimeUnit.SECONDS);
             return;
         }
 
-        String word = words.get(channel);
-        char[] wordArray = word.toCharArray();
-        StringBuilder output = new StringBuilder();
-        int index = 0;
-        for (Character inputChar : strippedMessage.toCharArray()) {
-            if (wordArray[index] == inputChar) output.append(getLetter(inputChar, LetterType.CORRECT));
-            else if (word.contains(inputChar.toString())) output.append(getLetter(inputChar, LetterType.IN_WORD));
-            else output.append(getLetter(inputChar, LetterType.WRONG));
-            output.append(" ");
-            index++;
+        ArrayList<Character> answerChars = new ArrayList<>(answer.chars().mapToObj(c -> (char) c).toList());
+        ArrayList<Character> inputChars = new ArrayList<>(input.chars().mapToObj(c -> (char) c).toList());
+        ArrayList<String> output = new ArrayList<>();
+
+        for (Character character : inputChars) output.add(getLetter(character, LetterType.WRONG));
+
+        for (int index = 0; index < answerChars.size(); index++)
+            if (answerChars.get(index) == inputChars.get(index)) {
+                output.set(index, getLetter(inputChars.get(index), LetterType.CORRECT));
+                answerChars.set(index, '-');
+                inputChars.set(index, '-');
+            }
+
+        for (int index = 0; index < answerChars.size(); index++) {
+            if (inputChars.get(index) == '-') continue;
+            if (answerChars.contains(inputChars.get(index))) {
+                output.set(index, getLetter(inputChars.get(index), LetterType.IN_WORD));
+                answerChars.set(answerChars.indexOf(inputChars.get(index)), '-');
+            }
         }
 
-        messages.get(channel).get(attempt.get(channel)).editMessage(output).queue();
+        StringBuilder builder = new StringBuilder();
+        for (String character : output) {
+            builder.append(character);
+            builder.append(" ");
+        }
+
+        messages.get(channel).get(attempt.get(channel)).editMessage(builder).queue();
         attempt.put(channel, attempt.get(channel) + 1);
 
-        if (strippedMessage.equals(word)) sendRetryMsg(channel, "Well done!");
-        else if (attempt.get(channel) > 5) sendRetryMsg(channel, "The word was **" + word.toLowerCase() + "**!");
+        if (input.equals(answer)) sendRetryMsg(channel, "Well done!");
+        else if (attempt.get(channel) > 5) sendRetryMsg(channel, "The word was **" + answer.toLowerCase() + "**!");
     }
 
     @Override
@@ -171,7 +187,7 @@ public class Wordle extends ListenerAdapter {
             event.deferEdit().queue();
             TextChannel channel = event.getTextChannel();
             players.remove(channel);
-            words.remove(channel);
+            answers.remove(channel);
             attempt.remove(channel);
             messages.remove(channel);
             deleteChannel.get(channel).cancel(true);
@@ -198,7 +214,7 @@ public class Wordle extends ListenerAdapter {
 
     private void endGame(TextChannel channel) {
         players.remove(channel);
-        words.remove(channel);
+        answers.remove(channel);
         attempt.remove(channel);
         messages.remove(channel);
         if (deleteChannel.get(channel) != null) {

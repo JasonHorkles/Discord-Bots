@@ -83,8 +83,7 @@ public class Phoenella extends ListenerAdapter {
         }
 
         // Delete game channels
-        for (TextChannel channel : api.getGuildById(729083627308056597L).getCategoryById(900747596245639238L)
-            .getTextChannels())
+        for (TextChannel channel : api.getCategoryById(900747596245639238L).getTextChannels())
             channel.delete().queue();
 
         TextChannel soundboardChannel = api.getTextChannelById(903324139195084820L);

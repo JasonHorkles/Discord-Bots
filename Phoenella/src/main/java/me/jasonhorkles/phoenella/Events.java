@@ -39,10 +39,9 @@ public class Events extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         if (!event.isFromGuild()) return;
         if (event.getGuild().getIdLong() != 729083627308056597L) return;
+        if (event.getAuthor().isBot()) return;
 
         Member member = event.getMember();
-        if (member.getUser().isBot()) return;
-
         TextChannel channel = event.getTextChannel();
         Message message = event.getMessage();
 
@@ -187,7 +186,7 @@ public class Events extends ListenerAdapter {
                 return;
             }
 
-            if (text.contains("play wordle") || text.contains("wordle me")) {
+            if (text.contains("play wordle") || text.contains("wordle me") || text.equals("wordle")) {
                 channel.sendTyping().complete();
                 try {
                     TextChannel gameChannel = new Wordle().startGame(member, null, null);
