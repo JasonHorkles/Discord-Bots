@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
@@ -44,16 +43,6 @@ public class Events extends ListenerAdapter {
         Member member = event.getMember();
         TextChannel channel = event.getTextChannel();
         Message message = event.getMessage();
-
-        // Wordle suggestions
-        if (channel.getIdLong() == 960213547944661042L) {
-            Thread async = new Thread(() -> {
-                message.addReaction("⬆️").complete();
-                message.addReaction("⬇️").complete();
-            });
-            async.start();
-            return;
-        }
 
         boolean isReply = false;
         if (message.getMessageReference() != null)
@@ -515,34 +504,36 @@ public class Events extends ListenerAdapter {
             }
 
             case "wordle" -> {
-                String word = event.getOption("word").getAsString().replaceAll("[^a-zA-Z]", "");
-                if (word.length() < 4 || word.length() > 6) {
-                    event.reply("Your word must be between 4-6 characters!").setEphemeral(true).queue();
-                    return;
+                switch (event.getSubcommandName()) {
+                    case "create" -> {
+                        String word = event.getOption("word").getAsString().replaceAll("[^a-zA-Z]", "");
+                        if (word.length() < 4 || word.length() > 6) {
+                            event.reply("Your word must be between 4-6 characters!").setEphemeral(true).queue();
+                            return;
+                        }
+
+                        event.reply("Creating challenge for word **" + word + "** in <#956267174727671869>")
+                            .setEphemeral(true)
+                            .queue();
+                        event.getJDA().getTextChannelById(956267174727671869L)
+                            .sendMessage(event.getMember().getAsMention() + " has created a Wordle!")
+                            .setActionRow(Button.success("playwordle:" + word, "Play it!")).queue();
+                    }
+
+                    case "play" -> {
+                        event.reply("Creating a game...").setEphemeral(true).queue();
+                        try {
+                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, null);
+                            if (gameChannel == null)
+                                event.getHook().editOriginal("You already have a game with that word active!").queue();
+                            else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
+                        } catch (IOException e) {
+                            event.getHook().editOriginal("Couldn't generate a random word! Please try again later.")
+                                .queue();
+                            e.printStackTrace();
+                        }
+                    }
                 }
-
-                event.reply("Creating challenge for word **" + word + "** in <#956267174727671869>").setEphemeral(true)
-                    .queue();
-                event.getJDA().getTextChannelById(956267174727671869L)
-                    .sendMessage(event.getMember().getAsMention() + " has created a Wordle!")
-                    .setActionRow(Button.success("playwordle:" + word, "Play it!")).queue();
-            }
-        }
-    }
-
-    @Override
-    public void onButtonInteraction(ButtonInteractionEvent event) {
-        if (event.getComponentId().startsWith("playwordle:")) {
-            String word = event.getComponentId().replace("playwordle:", "");
-            event.reply("Creating a game...").setEphemeral(true).queue();
-            try {
-                TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, word);
-                if (gameChannel == null)
-                    event.getHook().editOriginal("You already have a game with that word active!").queue();
-                else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
-            } catch (IOException e) {
-                event.reply("Couldn't generate a random word! Please try again later.").setEphemeral(true).queue();
-                e.printStackTrace();
             }
         }
     }

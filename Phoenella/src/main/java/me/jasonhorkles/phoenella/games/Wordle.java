@@ -25,6 +25,7 @@ import java.util.concurrent.*;
 
 public class Wordle extends ListenerAdapter {
     //todo list
+    // suggestions for nonexistent words
     // keyboard
     // make word report button
     // show plays in user generated words
@@ -136,8 +137,9 @@ public class Wordle extends ListenerAdapter {
         }
 
         if (!isUserGenerated.get(channel)) if (!wordList.toString().contains(input)) {
-            message.reply("**" + input + "** isn't in my dictionary!").complete().delete()
-                .queueAfter(3, TimeUnit.SECONDS);
+            message.reply("**" + input + "** isn't in my dictionary!")
+                .setActionRow(Button.primary("wordlerequest:" + input, "Request word!")).complete().delete()
+                .queueAfter(5, TimeUnit.SECONDS);
             return;
         }
 
@@ -180,6 +182,7 @@ public class Wordle extends ListenerAdapter {
         if (event.getComponentId().equals("endgame:wordle")) {
             event.deferEdit().queue();
             endGame(event.getTextChannel());
+            return;
         }
 
         if (event.getComponentId().equals("restartgame:wordle")) {
@@ -208,6 +211,37 @@ public class Wordle extends ListenerAdapter {
                 }), 1, TimeUnit.SECONDS);
             });
             delete.start();
+            return;
+        }
+
+        if (event.getComponentId().startsWith("playwordle:")) {
+            String word = event.getComponentId().replace("playwordle:", "");
+            event.reply("Creating a game...").setEphemeral(true).queue();
+            try {
+                TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, word);
+                if (gameChannel == null)
+                    event.getHook().editOriginal("You already have a game with that word active!").queue();
+                else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
+            } catch (IOException e) {
+                event.getHook().editOriginal("Couldn't generate a random word! Please try again later.").queue();
+                e.printStackTrace();
+            }
+            return;
+        }
+
+        if (event.getComponentId().startsWith("wordlerequest:")) {
+            event.deferEdit().queue();
+            event.editButton(event.getButton().asDisabled()).complete();
+            //noinspection ConstantConditions
+            event.getJDA().getTextChannelById(960213547944661042L).sendMessage(
+                    "Word request from " + event.getMember().getAsMention() + ": **" + event.getComponentId()
+                        .replace("wordlerequest:", "") + "**")
+                .setActionRow(Button.danger("deletemsg", Emoji.fromUnicode("✖️"))).queue();
+        }
+
+        if (event.getComponentId().equals("deletemsg")) {
+            event.deferEdit().queue();
+            event.getMessage().delete().queue();
         }
     }
 

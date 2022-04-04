@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -57,9 +58,12 @@ public class Phoenella extends ListenerAdapter {
         commands.addCommands(
             Commands.slash("shush", "Shush a user").addOption(OptionType.USER, "user", "Who to shush", true)
                 .addOption(OptionType.INTEGER, "duration", "The duration in minutes to shush them for", true),
+
             Commands.slash("unshush", "Un-shush a user").addOption(OptionType.USER, "user", "Who to un-shush", true),
-            Commands.slash("wordle", "Create a Wordle challenge")
-                .addOption(OptionType.STRING, "word", "Must be between 4-8 characters", true)).queue();
+
+            Commands.slash("wordle", "Wordle!").addSubcommands(new SubcommandData("play", "Play with a random word"),
+                new SubcommandData("create", "Create a Wordle for others to play").addOption(OptionType.STRING, "word",
+                    "Must be between 4-8 characters", true))).queue();
 
         api.addEventListener(new Events(), new Soundboard(), new GameManager(), new RPS(), new Wordle(),
             new AntiScam());
