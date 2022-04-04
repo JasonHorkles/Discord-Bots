@@ -25,7 +25,6 @@ import java.util.concurrent.*;
 
 public class Wordle extends ListenerAdapter {
     //todo list
-    // https://github.com/JasonHorkles/Discord-Bots/issues/2
     // keyboard
     // make word report button
     // show plays in user generated words
