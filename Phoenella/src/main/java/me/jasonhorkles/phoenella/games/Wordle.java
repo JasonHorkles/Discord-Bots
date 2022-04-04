@@ -25,8 +25,8 @@ import java.util.concurrent.*;
 
 public class Wordle extends ListenerAdapter {
     //todo list
-    // keyboard
     // show plays in user generated words
+    // make leaderboard
     // timed challenge with threads
     private static final ArrayList<String> wordList = new ArrayList<>();
     private static final HashMap<TextChannel, Member> players = new HashMap<>();
@@ -127,7 +127,7 @@ public class Wordle extends ListenerAdapter {
         TextChannel channel = event.getTextChannel();
         String answer = answers.get(channel);
 
-        message.delete().queueAfter(500, TimeUnit.MILLISECONDS);
+        message.delete().queueAfter(750, TimeUnit.MILLISECONDS);
 
         if (input.length() != answer.length()) {
             message.reply("Invalid length!").complete().delete().queueAfter(3, TimeUnit.SECONDS);
@@ -137,7 +137,7 @@ public class Wordle extends ListenerAdapter {
         if (!isUserGenerated.get(channel)) if (!wordList.toString().contains(input)) {
             message.reply("**" + input + "** isn't in my dictionary!")
                 .setActionRow(Button.primary("wordlerequest:" + input, "Request word!")).complete().delete()
-                .queueAfter(5, TimeUnit.SECONDS);
+                .queueAfter(4, TimeUnit.SECONDS);
             return;
         }
 
@@ -145,19 +145,35 @@ public class Wordle extends ListenerAdapter {
         ArrayList<Character> inputChars = new ArrayList<>(input.chars().mapToObj(c -> (char) c).toList());
         ArrayList<String> output = new ArrayList<>();
 
+        // Gray / Incorrect
         for (Character character : inputChars) output.add(getLetter(character, LetterType.WRONG));
 
+        String newKeyboard = keyboard.get(channel).getContentRaw();
+
+        // Green / Correct
         for (int index = 0; index < answerChars.size(); index++)
             if (answerChars.get(index) == inputChars.get(index)) {
-                output.set(index, getLetter(inputChars.get(index), LetterType.CORRECT));
+                String letter = getLetter(inputChars.get(index), LetterType.CORRECT);
+
+                // Replace gray and yellow keys
+                newKeyboard = newKeyboard.replace(getLetter(inputChars.get(index), LetterType.IN_WORD), letter)
+                    .replace(getLetter(inputChars.get(index), LetterType.WRONG), letter);
+
+                output.set(index, letter);
                 answerChars.set(index, '-');
                 inputChars.set(index, '-');
             }
 
+        // Yellow / In-Word
         for (int index = 0; index < answerChars.size(); index++) {
             if (inputChars.get(index) == '-') continue;
             if (answerChars.contains(inputChars.get(index))) {
-                output.set(index, getLetter(inputChars.get(index), LetterType.IN_WORD));
+                String letter = getLetter(inputChars.get(index), LetterType.IN_WORD);
+
+                // Replace gray keys
+                newKeyboard = newKeyboard.replace(getLetter(inputChars.get(index), LetterType.WRONG), letter);
+
+                output.set(index, letter);
                 answerChars.set(answerChars.indexOf(inputChars.get(index)), '-');
             }
         }
@@ -170,6 +186,7 @@ public class Wordle extends ListenerAdapter {
 
         messages.get(channel).get(attempt.get(channel)).editMessage(builder).queue();
         attempt.put(channel, attempt.get(channel) + 1);
+        keyboard.put(channel, keyboard.get(channel).editMessage(newKeyboard).complete());
 
         if (input.equals(answer)) sendRetryMsg(channel, "Well done!", answer);
         else if (attempt.get(channel) > 5)
