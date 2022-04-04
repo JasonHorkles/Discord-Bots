@@ -385,7 +385,7 @@ public class Events extends ListenerAdapter {
 
             msg = new Utils().lookUp(text, new Utils().getFirstName(member));
             if (msg.equals("501")) {
-                int number = r.nextInt(19);
+                int number = r.nextInt(18);
                 switch (number) {
                     case 0 -> msg = "no";
                     case 1 -> msg = "yes";
@@ -404,8 +404,7 @@ public class Events extends ListenerAdapter {
                     case 14 -> msg = "of course!";
                     case 15 -> msg = "heh";
                     case 16 -> msg = "i'm not sure if you'd want to know that answer...";
-                    case 17 -> msg = "<:thonk:893175427684765737>";
-                    case 18 -> msg = "of course not!";
+                    case 17 -> msg = "of course not!";
                 }
             }
             new Utils().sendMessage(null, message, msg, allCaps);
@@ -518,8 +517,8 @@ public class Events extends ListenerAdapter {
 
             case "wordle" -> {
                 String word = event.getOption("word").getAsString().replaceAll("[^a-zA-Z]", "");
-                if (word.length() < 4 || word.length() > 8) {
-                    event.reply("Your word must be between 4-8 characters!").setEphemeral(true).queue();
+                if (word.length() < 4 || word.length() > 6) {
+                    event.reply("Your word must be between 4-6 characters!").setEphemeral(true).queue();
                     return;
                 }
 
