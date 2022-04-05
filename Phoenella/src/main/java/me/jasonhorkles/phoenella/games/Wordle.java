@@ -2,11 +2,9 @@ package me.jasonhorkles.phoenella.games;
 
 import me.jasonhorkles.phoenella.GameManager;
 import me.jasonhorkles.phoenella.Utils;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Emoji;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
@@ -29,13 +27,14 @@ public class Wordle extends ListenerAdapter {
     // make leaderboard
     // timed challenge with threads
     private static final ArrayList<String> wordList = new ArrayList<>();
-    private static final HashMap<TextChannel, Member> players = new HashMap<>();
-    private static final HashMap<TextChannel, Boolean> isUserGenerated = new HashMap<>();
-    private static final HashMap<TextChannel, String> answers = new HashMap<>();
-    private static final HashMap<TextChannel, Integer> attempt = new HashMap<>();
     private static final HashMap<TextChannel, ArrayList<Message>> messages = new HashMap<>();
+    private static final HashMap<TextChannel, Boolean> isUserGenerated = new HashMap<>();
+    private static final HashMap<TextChannel, Integer> attempt = new HashMap<>();
+    private static final HashMap<TextChannel, Member> players = new HashMap<>();
     private static final HashMap<TextChannel, Message> keyboard = new HashMap<>();
+    private static final HashMap<TextChannel, Message> originalMessage = new HashMap<>();
     private static final HashMap<TextChannel, ScheduledFuture<?>> deleteChannel = new HashMap<>();
+    private static final HashMap<TextChannel, String> answers = new HashMap<>();
 
     public TextChannel startGame(Member player, @Nullable TextChannel channel, @Nullable String answer) throws IOException {
         boolean isUserGenerated = true;
@@ -48,6 +47,7 @@ public class Wordle extends ListenerAdapter {
             String words = doc.body().text();
             Scanner scanner = new Scanner(words);
 
+            wordList.clear();
             while (scanner.hasNext()) try {
                 wordList.add(scanner.next());
             } catch (NoSuchElementException ignored) {
@@ -225,6 +225,9 @@ public class Wordle extends ListenerAdapter {
                 answers.remove(channel);
                 attempt.remove(channel);
                 messages.remove(channel);
+                originalMessage.remove(channel);
+                keyboard.remove(channel);
+                isUserGenerated.remove(channel);
                 deleteChannel.get(channel).cancel(true);
                 deleteChannel.remove(channel);
                 Thread delete = new Thread(() -> {
@@ -254,7 +257,26 @@ public class Wordle extends ListenerAdapter {
                 TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, word);
                 if (gameChannel == null)
                     event.getHook().editOriginal("You already have a game with that word active!").queue();
-                else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
+                else {
+                    event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
+
+                    MessageEmbed message = event.getMessage().getEmbeds().get(0);
+                    if (!message.isEmpty()) {
+                        //noinspection ConstantConditions
+                        int plays = Integer.parseInt(message.getFields().get(0).getValue()) + 1;
+
+                        EmbedBuilder embed = new EmbedBuilder(message);
+                        embed.clearFields();
+                        embed.addField(message.getFields().get(0).getName(), String.valueOf(plays), true);
+                        embed.addField(message.getFields().get(1).getName(), message.getFields().get(1).getValue(),
+                            true);
+                        embed.addField(message.getFields().get(2).getName(), message.getFields().get(2).getValue(),
+                            true);
+
+                        event.getMessage().editMessageEmbeds(embed.build()).queue();
+                    }
+                    originalMessage.put(gameChannel, event.getMessage());
+                }
             } catch (IOException e) {
                 event.getHook().editOriginal("Couldn't generate a random word! Please try again later.").queue();
                 e.printStackTrace();
@@ -289,6 +311,9 @@ public class Wordle extends ListenerAdapter {
         answers.remove(channel);
         attempt.remove(channel);
         messages.remove(channel);
+        originalMessage.remove(channel);
+        keyboard.remove(channel);
+        isUserGenerated.remove(channel);
         if (deleteChannel.get(channel) != null) {
             deleteChannel.get(channel).cancel(true);
             deleteChannel.remove(channel);

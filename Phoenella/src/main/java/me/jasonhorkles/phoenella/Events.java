@@ -515,8 +515,17 @@ public class Events extends ListenerAdapter {
                         event.reply("Creating challenge for word **" + word + "** in <#956267174727671869>")
                             .setEphemeral(true)
                             .queue();
-                        event.getJDA().getTextChannelById(956267174727671869L)
-                            .sendMessage(event.getMember().getAsMention() + " has created a Wordle!")
+
+                        EmbedBuilder embed = new EmbedBuilder();
+                        embed.setAuthor(new Utils().getFirstName(event.getMember()) + " has created a Wordle!", null,
+                            event.getMember().getEffectiveAvatarUrl());
+                        embed.setColor(new Color(56, 224, 104));
+                        embed.addField("Plays", "0", true);
+                        embed.addField("Passes", "0", true);
+                        embed.addField("Fails", "0", true);
+
+                        event.getJDA().getTextChannelById(900760753324302366L)
+                            .sendMessageEmbeds(embed.build())
                             .setActionRow(Button.success("playwordle:" + word, "Play it!")).queue();
                     }
 
