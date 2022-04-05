@@ -73,7 +73,8 @@ public class Wordle extends ListenerAdapter {
         answers.put(channel, answer.toUpperCase());
         attempt.put(channel, 0);
 
-        channel.getManager().setTopic(obfuscatedAnswer).queue();
+        channel.getManager().setTopic(obfuscatedAnswer)
+            .queue(null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
 
         TextChannel finalChannel = channel;
         Thread game = new Thread(() -> {
@@ -86,27 +87,28 @@ public class Wordle extends ListenerAdapter {
                 messages.put(finalChannel, lines);
 
                 keyboard.put(finalChannel, finalChannel.sendMessage(
-                        "~~==========================~~\n    " + getLetter('Q', LetterType.WRONG) + getLetter('W',
-                            LetterType.WRONG) + getLetter('E', LetterType.WRONG) + getLetter('R',
-                            LetterType.WRONG) + getLetter('T', LetterType.WRONG) + getLetter('Y',
-                            LetterType.WRONG) + getLetter('U', LetterType.WRONG) + getLetter('I',
-                            LetterType.WRONG) + getLetter('O', LetterType.WRONG) + getLetter('P',
-                            LetterType.WRONG) + "\n       " + getLetter('A', LetterType.WRONG) + getLetter('S',
-                            LetterType.WRONG) + getLetter('D', LetterType.WRONG) + getLetter('F',
-                            LetterType.WRONG) + getLetter('G', LetterType.WRONG) + getLetter('H',
-                            LetterType.WRONG) + getLetter('J', LetterType.WRONG) + getLetter('K',
-                            LetterType.WRONG) + getLetter('L', LetterType.WRONG) + "\n             " + getLetter('Z',
-                            LetterType.WRONG) + getLetter('X', LetterType.WRONG) + getLetter('C',
-                            LetterType.WRONG) + getLetter('V', LetterType.WRONG) + getLetter('B',
-                            LetterType.WRONG) + getLetter('N', LetterType.WRONG) + getLetter('M', LetterType.WRONG))
-                    .complete());
+                    "~~==========================~~\n    " + getLetter('Q', LetterType.NOT_GUESSED) + getLetter('W',
+                        LetterType.NOT_GUESSED) + getLetter('E', LetterType.NOT_GUESSED) + getLetter('R',
+                        LetterType.NOT_GUESSED) + getLetter('T', LetterType.NOT_GUESSED) + getLetter('Y',
+                        LetterType.NOT_GUESSED) + getLetter('U', LetterType.NOT_GUESSED) + getLetter('I',
+                        LetterType.NOT_GUESSED) + getLetter('O', LetterType.NOT_GUESSED) + getLetter('P',
+                        LetterType.NOT_GUESSED) + "\n       " + getLetter('A', LetterType.NOT_GUESSED) + getLetter('S',
+                        LetterType.NOT_GUESSED) + getLetter('D', LetterType.NOT_GUESSED) + getLetter('F',
+                        LetterType.NOT_GUESSED) + getLetter('G', LetterType.NOT_GUESSED) + getLetter('H',
+                        LetterType.NOT_GUESSED) + getLetter('J', LetterType.NOT_GUESSED) + getLetter('K',
+                        LetterType.NOT_GUESSED) + getLetter('L',
+                        LetterType.NOT_GUESSED) + "\n             " + getLetter('Z',
+                        LetterType.NOT_GUESSED) + getLetter('X', LetterType.NOT_GUESSED) + getLetter('C',
+                        LetterType.NOT_GUESSED) + getLetter('V', LetterType.NOT_GUESSED) + getLetter('B',
+                        LetterType.NOT_GUESSED) + getLetter('N', LetterType.NOT_GUESSED) + getLetter('M',
+                        LetterType.NOT_GUESSED)).complete());
 
                 finalChannel.sendMessage(player.getAsMention()).complete().delete()
                     .queueAfter(100, TimeUnit.MILLISECONDS, null,
                         new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
 
                 finalChannel.putPermissionOverride(player).setAllow(Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL)
-                    .queue();
+                    .queue(null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
             } catch (ErrorResponseException ignored) {
             }
         });
@@ -145,7 +147,7 @@ public class Wordle extends ListenerAdapter {
         ArrayList<Character> inputChars = new ArrayList<>(input.chars().mapToObj(c -> (char) c).toList());
         ArrayList<String> output = new ArrayList<>();
 
-        // Gray / Incorrect
+        // Gray / Incorrect - Word
         for (Character character : inputChars) output.add(getLetter(character, LetterType.WRONG));
 
         String newKeyboard = keyboard.get(channel).getContentRaw();
@@ -155,9 +157,9 @@ public class Wordle extends ListenerAdapter {
             if (answerChars.get(index) == inputChars.get(index)) {
                 String letter = getLetter(inputChars.get(index), LetterType.CORRECT);
 
-                // Replace gray and yellow keys
+                // Replace dark gray and yellow keys
                 newKeyboard = newKeyboard.replace(getLetter(inputChars.get(index), LetterType.IN_WORD), letter)
-                    .replace(getLetter(inputChars.get(index), LetterType.WRONG), letter);
+                    .replace(getLetter(inputChars.get(index), LetterType.NOT_GUESSED), letter);
 
                 output.set(index, letter);
                 answerChars.set(index, '-');
@@ -170,12 +172,22 @@ public class Wordle extends ListenerAdapter {
             if (answerChars.contains(inputChars.get(index))) {
                 String letter = getLetter(inputChars.get(index), LetterType.IN_WORD);
 
-                // Replace gray keys
-                newKeyboard = newKeyboard.replace(getLetter(inputChars.get(index), LetterType.WRONG), letter);
+                // Replace dark gray keys
+                newKeyboard = newKeyboard.replace(getLetter(inputChars.get(index), LetterType.NOT_GUESSED), letter);
 
                 output.set(index, letter);
                 answerChars.set(answerChars.indexOf(inputChars.get(index)), '-');
+                inputChars.set(inputChars.indexOf(inputChars.get(index)), '-');
             }
+        }
+
+        // Gray / Incorrect - Keyboard
+        for (int index = 0; index < answerChars.size(); index++) {
+            if (inputChars.get(index) == '-') continue;
+            String letter = getLetter(inputChars.get(index), LetterType.WRONG);
+
+            // Replace dark gray keys
+            newKeyboard = newKeyboard.replace(getLetter(inputChars.get(index), LetterType.NOT_GUESSED), letter);
         }
 
         StringBuilder builder = new StringBuilder();
@@ -299,7 +311,7 @@ public class Wordle extends ListenerAdapter {
     }
 
     private enum LetterType {
-        WRONG, IN_WORD, CORRECT
+        WRONG, IN_WORD, CORRECT, NOT_GUESSED
     }
 
     private String getLetter(Character letter, LetterType letterType) {
@@ -549,6 +561,89 @@ public class Wordle extends ListenerAdapter {
                     }
                     case 'Z' -> {
                         return "<:wz:959981914331152434>";
+                    }
+                }
+            }
+
+            case NOT_GUESSED -> {
+                switch (letter) {
+                    case 'A' -> {
+                        return "<:na:960965057842384896>";
+                    }
+                    case 'B' -> {
+                        return "<:nb:960965057737556008>";
+                    }
+                    case 'C' -> {
+                        return "<:nc:960965057867546724>";
+                    }
+                    case 'D' -> {
+                        return "<:nd:960965057536229387>";
+                    }
+                    case 'E' -> {
+                        return "<:ne:960965057787863120>";
+                    }
+                    case 'F' -> {
+                        return "<:nf:960965057892724828>";
+                    }
+                    case 'G' -> {
+                        return "<:ng:960965057552973835>";
+                    }
+                    case 'H' -> {
+                        return "<:nh:960965057800466472>";
+                    }
+                    case 'I' -> {
+                        return "<:ni:960965057829822494>";
+                    }
+                    case 'J' -> {
+                        return "<:nj:960965057678831617>";
+                    }
+                    case 'K' -> {
+                        return "<:nk:960965057846595604>";
+                    }
+                    case 'L' -> {
+                        return "<:nl:960965057821425735>";
+                    }
+                    case 'M' -> {
+                        return "<:nm:960965057771102210>";
+                    }
+                    case 'N' -> {
+                        return "<:nn:960965058173763614>";
+                    }
+                    case 'O' -> {
+                        return "<:no:960965058307952700>";
+                    }
+                    case 'P' -> {
+                        return "<:np:960965057909522432>";
+                    }
+                    case 'Q' -> {
+                        return "<:nq:960965058467348570>";
+                    }
+                    case 'R' -> {
+                        return "<:nr:960965058085666916>";
+                    }
+                    case 'S' -> {
+                        return "<:ns:960965058110840852>";
+                    }
+                    case 'T' -> {
+                        return "<:nt:960965058458972290>";
+                    }
+                    case 'U' -> {
+                        return "<:nu:960965057620095098>";
+                    }
+                    case 'V' -> {
+                        return "<:nv:960965057930493952>";
+                    }
+                    case 'W' -> {
+                        return "<:nw:960965058047926303>";
+                    }
+                    case 'X' -> {
+                        return "<:nx:960965058156982292>";
+                    }
+                    case 'Y' -> {
+                        return "<:ny:960965057951453254>";
+                    }
+                    case 'Z' -> {
+                        return "<:nz:960965058165358642>";
                     }
                 }
             }
