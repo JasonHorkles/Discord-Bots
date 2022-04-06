@@ -26,6 +26,7 @@ public class Wordle extends ListenerAdapter {
     // show plays in user generated words
     // make leaderboard
     // timed challenge with threads
+    // daily wordle
     private static final ArrayList<String> wordList = new ArrayList<>();
     private static final HashMap<TextChannel, ArrayList<Message>> messages = new HashMap<>();
     private static final HashMap<TextChannel, Boolean> isUserGenerated = new HashMap<>();
@@ -106,9 +107,6 @@ public class Wordle extends ListenerAdapter {
                 finalChannel.sendMessage(player.getAsMention()).complete().delete()
                     .queueAfter(100, TimeUnit.MILLISECONDS, null,
                         new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
-
-                finalChannel.putPermissionOverride(player).setAllow(Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL)
-                    .queue(null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
             } catch (ErrorResponseException ignored) {
             }
         });
@@ -259,6 +257,10 @@ public class Wordle extends ListenerAdapter {
                     event.getHook().editOriginal("You already have a game with that word active!").queue();
                 else {
                     event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
+                    //noinspection ConstantConditions
+                    gameChannel.putPermissionOverride(event.getMember())
+                        .setAllow(Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL)
+                        .queue(null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
 
                     MessageEmbed message = event.getMessage().getEmbeds().get(0);
                     if (!message.isEmpty()) {
@@ -322,9 +324,6 @@ public class Wordle extends ListenerAdapter {
     }
 
     private void sendRetryMsg(TextChannel channel, String message, String answer) {
-        channel.putPermissionOverride(players.get(channel)).setDeny(Permission.MESSAGE_SEND)
-            .setAllow(Permission.VIEW_CHANNEL).queue();
-
         if (isUserGenerated.get(channel)) channel.sendMessage(message)
             .setActionRow(Button.success("restartgame:wordle", "New word").withEmoji(Emoji.fromUnicode("🔁"))).queue();
         else channel.sendMessage(message)
