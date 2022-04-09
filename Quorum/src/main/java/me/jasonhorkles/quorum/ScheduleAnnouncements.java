@@ -26,7 +26,7 @@ public class ScheduleAnnouncements {
         for (MessageEmbed.Field activities : message.getFields()) {
             String activity = activities.getValue();
 
-            if (activity.endsWith("CANCELLED")) continue;
+            if (activity.endsWith("CANCELLED") || activity.equalsIgnoreCase("None")) continue;
 
             Calendar future = Calendar.getInstance();
             future.setTimeInMillis(Long.parseLong(activities.getName().replace("<t:", "").replace(":F>", "")) * 1000);
