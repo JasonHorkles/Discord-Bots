@@ -77,7 +77,10 @@ public class StormAlerts extends ListenerAdapter {
 
                 System.out.println(
                     new Utils().getTime(Utils.Color.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
-                if (reason.equals("")) e.printStackTrace();
+                if (reason.equals("")) {
+                    System.out.print(new Utils().getTime(Utils.Color.RED));
+                    e.printStackTrace();
+                }
             }
         }, 3, 90, TimeUnit.SECONDS);
 
@@ -176,6 +179,7 @@ public class StormAlerts extends ListenerAdapter {
                     .get(0);
                 Thread.sleep(500);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                System.out.print(new Utils().getTime(Utils.Color.RED));
                 e.printStackTrace();
             }
             if (!message.getContentRaw().contains("Ended") && !message.getContentRaw().contains("restarted"))

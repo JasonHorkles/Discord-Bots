@@ -26,12 +26,14 @@ public class ScheduleDMs {
             //noinspection ResultOfMethodCallIgnored
             file.createNewFile();
         } catch (IOException e) {
+            System.out.print(new Utils().getTime(Utils.Color.RED));
             e.printStackTrace();
         }
         Scanner scanner = null;
         try {
             scanner = new Scanner(file);
         } catch (FileNotFoundException e) {
+            System.out.print(new Utils().getTime(Utils.Color.RED));
             e.printStackTrace();
         }
         ArrayList<String> name = new ArrayList<>();
@@ -86,6 +88,7 @@ public class ScheduleDMs {
                 System.out.println(new Utils().getTime(
                     Utils.Color.GREEN) + "Messaged " + name + " to prepare his lesson for next Sunday: " + title);
             } catch (NullPointerException e) {
+                System.out.print(new Utils().getTime(Utils.Color.RED));
                 e.printStackTrace();
                 Quorum.api.getTextChannelById(869009573774761984L).sendMessage(
                         ":warning: **ERROR:** Failed to message **" + name + "** to prepare their lesson for next Sunday! <@277291758503723010>")
@@ -111,6 +114,7 @@ public class ScheduleDMs {
                 System.out.println(new Utils().getTime(
                     Utils.Color.GREEN) + "Reminded " + name + " to prepare his lesson for this Sunday!");
             } catch (NullPointerException e) {
+                System.out.print(new Utils().getTime(Utils.Color.RED));
                 e.printStackTrace();
                 Quorum.api.getTextChannelById(869009573774761984L).sendMessage(
                         ":warning: **ERROR:** Failed to remind **" + name + "** to prepare their lesson for this Sunday! <@277291758503723010>")
@@ -129,6 +133,7 @@ public class ScheduleDMs {
         try {
             future.setTime(format.parse(date + " 11:00 AM"));
         } catch (ParseException e) {
+            System.out.print(new Utils().getTime(Utils.Color.RED));
             e.printStackTrace();
         }
         return future.getTimeInMillis() / 1000;

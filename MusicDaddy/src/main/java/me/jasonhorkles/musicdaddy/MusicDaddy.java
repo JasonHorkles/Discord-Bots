@@ -56,6 +56,7 @@ public class MusicDaddy extends ListenerAdapter {
             ClientCredentials cc = ccr.execute();
             spotify.setAccessToken(cc.getAccessToken());
         } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.print(new Utils().getTime(Utils.Color.RED));
             e.printStackTrace();
         }
 
@@ -158,6 +159,7 @@ public class MusicDaddy extends ListenerAdapter {
 
                         @Override
                         public void loadFailed(FriendlyException e) {
+                            System.out.print(new Utils().getTime(Utils.Color.RED));
                             e.printStackTrace();
                         }
                     });

@@ -232,6 +232,7 @@ public class Wordle extends ListenerAdapter {
                     try {
                         channel.purgeMessages(new Utils().getMessages(channel, 25).get(30, TimeUnit.SECONDS));
                     } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                        System.out.print(new Utils().getTime(Utils.Color.RED));
                         e.printStackTrace();
                     }
                     Executors.newSingleThreadScheduledExecutor().schedule(new Thread(() -> {
@@ -240,6 +241,7 @@ public class Wordle extends ListenerAdapter {
                             new Wordle().startGame(event.getMember(), channel, null);
                         } catch (IOException e) {
                             channel.sendMessage("Uh oh! I couldn't get a new word! Please try again later.").queue();
+                            System.out.print(new Utils().getTime(Utils.Color.RED));
                             e.printStackTrace();
                         }
                     }), 1, TimeUnit.SECONDS);
@@ -281,6 +283,7 @@ public class Wordle extends ListenerAdapter {
                 }
             } catch (IOException e) {
                 event.getHook().editOriginal("Couldn't generate a random word! Please try again later.").queue();
+                System.out.print(new Utils().getTime(Utils.Color.RED));
                 e.printStackTrace();
             }
             return;

@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class Utils {
     public enum Color {
-        YELLOW("\u001B[33m"), GREEN("\u001B[32m");
+        RED("\u001B[31m"), YELLOW("\u001B[33m"), GREEN("\u001B[32m");
 
         private final String color;
 

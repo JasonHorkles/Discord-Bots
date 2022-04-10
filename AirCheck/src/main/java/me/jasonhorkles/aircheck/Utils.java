@@ -54,6 +54,7 @@ public class Utils {
                         }
                     }
                 } catch (Exception e) {
+                    System.out.print(new Utils().getTime(Utils.Color.RED));
                     e.printStackTrace();
                 }
             }

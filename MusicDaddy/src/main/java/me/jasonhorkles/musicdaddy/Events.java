@@ -161,6 +161,7 @@ public class Events extends ListenerAdapter {
 
                         } else search = url;
                     } catch (IOException | SpotifyWebApiException | ParseException e) {
+                        System.out.print(new Utils().getTime(Utils.Color.RED));
                         e.printStackTrace();
                         search = url;
                     }

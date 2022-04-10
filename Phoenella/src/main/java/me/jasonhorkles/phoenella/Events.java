@@ -96,6 +96,7 @@ public class Events extends ListenerAdapter {
                 while (fileScanner.hasNextLine()) disabledChannels.add(fileScanner.nextLine());
             } catch (NoSuchElementException ignored) {
             } catch (FileNotFoundException e) {
+                System.out.print(new Utils().getTime(Utils.Color.RED));
                 e.printStackTrace();
             }
 
@@ -108,6 +109,7 @@ public class Events extends ListenerAdapter {
                     for (String channels : disabledChannels) fileWriter.write(channels + "\n");
                     fileWriter.close();
                 } catch (IOException e) {
+                    System.out.print(new Utils().getTime(Utils.Color.RED));
                     e.printStackTrace();
                     message.reply(":see_no_evil: Uh oh! There's an error! <@277291758503723010>")
                         .mentionRepliedUser(false).queue();
@@ -128,6 +130,7 @@ public class Events extends ListenerAdapter {
                     for (String channels : disabledChannels) fileWriter.write(channels + "\n");
                     fileWriter.close();
                 } catch (IOException e) {
+                    System.out.print(new Utils().getTime(Utils.Color.RED));
                     e.printStackTrace();
                     message.reply(":see_no_evil: Uh oh! There's an error! <@277291758503723010>")
                         .mentionRepliedUser(false).queue();
@@ -194,6 +197,7 @@ public class Events extends ListenerAdapter {
                 } catch (IOException e) {
                     message.reply("Couldn't generate a random word! Please try again later.").complete().delete()
                         .queueAfter(30, TimeUnit.SECONDS);
+                    System.out.print(new Utils().getTime(Utils.Color.RED));
                     e.printStackTrace();
                 }
                 return;
@@ -451,6 +455,7 @@ public class Events extends ListenerAdapter {
                 for (User reactionUsers : msgReactions.retrieveUsers().complete())
                     if (reactionUsers == event.getUser()) return;
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            System.out.print(new Utils().getTime(Utils.Color.RED));
             e.printStackTrace();
         }
 
@@ -548,6 +553,7 @@ public class Events extends ListenerAdapter {
                         } catch (IOException e) {
                             event.getHook().editOriginal("Couldn't generate a random word! Please try again later.")
                                 .queue();
+                            System.out.print(new Utils().getTime(Utils.Color.RED));
                             e.printStackTrace();
                         }
                     }

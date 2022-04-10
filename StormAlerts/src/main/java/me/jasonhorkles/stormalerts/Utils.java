@@ -65,6 +65,7 @@ public class Utils {
                         }
                     }
                 } catch (Exception e) {
+                    System.out.print(new Utils().getTime(Utils.Color.RED));
                     e.printStackTrace();
                 }
             }
@@ -90,6 +91,7 @@ public class Utils {
             return new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).get(0).getTimeCreated()
                 .isBefore(OffsetDateTime.now().minus(1, ChronoUnit.HOURS));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            System.out.print(new Utils().getTime(Utils.Color.RED));
             e.printStackTrace();
             return true;
         }

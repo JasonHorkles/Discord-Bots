@@ -95,6 +95,7 @@ public class Events extends ListenerAdapter {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
+                System.out.print(new Utils().getTime(Utils.Color.RED));
                 e.printStackTrace();
             }
         }
@@ -140,6 +141,7 @@ public class Events extends ListenerAdapter {
 
             System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Deleted " + count + " messages.\n");
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            System.out.print(new Utils().getTime(Utils.Color.RED));
             e.printStackTrace();
         }
     }

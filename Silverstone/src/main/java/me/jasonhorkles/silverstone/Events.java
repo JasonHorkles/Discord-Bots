@@ -129,6 +129,7 @@ public class Events extends ListenerAdapter {
                         break;
                     }
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                System.out.print(new Utils().getTime(Utils.Color.RED));
                 e.printStackTrace();
             }
 
@@ -138,6 +139,7 @@ public class Events extends ListenerAdapter {
                 if (message.getTimeCreated().isAfter(threeDaysAgo) && message.getAuthor().getIdLong() == event.getUser()
                     .getIdLong()) fromUser = true;
             } catch (ExecutionException | InterruptedException | TimeoutException e) {
+                System.out.print(new Utils().getTime(Utils.Color.RED));
                 e.printStackTrace();
             }
 
