@@ -32,7 +32,7 @@ public class CheckWeatherConditions extends ListenerAdapter {
     public static TextChannel previousTypeChannel;
 
     private static String weather;
-    private static String previousWeather;
+    private static String previousWeatherName;
     private static String weatherName;
     private static double rainRate;
     private static boolean acceptRainForDay = false;
@@ -118,8 +118,10 @@ public class CheckWeatherConditions extends ListenerAdapter {
         if (weatherName != null) {
             trimmedWeatherName = weatherName.substring(0, weatherName.length() - 2).trim();
             doubleTrimmedWeatherName = trimmedWeatherName.substring(0, trimmedWeatherName.length() - 1).trim();
-
-            if (weather.equals(previousWeather)) return;
+            if (weatherName.equals(previousWeatherName)) {
+                System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Weather hasn't changed!");
+                return;
+            }
         }
 
         TextChannel thunderChannel = StormAlerts.api.getTextChannelById(843955628644892672L);
@@ -262,7 +264,7 @@ public class CheckWeatherConditions extends ListenerAdapter {
             .setActivity(Activity.playing("it's " + weatherName + " @ " + rainRate + " in/hr"));
 
         else StormAlerts.api.getPresence().setActivity(Activity.playing("it's " + weatherName));
-        previousWeather = weather;
+        previousWeatherName = weatherName;
 
         System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Weather: " + weather);
     }
@@ -299,7 +301,7 @@ public class CheckWeatherConditions extends ListenerAdapter {
                 StormAlerts.api.getPresence().setStatus(OnlineStatus.ONLINE);
                 StormAlerts.api.getPresence()
                     .setActivity(Activity.playing("it's possibly " + weatherName + " @ " + rainRate + " in/hr"));
-                previousWeather = weather;
+                previousWeatherName = weatherName;
                 previousTypeChannel = rainChannel;
             }
 
@@ -319,7 +321,7 @@ public class CheckWeatherConditions extends ListenerAdapter {
         StormAlerts.api.getPresence().setStatus(OnlineStatus.ONLINE);
         StormAlerts.api.getPresence()
             .setActivity(Activity.playing("it's " + weatherName + " @ " + rainRate + " in/hr"));
-        previousWeather = weather;
+        previousWeatherName = weatherName;
         previousTypeChannel = rainChannel;
     }
 }
