@@ -69,13 +69,12 @@ public class CheckWeatherConditions extends ListenerAdapter {
         if (!StormAlerts.api.getVoiceChannelById(visibilityChannel).getName()
             .equals("Visibility | " + visibility + " mi"))
             StormAlerts.api.getVoiceChannelById(visibilityChannel).getManager()
-                .setName("Visibility | " + visibility + " mi")
-                .queue();
+                .setName("Visibility | " + visibility + " mi").queue();
 
         weatherName = null;
         if (weather.toLowerCase().contains("hail") || weather.toLowerCase().contains("sleet"))
             weatherName = "hailing 🧊";
-        else if (weather.toLowerCase().contains("snow") && !weather.toLowerCase().contains("light"))
+        else if (weather.toLowerCase().contains("snow") || weather.toLowerCase().contains("freezing rain"))
             weatherName = "snowing 🌨️";
         else if (weather.toLowerCase().contains("thunder") || weather.toLowerCase()
             .contains("lightning") || weather.toLowerCase().contains("t-storm")) weatherName = "thundering ⛈️";
