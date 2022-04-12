@@ -88,8 +88,10 @@ public class Utils {
 
     public boolean shouldIPing(TextChannel channel) {
         try {
-            return new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).get(0).getTimeCreated()
-                .isBefore(OffsetDateTime.now().minus(1, ChronoUnit.HOURS));
+            Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).get(0);
+            if (message.isEdited()) //noinspection ConstantConditions
+                return message.getTimeEdited().isBefore(OffsetDateTime.now().minus(1, ChronoUnit.HOURS));
+            else return message.getTimeCreated().isBefore(OffsetDateTime.now().minus(1, ChronoUnit.HOURS));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             System.out.print(new Utils().getTime(Utils.Color.RED));
             e.printStackTrace();
