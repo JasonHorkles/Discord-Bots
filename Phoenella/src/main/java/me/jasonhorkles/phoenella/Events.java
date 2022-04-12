@@ -181,19 +181,13 @@ public class Events extends ListenerAdapter {
             if (text.contains("play wordle") || text.contains("wordle me") || text.equals("wordle")) {
                 channel.sendTyping().complete();
                 try {
-                    TextChannel gameChannel = new Wordle().startGame(member, null, null);
+                    TextChannel gameChannel = new Wordle().startGame(member, null);
                     message.addReaction("👍").queue();
                     if (gameChannel == null)
                         message.reply("You already have a game with that word active!").complete().delete()
                             .queueAfter(5, TimeUnit.SECONDS);
-                    else {
-                        message.reply("Game created in " + gameChannel.getAsMention()).complete().delete()
-                            .queueAfter(15, TimeUnit.SECONDS);
-
-                        gameChannel.putPermissionOverride(event.getMember())
-                            .setAllow(Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL)
-                            .queue(null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
-                    }
+                    else message.reply("Game created in " + gameChannel.getAsMention()).complete().delete()
+                        .queueAfter(15, TimeUnit.SECONDS);
                 } catch (IOException e) {
                     message.reply("Couldn't generate a random word! Please try again later.").complete().delete()
                         .queueAfter(30, TimeUnit.SECONDS);
@@ -534,22 +528,17 @@ public class Events extends ListenerAdapter {
                         embed.addField("Passes", "0", true);
                         embed.addField("Fails", "0", true);
 
-                        event.getJDA().getTextChannelById(900760753324302366L).sendMessageEmbeds(embed.build())
+                        event.getJDA().getTextChannelById(956267174727671869L).sendMessageEmbeds(embed.build())
                             .setActionRow(Button.success("playwordle:" + word, "Play it!")).queue();
                     }
 
                     case "play" -> {
                         event.reply("Creating a game...").setEphemeral(true).queue();
                         try {
-                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, null);
+                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), null);
                             if (gameChannel == null)
                                 event.getHook().editOriginal("You already have a game with that word active!").queue();
-                            else {
-                                event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
-                                gameChannel.putPermissionOverride(event.getMember())
-                                    .setAllow(Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL)
-                                    .queue(null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
-                            }
+                            else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
                         } catch (IOException e) {
                             event.getHook().editOriginal("Couldn't generate a random word! Please try again later.")
                                 .queue();

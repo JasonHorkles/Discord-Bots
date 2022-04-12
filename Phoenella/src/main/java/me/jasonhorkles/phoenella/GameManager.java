@@ -4,8 +4,10 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 
 import java.util.ArrayList;
 
@@ -17,7 +19,8 @@ public class GameManager extends ListenerAdapter {
             .complete();
 
         for (Member player : players)
-            channel.putPermissionOverride(player).setAllow(Permission.VIEW_CHANNEL).queue();
+            channel.putPermissionOverride(player).setAllow(Permission.VIEW_CHANNEL).setDeny(Permission.MESSAGE_SEND)
+                .queue();
 
         sendEndGameMessage(channel, game);
 
@@ -35,7 +38,7 @@ public class GameManager extends ListenerAdapter {
     }
 
     public void deleteGame(TextChannel channel) {
-        if (channel.getParentCategory() != null)
-            if (channel.getParentCategoryIdLong() == 900747596245639238L) channel.delete().queue();
+        if (channel.getParentCategory() != null) if (channel.getParentCategoryIdLong() == 900747596245639238L)
+            channel.delete().queue(null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
     }
 }
