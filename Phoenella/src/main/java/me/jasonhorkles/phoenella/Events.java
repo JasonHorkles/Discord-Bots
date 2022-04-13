@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -598,7 +597,6 @@ public class Events extends ListenerAdapter {
                             embed.setColor(new Color(56, 224, 104));
                             embed.setTitle("Wordle Leaderboard");
                             embed.setFooter("User-generated words are not counted");
-                            embed.setTimestamp(LocalDateTime.now());
                             embed.setDescription(finalLeaderboard);
 
                             event.getHook().editOriginalEmbeds(embed.build()).queue();
