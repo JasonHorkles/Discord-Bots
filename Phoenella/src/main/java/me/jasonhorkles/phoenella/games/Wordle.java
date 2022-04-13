@@ -28,8 +28,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Wordle extends ListenerAdapter {
     //todo list
-    // timed challenge with threads
     // daily wordle
+    // timed challenge with threads
     // auto push new words https://github-api.kohsuke.org/
     private static final ArrayList<String> wordList = new ArrayList<>();
     private static final HashMap<TextChannel, ArrayList<Message>> messages = new HashMap<>();
@@ -135,7 +135,7 @@ public class Wordle extends ListenerAdapter {
 
         if (input.length() != answer.length()) {
             message.reply("Invalid length!").complete().delete().queueAfter(3, TimeUnit.SECONDS);
-            message.delete().queue();
+            message.delete().queueAfter(100, TimeUnit.MILLISECONDS);
             return;
         }
 
@@ -143,11 +143,11 @@ public class Wordle extends ListenerAdapter {
             message.reply("**" + input + "** isn't in my dictionary!")
                 .setActionRow(Button.primary("wordlerequest:" + input, "Request word!")).complete().delete()
                 .queueAfter(4, TimeUnit.SECONDS);
-            message.delete().queue();
+            message.delete().queueAfter(100, TimeUnit.MILLISECONDS);
             return;
         }
 
-        message.delete().queue();
+        message.delete().queueAfter(100, TimeUnit.MILLISECONDS);
 
         ArrayList<Character> answerChars = new ArrayList<>(answer.chars().mapToObj(c -> (char) c).toList());
         ArrayList<Character> inputChars = new ArrayList<>(input.chars().mapToObj(c -> (char) c).toList());

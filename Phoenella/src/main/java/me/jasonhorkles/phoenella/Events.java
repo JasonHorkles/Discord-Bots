@@ -17,12 +17,17 @@ import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -368,11 +373,26 @@ public class Events extends ListenerAdapter {
             }
 
             if (text.contains("search ")) {
-                //todo google, class V3FYCf
-                msg = new Utils().lookUp(text.replace("search ", ""), new Utils().getFirstName(member)).toLowerCase();
-                if (msg.equals("501")) msg = "i'm not gonna search that";
+                String page = "https://www.google.com/search?q=" + URLEncoder.encode(text.replaceFirst("search ", ""),
+                    StandardCharsets.UTF_8).trim();
+                try {
+                    Connection conn = Jsoup.connect(page).timeout(15000);
+                    Document doc = conn.get();
+                    msg = doc.body().getElementsByClass("ILfuVd").get(0).text();
 
-                new Utils().sendMessage(null, message, msg, allCaps);
+                    EmbedBuilder embed = new EmbedBuilder();
+                    embed.setTitle(text.replaceFirst("search ", "").toUpperCase(), page);
+                    embed.setColor(new Color(15, 157, 88));
+                    embed.setDescription(msg);
+
+                    message.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
+                } catch (IOException e) {
+                    message.reply(e.getMessage()).mentionRepliedUser(false).queue();
+                    throw new RuntimeException(e);
+                } catch (IndexOutOfBoundsException ignored) {
+                    message.reply("I couldn't find a result for that!\n<" + page + ">").mentionRepliedUser(false)
+                        .queue();
+                }
                 return;
             }
 
