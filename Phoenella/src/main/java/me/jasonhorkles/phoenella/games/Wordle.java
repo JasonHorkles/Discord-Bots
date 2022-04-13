@@ -1,6 +1,7 @@
 package me.jasonhorkles.phoenella.games;
 
 import me.jasonhorkles.phoenella.GameManager;
+import me.jasonhorkles.phoenella.Phoenella;
 import me.jasonhorkles.phoenella.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -17,6 +18,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import javax.annotation.Nullable;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -25,8 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 public class Wordle extends ListenerAdapter {
     //todo list
-    // show what word was on quit
-    // make leaderboard
     // timed challenge with threads
     // daily wordle
     // auto push new words https://github-api.kohsuke.org/
@@ -132,10 +133,9 @@ public class Wordle extends ListenerAdapter {
         TextChannel channel = event.getTextChannel();
         String answer = answers.get(channel);
 
-        message.delete().queueAfter(750, TimeUnit.MILLISECONDS);
-
         if (input.length() != answer.length()) {
             message.reply("Invalid length!").complete().delete().queueAfter(3, TimeUnit.SECONDS);
+            message.delete().queue();
             return;
         }
 
@@ -143,8 +143,11 @@ public class Wordle extends ListenerAdapter {
             message.reply("**" + input + "** isn't in my dictionary!")
                 .setActionRow(Button.primary("wordlerequest:" + input, "Request word!")).complete().delete()
                 .queueAfter(4, TimeUnit.SECONDS);
+            message.delete().queue();
             return;
         }
+
+        message.delete().queue();
 
         ArrayList<Character> answerChars = new ArrayList<>(answer.chars().mapToObj(c -> (char) c).toList());
         ArrayList<Character> inputChars = new ArrayList<>(input.chars().mapToObj(c -> (char) c).toList());
@@ -208,6 +211,7 @@ public class Wordle extends ListenerAdapter {
 
         // Win
         if (input.equals(answer)) {
+            // Is user-generated
             if (isUserGenerated.get(channel))
                 //noinspection ConstantConditions
                 event.getJDA().getTextChannelById(956267174727671869L).retrieveMessageById(originalMessage.get(channel))
@@ -230,11 +234,48 @@ public class Wordle extends ListenerAdapter {
                         }
                     });
 
+                // Add to the leaderboard if not user-generated
+            else if (!Phoenella.localWordleBoard) try {
+                File leaderboardFile = new File("Phoenella/leaderboard.txt");
+                Scanner leaderboard = new Scanner(leaderboardFile);
+                ArrayList<String> lines = new ArrayList<>();
+
+                int index = 0;
+                int memberAtIndex = -1;
+                while (leaderboard.hasNextLine()) try {
+                    String line = leaderboard.nextLine();
+                    lines.add(line);
+                    //noinspection ConstantConditions
+                    if (line.contains(event.getMember().getId())) {
+                        memberAtIndex = index;
+                        break;
+                    }
+                    index++;
+                } catch (NoSuchElementException ignored) {
+                }
+
+                FileWriter writer;
+                if (memberAtIndex == -1) {
+                    writer = new FileWriter(leaderboardFile, true);
+                    //noinspection ConstantConditions
+                    writer.write(event.getMember().getId() + ":1" + "\n");
+                } else {
+                    writer = new FileWriter(leaderboardFile, false);
+                    int score = Integer.parseInt(lines.get(memberAtIndex).replaceFirst(".*:", "")) + 1;
+                    lines.set(memberAtIndex, event.getMember().getId() + ":" + score);
+
+                    for (String line : lines) writer.write(line + "\n");
+                }
+                writer.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
             sendRetryMsg(channel, "Well done!", answer);
         }
 
         // Fail
-        else if (attempt.get(channel) == 5) {
+        else if (attempt.get(channel) == 6) {
             if (isUserGenerated.get(channel))
                 //noinspection ConstantConditions
                 event.getJDA().getTextChannelById(956267174727671869L).retrieveMessageById(originalMessage.get(channel))
@@ -264,14 +305,11 @@ public class Wordle extends ListenerAdapter {
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         switch (event.getComponentId()) {
-            case "deletemsg" -> {
-                event.deferEdit().queue();
-                event.getMessage().delete().queue();
-            }
-
             case "endgame:wordle" -> {
                 event.deferEdit().queue();
-                endGame(event.getTextChannel());
+                event.editButton(event.getButton().asDisabled()).queue();
+                sendRetryMsg(event.getTextChannel(), "The word was **" + answers.get(event.getTextChannel()) + "**!",
+                    answers.get(event.getTextChannel()));
             }
 
             case "restartgame:wordle" -> {
@@ -333,9 +371,9 @@ public class Wordle extends ListenerAdapter {
             event.editButton(event.getButton().asDisabled()).complete();
             //noinspection ConstantConditions
             event.getJDA().getTextChannelById(960213547944661042L).sendMessage(
-                    ":inbox_tray: Word request from " + new Utils().getFirstName(
+                    ":inbox_tray: Word request from " + new Utils().getFullName(
                         event.getMember()) + ": **" + event.getComponentId().replace("wordlerequest:", "") + "**")
-                .setActionRow(Button.danger("deletemsg", Emoji.fromUnicode("✖️"))).queue();
+                .queue((msg) -> msg.addReaction("❌").queue());
             return;
         }
 
@@ -344,9 +382,9 @@ public class Wordle extends ListenerAdapter {
             event.editButton(event.getButton().asDisabled()).complete();
             //noinspection ConstantConditions
             event.getJDA().getTextChannelById(960213547944661042L).sendMessage(
-                    ":warning: Word report from " + new Utils().getFirstName(
+                    ":warning: Word report from " + new Utils().getFullName(
                         event.getMember()) + ": **" + event.getComponentId().replace("reportword:", "") + "**")
-                .setActionRow(Button.danger("deletemsg", Emoji.fromUnicode("✖️"))).queue();
+                .queue((msg) -> msg.addReaction("❌").queue());
         }
     }
 
@@ -376,7 +414,7 @@ public class Wordle extends ListenerAdapter {
                 Button.success("restartgame:wordle", "New word").withEmoji(Emoji.fromUnicode("🔁"))).queue();
 
         deleteChannel.put(channel, Executors.newSingleThreadScheduledExecutor()
-            .schedule(() -> new Wordle().endGame(channel), 1, TimeUnit.MINUTES));
+            .schedule(() -> new Wordle().endGame(channel), 45, TimeUnit.SECONDS));
     }
 
     private enum LetterType {

@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -354,7 +355,7 @@ public class Events extends ListenerAdapter {
             if (text.contains("random person")) {
                 List<Member> members = event.getGuild().getMembers();
                 Member randomMember = members.get(r.nextInt(members.size() - 1));
-                msg = new Utils().getFirstName(randomMember);
+                msg = new Utils().getFullName(randomMember);
 
                 new Utils().sendMessage(channel, null, msg, allCaps);
                 return;
@@ -368,6 +369,7 @@ public class Events extends ListenerAdapter {
             }
 
             if (text.contains("search ")) {
+                //todo google, class V3FYCf
                 msg = new Utils().lookUp(text.replace("search ", ""), new Utils().getFirstName(member)).toLowerCase();
                 if (msg.equals("501")) msg = "i'm not gonna search that";
 
@@ -437,6 +439,11 @@ public class Events extends ListenerAdapter {
                         .delete().queueAfter(5, TimeUnit.SECONDS, null,
                             new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
             }
+
+        // Delete message
+        if (event.getReactionEmote().getEmoji().equals("❌"))
+            if (event.retrieveMessage().complete().getAuthor().equals(Phoenella.api.getSelfUser()))
+                event.retrieveMessage().queue((msg) -> msg.delete().queue());
     }
 
     @Override
@@ -521,7 +528,7 @@ public class Events extends ListenerAdapter {
                             .setEphemeral(true).queue();
 
                         EmbedBuilder embed = new EmbedBuilder();
-                        embed.setAuthor(new Utils().getFirstName(event.getMember()) + " has created a Wordle!", null,
+                        embed.setAuthor(new Utils().getFullName(event.getMember()) + " has created a Wordle!", null,
                             event.getMember().getEffectiveAvatarUrl());
                         embed.setColor(new Color(56, 224, 104));
                         embed.addField("Plays", "0", true);
@@ -544,6 +551,57 @@ public class Events extends ListenerAdapter {
                                 .queue();
                             System.out.print(new Utils().getTime(Utils.Color.RED));
                             e.printStackTrace();
+                        }
+                    }
+
+                    case "leaderboard" -> {
+                        if (Phoenella.localWordleBoard)
+                            event.reply("The leaderboard is currently unavailable!").setEphemeral(true).queue();
+                        else {
+                            boolean ephemeral = true;
+                            if (event.getOption("show") != null) ephemeral = !event.getOption("show").getAsBoolean();
+
+                            event.deferReply(ephemeral).queue();
+
+                            Scanner leaderboard;
+                            try {
+                                leaderboard = new Scanner(new File("Phoenella/leaderboard.txt"));
+                            } catch (FileNotFoundException e) {
+                                throw new RuntimeException(e);
+                            }
+                            HashMap<Member, Integer> lines = new HashMap<>();
+
+                            while (leaderboard.hasNextLine()) try {
+                                String line = leaderboard.nextLine();
+                                long id = Long.parseLong(line.replaceFirst(":.*", ""));
+                                int score = Integer.parseInt(line.replaceFirst(".*:", ""));
+                                Member member = event.getGuild().getMemberById(id);
+                                lines.put(member, score);
+                            } catch (NoSuchElementException ignored) {
+                            }
+
+                            LinkedHashMap<Member, Integer> sortedLeaderboard = new LinkedHashMap<>();
+                            lines.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                                .forEachOrdered(x -> sortedLeaderboard.put(x.getKey(), x.getValue()));
+
+                            StringBuilder finalLeaderboard = new StringBuilder("```\n");
+                            int index = 1;
+                            for (Member member : sortedLeaderboard.keySet()) {
+                                if (index > 10) break;
+                                finalLeaderboard.append(index).append(". ").append(new Utils().getFullName(member))
+                                    .append(" | ").append(sortedLeaderboard.get(member)).append("\n");
+                                index++;
+                            }
+                            finalLeaderboard.append("```");
+
+                            EmbedBuilder embed = new EmbedBuilder();
+                            embed.setColor(new Color(56, 224, 104));
+                            embed.setTitle("Wordle Leaderboard");
+                            embed.setFooter("User-generated words are not counted");
+                            embed.setTimestamp(LocalDateTime.now());
+                            embed.setDescription(finalLeaderboard);
+
+                            event.getHook().editOriginalEmbeds(embed.build()).queue();
                         }
                     }
                 }

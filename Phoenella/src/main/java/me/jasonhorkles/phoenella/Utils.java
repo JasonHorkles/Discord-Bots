@@ -156,6 +156,10 @@ public class Utils {
         return member.getEffectiveName().replaceAll(" .*", "").replaceAll("\\(.*", "").trim();
     }
 
+    public String getFullName(Member member) {
+        return member.getEffectiveName().replaceAll("\\(.*", "").trim();
+    }
+
     public void sendMessage(@Nullable TextChannel channel, @Nullable Message replyTo, String message, Boolean allCaps) {
         if (allCaps) message = message.toUpperCase();
         else {

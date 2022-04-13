@@ -22,14 +22,17 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.concurrent.*;
 
 @SuppressWarnings({"BusyWait", "ConstantConditions"})
 public class Phoenella extends ListenerAdapter {
     public static JDA api;
+    public static boolean localWordleBoard = false;
 
     private static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
 
@@ -63,10 +66,9 @@ public class Phoenella extends ListenerAdapter {
 
             Commands.slash("wordle", "Wordle!").addSubcommands(new SubcommandData("play", "Play with a random word"),
                 new SubcommandData("create", "Create a Wordle for others to play").addOption(OptionType.STRING, "word",
-                    "Must be between 4-8 characters", true))).queue();
-
-        api.addEventListener(new Events(), new Soundboard(), new GameManager(), new RPS(), new Wordle(),
-            new AntiScam());
+                    "Must be between 4-8 characters", true),
+                new SubcommandData("leaderboard", "View the Wordle leaderboard").addOption(OptionType.BOOLEAN, "show",
+                    "Show the leaderboard message publicly?", false))).queue();
 
         System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Starting nickname check...");
         new Utils().runNameCheckForGuild(api.getGuildById(729083627308056597L));
@@ -85,6 +87,41 @@ public class Phoenella extends ListenerAdapter {
             System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Scheduling the removal of " + member.getUser()
                 .getAsTag() + "'s shush in " + delay / 60000 + " minutes.");
         }
+
+        // Scan Wordle leaderboard for nonexistent players
+        System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Starting leaderboard check...");
+        File leaderboardFile = new File("Phoenella/leaderboard.txt");
+        Scanner leaderboard = new Scanner(leaderboardFile);
+        ArrayList<String> lines = new ArrayList<>();
+
+        while (leaderboard.hasNextLine()) try {
+            lines.add(leaderboard.nextLine());
+        } catch (NoSuchElementException ignored) {
+        }
+
+        if (!lines.isEmpty())
+            if (lines.get(0).equalsIgnoreCase("local")) {
+                System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Leaderboard set to local mode!");
+                localWordleBoard = true;
+            }
+
+        if (!localWordleBoard) {
+            FileWriter writer = new FileWriter(leaderboardFile, false);
+
+            for (String line : lines) {
+                long id = Long.parseLong(line.replaceFirst(":.*", ""));
+                Member member = api.getGuildById(729083627308056597L).getMemberById(id);
+                if (member == null) {
+                    System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Removing user with ID " + id);
+                    continue;
+                }
+
+                writer.write(line + "\n");
+            }
+            writer.close();
+        }
+
+        System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Leaderboard check complete!");
 
         // Delete game channels
         for (TextChannel channel : api.getCategoryById(900747596245639238L).getTextChannels())
@@ -107,6 +144,9 @@ public class Phoenella extends ListenerAdapter {
                     Button.primary("sound:tech", "Technical Difficulties")),
                 ActionRow.of(Button.primary("sound:thunk", "Thunk"), Button.primary("sound:yeet", "Yeet"),
                     Button.danger("sound:stop", "Stop Sounds").withEmoji(Emoji.fromUnicode("🛑")))).queue();
+
+        api.addEventListener(new Events(), new Soundboard(), new GameManager(), new RPS(), new Wordle(),
+            new AntiScam());
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new Phoenella().shutdown()));
