@@ -13,10 +13,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.*;
 
 @SuppressWarnings("ConstantConditions")
@@ -234,5 +231,34 @@ public class Utils {
         }
 
         runNameCheckForUser(member.getEffectiveName(), member, guild);
+    }
+
+    public void updateDailyWordle() {
+        try {
+            // Get words
+            String page = "https://raw.githubusercontent.com/JasonHorkles/Discord-Bots/main/Phoenella/Wordle/words.txt";
+            Connection conn = Jsoup.connect(page);
+
+            Document doc = conn.get();
+            String words = doc.body().text();
+            Scanner scanner = new Scanner(words);
+
+            ArrayList<String> wordList = new ArrayList<>();
+            while (scanner.hasNext()) try {
+                wordList.add(scanner.next());
+            } catch (NoSuchElementException ignored) {
+            }
+
+            Random r = new Random();
+            String word = wordList.get(r.nextInt(wordList.size()));
+
+            FileWriter daily = new FileWriter("Phoenella/Wordle/daily.txt", false);
+            daily.write(word);
+            daily.close();
+
+            System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Updated the daily Wordle!");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

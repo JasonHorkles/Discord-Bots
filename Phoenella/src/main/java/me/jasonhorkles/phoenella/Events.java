@@ -186,7 +186,7 @@ public class Events extends ListenerAdapter {
             if (text.contains("play wordle") || text.contains("wordle me") || text.equals("wordle")) {
                 channel.sendTyping().complete();
                 try {
-                    TextChannel gameChannel = new Wordle().startGame(member, null);
+                    TextChannel gameChannel = new Wordle().startGame(member, null, false);
                     message.addReaction("👍").queue();
                     if (gameChannel == null)
                         message.reply("You already have a game with that word active!").complete().delete()
@@ -561,7 +561,25 @@ public class Events extends ListenerAdapter {
                     case "play" -> {
                         event.reply("Creating a game...").setEphemeral(true).queue();
                         try {
-                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), null);
+                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, false);
+                            if (gameChannel == null)
+                                event.getHook().editOriginal("You already have a game with that word active!").queue();
+                            else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
+                        } catch (IOException e) {
+                            event.getHook().editOriginal("Couldn't generate a random word! Please try again later.")
+                                .queue();
+                            System.out.print(new Utils().getTime(Utils.Color.RED));
+                            e.printStackTrace();
+                        }
+                    }
+
+                    case "daily" -> {
+                        event.reply("Creating a game...").setEphemeral(true).queue();
+                        try {
+                            File f = new File("Phoenella/Wordle/daily.txt");
+                            String word = new Scanner(f).next();
+
+                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), word, false);
                             if (gameChannel == null)
                                 event.getHook().editOriginal("You already have a game with that word active!").queue();
                             else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();

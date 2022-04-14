@@ -41,8 +41,7 @@ public class Wordle extends ListenerAdapter {
     private static final HashMap<TextChannel, ScheduledFuture<?>> deleteChannel = new HashMap<>();
     private static final HashMap<TextChannel, String> answers = new HashMap<>();
 
-    public TextChannel startGame(Member player, @Nullable String answer) throws IOException {
-        boolean isUserGenerated = true;
+    public TextChannel startGame(Member player, @Nullable String answer, boolean isUserGenerated) throws IOException {
         if (answer == null || answer.equals("null")) {
             // Get words
             String page = "https://raw.githubusercontent.com/JasonHorkles/Discord-Bots/main/Phoenella/Wordle/words.txt";
@@ -60,7 +59,6 @@ public class Wordle extends ListenerAdapter {
 
             Random r = new Random();
             answer = wordList.get(r.nextInt(wordList.size()));
-            isUserGenerated = false;
         }
 
         String obfuscatedAnswer;
@@ -315,7 +313,7 @@ public class Wordle extends ListenerAdapter {
             case "restartgame:wordle" -> {
                 event.deferReply().queue();
                 try {
-                    TextChannel gameChannel = new Wordle().startGame(event.getMember(), null);
+                    TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, false);
                     if (gameChannel == null)
                         event.getHook().editOriginal("You already have a game with that word active!").queue();
                     else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
@@ -334,7 +332,7 @@ public class Wordle extends ListenerAdapter {
             String word = event.getComponentId().replace("playwordle:", "");
             event.reply("Creating a game...").setEphemeral(true).queue();
             try {
-                TextChannel gameChannel = new Wordle().startGame(event.getMember(), word);
+                TextChannel gameChannel = new Wordle().startGame(event.getMember(), word, true);
                 if (gameChannel == null)
                     event.getHook().editOriginal("You already have a game with that word active!").queue();
                 else {

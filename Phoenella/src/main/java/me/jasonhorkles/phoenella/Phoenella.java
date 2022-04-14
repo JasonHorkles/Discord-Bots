@@ -24,7 +24,12 @@ import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.concurrent.*;
@@ -36,7 +41,7 @@ public class Phoenella extends ListenerAdapter {
 
     private static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
 
-    public static void main(String[] args) throws LoginException, InterruptedException, IOException, ExecutionException, TimeoutException {
+    public static void main(String[] args) throws LoginException, InterruptedException, IOException, ExecutionException, TimeoutException, ParseException {
         System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
@@ -123,6 +128,21 @@ public class Phoenella extends ListenerAdapter {
 
         System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Leaderboard check complete!");
 
+        // Schedule daily Wordle
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd h:mm a");
+        Calendar future = Calendar.getInstance();
+        future.setTime(format.parse(LocalDate.now() + " 7:00 AM"));
+
+        long delay = future.getTimeInMillis() - System.currentTimeMillis();
+
+        if (delay >= 0) {
+            schedules.add(Executors.newSingleThreadScheduledExecutor()
+                .schedule(() -> new Utils().updateDailyWordle(), delay, TimeUnit.MILLISECONDS));
+            System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Scheduled new daily Wordle in " + Math.round(
+                delay / 3600000.0) + " hours.");
+        }
+
+
         // Delete game channels
         for (TextChannel channel : api.getCategoryById(900747596245639238L).getTextChannels())
             channel.delete().queue();
@@ -155,6 +175,7 @@ public class Phoenella extends ListenerAdapter {
                 Scanner in = new Scanner(System.in);
                 String text = in.nextLine();
                 if (text.equalsIgnoreCase("stop")) System.exit(0);
+                if (text.equalsIgnoreCase("dailywordle")) new Utils().updateDailyWordle();
             }
         });
         input.start();
