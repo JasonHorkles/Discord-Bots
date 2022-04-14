@@ -45,7 +45,7 @@ public class Wordle extends ListenerAdapter {
         boolean isUserGenerated = true;
         if (answer == null || answer.equals("null")) {
             // Get words
-            String page = "https://raw.githubusercontent.com/JasonHorkles/Discord-Bots/main/Phoenella/words.txt";
+            String page = "https://raw.githubusercontent.com/JasonHorkles/Discord-Bots/main/Phoenella/Wordle/words.txt";
             Connection conn = Jsoup.connect(page);
 
             Document doc = conn.get();
