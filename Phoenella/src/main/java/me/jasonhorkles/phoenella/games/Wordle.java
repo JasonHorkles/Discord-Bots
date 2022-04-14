@@ -42,21 +42,21 @@ public class Wordle extends ListenerAdapter {
     private static final HashMap<TextChannel, String> answers = new HashMap<>();
 
     public TextChannel startGame(Member player, @Nullable String answer, boolean isUserGenerated) throws IOException {
+        // Update words
+        String page = "https://raw.githubusercontent.com/JasonHorkles/Discord-Bots/main/Phoenella/Wordle/words.txt";
+        Connection conn = Jsoup.connect(page);
+
+        Document doc = conn.get();
+        String words = doc.body().text();
+        Scanner scanner = new Scanner(words);
+
+        wordList.clear();
+        while (scanner.hasNext()) try {
+            wordList.add(scanner.next());
+        } catch (NoSuchElementException ignored) {
+        }
+
         if (answer == null || answer.equals("null")) {
-            // Get words
-            String page = "https://raw.githubusercontent.com/JasonHorkles/Discord-Bots/main/Phoenella/Wordle/words.txt";
-            Connection conn = Jsoup.connect(page);
-
-            Document doc = conn.get();
-            String words = doc.body().text();
-            Scanner scanner = new Scanner(words);
-
-            wordList.clear();
-            while (scanner.hasNext()) try {
-                wordList.add(scanner.next());
-            } catch (NoSuchElementException ignored) {
-            }
-
             Random r = new Random();
             answer = wordList.get(r.nextInt(wordList.size()));
         }
