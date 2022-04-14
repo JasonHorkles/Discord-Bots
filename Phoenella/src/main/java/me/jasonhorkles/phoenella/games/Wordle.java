@@ -236,7 +236,7 @@ public class Wordle extends ListenerAdapter {
 
                 // Add to the leaderboard if not user-generated
             else if (!Phoenella.localWordleBoard) try {
-                File leaderboardFile = new File("Phoenella/leaderboard.txt");
+                File leaderboardFile = new File("Phoenella/Wordle/leaderboard.txt");
                 Scanner leaderboard = new Scanner(leaderboardFile);
                 ArrayList<String> lines = new ArrayList<>();
 

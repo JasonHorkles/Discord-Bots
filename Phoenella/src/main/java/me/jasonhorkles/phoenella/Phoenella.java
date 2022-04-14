@@ -68,7 +68,8 @@ public class Phoenella extends ListenerAdapter {
                 new SubcommandData("create", "Create a Wordle for others to play").addOption(OptionType.STRING, "word",
                     "Must be between 4-8 characters", true),
                 new SubcommandData("leaderboard", "View the Wordle leaderboard").addOption(OptionType.BOOLEAN, "show",
-                    "Show the leaderboard message publicly?", false))).queue();
+                    "Show the leaderboard message publicly?", false),
+                new SubcommandData("daily", "Play the daily Wordle"))).queue();
 
         System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Starting nickname check...");
         new Utils().runNameCheckForGuild(api.getGuildById(729083627308056597L));
@@ -90,7 +91,7 @@ public class Phoenella extends ListenerAdapter {
 
         // Scan Wordle leaderboard for nonexistent players
         System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Starting leaderboard check...");
-        File leaderboardFile = new File("Phoenella/leaderboard.txt");
+        File leaderboardFile = new File("Phoenella/Wordle/leaderboard.txt");
         Scanner leaderboard = new Scanner(leaderboardFile);
         ArrayList<String> lines = new ArrayList<>();
 
@@ -99,11 +100,10 @@ public class Phoenella extends ListenerAdapter {
         } catch (NoSuchElementException ignored) {
         }
 
-        if (!lines.isEmpty())
-            if (lines.get(0).equalsIgnoreCase("local")) {
-                System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Leaderboard set to local mode!");
-                localWordleBoard = true;
-            }
+        if (!lines.isEmpty()) if (lines.get(0).equalsIgnoreCase("local")) {
+            System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Leaderboard set to local mode!");
+            localWordleBoard = true;
+        }
 
         if (!localWordleBoard) {
             FileWriter writer = new FileWriter(leaderboardFile, false);

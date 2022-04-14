@@ -584,7 +584,7 @@ public class Events extends ListenerAdapter {
 
                             Scanner leaderboard;
                             try {
-                                leaderboard = new Scanner(new File("Phoenella/leaderboard.txt"));
+                                leaderboard = new Scanner(new File("Phoenella/Wordle/leaderboard.txt"));
                             } catch (FileNotFoundException e) {
                                 throw new RuntimeException(e);
                             }
