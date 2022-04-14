@@ -256,6 +256,9 @@ public class Utils {
             daily.write(word);
             daily.close();
 
+            FileWriter plays = new FileWriter("Phoenella/Wordle/played-daily.txt", false);
+            plays.close();
+
             System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Updated the daily Wordle!");
         } catch (IOException e) {
             throw new RuntimeException(e);

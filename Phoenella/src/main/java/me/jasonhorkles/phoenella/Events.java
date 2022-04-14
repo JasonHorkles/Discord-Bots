@@ -574,10 +574,28 @@ public class Events extends ListenerAdapter {
                     }
 
                     case "daily" -> {
+                        File daily = new File("Phoenella/Wordle/played-daily.txt");
+                        try {
+                            Scanner dailyPlays = new Scanner(daily);
+                            ArrayList<String> plays = new ArrayList<>();
+                            while (dailyPlays.hasNextLine()) plays.add(dailyPlays.nextLine());
+
+                            if (plays.toString().contains(event.getMember().getId())) {
+                                event.reply("You've already played today's Wordle!").setEphemeral(true).queue();
+                                return;
+                            }
+                        } catch (FileNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+
                         event.reply("Creating a game...").setEphemeral(true).queue();
                         try {
-                            File f = new File("Phoenella/Wordle/daily.txt");
-                            String word = new Scanner(f).next();
+                            File dailyWord = new File("Phoenella/Wordle/daily.txt");
+                            String word = new Scanner(dailyWord).next();
+
+                            FileWriter fw = new FileWriter(daily, true);
+                            fw.write(event.getMember().getId() + "\n");
+                            fw.close();
 
                             TextChannel gameChannel = new Wordle().startGame(event.getMember(), word, false);
                             if (gameChannel == null)
