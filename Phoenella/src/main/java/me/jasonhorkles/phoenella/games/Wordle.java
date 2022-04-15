@@ -28,7 +28,9 @@ import java.util.concurrent.TimeUnit;
 
 public class Wordle extends ListenerAdapter {
     //todo list
-    // daily wordle
+    // query dictionary.com with class css-1sprl0b e1wg9v5m5
+    // leaderboard based on tries
+    // daily bonus points
     // timed challenge with threads
     // auto push new words https://github-api.kohsuke.org/
     private static final ArrayList<String> wordList = new ArrayList<>();
