@@ -260,6 +260,7 @@ public class Wordle extends ListenerAdapter {
                     //noinspection ConstantConditions
                     writer.write(event.getMember().getId() + ":1" + "\n");
                 } else {
+                    //bug
                     writer = new FileWriter(leaderboardFile, false);
                     int score = Integer.parseInt(lines.get(memberAtIndex).replaceFirst(".*:", "")) + 1;
                     lines.set(memberAtIndex, event.getMember().getId() + ":" + score);
