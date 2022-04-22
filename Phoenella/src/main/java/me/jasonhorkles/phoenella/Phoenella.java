@@ -158,14 +158,12 @@ public class Phoenella extends ListenerAdapter {
                     Button.secondary("sound:laugh", "Laughing"), Button.secondary("sound:maya", "Maya Hee")),
                 ActionRow.of(Button.primary("sound:metalgear", "Metal Gear Alert"), Button.primary("sound:oof", "Oof"),
                     Button.primary("sound:party", "Party Horn"), Button.primary("sound:phasmophobia", "Phasmophobia"),
-                    Button.primary("sound:tech", "Technical Difficulties")),
-                ActionRow.of(Button.secondary("sound:skibidi", "SKIBIDI"),
-                    Button.secondary("sound:suspense1", "Suspense 1"),
+                    Button.primary("sound:skibidi", "SKIBIDI")),
+                ActionRow.of(Button.secondary("sound:suspense1", "Suspense 1"),
                     Button.secondary("sound:suspense2", "Suspense 2"),
                     Button.secondary("sound:tech", "Technical Difficulties"),
-                    Button.secondary("sound:maya", "Maya Hee")),
-                ActionRow.of(Button.primary("sound:flysave", "What a Save"), Button.primary("sound:yeet", "Yeet"),
-                    Button.danger("sound:stop", "Stop Sounds").withEmoji(Emoji.fromUnicode("🛑")))).queue();
+                    Button.secondary("sound:flysave", "What a Save"), Button.secondary("sound:yeet", "Yeet")),
+                ActionRow.of(Button.danger("sound:stop", "Stop Sounds").withEmoji(Emoji.fromUnicode("🛑")))).queue();
 
         api.addEventListener(new Events(), new Soundboard(), new GameManager(), new RPS(), new Wordle(),
             new AntiScam());
