@@ -28,14 +28,14 @@ import java.util.concurrent.TimeUnit;
 
 public class Wordle extends ListenerAdapter {
     //todo list
-    // query dictionary.com with class css-1sprl0b e1wg9v5m5
+    // query dictionary.com with class css-1sprl0b e1wg9v5m5 // no-results-title css-1cywoo2 e6aw9qa1
     // leaderboard based on tries
     // daily bonus points
     // timed challenge with threads
     // auto push new words https://github-api.kohsuke.org/
     private static final ArrayList<String> wordList = new ArrayList<>();
     private static final HashMap<TextChannel, ArrayList<Message>> messages = new HashMap<>();
-    private static final HashMap<TextChannel, Boolean> isUserGenerated = new HashMap<>();
+    private static final HashMap<TextChannel, Boolean> isNonReal = new HashMap<>();
     private static final HashMap<TextChannel, Integer> attempt = new HashMap<>();
     private static final HashMap<TextChannel, Member> players = new HashMap<>();
     private static final HashMap<TextChannel, Message> keyboard = new HashMap<>();
@@ -73,7 +73,7 @@ public class Wordle extends ListenerAdapter {
         TextChannel channel = new GameManager().createChannel(GameManager.Game.WORDLE,
             new ArrayList<>(Collections.singleton(player)));
 
-        Wordle.isUserGenerated.put(channel, isUserGenerated);
+        Wordle.isNonReal.put(channel, isUserGenerated);
         players.put(channel, player);
         answers.put(channel, answer.toUpperCase());
         attempt.put(channel, 0);
@@ -139,7 +139,7 @@ public class Wordle extends ListenerAdapter {
             return;
         }
 
-        if (!isUserGenerated.get(channel)) if (!wordList.toString().contains(input)) {
+        if (!isNonReal.get(channel)) if (!wordList.toString().contains(input)) {
             message.reply("**" + input + "** isn't in my dictionary!")
                 .setActionRow(Button.primary("wordlerequest:" + input, "Request word!")).complete().delete()
                 .queueAfter(4, TimeUnit.SECONDS);
@@ -212,7 +212,7 @@ public class Wordle extends ListenerAdapter {
         // Win
         if (input.equals(answer)) {
             // Is user-generated
-            if (isUserGenerated.get(channel))
+            if (isNonReal.get(channel))
                 //noinspection ConstantConditions
                 event.getJDA().getTextChannelById(956267174727671869L).retrieveMessageById(originalMessage.get(channel))
                     .queue((original) -> {
@@ -277,7 +277,7 @@ public class Wordle extends ListenerAdapter {
 
         // Fail
         else if (attempt.get(channel) == 6) {
-            if (isUserGenerated.get(channel))
+            if (isNonReal.get(channel))
                 //noinspection ConstantConditions
                 event.getJDA().getTextChannelById(956267174727671869L).retrieveMessageById(originalMessage.get(channel))
                     .queue((original) -> {
@@ -309,7 +309,8 @@ public class Wordle extends ListenerAdapter {
             case "endgame:wordle" -> {
                 event.deferEdit().queue();
                 event.editButton(event.getButton().asDisabled()).queue();
-                sendRetryMsg(event.getTextChannel(), "The word was **" + answers.get(event.getTextChannel()) + "**!",
+                sendRetryMsg(event.getTextChannel(),
+                    "The word was **" + answers.get(event.getTextChannel()).toLowerCase() + "**!",
                     answers.get(event.getTextChannel()));
             }
 
@@ -396,7 +397,7 @@ public class Wordle extends ListenerAdapter {
         messages.remove(channel);
         keyboard.remove(channel);
         originalMessage.remove(channel);
-        isUserGenerated.remove(channel);
+        isNonReal.remove(channel);
         if (deleteChannel.get(channel) != null) {
             deleteChannel.get(channel).cancel(true);
             deleteChannel.remove(channel);
@@ -408,7 +409,7 @@ public class Wordle extends ListenerAdapter {
         channel.putPermissionOverride(players.get(channel)).setAllow(Permission.VIEW_CHANNEL)
             .setDeny(Permission.MESSAGE_SEND).queue();
 
-        if (isUserGenerated.get(channel)) channel.sendMessage(message)
+        if (isNonReal.get(channel)) channel.sendMessage(message)
             .setActionRow(Button.success("restartgame:wordle", "New word").withEmoji(Emoji.fromUnicode("🔁"))).queue();
         else channel.sendMessage(message)
             .setActionRow(Button.danger("reportword:" + answer, "Report word").withEmoji(Emoji.fromUnicode("🚩")),

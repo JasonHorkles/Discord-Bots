@@ -124,6 +124,10 @@ public class Soundboard extends ListenerAdapter {
                     file = "Phoenella/Sounds/Drumroll.mp3";
                     volume = 45;
                 }
+                case "flysave" -> {
+                    file = "Phoenella/Sounds/Flying Save.mp3";
+                    volume = 75;
+                }
                 case "honk" -> {
                     file = "Phoenella/Sounds/Honk.mp3";
                     volume = 30;

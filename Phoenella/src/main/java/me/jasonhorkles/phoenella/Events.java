@@ -611,7 +611,7 @@ public class Events extends ListenerAdapter {
 
                     case "leaderboard" -> {
                         if (Phoenella.localWordleBoard)
-                            event.reply("The leaderboard is currently unavailable!").setEphemeral(true).queue();
+                            event.reply("The leaderboard is currently disabled!").setEphemeral(true).queue();
                         else {
                             boolean ephemeral = true;
                             if (event.getOption("show") != null) ephemeral = !event.getOption("show").getAsBoolean();
