@@ -154,10 +154,6 @@ public class Soundboard extends ListenerAdapter {
                     file = "Phoenella/Sounds/Sad Violin.mp3";
                     volume = 50;
                 }
-                case "sexy" -> {
-                    file = "Phoenella/Sounds/Sexy.mp3";
-                    volume = 30;
-                }
                 case "skibidi" -> {
                     file = "Phoenella/Sounds/SKIBIDI BOP MM DADA.mp3";
                     volume = 20;
