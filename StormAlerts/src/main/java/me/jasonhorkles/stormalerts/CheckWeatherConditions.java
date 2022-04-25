@@ -53,6 +53,8 @@ public class CheckWeatherConditions extends ListenerAdapter {
                 .next();
         } catch (SocketTimeoutException ignored) {
             System.out.println(new Utils().getTime(Utils.Color.RED) + "Timed out checking the weather!");
+        } catch (IndexOutOfBoundsException ignored) {
+            System.out.println(new Utils().getTime(Utils.Color.RED) + "Couldn't get the weather! (No Results)");
         }
         else {
             Scanner weatherScanner = new Scanner(new File("StormAlerts/Tests/weather.txt"));
