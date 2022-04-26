@@ -28,7 +28,7 @@ import java.util.Scanner;
 import java.util.concurrent.*;
 
 @SuppressWarnings("ConstantConditions")
-public class CheckWeatherConditions extends ListenerAdapter {
+public class Weather extends ListenerAdapter {
     public static TextChannel previousTypeChannel;
 
     private static String weather;
@@ -81,7 +81,7 @@ public class CheckWeatherConditions extends ListenerAdapter {
         else if (weather.toLowerCase().contains("thunder") || weather.toLowerCase()
             .contains("lightning") || weather.toLowerCase().contains("t-storm")) weatherName = "thundering ⛈️";
 
-        rainRate = CheckPwsConditions.currentRainRate;
+        rainRate = Pws.currentRainRate;
         String intensity = null;
         Integer rainIntensity = null;
         if (weatherName == null) if (rainRate > 0) {

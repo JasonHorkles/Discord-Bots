@@ -53,7 +53,7 @@ public class StormAlerts extends ListenerAdapter {
         while (api.getGuildById(843919716677582888L) == null) Thread.sleep(100);
 
         api.addEventListener(new StormAlerts());
-        api.addEventListener(new CheckWeatherConditions());
+        api.addEventListener(new Weather());
 
         //noinspection ConstantConditions
         CommandListUpdateAction commands = api.getGuildById(843919716677582888L).updateCommands();
@@ -64,7 +64,7 @@ public class StormAlerts extends ListenerAdapter {
         // Alerts
         alertTimer = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
-                new CheckAlerts().checkAlerts();
+                new Alerts().checkAlerts();
             } catch (Exception e) {
                 System.out.println(new Utils().getTime(Utils.Color.RED) + "[ERROR] Couldn't get the alerts!");
                 e.printStackTrace();
@@ -75,7 +75,7 @@ public class StormAlerts extends ListenerAdapter {
         // PWS / Rain / Lightning
         pwsTimer = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
-                new CheckPwsConditions().checkConditions();
+                new Pws().checkConditions();
             } catch (Exception e) {
                 String reason = "";
                 if (e.getMessage().contains("401")) reason = " (Unauthorized)";
@@ -96,7 +96,7 @@ public class StormAlerts extends ListenerAdapter {
         // Weather
         weatherTimer = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
-                new CheckWeatherConditions().checkConditions();
+                new Weather().checkConditions();
             } catch (Exception e) {
                 System.out.println(
                     new Utils().getTime(Utils.Color.RED) + "[ERROR] Couldn't get the weather conditions!");
@@ -113,7 +113,7 @@ public class StormAlerts extends ListenerAdapter {
             Calendar toWork = Calendar.getInstance();
             toWork.setTime(format.parse(LocalDate.now() + " 2:38 PM"));
             Calendar toHome = Calendar.getInstance();
-            toHome.setTime(format.parse(LocalDate.now() + " 5:45 PM"));
+            toHome.setTime(format.parse(LocalDate.now() + " 5:50 PM"));
 
             long delay = toWork.getTimeInMillis() - System.currentTimeMillis();
             long delay2 = toHome.getTimeInMillis() - System.currentTimeMillis();
@@ -170,7 +170,7 @@ public class StormAlerts extends ListenerAdapter {
         System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Force checking alerts...");
         if (isSlash) event.getHook().editOriginal("Checking alerts...").complete();
         try {
-            new CheckAlerts().checkAlerts();
+            new Alerts().checkAlerts();
         } catch (Exception e) {
             System.out.println(new Utils().getTime(Utils.Color.RED) + "[ERROR] Couldn't get the alerts!");
             e.printStackTrace();
@@ -181,7 +181,7 @@ public class StormAlerts extends ListenerAdapter {
         System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Force checking PWS conditions...");
         if (isSlash) event.getHook().editOriginal("Checking PWS conditions...").complete();
         try {
-            new CheckPwsConditions().checkConditions();
+            new Pws().checkConditions();
         } catch (Exception e) {
             System.out.println(new Utils().getTime(Utils.Color.RED) + "[ERROR] Couldn't get the PWS conditions!");
             e.printStackTrace();
@@ -192,7 +192,7 @@ public class StormAlerts extends ListenerAdapter {
         System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Force checking weather conditions...");
         if (isSlash) event.getHook().editOriginal("Checking weather conditions...").complete();
         try {
-            new CheckWeatherConditions().checkConditions();
+            new Weather().checkConditions();
         } catch (Exception e) {
             System.out.println(new Utils().getTime(Utils.Color.RED) + "[ERROR] Couldn't get the weather conditions!");
             e.printStackTrace();
@@ -211,10 +211,10 @@ public class StormAlerts extends ListenerAdapter {
         weatherTimer.cancel(true);
         if (workTimer != null) workTimer.cancel(true);
         if (homeTimer != null) homeTimer.cancel(true);
-        if (CheckWeatherConditions.previousTypeChannel != null) {
+        if (Weather.previousTypeChannel != null) {
             Message message = null;
             try {
-                message = new Utils().getMessages(CheckWeatherConditions.previousTypeChannel, 1)
+                message = new Utils().getMessages(Weather.previousTypeChannel, 1)
                     .get(1, TimeUnit.SECONDS).get(0);
                 Thread.sleep(500);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -224,7 +224,7 @@ public class StormAlerts extends ListenerAdapter {
             if (!message.getContentRaw().contains("Ended") && !message.getContentRaw().contains("restarted"))
                 message.editMessage(message.getContentRaw()
                     .replace("!", "! (Bot restarted at <t:" + System.currentTimeMillis() / 1000 + ":t>)")).complete();
-            CheckWeatherConditions.previousTypeChannel = null;
+            Weather.previousTypeChannel = null;
         }
         try {
             api.shutdownNow();

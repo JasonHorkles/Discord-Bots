@@ -111,8 +111,7 @@ public class Wordle extends ListenerAdapter {
                     .queueAfter(100, TimeUnit.MILLISECONDS, null,
                         new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
 
-                channel.putPermissionOverride(player).setAllow(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND)
-                    .queue();
+                channel.upsertPermissionOverride(player).setAllowed(Permission.MESSAGE_SEND).queue();
             } catch (ErrorResponseException ignored) {
             }
         });
@@ -406,8 +405,7 @@ public class Wordle extends ListenerAdapter {
     }
 
     private void sendRetryMsg(TextChannel channel, String message, String answer) {
-        channel.putPermissionOverride(players.get(channel)).setAllow(Permission.VIEW_CHANNEL)
-            .setDeny(Permission.MESSAGE_SEND).queue();
+        channel.upsertPermissionOverride(players.get(channel)).setDenied(Permission.MESSAGE_SEND).queue();
 
         if (isNonReal.get(channel)) channel.sendMessage(message)
             .setActionRow(Button.success("restartgame:wordle", "New word").withEmoji(Emoji.fromUnicode("🔁"))).queue();

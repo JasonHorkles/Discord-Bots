@@ -17,7 +17,7 @@ import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class CheckPwsConditions {
+public class Pws {
     public static double currentRainRate = 0.00;
     public static String temperature = "N/A";
     private static boolean rateLimited = false;

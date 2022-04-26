@@ -19,6 +19,7 @@ public class Traffic {
         Thread checks = new Thread(() -> {
             boolean closed = false;
             int minSpeed = 100;
+            int slowSection = 0;
 
             for (int section = min; section <= max; section++) {
                 JSONObject input = new Secrets().getTrafficAtCoords(section).getJSONObject("flowSegmentData");
@@ -33,7 +34,10 @@ public class Traffic {
 
                     // Get speed
                     int currentSpeed = input.getInt("currentSpeed");
-                    if (currentSpeed < minSpeed) minSpeed = currentSpeed;
+                    if (currentSpeed < minSpeed) {
+                        minSpeed = currentSpeed;
+                        slowSection = section;
+                    }
                     System.out.println(new Utils().getTime(
                         Utils.Color.GREEN) + "Traffic section " + section + " is currently " + currentSpeed + " mph");
                 }
@@ -52,13 +56,14 @@ public class Traffic {
             }
 
             int finalMinSpeed = minSpeed;
+            int finalSlowSection = slowSection;
             if (minSpeed <= 65 && minSpeed > 40) StormAlerts.api.openPrivateChannelById(277291758503723010L).flatMap(
                     channel -> channel.sendMessage("**" + new Secrets().getRoadName(
-                        north) + "** has a slowdown @ **" + finalMinSpeed + " mph**! :yellow_circle:"))
+                        north) + " section " + finalSlowSection + "** has a slowdown @ **" + finalMinSpeed + " mph**! :yellow_circle:"))
                 .queue();
             else if (minSpeed <= 40) StormAlerts.api.openPrivateChannelById(277291758503723010L).flatMap(
                     channel -> channel.sendMessage("**" + new Secrets().getRoadName(
-                        north) + "** has a slowdown @ **" + finalMinSpeed + " mph**! :red_circle:"))
+                        north) + " section " + finalSlowSection + "** has a slowdown @ **" + finalMinSpeed + " mph**! :red_circle:"))
                 .queue();
         });
         checks.start();

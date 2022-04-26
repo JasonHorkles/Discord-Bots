@@ -18,7 +18,7 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("ConstantConditions")
-public class CheckAlerts {
+public class Alerts {
     private static final ArrayList<Message> dontDeleteMe = new ArrayList<>();
     private final String fa = Secrets.Area.FA.getArea();
     private final String ce = Secrets.Area.CE.getArea();

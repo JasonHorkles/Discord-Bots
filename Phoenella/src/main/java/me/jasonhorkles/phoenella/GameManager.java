@@ -19,7 +19,8 @@ public class GameManager extends ListenerAdapter {
             .complete();
 
         for (Member player : players)
-            channel.putPermissionOverride(player).setAllow(Permission.VIEW_CHANNEL).setDeny(Permission.MESSAGE_SEND)
+            channel.upsertPermissionOverride(player).setAllowed(Permission.VIEW_CHANNEL)
+                .setDenied(Permission.MESSAGE_SEND)
                 .queue();
 
         sendEndGameMessage(channel, game);
