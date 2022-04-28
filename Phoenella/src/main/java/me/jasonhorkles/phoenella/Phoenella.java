@@ -70,8 +70,7 @@ public class Phoenella extends ListenerAdapter {
             Commands.slash("unshush", "Un-shush a user").addOption(OptionType.USER, "user", "Who to un-shush", true),
 
             Commands.slash("wordle", "Wordle!").addSubcommands(new SubcommandData("play", "Play with a random word"),
-                new SubcommandData("create", "Create a Wordle for others to play").addOption(OptionType.STRING, "word",
-                    "Must be between 4-8 characters", true),
+                new SubcommandData("create", "Create a Wordle for others to play"),
                 new SubcommandData("leaderboard", "View the Wordle leaderboard").addOption(OptionType.BOOLEAN, "show",
                     "Show the leaderboard message publicly?", false),
                 new SubcommandData("daily", "Play the daily Wordle"))).queue();

@@ -9,13 +9,18 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Modal;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -186,7 +191,7 @@ public class Events extends ListenerAdapter {
             if (text.contains("play wordle") || text.contains("wordle me") || text.equals("wordle")) {
                 channel.sendTyping().complete();
                 try {
-                    TextChannel gameChannel = new Wordle().startGame(member, null, false);
+                    TextChannel gameChannel = new Wordle().startGame(member, null, false, null);
                     message.addReaction("👍").queue();
                     if (gameChannel == null)
                         message.reply("You already have a game with that word active!").complete().delete()
@@ -537,31 +542,23 @@ public class Events extends ListenerAdapter {
             case "wordle" -> {
                 switch (event.getSubcommandName()) {
                     case "create" -> {
-                        String word = event.getOption("word").getAsString().replaceAll("[^a-zA-Z]", "");
-                        if (word.length() < 4 || word.length() > 6) {
-                            event.reply("Your word must be between 4-6 characters!").setEphemeral(true).queue();
-                            return;
-                        }
+                        // modal
+                        TextInput word = TextInput.create("word", "Word", TextInputStyle.SHORT).setPlaceholder("toasty")
+                            .setMinLength(4).setMaxLength(8).build();
+                        TextInput tries = TextInput.create("tries", "Tries (WIP)", TextInputStyle.SHORT)
+                            .setPlaceholder("Must be between 4-8").setMinLength(1).setMaxLength(1)
+                            .setValue(String.valueOf(6)).build();
 
-                        event.reply("Creating challenge for word **" + word + "** in <#956267174727671869>")
-                            .setEphemeral(true).queue();
+                        Modal modal = Modal.create("customwordle", "Create Custom Wordle")
+                            .addActionRows(ActionRow.of(word), ActionRow.of(tries)).build();
 
-                        EmbedBuilder embed = new EmbedBuilder();
-                        embed.setAuthor(new Utils().getFullName(event.getMember()) + " has created a Wordle!", null,
-                            event.getMember().getEffectiveAvatarUrl());
-                        embed.setColor(new Color(56, 224, 104));
-                        embed.addField("Plays", "0", true);
-                        embed.addField("Passes", "0", true);
-                        embed.addField("Fails", "0", true);
-
-                        event.getJDA().getTextChannelById(956267174727671869L).sendMessageEmbeds(embed.build())
-                            .setActionRow(Button.success("playwordle:" + word, "Play it!")).queue();
+                        event.replyModal(modal).queue();
                     }
 
                     case "play" -> {
                         event.reply("Creating a game...").setEphemeral(true).queue();
                         try {
-                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, false);
+                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, false, null);
                             if (gameChannel == null)
                                 event.getHook().editOriginal("You already have a game with that word active!").queue();
                             else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
@@ -597,7 +594,7 @@ public class Events extends ListenerAdapter {
                             fw.write(event.getMember().getId() + "\n");
                             fw.close();
 
-                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), word, false);
+                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), word, false, null);
                             if (gameChannel == null)
                                 event.getHook().editOriginal("You already have a game with that word active!").queue();
                             else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
@@ -660,6 +657,38 @@ public class Events extends ListenerAdapter {
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public void onModalInteraction(ModalInteractionEvent event) {
+        if (event.getModalId().equals("customwordle")) {
+            String word = event.getValue("word").getAsString().replaceAll("[^a-zA-Z]", "");
+            int tries;
+            try {
+                tries = Integer.parseInt(event.getValue("tries").getAsString());
+            } catch (NumberFormatException ignored) {
+                tries = 6;
+            }
+
+            if (tries < 4 || tries > 8) {
+                event.reply("**Error:** Tries must be between 4-8!").setEphemeral(true).queue();
+                return;
+            }
+
+            event.reply("Creating challenge for word **" + word + "** in <#956267174727671869>").setEphemeral(true)
+                .queue();
+
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setAuthor(new Utils().getFullName(event.getMember()) + " has created a Wordle!", null,
+                event.getMember().getEffectiveAvatarUrl());
+            embed.setColor(new Color(56, 224, 104));
+            embed.addField("Plays", "0", true);
+            embed.addField("Passes", "0", true);
+            embed.addField("Fails", "0", true);
+
+            event.getJDA().getTextChannelById(956267174727671869L).sendMessageEmbeds(embed.build())
+                .setActionRow(Button.success("playwordle:" + word, "Play it!")).queue();
         }
     }
 }

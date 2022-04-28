@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Wordle extends ListenerAdapter {
     //todo list
+    // custom tries for custom words
     // query dictionary.com with class css-1sprl0b e1wg9v5m5 // no-results-title css-1cywoo2 e6aw9qa1
     // leaderboard based on tries
     // daily bonus points
@@ -43,7 +44,7 @@ public class Wordle extends ListenerAdapter {
     private static final HashMap<TextChannel, ScheduledFuture<?>> deleteChannel = new HashMap<>();
     private static final HashMap<TextChannel, String> answers = new HashMap<>();
 
-    public TextChannel startGame(Member player, @Nullable String answer, boolean isUserGenerated) throws IOException {
+    public TextChannel startGame(Member player, @Nullable String answer, boolean isUserGenerated, @Nullable Integer tries) throws IOException {
         // Update words
         String page = "https://raw.githubusercontent.com/JasonHorkles/Discord-Bots/main/Phoenella/Wordle/words.txt";
         Connection conn = Jsoup.connect(page);
@@ -111,7 +112,8 @@ public class Wordle extends ListenerAdapter {
                     .queueAfter(100, TimeUnit.MILLISECONDS, null,
                         new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
 
-                channel.upsertPermissionOverride(player).setAllowed(Permission.MESSAGE_SEND).queue();
+                channel.upsertPermissionOverride(player).setAllowed(Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL)
+                    .queue();
             } catch (ErrorResponseException ignored) {
             }
         });
@@ -316,7 +318,7 @@ public class Wordle extends ListenerAdapter {
             case "restartgame:wordle" -> {
                 event.deferReply().queue();
                 try {
-                    TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, false);
+                    TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, false, null);
                     if (gameChannel == null)
                         event.getHook().editOriginal("You already have a game with that word active!").queue();
                     else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
@@ -335,7 +337,7 @@ public class Wordle extends ListenerAdapter {
             String word = event.getComponentId().replace("playwordle:", "");
             event.reply("Creating a game...").setEphemeral(true).queue();
             try {
-                TextChannel gameChannel = new Wordle().startGame(event.getMember(), word, true);
+                TextChannel gameChannel = new Wordle().startGame(event.getMember(), word, true, null);
                 if (gameChannel == null)
                     event.getHook().editOriginal("You already have a game with that word active!").queue();
                 else {
