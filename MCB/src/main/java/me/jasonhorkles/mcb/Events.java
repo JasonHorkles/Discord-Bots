@@ -54,19 +54,17 @@ public class Events extends ListenerAdapter {
 
         if (count > 0) {
             warn(id, event, count);
-            Message message = event.getMessage()
-                .reply("Hey " + event.getMember().getEffectiveName() + ", please don't ping staff members!").complete();
+            StringBuilder message = new StringBuilder(
+                "Hey " + event.getMember().getEffectiveName() + ", please don't ping staff members!");
 
-            if (event.getTextChannel().getParentCategoryIdLong() != 720690619822899231L) message = message.editMessage(
-                    message.getContentRaw() + "\nIf there's a problem, make a ticket by typing `-ticket open <ticket name>` in any channel.")
-                .complete();
+            if (event.getTextChannel().getParentCategoryIdLong() != 720690619822899231L) message.append(
+                "\nIf there's a problem, make a ticket by typing `-ticket open <ticket name>` in any channel.");
 
-            if (warnings.get(id) > 1)
-                message.editMessage(message.getContentRaw() + "\n\n*Warning " + warnings.get(id) + "/3*").queue();
+            if (warnings.get(id) > 1) message.append("\n\n*Warning ").append(warnings.get(id)).append("/3*");
 
-            message.delete().queueAfter(5, TimeUnit.MINUTES, null,
+            event.getMessage().reply(message).queue(message1 -> message1.delete().queueAfter(5, TimeUnit.MINUTES, null,
                 new ErrorHandler().handle(ErrorResponse.UNKNOWN_MESSAGE, (e) -> System.out.println(
-                    new Utils().getTime(Utils.Color.RED) + "Unable to delete warning message.")));
+                    new Utils().getTime(Utils.Color.RED) + "Unable to delete warning message."))));
         }
     }
 

@@ -509,12 +509,6 @@ public class Events extends ListenerAdapter {
                 Member member = event.getOption("user").getAsMember();
                 long duration = event.getOption("duration").getAsLong() * 60000;
 
-                if (!event.getMember().getRoles().toString().contains("751166721624375435") && !event.getMember()
-                    .getRoles().toString().contains("729108220479537202")) {
-                    event.reply("You can't shush people!").setEphemeral(true).queue();
-                    return;
-                }
-
                 if (member.getRoles().toString().contains("751166721624375435") || member.getRoles().toString()
                     .contains("729108220479537202")) {
                     event.reply("I can't shush " + new Utils().getFirstName(member) + "!").setEphemeral(true).queue();
@@ -528,12 +522,6 @@ public class Events extends ListenerAdapter {
             }
 
             case "unshush" -> {
-                if (!event.getMember().getRoles().toString().contains("751166721624375435") && !event.getMember()
-                    .getRoles().toString().contains("729108220479537202")) {
-                    event.reply("You can't shush people!").setEphemeral(true).queue();
-                    return;
-                }
-
                 Member member = event.getOption("user").getAsMember();
                 new Utils().unshush(member);
                 event.reply("Unshushing " + new Utils().getFirstName(member) + "!").setEphemeral(true).queue();
@@ -542,7 +530,6 @@ public class Events extends ListenerAdapter {
             case "wordle" -> {
                 switch (event.getSubcommandName()) {
                     case "create" -> {
-                        // modal
                         TextInput word = TextInput.create("word", "Word", TextInputStyle.SHORT).setPlaceholder("toasty")
                             .setMinLength(4).setMaxLength(8).build();
                         TextInput tries = TextInput.create("tries", "Tries (WIP)", TextInputStyle.SHORT)

@@ -29,46 +29,35 @@ public class Events extends ListenerAdapter {
             .contains("667793980318154783") || event.getMember()
             .hasPermission(Permission.ADMINISTRATOR)) && !(event.getChannel()
             .getIdLong() == 456470772207190036L || event.getChannel().getIdLong() == 468416589331562506L);
-        boolean pluginCmdOnly = !(event.getMember().getRoles().contains("667793980318154783") || event.getMember()
-            .hasPermission(Permission.ADMINISTRATOR)) && !(event.getChannel().getIdLong() == 872977864029511791L);
 
         switch (event.getName().toLowerCase()) {
-            case "paste" -> {
-                if (pluginCmdOnly)
-                    event.reply("This command was designed for use in the <#872977864029511791> channel.")
-                        .setEphemeral(true).queue();
-                else event.reply("Please copy and paste your `" + event.getOption("what")
-                        .getAsString() + "` file(s) to <https://paste.gg/>\nThen, click \"Submit anonymously\" and post the link in this channel.")
-                    .queue();
-            }
+            case "paste" -> event.reply("Please copy and paste your `" + event.getOption("what")
+                    .getAsString() + "` file(s) to <https://paste.gg/>\nThen, click \"Submit anonymously\" and post the link in this channel.")
+                .queue();
 
-            case "ecdebug" -> {
-                if (pluginCmdOnly)
-                    event.reply("This command was designed for use in the <#872977864029511791> channel.")
-                        .setEphemeral(true).queue();
-                else event.reply(
-                        "Please set `debug` to `true` in your config, run `/entityclearer reload`, then reproduce the issue.\nOnce complete, upload the logs to <https://paste.gg/>, click \"Submit anonymously\", and post the link in this channel.")
-                    .queue();
-            }
+            case "ecdebug" -> event.reply(
+                    "Please set `debug` to `true` in your config, run `/entityclearer reload`, then reproduce the issue.\nOnce complete, upload the logs to <https://paste.gg/>, click \"Submit anonymously\", and post the link in this channel.")
+                .queue();
 
             case "plgh" -> event.reply("""
                 **EntityClearer:** <https://github.com/SilverstoneMC/EntityClearer>
                 **ExpensiveDeaths:** <https://github.com/SilverstoneMC/ExpensiveDeaths>
                 **FileCleaner:** <https://github.com/SilverstoneMC/FileCleaner>
                 **SimpleBooks:** <https://github.com/SilverstoneMC/SimpleBooks>
-                """).setEphemeral(ephemeral && pluginCmdOnly).queue();
+                """).setEphemeral(ephemeral).queue();
 
-            case "plugins" -> event.reply(
-                    "See Jason's plugins at: <https://www.spigotmc.org/resources/authors/jasonhorkles.339646/>")
-                .setEphemeral(ephemeral && pluginCmdOnly).queue();
+            case "plugins" ->
+                event.reply("See Jason's plugins at: <https://www.spigotmc.org/resources/authors/jasonhorkles.339646/>")
+                    .setEphemeral(ephemeral).queue();
 
-            case "tutorials" -> event.reply(
-                    "JasonHorkles Tutorials: <https://www.youtube.com/channel/UCIyJ0zf3moNSRN1wIetpbmA>")
-                .setEphemeral(ephemeral && pluginCmdOnly).queue();
+            case "tutorials" ->
+                event.reply("JasonHorkles Tutorials: <https://www.youtube.com/channel/UCIyJ0zf3moNSRN1wIetpbmA>")
+                    .setEphemeral(ephemeral).queue();
 
-            case "lp" -> event.reply("Download LuckPerms at: <https://luckperms.net/download>")
-                .setEphemeral(ephemeral && pluginCmdOnly).queue();
+            case "lp" ->
+                event.reply("Download LuckPerms at: <https://luckperms.net/download>").setEphemeral(ephemeral).queue();
         }
+
         System.out.println(new Utils().getTime(Utils.Color.GREEN) + event.getMember()
             .getEffectiveName() + " used the /" + event.getName() + " command");
     }
@@ -106,8 +95,7 @@ public class Events extends ListenerAdapter {
     // When recent chatter leaves
     @Override
     public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
-        System.out.println(
-            "\n" + new Utils().getTime(Utils.Color.YELLOW) + event.getUser().getName() + " left!");
+        System.out.println("\n" + new Utils().getTime(Utils.Color.YELLOW) + event.getUser().getName() + " left!");
 
         OffsetDateTime thirtyMinsAgo = OffsetDateTime.now().minus(30, ChronoUnit.MINUTES);
         OffsetDateTime threeDaysAgo = OffsetDateTime.now().minus(3, ChronoUnit.DAYS);
@@ -117,8 +105,7 @@ public class Events extends ListenerAdapter {
                 continue;
             if (channels.getName().toLowerCase().contains("count")) continue;
 
-            System.out.println(
-                new Utils().getTime(Utils.Color.YELLOW) + "Checking #" + channels.getName());
+            System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Checking #" + channels.getName());
             boolean fromUser = false;
             try {
                 // Check the past 15 messages within 30 minutes
