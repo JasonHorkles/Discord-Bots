@@ -464,10 +464,48 @@ public class Events extends ListenerAdapter {
                             new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
             }
 
+        // Add / remove word from dictionary
+        if (event.getReactionEmote().getEmoji().equals("✅"))
+            if (event.getTextChannel().getIdLong() == 960213547944661042L) {
+                Message message = event.retrieveMessage().complete();
+                File file = new File("Phoenella/Wordle/words.txt");
+
+                try {
+                    if (message.getContentStripped().contains("Word request")) {
+                        FileWriter fileWriter = new FileWriter(file, true);
+                        fileWriter.write(message.getContentStripped().replaceAll(".*: ", "").toUpperCase() + "\n");
+                        fileWriter.close();
+
+                    } else if (message.getContentStripped().contains("Word report")) {
+                        Scanner words = new Scanner(file);
+                        ArrayList<String> wordList = new ArrayList<>();
+
+                        while (words.hasNext()) try {
+                            String next = words.next();
+                            if (!next.equalsIgnoreCase(message.getContentStripped().replaceAll(".*: ", "")))
+                                wordList.add(next.toUpperCase());
+                        } catch (NoSuchElementException ignored) {
+                        }
+
+                        FileWriter fileWriter = new FileWriter(file, false);
+                        for (String word : wordList) fileWriter.write(word + "\n");
+                        fileWriter.close();
+                    }
+
+                    message.delete().queue();
+
+                } catch (IOException e) {
+                    message.reply("Failed to write word! See console for details.")
+                        .queue((msg) -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+                    throw new RuntimeException(e);
+                }
+            }
+
         // Delete message
-        if (event.getReactionEmote().getEmoji().equals("❌"))
-            if (event.retrieveMessage().complete().getAuthor().equals(Phoenella.api.getSelfUser()))
-                event.retrieveMessage().queue((msg) -> msg.delete().queue());
+        if (event.getReactionEmote().getEmoji().equals("❌")) {
+            Message message = event.retrieveMessage().complete();
+            if (message.getAuthor().equals(Phoenella.api.getSelfUser())) message.delete().queue();
+        }
     }
 
     @Override
@@ -530,9 +568,10 @@ public class Events extends ListenerAdapter {
             case "wordle" -> {
                 switch (event.getSubcommandName()) {
                     case "create" -> {
-                        TextInput word = TextInput.create("word", "Word", TextInputStyle.SHORT).setPlaceholder("toasty")
+                        TextInput word = TextInput.create("word", "Word", TextInputStyle.SHORT)
+                            .setPlaceholder("Standard words are 5 characters")
                             .setMinLength(4).setMaxLength(8).build();
-                        TextInput tries = TextInput.create("tries", "Tries (WIP)", TextInputStyle.SHORT)
+                        TextInput tries = TextInput.create("tries", "Tries", TextInputStyle.SHORT)
                             .setPlaceholder("Must be between 4-8").setMinLength(1).setMaxLength(1)
                             .setValue(String.valueOf(6)).build();
 
@@ -675,7 +714,7 @@ public class Events extends ListenerAdapter {
             embed.addField("Fails", "0", true);
 
             event.getJDA().getTextChannelById(956267174727671869L).sendMessageEmbeds(embed.build())
-                .setActionRow(Button.success("playwordle:" + word, "Play it!")).queue();
+                .setActionRow(Button.success("playwordle:" + word + ":" + tries, "Play it!")).queue();
         }
     }
 }
