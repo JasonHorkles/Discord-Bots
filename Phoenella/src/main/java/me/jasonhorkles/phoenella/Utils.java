@@ -235,17 +235,10 @@ public class Utils {
 
     public void updateDailyWordle() {
         try {
-            // Get words
-            String page = "https://raw.githubusercontent.com/JasonHorkles/Discord-Bots/main/Phoenella/Wordle/words.txt";
-            Connection conn = Jsoup.connect(page);
-
-            Document doc = conn.get();
-            String words = doc.body().text();
-            Scanner scanner = new Scanner(words);
-
+            Scanner words = new Scanner(new File("Phoenella/Wordle/words.txt"));
             ArrayList<String> wordList = new ArrayList<>();
-            while (scanner.hasNext()) try {
-                wordList.add(scanner.next());
+            while (words.hasNext()) try {
+                wordList.add(words.next());
             } catch (NoSuchElementException ignored) {
             }
 
@@ -261,6 +254,7 @@ public class Utils {
 
             System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Updated the daily Wordle!");
         } catch (IOException e) {
+            System.out.print(getTime(Color.RED));
             throw new RuntimeException(e);
         }
     }

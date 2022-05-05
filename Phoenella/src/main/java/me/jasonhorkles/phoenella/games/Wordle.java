@@ -30,8 +30,8 @@ public class Wordle extends ListenerAdapter {
     //todo list
     // leaderboard based on tries
     // daily bonus points
+    // custom wordle dictionary check
     // timed challenge with threads
-    // auto push new words https://github-api.kohsuke.org/
     private static final ArrayList<String> wordList = new ArrayList<>();
     private static final HashMap<TextChannel, ArrayList<Message>> messages = new HashMap<>();
     private static final HashMap<TextChannel, Boolean> isNonReal = new HashMap<>();
@@ -138,7 +138,7 @@ public class Wordle extends ListenerAdapter {
 
         if (!isNonReal.get(channel)) if (!wordList.toString().contains(input)) try {
             String page = "https://www.dictionary.com/browse/" + input;
-            Connection conn = Jsoup.connect(page).timeout(3000);
+            Connection conn = Jsoup.connect(page).timeout(5000);
             Document doc = conn.ignoreHttpErrors(true).get();
             if (doc.body().getElementsByClass("no-results-title css-1cywoo2 e6aw9qa1").size() > 0) {
                 message.reply("**" + input + "** isn't in the dictionary!")
