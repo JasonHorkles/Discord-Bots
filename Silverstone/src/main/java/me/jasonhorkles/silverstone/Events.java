@@ -54,8 +54,12 @@ public class Events extends ListenerAdapter {
                 event.reply("JasonHorkles Tutorials: <https://www.youtube.com/channel/UCIyJ0zf3moNSRN1wIetpbmA>")
                     .setEphemeral(ephemeral).queue();
 
+            case "moss" ->
+                event.reply("Get EssentialsX help and more here: https://discord.gg/PHpuzZS").setEphemeral(ephemeral)
+                    .queue();
+
             case "lp" ->
-                event.reply("Download LuckPerms at: <https://luckperms.net/download>").setEphemeral(ephemeral).queue();
+                event.reply("Get LuckPerms help here: https://discord.gg/luckperms").setEphemeral(ephemeral).queue();
         }
 
         System.out.println(new Utils().getTime(Utils.Color.GREEN) + event.getMember()

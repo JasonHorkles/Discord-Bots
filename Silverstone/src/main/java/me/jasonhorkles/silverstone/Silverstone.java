@@ -44,11 +44,13 @@ public class Silverstone extends ListenerAdapter {
         CommandListUpdateAction commands = api.getGuildById(455919765999976461L).updateCommands();
 
         commands.addCommands(Commands.slash("ecdebug", "EntityClearer debug"),
-            Commands.slash("paste", "Get a link to paste text to")
-                .addOption(OptionType.STRING, "what", "What should be pasted", true),
-            Commands.slash("plgh", "Links to the plugins on GitHub"),
-            Commands.slash("plugins", "Get a list of Jason's plugins"),
-            Commands.slash("tutorials", "Link to the tutorial channel")).queue();
+                Commands.slash("paste", "Get a link to paste text to")
+                    .addOption(OptionType.STRING, "what", "What should be pasted", true),
+                Commands.slash("plgh", "Links to the plugins on GitHub"),
+                Commands.slash("plugins", "Get a list of Jason's plugins"),
+                Commands.slash("tutorials", "Link to the tutorial channel"),
+                Commands.slash("moss", "M.O.S.S. Discord invite"), Commands.slash("lp", "LuckPerms Discord invite"))
+            .queue();
 
         new Time().updateTime();
 
