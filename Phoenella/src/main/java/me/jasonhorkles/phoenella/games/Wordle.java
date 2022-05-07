@@ -28,22 +28,21 @@ import java.util.concurrent.TimeUnit;
 
 public class Wordle extends ListenerAdapter {
     //todo list
-    // leaderboard based on tries
-    // daily bonus points
     // custom wordle dictionary check
     // timed challenge with threads
     private static final ArrayList<String> wordList = new ArrayList<>();
     private static final HashMap<TextChannel, ArrayList<Message>> messages = new HashMap<>();
+    private static final HashMap<TextChannel, Boolean> daily = new HashMap<>();
     private static final HashMap<TextChannel, Boolean> isNonReal = new HashMap<>();
     private static final HashMap<TextChannel, Integer> attempt = new HashMap<>();
     private static final HashMap<TextChannel, Integer> maxTries = new HashMap<>();
+    private static final HashMap<TextChannel, Long> originalMessage = new HashMap<>();
     private static final HashMap<TextChannel, Member> players = new HashMap<>();
     private static final HashMap<TextChannel, Message> keyboard = new HashMap<>();
-    private static final HashMap<TextChannel, Long> originalMessage = new HashMap<>();
     private static final HashMap<TextChannel, ScheduledFuture<?>> deleteChannel = new HashMap<>();
     private static final HashMap<TextChannel, String> answers = new HashMap<>();
 
-    public TextChannel startGame(Member player, @Nullable String answer, boolean isUserGenerated, @Nullable Integer tries) throws IOException {
+    public TextChannel startGame(Member player, @Nullable String answer, boolean isUserGenerated, boolean isDaily, @Nullable Integer tries) throws IOException {
         // Update words
         Scanner words = new Scanner(new File("Phoenella/Wordle/words.txt"));
         wordList.clear();
@@ -71,6 +70,7 @@ public class Wordle extends ListenerAdapter {
         players.put(channel, player);
         answers.put(channel, answer.toUpperCase());
         attempt.put(channel, 0);
+        daily.put(channel, isDaily);
 
         channel.getManager().setTopic(obfuscatedAnswer)
             .queue(null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
@@ -258,19 +258,28 @@ public class Wordle extends ListenerAdapter {
                     String line = leaderboard.nextLine();
                     lines.add(line);
                     //noinspection ConstantConditions
-                    if (line.contains(event.getMember().getId())) {
-                        memberAtIndex = index;
-                        break;
-                    }
+                    if (line.contains(event.getMember().getId())) memberAtIndex = index;
                     index++;
                 } catch (NoSuchElementException ignored) {
                 }
 
-                FileWriter writer = new FileWriter(leaderboardFile, true);
+                // Calculate score
+                int score = 0;
+                switch (attempt.get(channel)) {
+                    case 6 -> score = 1;
+                    case 5 -> score = 2;
+                    case 4 -> score = 3;
+                    case 3 -> score = 4;
+                    case 2 -> score = 5;
+                    case 1 -> score = 6;
+                }
+                if (daily.get(channel)) score++;
+
+                FileWriter writer = new FileWriter(leaderboardFile, false);
                 if (memberAtIndex == -1) //noinspection ConstantConditions
-                    writer.write(event.getMember().getId() + ":1" + "\n");
+                    writer.write(event.getMember().getId() + ":" + score + "\n");
                 else {
-                    int score = Integer.parseInt(lines.get(memberAtIndex).replaceFirst(".*:", "")) + 1;
+                    score += Integer.parseInt(lines.get(memberAtIndex).replaceFirst(".*:", ""));
                     lines.set(memberAtIndex, event.getMember().getId() + ":" + score);
 
                     for (String line : lines) writer.write(line + "\n");
@@ -326,7 +335,7 @@ public class Wordle extends ListenerAdapter {
                 event.deferReply().queue();
 
                 try {
-                    TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, false, null);
+                    TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, false, false, null);
                     if (gameChannel == null)
                         event.getHook().editOriginal("You already have a game with that word active!").queue();
                     else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
@@ -339,6 +348,11 @@ public class Wordle extends ListenerAdapter {
                 Executors.newSingleThreadScheduledExecutor()
                     .schedule(() -> endGame(event.getTextChannel()), 10, TimeUnit.SECONDS);
             }
+
+            case "sharewordlescore" -> //noinspection ConstantConditions
+                event.getGuild().getTextChannelById(956267174727671869L).sendMessage(
+                    new Utils().getFullName(event.getMember()) + " just finished the daily Wordle in " + attempt.get(
+                        event.getTextChannel()) + " tries!").queue();
         }
 
         if (event.getComponentId().startsWith("playwordle:")) {
@@ -348,7 +362,7 @@ public class Wordle extends ListenerAdapter {
             event.reply("Creating a game...").setEphemeral(true).queue();
 
             try {
-                TextChannel gameChannel = new Wordle().startGame(event.getMember(), word, true, tries);
+                TextChannel gameChannel = new Wordle().startGame(event.getMember(), word, true, false, tries);
                 if (gameChannel == null)
                     event.getHook().editOriginal("You already have a game with that word active!").queue();
 
@@ -403,13 +417,15 @@ public class Wordle extends ListenerAdapter {
     }
 
     private void endGame(TextChannel channel) {
-        players.remove(channel);
         answers.remove(channel);
         attempt.remove(channel);
-        messages.remove(channel);
-        keyboard.remove(channel);
-        originalMessage.remove(channel);
+        daily.remove(channel);
         isNonReal.remove(channel);
+        keyboard.remove(channel);
+        maxTries.remove(channel);
+        messages.remove(channel);
+        originalMessage.remove(channel);
+        players.remove(channel);
         if (deleteChannel.get(channel) != null) {
             deleteChannel.get(channel).cancel(true);
             deleteChannel.remove(channel);
@@ -425,6 +441,9 @@ public class Wordle extends ListenerAdapter {
         else channel.sendMessage(message)
             .setActionRow(Button.danger("reportword:" + answer, "Report word").withEmoji(Emoji.fromUnicode("🚩")),
                 Button.success("restartgame:wordle", "New word").withEmoji(Emoji.fromUnicode("🔁"))).queue();
+
+        if (daily.get(channel)) channel.sendMessage("Share score?")
+            .setActionRow(Button.primary("sharewordlescore", "Yes!").withEmoji(Emoji.fromUnicode("✅"))).queue();
 
         deleteChannel.put(channel, Executors.newSingleThreadScheduledExecutor()
             .schedule(() -> new Wordle().endGame(channel), 45, TimeUnit.SECONDS));

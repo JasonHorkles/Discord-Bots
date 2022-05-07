@@ -191,7 +191,7 @@ public class Events extends ListenerAdapter {
             if (text.contains("play wordle") || text.contains("wordle me") || text.equals("wordle")) {
                 channel.sendTyping().complete();
                 try {
-                    TextChannel gameChannel = new Wordle().startGame(member, null, false, null);
+                    TextChannel gameChannel = new Wordle().startGame(member, null, false, false, null);
                     message.addReaction("👍").queue();
                     if (gameChannel == null)
                         message.reply("You already have a game with that word active!").complete().delete()
@@ -569,8 +569,7 @@ public class Events extends ListenerAdapter {
                 switch (event.getSubcommandName()) {
                     case "create" -> {
                         TextInput word = TextInput.create("word", "Word", TextInputStyle.SHORT)
-                            .setPlaceholder("Standard words are 5 characters")
-                            .setMinLength(4).setMaxLength(8).build();
+                            .setPlaceholder("Standard words are 5 characters").setMinLength(4).setMaxLength(8).build();
                         TextInput tries = TextInput.create("tries", "Tries", TextInputStyle.SHORT)
                             .setPlaceholder("Must be between 4-8").setMinLength(1).setMaxLength(1)
                             .setValue(String.valueOf(6)).build();
@@ -584,7 +583,8 @@ public class Events extends ListenerAdapter {
                     case "play" -> {
                         event.reply("Creating a game...").setEphemeral(true).queue();
                         try {
-                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, false, null);
+                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, false, false,
+                                null);
                             if (gameChannel == null)
                                 event.getHook().editOriginal("You already have a game with that word active!").queue();
                             else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
@@ -620,7 +620,8 @@ public class Events extends ListenerAdapter {
                             fw.write(event.getMember().getId() + "\n");
                             fw.close();
 
-                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), word, false, null);
+                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), word, false, true,
+                                null);
                             if (gameChannel == null)
                                 event.getHook().editOriginal("You already have a game with that word active!").queue();
                             else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
