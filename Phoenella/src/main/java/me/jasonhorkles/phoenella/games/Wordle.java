@@ -349,10 +349,17 @@ public class Wordle extends ListenerAdapter {
                     .schedule(() -> endGame(event.getTextChannel()), 10, TimeUnit.SECONDS);
             }
 
-            case "sharewordlescore" -> //noinspection ConstantConditions
-                event.getGuild().getTextChannelById(956267174727671869L).sendMessage(
-                    new Utils().getFullName(event.getMember()) + " just finished the daily Wordle in " + attempt.get(
-                        event.getTextChannel()) + " tries!").queue();
+            case "sharewordlescore" -> {
+                Thread thread = new Thread(() -> {
+                    event.editButton(event.getButton().asDisabled()).complete();
+                    //noinspection ConstantConditions
+                    event.getGuild().getTextChannelById(956267174727671869L).sendMessage("**" + new Utils().getFullName(
+                        event.getMember()) + "** just finished the daily Wordle in **" + attempt.get(
+                        event.getTextChannel()) + "** tries!").complete();
+                    endGame(event.getTextChannel());
+                });
+                thread.start();
+            }
         }
 
         if (event.getComponentId().startsWith("playwordle:")) {
