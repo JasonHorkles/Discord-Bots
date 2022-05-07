@@ -113,7 +113,7 @@ public class StormAlerts extends ListenerAdapter {
             Calendar toWork = Calendar.getInstance();
             toWork.setTime(format.parse(LocalDate.now() + " 2:38 PM"));
             Calendar toHome = Calendar.getInstance();
-            toHome.setTime(format.parse(LocalDate.now() + " 5:50 PM"));
+            toHome.setTime(format.parse(LocalDate.now() + " 5:55 PM"));
 
             long delay = toWork.getTimeInMillis() - System.currentTimeMillis();
             long delay2 = toHome.getTimeInMillis() - System.currentTimeMillis();
