@@ -45,7 +45,8 @@ public class Traffic {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    System.out.print(new Utils().getTime(Utils.Color.RED));
+                    e.printStackTrace();
                 }
             }
 

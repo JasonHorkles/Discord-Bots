@@ -255,7 +255,8 @@ public class Utils {
             System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Updated the daily Wordle!");
         } catch (IOException e) {
             System.out.print(getTime(Color.RED));
-            throw new RuntimeException(e);
+            System.out.print(new Utils().getTime(Utils.Color.RED));
+            e.printStackTrace();
         }
     }
 }

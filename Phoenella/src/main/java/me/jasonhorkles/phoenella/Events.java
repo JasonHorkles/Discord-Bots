@@ -393,7 +393,8 @@ public class Events extends ListenerAdapter {
                     message.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
                 } catch (IOException e) {
                     message.reply(e.getMessage()).mentionRepliedUser(false).queue();
-                    throw new RuntimeException(e);
+                    System.out.print(new Utils().getTime(Utils.Color.RED));
+                    e.printStackTrace();
                 } catch (IndexOutOfBoundsException ignored) {
                     message.reply("I couldn't find a result for that!\n<" + page + ">").mentionRepliedUser(false)
                         .queue();
@@ -497,7 +498,8 @@ public class Events extends ListenerAdapter {
                 } catch (IOException e) {
                     message.reply("Failed to write word! See console for details.")
                         .queue((msg) -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
-                    throw new RuntimeException(e);
+                    System.out.print(new Utils().getTime(Utils.Color.RED));
+                    e.printStackTrace();
                 }
             }
 
@@ -608,7 +610,8 @@ public class Events extends ListenerAdapter {
                                 return;
                             }
                         } catch (FileNotFoundException e) {
-                            throw new RuntimeException(e);
+                            System.out.print(new Utils().getTime(Utils.Color.RED));
+                            e.printStackTrace();
                         }
 
                         event.reply("Creating a game...").setEphemeral(true).queue();
@@ -642,11 +645,12 @@ public class Events extends ListenerAdapter {
 
                             event.deferReply(ephemeral).queue();
 
-                            Scanner leaderboard;
+                            Scanner leaderboard = null;
                             try {
                                 leaderboard = new Scanner(new File("Phoenella/Wordle/leaderboard.txt"));
                             } catch (FileNotFoundException e) {
-                                throw new RuntimeException(e);
+                                System.out.print(new Utils().getTime(Utils.Color.RED));
+                                e.printStackTrace();
                             }
                             HashMap<Member, Integer> lines = new HashMap<>();
 

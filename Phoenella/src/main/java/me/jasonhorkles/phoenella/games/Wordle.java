@@ -276,9 +276,11 @@ public class Wordle extends ListenerAdapter {
                 if (daily.get(channel)) score++;
 
                 FileWriter writer = new FileWriter(leaderboardFile, false);
-                if (memberAtIndex == -1) //noinspection ConstantConditions
-                    writer.write(event.getMember().getId() + ":" + score + "\n");
-                else {
+                if (memberAtIndex == -1) { //noinspection ConstantConditions
+                    lines.add(event.getMember().getId() + ":" + score);
+
+                    for (String line : lines) writer.write(line + "\n");
+                } else {
                     score += Integer.parseInt(lines.get(memberAtIndex).replaceFirst(".*:", ""));
                     lines.set(memberAtIndex, event.getMember().getId() + ":" + score);
 
@@ -286,7 +288,8 @@ public class Wordle extends ListenerAdapter {
                 }
                 writer.close();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                System.out.print(new Utils().getTime(Utils.Color.RED));
+                e.printStackTrace();
             }
 
             sendRetryMsg(channel, "Well done!", answer);
