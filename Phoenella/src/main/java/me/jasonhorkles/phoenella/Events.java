@@ -504,7 +504,8 @@ public class Events extends ListenerAdapter {
             }
 
         // Delete message
-        if (event.getReactionEmote().getEmoji().equals("❌")) {
+        if (event.getReactionEmote().getEmoji().equals("❌") && event.getTextChannel()
+            .getParentCategoryIdLong() != 900747596245639238L) {
             Message message = event.retrieveMessage().complete();
             if (message.getAuthor().equals(Phoenella.api.getSelfUser())) message.delete().queue();
         }
@@ -641,7 +642,9 @@ public class Events extends ListenerAdapter {
                             event.reply("The leaderboard is currently disabled!").setEphemeral(true).queue();
                         else {
                             boolean ephemeral = true;
-                            if (event.getOption("show") != null) ephemeral = !event.getOption("show").getAsBoolean();
+                            if (event.getTextChannel().getParentCategoryIdLong() != 900747596245639238L)
+                                if (event.getOption("show") != null)
+                                    ephemeral = !event.getOption("show").getAsBoolean();
 
                             event.deferReply(ephemeral).queue();
 
