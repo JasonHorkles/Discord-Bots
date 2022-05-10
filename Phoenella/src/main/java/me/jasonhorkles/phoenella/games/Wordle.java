@@ -28,6 +28,10 @@ import java.util.concurrent.TimeUnit;
 
 public class Wordle extends ListenerAdapter {
     //todo list
+    // auto word request when not in local file
+    // prevent people from interacting with other players' games
+    // don't provide daily share message if given up or failed
+    // define word on finish
     // custom wordle dictionary check
     // timed challenge with threads
     private static final ArrayList<String> wordList = new ArrayList<>();
