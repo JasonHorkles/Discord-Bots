@@ -89,7 +89,7 @@ public class Utils {
                         if (reactionUsers == member.getUser()) msgReactions.removeReaction(reactionUsers).queue();
             } catch (InterruptedException | ExecutionException | TimeoutException ignored) {
             }
-        }, "Remove-Reactions-" + getFirstName(member));
+        }, "Remove Reactions - " + getFirstName(member));
         removeReactions.start();
 
         removeRoleFromMember(member, guild, RoleType.BUTTON);

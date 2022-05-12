@@ -166,7 +166,7 @@ public class Phoenella extends ListenerAdapter {
             new AntiScam());
 
         // Add shutdown hooks
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> new Phoenella().shutdown(), "Shutdown-Hook"));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> new Phoenella().shutdown(), "Shutdown Hook"));
         Thread input = new Thread(() -> {
             while (true) {
                 Scanner in = new Scanner(System.in);
@@ -174,8 +174,10 @@ public class Phoenella extends ListenerAdapter {
                 if (text.equalsIgnoreCase("stop")) System.exit(0);
                 if (text.equalsIgnoreCase("dailywordle")) new Utils().updateDailyWordle();
             }
-        }, "Console-Input");
+        }, "Console Input");
         input.start();
+
+        Runtime.getRuntime().gc();
 
         System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Done starting up!");
     }

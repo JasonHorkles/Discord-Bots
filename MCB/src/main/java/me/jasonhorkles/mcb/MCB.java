@@ -99,14 +99,14 @@ public class MCB extends ListenerAdapter {
             TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
 
         // Add shutdown hooks
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> new MCB().shutdown(), "Shutdown-Hook"));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> new MCB().shutdown(), "Shutdown Hook"));
         Thread input = new Thread(() -> {
             while (true) {
                 Scanner in = new Scanner(System.in);
                 String text = in.nextLine();
                 if (text.equalsIgnoreCase("stop")) System.exit(0);
             }
-        }, "Console-Input");
+        }, "Console Input");
         input.start();
 
         System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Done starting up!");
