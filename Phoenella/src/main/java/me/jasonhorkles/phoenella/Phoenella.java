@@ -130,7 +130,7 @@ public class Phoenella extends ListenerAdapter {
         // Schedule daily Wordle
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd h:mm a");
         Calendar future = Calendar.getInstance();
-        future.setTime(format.parse(LocalDate.now() + " 5:00 AM"));
+        future.setTime(format.parse(LocalDate.now() + " 12:00 AM"));
 
         long delay = future.getTimeInMillis() - System.currentTimeMillis();
 

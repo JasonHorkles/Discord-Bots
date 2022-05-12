@@ -445,6 +445,7 @@ public class Wordle extends ListenerAdapter {
             deleteChannel.remove(channel);
         }
         new GameManager().deleteGame(channel);
+        Runtime.getRuntime().gc();
     }
 
     private void sendRetryMsg(TextChannel channel, String message, String answer) {
