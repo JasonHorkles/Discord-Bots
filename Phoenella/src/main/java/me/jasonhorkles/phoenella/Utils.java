@@ -89,13 +89,14 @@ public class Utils {
                         if (reactionUsers == member.getUser()) msgReactions.removeReaction(reactionUsers).queue();
             } catch (InterruptedException | ExecutionException | TimeoutException ignored) {
             }
-        });
+        }, "Remove-Reactions-" + getFirstName(member));
         removeReactions.start();
 
         removeRoleFromMember(member, guild, "button");
         removeRoleFromMember(member, guild, "student");
     }
 
+    //todo convert to enum
     private void addRoleToMember(Member member, Guild guild, String role) {
         String roleName = role;
 
@@ -112,6 +113,7 @@ public class Utils {
         }
     }
 
+    //todo convert to enum
     private void removeRoleFromMember(Member member, Guild guild, String role) {
         String roleName = role;
 
@@ -149,11 +151,13 @@ public class Utils {
         }
     }
 
-    public String getFirstName(Member member) {
+    public String getFirstName(@Nullable Member member) {
+        if (member == null) return "null";
         return member.getEffectiveName().replaceAll(" .*", "").replaceAll("\\(.*", "").trim();
     }
 
-    public String getFullName(Member member) {
+    public String getFullName(@Nullable Member member) {
+        if (member == null) return "null";
         return member.getEffectiveName().replaceAll("\\(.*", "").trim();
     }
 

@@ -36,10 +36,9 @@ import java.util.concurrent.*;
 
 @SuppressWarnings({"BusyWait", "ConstantConditions"})
 public class Phoenella extends ListenerAdapter {
+    private static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
     public static JDA api;
     public static boolean localWordleBoard = false;
-
-    private static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
 
     public static void main(String[] args) throws LoginException, InterruptedException, IOException, ExecutionException, TimeoutException, ParseException {
         System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Starting...");
@@ -141,7 +140,6 @@ public class Phoenella extends ListenerAdapter {
                 delay / 3600000.0) + " hours.");
         }
 
-
         // Delete game channels
         for (TextChannel channel : api.getCategoryById(900747596245639238L).getTextChannels())
             channel.delete().queue();
@@ -168,7 +166,7 @@ public class Phoenella extends ListenerAdapter {
             new AntiScam());
 
         // Add shutdown hooks
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> new Phoenella().shutdown()));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> new Phoenella().shutdown(), "Shutdown-Hook"));
         Thread input = new Thread(() -> {
             while (true) {
                 Scanner in = new Scanner(System.in);
@@ -176,7 +174,7 @@ public class Phoenella extends ListenerAdapter {
                 if (text.equalsIgnoreCase("stop")) System.exit(0);
                 if (text.equalsIgnoreCase("dailywordle")) new Utils().updateDailyWordle();
             }
-        });
+        }, "Console-Input");
         input.start();
 
         System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Done starting up!");

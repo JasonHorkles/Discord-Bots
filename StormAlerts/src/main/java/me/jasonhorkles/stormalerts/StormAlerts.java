@@ -136,7 +136,7 @@ public class StormAlerts extends ListenerAdapter {
         }
 
         // Add shutdown hooks
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> new StormAlerts().shutdown()));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> new StormAlerts().shutdown(), "Shutdown-Hook"));
         Thread input = new Thread(() -> {
             while (true) {
                 Scanner in = new Scanner(System.in);
@@ -145,7 +145,7 @@ public class StormAlerts extends ListenerAdapter {
                 if (text.equalsIgnoreCase("traffic n")) new Traffic().checkTraffic(true);
                 if (text.equalsIgnoreCase("traffic s")) new Traffic().checkTraffic(false);
             }
-        });
+        }, "Console-Input");
         input.start();
 
         System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Done starting up!");

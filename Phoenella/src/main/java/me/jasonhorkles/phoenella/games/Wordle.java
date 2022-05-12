@@ -116,7 +116,7 @@ public class Wordle extends ListenerAdapter {
                     .queue();
             } catch (ErrorResponseException ignored) {
             }
-        });
+        }, "Create-Wordle-" + new Utils().getFirstName(player));
         game.start();
 
         return channel;
@@ -364,7 +364,7 @@ public class Wordle extends ListenerAdapter {
                         event.getMember()) + "** just finished the daily Wordle in **" + attempt.get(
                         event.getTextChannel()) + "** tries!").complete();
                     endGame(event.getTextChannel());
-                });
+                }, "Share-Wordle-Score-" + new Utils().getFirstName(event.getMember()));
                 thread.start();
             }
         }
@@ -445,7 +445,6 @@ public class Wordle extends ListenerAdapter {
             deleteChannel.remove(channel);
         }
         new GameManager().deleteGame(channel);
-        Runtime.getRuntime().gc();
     }
 
     private void sendRetryMsg(TextChannel channel, String message, String answer) {

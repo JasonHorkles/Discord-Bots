@@ -66,7 +66,7 @@ public class Traffic {
                     channel -> channel.sendMessage("**" + new Secrets().getRoadName(
                         north) + " section " + finalSlowSection + "** has a slowdown @ **" + finalMinSpeed + " mph**! :red_circle:"))
                 .queue();
-        });
+        }, "Traffic-Check");
         checks.start();
     }
 }
