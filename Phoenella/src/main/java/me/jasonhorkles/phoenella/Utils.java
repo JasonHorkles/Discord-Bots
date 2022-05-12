@@ -45,14 +45,14 @@ public class Utils {
 
     public void runNameCheckForUser(String newNickname, Member member, Guild guild) {
         if (hasGoodNickname(newNickname)) if (newNickname.toLowerCase().contains("(parent)")) {
-            addRoleToMember(member, guild, "parent");
+            addRoleToMember(member, guild, RoleType.PARENT);
             nonStudentNick(member, guild);
         } else {
-            removeRoleFromMember(member, guild, "parent");
-            addRoleToMember(member, guild, "student");
+            removeRoleFromMember(member, guild, RoleType.PARENT);
+            addRoleToMember(member, guild, RoleType.STUDENT);
         }
         else {
-            removeRoleFromMember(member, guild, "parent");
+            removeRoleFromMember(member, guild, RoleType.PARENT);
             nonStudentNick(member, guild);
         }
     }
@@ -66,14 +66,14 @@ public class Utils {
             if (!member.getRoles().toString().contains("842490529744945192"))
                 if (hasGoodNickname(member.getEffectiveName()))
                     if (member.getEffectiveName().toLowerCase().contains("(parent)")) {
-                        addRoleToMember(member, guild, "parent");
+                        addRoleToMember(member, guild, RoleType.PARENT);
                         nonStudentNick(member, guild);
                     } else {
-                        removeRoleFromMember(member, guild, "parent");
-                        addRoleToMember(member, guild, "student");
+                        removeRoleFromMember(member, guild, RoleType.PARENT);
+                        addRoleToMember(member, guild, RoleType.STUDENT);
                     }
                 else {
-                    removeRoleFromMember(member, guild, "parent");
+                    removeRoleFromMember(member, guild, RoleType.PARENT);
                     nonStudentNick(member, guild);
                 }
         }
@@ -92,41 +92,37 @@ public class Utils {
         }, "Remove-Reactions-" + getFirstName(member));
         removeReactions.start();
 
-        removeRoleFromMember(member, guild, "button");
-        removeRoleFromMember(member, guild, "student");
+        removeRoleFromMember(member, guild, RoleType.BUTTON);
+        removeRoleFromMember(member, guild, RoleType.STUDENT);
     }
 
-    //todo convert to enum
-    private void addRoleToMember(Member member, Guild guild, String role) {
-        String roleName = role;
+    public enum RoleType {
+        STUDENT("892267754730709002"), BUTTON("892453842241859664"), PARENT("892853778829692968");
 
-        switch (role) {
-            case "student" -> role = "892267754730709002";
-            case "button" -> role = "892453842241859664";
-            case "parent" -> role = "892853778829692968";
+        private final String role;
+
+        RoleType(String role) {
+            this.role = role;
         }
 
-        if (!member.getRoles().toString().contains(role)) {
-            System.out.println(new Utils().getTime(
-                Utils.Color.GREEN) + "Adding role '" + roleName + "' to '" + member.getEffectiveName() + "'");
-            guild.addRoleToMember(member, guild.getRoleById(role)).queue();
+        public String getRole() {
+            return role;
         }
     }
 
-    //todo convert to enum
-    private void removeRoleFromMember(Member member, Guild guild, String role) {
-        String roleName = role;
-
-        switch (role) {
-            case "student" -> role = "892267754730709002";
-            case "button" -> role = "892453842241859664";
-            case "parent" -> role = "892853778829692968";
-        }
-
-        if (member.getRoles().toString().contains(role)) {
+    private void addRoleToMember(Member member, Guild guild, RoleType roleType) {
+        if (!member.getRoles().toString().contains(roleType.getRole())) {
             System.out.println(new Utils().getTime(
-                Utils.Color.GREEN) + "Removing role '" + roleName + "' from '" + member.getEffectiveName() + "'");
-            guild.removeRoleFromMember(member, guild.getRoleById(role)).queue();
+                Utils.Color.GREEN) + "Adding role '" + roleType + "' to '" + member.getEffectiveName() + "'");
+            guild.addRoleToMember(member, guild.getRoleById(roleType.getRole())).queue();
+        }
+    }
+
+    private void removeRoleFromMember(Member member, Guild guild, RoleType roleType) {
+        if (member.getRoles().toString().contains(roleType.getRole())) {
+            System.out.println(new Utils().getTime(
+                Utils.Color.GREEN) + "Removing role '" + roleType + "' from '" + member.getEffectiveName() + "'");
+            guild.removeRoleFromMember(member, guild.getRoleById(roleType.getRole())).queue();
         }
     }
 
