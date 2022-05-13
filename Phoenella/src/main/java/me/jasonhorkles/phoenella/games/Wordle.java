@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 public class Wordle extends ListenerAdapter {
     //todo list
     // auto word request when not in local file
+    // implement max limit
     // prevent people from interacting with other players' games
     // don't provide daily share message if given up or failed
     // define word on finish
@@ -277,7 +278,7 @@ public class Wordle extends ListenerAdapter {
                     case 2 -> score = 5;
                     case 1 -> score = 6;
                 }
-                if (daily.get(channel)) score++;
+                if (daily.get(channel)) score *= 2;
 
                 FileWriter writer = new FileWriter(leaderboardFile, false);
                 if (memberAtIndex == -1) { //noinspection ConstantConditions
@@ -297,6 +298,8 @@ public class Wordle extends ListenerAdapter {
             }
 
             sendRetryMsg(channel, "Well done!", answer);
+            if (daily.get(channel)) channel.sendMessage("Share score?")
+                .setActionRow(Button.primary("sharewordlescore", "Yes!").withEmoji(Emoji.fromUnicode("✅"))).queue();
         }
 
         // Fail
@@ -455,9 +458,6 @@ public class Wordle extends ListenerAdapter {
         else channel.sendMessage(message)
             .setActionRow(Button.danger("reportword:" + answer, "Report word").withEmoji(Emoji.fromUnicode("🚩")),
                 Button.success("restartgame:wordle", "New word").withEmoji(Emoji.fromUnicode("🔁"))).queue();
-
-        if (daily.get(channel)) channel.sendMessage("Share score?")
-            .setActionRow(Button.primary("sharewordlescore", "Yes!").withEmoji(Emoji.fromUnicode("✅"))).queue();
 
         deleteChannel.put(channel, Executors.newSingleThreadScheduledExecutor()
             .schedule(() -> new Wordle().endGame(channel), 45, TimeUnit.SECONDS));
