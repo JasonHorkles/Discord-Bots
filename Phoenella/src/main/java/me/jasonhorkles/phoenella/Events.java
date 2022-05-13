@@ -194,13 +194,14 @@ public class Events extends ListenerAdapter {
                     TextChannel gameChannel = new Wordle().startGame(member, null, false, false, null);
                     message.addReaction("👍").queue();
                     if (gameChannel == null)
-                        message.reply("You already have a game with that word active!").complete().delete()
-                            .queueAfter(5, TimeUnit.SECONDS);
-                    else message.reply("Game created in " + gameChannel.getAsMention()).complete().delete()
-                        .queueAfter(15, TimeUnit.SECONDS);
+                        message.reply(
+                                "Either you already have an ongoing game with that word or you have too many games active at once!")
+                            .queue((del) -> del.delete().queueAfter(5, TimeUnit.SECONDS));
+                    else message.reply("Game created in " + gameChannel.getAsMention())
+                        .queue((del) -> del.delete().queueAfter(15, TimeUnit.SECONDS));
                 } catch (IOException e) {
-                    message.reply("Couldn't generate a random word! Please try again later.").complete().delete()
-                        .queueAfter(30, TimeUnit.SECONDS);
+                    message.reply("Couldn't generate a random word! Please try again later.")
+                        .queue((del) -> del.delete().queueAfter(30, TimeUnit.SECONDS));
                     System.out.print(new Utils().getTime(Utils.Color.RED));
                     e.printStackTrace();
                 }

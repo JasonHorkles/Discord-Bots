@@ -48,6 +48,12 @@ public class Wordle extends ListenerAdapter {
     private static final HashMap<TextChannel, String> answers = new HashMap<>();
 
     public TextChannel startGame(Member player, @Nullable String answer, boolean isUserGenerated, boolean isDaily, @Nullable Integer tries) throws IOException {
+        // Scan for too many channels
+        int channelsWithName = 0;
+        if (players.containsValue(player)) for (TextChannel channels : players.keySet())
+            if (players.get(channels) == player) channelsWithName++;
+        if (channelsWithName > 3) return null;
+
         // Update words
         Scanner words = new Scanner(new File("Phoenella/Wordle/words.txt"));
         wordList.clear();
@@ -136,7 +142,7 @@ public class Wordle extends ListenerAdapter {
         String answer = answers.get(channel);
 
         if (input.length() != answer.length()) {
-            message.reply("Invalid length!").queue((msg) -> msg.delete().queueAfter(3, TimeUnit.SECONDS));
+            message.reply("Invalid length!").queue((del) -> del.delete().queueAfter(3, TimeUnit.SECONDS));
             message.delete().queueAfter(100, TimeUnit.MILLISECONDS);
             return;
         }
@@ -148,7 +154,7 @@ public class Wordle extends ListenerAdapter {
             if (doc.body().getElementsByClass("no-results-title css-1cywoo2 e6aw9qa1").size() > 0) {
                 message.reply("**" + input + "** isn't in the dictionary!")
                     .setActionRow(Button.primary("wordlerequest:" + input, "Request word!"))
-                    .queue((msg) -> msg.delete().queueAfter(4, TimeUnit.SECONDS));
+                    .queue((del) -> del.delete().queueAfter(4, TimeUnit.SECONDS));
                 message.delete().queueAfter(100, TimeUnit.MILLISECONDS);
                 return;
             }
@@ -159,7 +165,7 @@ public class Wordle extends ListenerAdapter {
 
             message.reply("**" + input + "** isn't in my dictionary!")
                 .setActionRow(Button.primary("wordlerequest:" + input, "Request word!"))
-                .queue((msg) -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+                .queue((del) -> del.delete().queueAfter(5, TimeUnit.SECONDS));
             message.delete().queueAfter(100, TimeUnit.MILLISECONDS);
             return;
         }
