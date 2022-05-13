@@ -130,6 +130,7 @@ public class Phoenella extends ListenerAdapter {
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd h:mm a");
         Calendar future = Calendar.getInstance();
         future.setTime(format.parse(LocalDate.now() + " 12:00 AM"));
+        future.add(Calendar.DAY_OF_MONTH, 1);
 
         long delay = future.getTimeInMillis() - System.currentTimeMillis();
 
