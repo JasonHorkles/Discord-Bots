@@ -590,7 +590,9 @@ public class Events extends ListenerAdapter {
                             TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, false, false,
                                 null);
                             if (gameChannel == null)
-                                event.getHook().editOriginal("You already have a game with that word active!").queue();
+                                event.getHook().editOriginal(
+                                        "Either you already have an ongoing game with that word or you have too many games active at once!")
+                                    .queue();
                             else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
                         } catch (IOException e) {
                             event.getHook().editOriginal("Couldn't generate a random word! Please try again later.")
@@ -628,7 +630,9 @@ public class Events extends ListenerAdapter {
                             TextChannel gameChannel = new Wordle().startGame(event.getMember(), word, false, true,
                                 null);
                             if (gameChannel == null)
-                                event.getHook().editOriginal("You already have a game with that word active!").queue();
+                                event.getHook().editOriginal(
+                                        "Either you already have an ongoing game with that word or you have too many games active at once!")
+                                    .queue();
                             else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
                         } catch (IOException e) {
                             event.getHook().editOriginal("Couldn't generate a random word! Please try again later.")

@@ -52,7 +52,7 @@ public class Wordle extends ListenerAdapter {
         int channelsWithName = 0;
         if (players.containsValue(player)) for (TextChannel channels : players.keySet())
             if (players.get(channels) == player) channelsWithName++;
-        if (channelsWithName > 3) return null;
+        if (channelsWithName >= 3) return null;
 
         // Update words
         Scanner words = new Scanner(new File("Phoenella/Wordle/words.txt"));
@@ -357,7 +357,9 @@ public class Wordle extends ListenerAdapter {
                 try {
                     TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, false, false, null);
                     if (gameChannel == null)
-                        event.getHook().editOriginal("You already have a game with that word active!").queue();
+                        event.getHook().editOriginal(
+                                "Either you already have an ongoing game with that word or you have too many games active at once!")
+                            .queue();
                     else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
                 } catch (IOException e) {
                     event.getHook().editOriginal("Couldn't generate a random word! Please try again later.").queue();
@@ -391,7 +393,9 @@ public class Wordle extends ListenerAdapter {
             try {
                 TextChannel gameChannel = new Wordle().startGame(event.getMember(), word, true, false, tries);
                 if (gameChannel == null)
-                    event.getHook().editOriginal("You already have a game with that word active!").queue();
+                    event.getHook().editOriginal(
+                            "Either you already have an ongoing game with that word or you have too many games active at once!")
+                        .queue();
 
                 else {
                     event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
