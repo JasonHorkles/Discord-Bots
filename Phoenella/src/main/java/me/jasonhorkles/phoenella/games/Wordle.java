@@ -136,7 +136,7 @@ public class Wordle extends ListenerAdapter {
         String answer = answers.get(channel);
 
         if (input.length() != answer.length()) {
-            message.reply("Invalid length!").complete().delete().queueAfter(3, TimeUnit.SECONDS);
+            message.reply("Invalid length!").queue((msg) -> msg.delete().queueAfter(3, TimeUnit.SECONDS));
             message.delete().queueAfter(100, TimeUnit.MILLISECONDS);
             return;
         }
@@ -147,8 +147,8 @@ public class Wordle extends ListenerAdapter {
             Document doc = conn.ignoreHttpErrors(true).get();
             if (doc.body().getElementsByClass("no-results-title css-1cywoo2 e6aw9qa1").size() > 0) {
                 message.reply("**" + input + "** isn't in the dictionary!")
-                    .setActionRow(Button.primary("wordlerequest:" + input, "Request word!")).complete().delete()
-                    .queueAfter(4, TimeUnit.SECONDS);
+                    .setActionRow(Button.primary("wordlerequest:" + input, "Request word!"))
+                    .queue((msg) -> msg.delete().queueAfter(4, TimeUnit.SECONDS));
                 message.delete().queueAfter(100, TimeUnit.MILLISECONDS);
                 return;
             }
@@ -224,7 +224,11 @@ public class Wordle extends ListenerAdapter {
         } catch (IndexOutOfBoundsException ignored) {
         }
         attempt.put(channel, attempt.get(channel) + 1);
-        keyboard.put(channel, keyboard.get(channel).editMessage(newKeyboard).complete());
+        String finalNewKeyboard = newKeyboard;
+        Thread updateKeyboard = new Thread(() -> keyboard.put(channel,
+            keyboard.get(channel).editMessage(finalNewKeyboard).timeout(15, TimeUnit.SECONDS).complete()),
+            "Update Wordle Keyboard - " + new Utils().getFirstName(players.get(channel)));
+        updateKeyboard.start();
 
         // Win
         if (input.equals(answer)) {
@@ -414,7 +418,7 @@ public class Wordle extends ListenerAdapter {
         }
 
         if (event.getComponentId().startsWith("wordlerequest:")) {
-            event.editButton(event.getButton().asDisabled()).complete();
+            event.editButton(event.getButton().asDisabled()).queue();
             //noinspection ConstantConditions
             event.getJDA().getTextChannelById(960213547944661042L).sendMessage(
                     ":inbox_tray: Word request from " + new Utils().getFullName(
@@ -424,7 +428,7 @@ public class Wordle extends ListenerAdapter {
         }
 
         if (event.getComponentId().startsWith("reportword:")) {
-            event.editButton(event.getButton().asDisabled()).complete();
+            event.editButton(event.getButton().asDisabled()).queue();
             //noinspection ConstantConditions
             event.getJDA().getTextChannelById(960213547944661042L).sendMessage(
                     ":warning: Word report from " + new Utils().getFullName(
