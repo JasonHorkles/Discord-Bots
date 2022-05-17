@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 
 public class Wordle extends ListenerAdapter {
     //todo list
-    // prevent people from interacting with other players' games
     // don't provide daily share message if given up or failed
     // define word on finish
     // custom wordle dictionary check
@@ -135,9 +134,13 @@ public class Wordle extends ListenerAdapter {
         if (event.getTextChannel().getParentCategoryIdLong() != 900747596245639238L) return;
         if (event.getAuthor().isBot()) return;
 
+        TextChannel channel = event.getTextChannel();
+
+        //noinspection ConstantConditions
+        if (event.getMember().getIdLong() != players.get(channel).getIdLong()) return;
+
         Message message = event.getMessage();
         String input = message.getContentStripped().replaceAll("[^a-zA-Z]", "").toUpperCase();
-        TextChannel channel = event.getTextChannel();
         String answer = answers.get(channel);
 
         if (input.length() != answer.length()) {
@@ -272,7 +275,6 @@ public class Wordle extends ListenerAdapter {
                 while (leaderboard.hasNextLine()) try {
                     String line = leaderboard.nextLine();
                     lines.add(line);
-                    //noinspection ConstantConditions
                     if (line.contains(event.getMember().getId())) memberAtIndex = index;
                     index++;
                 } catch (NoSuchElementException ignored) {
@@ -291,7 +293,7 @@ public class Wordle extends ListenerAdapter {
                 if (daily.get(channel)) score *= 2;
 
                 FileWriter writer = new FileWriter(leaderboardFile, false);
-                if (memberAtIndex == -1) { //noinspection ConstantConditions
+                if (memberAtIndex == -1) {
                     lines.add(event.getMember().getId() + ":" + score);
 
                     for (String line : lines) writer.write(line + "\n");
