@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -31,7 +30,7 @@ import java.io.IOException;
 import java.util.Scanner;
 
 @SuppressWarnings({"BusyWait"})
-public class MusicDaddy extends ListenerAdapter {
+public class MusicDaddy {
     public static JDA api;
     public static final SpotifyApi spotify = new SpotifyApi.Builder().setClientId(new Secrets().getSpotifyClientId())
         .setClientSecret(new Secrets().getSpotifyClientSecret()).build();

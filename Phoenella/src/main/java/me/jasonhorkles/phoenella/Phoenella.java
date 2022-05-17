@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -35,7 +34,7 @@ import java.util.Scanner;
 import java.util.concurrent.*;
 
 @SuppressWarnings({"BusyWait", "ConstantConditions"})
-public class Phoenella extends ListenerAdapter {
+public class Phoenella {
     private static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
     public static JDA api;
     public static boolean localWordleBoard = false;

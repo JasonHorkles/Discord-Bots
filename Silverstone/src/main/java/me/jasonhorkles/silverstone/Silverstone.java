@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -16,7 +15,7 @@ import javax.security.auth.login.LoginException;
 import java.util.Scanner;
 
 @SuppressWarnings("BusyWait")
-public class Silverstone extends ListenerAdapter {
+public class Silverstone {
     public static JDA api;
 
     public static void main(String[] args) throws LoginException, InterruptedException {
