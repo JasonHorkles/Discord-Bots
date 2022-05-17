@@ -454,7 +454,7 @@ public class Wordle extends ListenerAdapter {
                 Elements elements = doc.body().getElementsByClass("one-click-content css-nnyc96 e1q3nk1v1");
                 if (elements.size() > 0) {
                     String definition = elements.get(0).text();
-                    event.getHook().editOriginal(definition).queue();
+                    event.getHook().editOriginal("`" + definition + "`").queue();
 
                 } else if (doc.body().getElementsByClass("no-results-title css-1cywoo2 e6aw9qa1").size() > 0)
                     event.getHook().editOriginal("Couldn't find **" + word + "** in the dictionary!").queue();
@@ -525,6 +525,7 @@ public class Wordle extends ListenerAdapter {
         //noinspection ConstantConditions
         Phoenella.api.getTextChannelById(960213547944661042L).sendMessage(
                 ":inbox_tray: " + s + " request from " + new Utils().getFullName(member) + ": **" + word + "**")
+            .setActionRow(Button.primary("defineword:" + word, "Define word").withEmoji(Emoji.fromUnicode("❔")))
             .queue((msg) -> msg.addReaction("✅").queue((na) -> msg.addReaction("❌").queue((na1) -> {
                 if (isAuto) msg.addReaction("⛔").queue();
             })));
