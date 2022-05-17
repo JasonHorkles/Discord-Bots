@@ -19,6 +19,7 @@ import org.jsoup.nodes.Document;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -28,8 +29,6 @@ import java.util.concurrent.TimeUnit;
 
 public class Wordle extends ListenerAdapter {
     //todo list
-    // auto word request when not in local file
-    // implement max limit
     // prevent people from interacting with other players' games
     // don't provide daily share message if given up or failed
     // define word on finish
@@ -158,6 +157,7 @@ public class Wordle extends ListenerAdapter {
                 message.delete().queueAfter(100, TimeUnit.MILLISECONDS);
                 return;
             }
+            wordRequest(input.toUpperCase(), event.getMember(), true);
 
         } catch (IOException e) {
             System.out.print(new Utils().getTime(Utils.Color.RED));
@@ -356,10 +356,9 @@ public class Wordle extends ListenerAdapter {
 
                 try {
                     TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, false, false, null);
-                    if (gameChannel == null)
-                        event.getHook().editOriginal(
-                                "Either you already have an ongoing game with that word or you have too many games active at once!")
-                            .queue();
+                    if (gameChannel == null) event.getHook().editOriginal(
+                            "Either you already have an ongoing game with that word or you have too many games active at once!")
+                        .queue();
                     else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
                 } catch (IOException e) {
                     event.getHook().editOriginal("Couldn't generate a random word! Please try again later.").queue();
@@ -392,10 +391,9 @@ public class Wordle extends ListenerAdapter {
 
             try {
                 TextChannel gameChannel = new Wordle().startGame(event.getMember(), word, true, false, tries);
-                if (gameChannel == null)
-                    event.getHook().editOriginal(
-                            "Either you already have an ongoing game with that word or you have too many games active at once!")
-                        .queue();
+                if (gameChannel == null) event.getHook().editOriginal(
+                        "Either you already have an ongoing game with that word or you have too many games active at once!")
+                    .queue();
 
                 else {
                     event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
@@ -429,11 +427,7 @@ public class Wordle extends ListenerAdapter {
 
         if (event.getComponentId().startsWith("wordlerequest:")) {
             event.editButton(event.getButton().asDisabled()).queue();
-            //noinspection ConstantConditions
-            event.getJDA().getTextChannelById(960213547944661042L).sendMessage(
-                    ":inbox_tray: Word request from " + new Utils().getFullName(
-                        event.getMember()) + ": **" + event.getComponentId().replace("wordlerequest:", "") + "**")
-                .queue((msg) -> msg.addReaction("✅").queue((na) -> msg.addReaction("❌").queue()));
+            wordRequest(event.getComponentId().replace("wordlerequest:", ""), event.getMember(), false);
             return;
         }
 
@@ -475,6 +469,32 @@ public class Wordle extends ListenerAdapter {
 
         deleteChannel.put(channel, Executors.newSingleThreadScheduledExecutor()
             .schedule(() -> new Wordle().endGame(channel), 45, TimeUnit.SECONDS));
+    }
+
+    private void wordRequest(String word, Member member, boolean isAuto) {
+        if (isAuto) {
+            ArrayList<String> words = new ArrayList<>();
+            try {
+                Scanner fileScanner = new Scanner(new File("Phoenella/Wordle/banned-requests.txt"));
+                while (fileScanner.hasNextLine()) words.add(fileScanner.nextLine());
+            } catch (NoSuchElementException ignored) {
+            } catch (FileNotFoundException e) {
+                System.out.print(new Utils().getTime(Utils.Color.RED));
+                e.printStackTrace();
+            }
+            if (words.contains(word.toUpperCase())) return;
+        }
+
+        String s;
+        if (isAuto) s = "Auto word";
+        else s = "Word";
+
+        //noinspection ConstantConditions
+        Phoenella.api.getTextChannelById(960213547944661042L).sendMessage(
+                ":inbox_tray: " + s + " request from " + new Utils().getFullName(member) + ": **" + word + "**")
+            .queue((msg) -> msg.addReaction("✅").queue((na) -> msg.addReaction("❌").queue((na1) -> {
+                if (isAuto) msg.addReaction("⛔").queue();
+            })));
     }
 
     private enum LetterType {

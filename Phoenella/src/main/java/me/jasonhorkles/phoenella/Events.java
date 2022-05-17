@@ -510,6 +510,28 @@ public class Events extends ListenerAdapter {
             Message message = event.retrieveMessage().complete();
             if (message.getAuthor().equals(Phoenella.api.getSelfUser())) message.delete().queue();
         }
+
+        // Prevent future requests for that word
+        if (event.getReactionEmote().getEmoji().equals("⛔"))
+            if (event.getTextChannel().getIdLong() == 960213547944661042L) {
+                Message message = event.retrieveMessage().complete();
+                File file = new File("Phoenella/Wordle/banned-requests.txt");
+
+                try {
+                    if (message.getContentStripped().contains("Auto word request")) {
+                        FileWriter fileWriter = new FileWriter(file, true);
+                        fileWriter.write(message.getContentStripped().replaceAll(".*: ", "").toUpperCase() + "\n");
+                        fileWriter.close();
+                    }
+                    message.delete().queue();
+
+                } catch (IOException e) {
+                    message.reply("Failed to write word! See console for details.")
+                        .queue((msg) -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+                    System.out.print(new Utils().getTime(Utils.Color.RED));
+                    e.printStackTrace();
+                }
+            }
     }
 
     @Override
