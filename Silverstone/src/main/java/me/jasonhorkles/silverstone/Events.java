@@ -18,8 +18,8 @@ import java.util.concurrent.TimeoutException;
 
 @SuppressWarnings("ConstantConditions")
 public class Events extends ListenerAdapter {
+    //todo reaction to convert txt file to code block
 
-    // Slash commands
     @SuppressWarnings("SuspiciousMethodCalls")
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
@@ -36,7 +36,7 @@ public class Events extends ListenerAdapter {
                 .queue();
 
             case "ecdebug" -> event.reply(
-                    "Please run the command `/ecl debug` in-game.\nOnce everything has completed, upload the newly created debug dump file from the EntityClearer plugin folder (/plugins/EntityClearer) to this channel.")
+                    "Please run the command `/ecl debug` in-game.\nOnce everything has completed, upload the newly created debug dump file from the EntityClearer plugin folder (`/plugins/EntityClearer`) to this channel.")
                 .queue();
 
             case "plgh" -> event.reply("""
