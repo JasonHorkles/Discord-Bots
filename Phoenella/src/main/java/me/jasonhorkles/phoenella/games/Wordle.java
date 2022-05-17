@@ -11,11 +11,13 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -29,8 +31,6 @@ import java.util.concurrent.TimeUnit;
 
 public class Wordle extends ListenerAdapter {
     //todo list
-    // don't provide daily share message if given up or failed
-    // define word on finish
     // custom wordle dictionary check
     // timed challenge with threads
     private static final ArrayList<String> wordList = new ArrayList<>();
@@ -441,6 +441,34 @@ public class Wordle extends ListenerAdapter {
                         event.getMember()) + ": **" + event.getComponentId().replace("reportword:", "") + "**")
                 .queue((msg) -> msg.addReaction("✅").queue((na) -> msg.addReaction("❌").queue()));
         }
+
+        if (event.getComponentId().startsWith("defineword:")) {
+            event.deferReply(true).queue();
+
+            String word = event.getComponentId().replace("defineword:", "");
+            try {
+                String page = "https://www.dictionary.com/browse/" + word;
+                Connection conn = Jsoup.connect(page).timeout(15000);
+                Document doc = conn.ignoreHttpErrors(true).get();
+
+                Elements elements = doc.body().getElementsByClass("one-click-content css-nnyc96 e1q3nk1v1");
+                if (elements.size() > 0) {
+                    String definition = elements.get(0).text();
+                    event.getHook().editOriginal(definition).queue();
+
+                } else if (doc.body().getElementsByClass("no-results-title css-1cywoo2 e6aw9qa1").size() > 0)
+                    event.getHook().editOriginal("Couldn't find **" + word + "** in the dictionary!").queue();
+
+
+            } catch (IOException e) {
+                System.out.print(new Utils().getTime(Utils.Color.RED));
+                e.printStackTrace();
+
+                event.getHook()
+                    .editOriginal("Failed to search dictionary for word **" + word + "**! Please try again later.")
+                    .queue();
+            }
+        }
     }
 
     private void endGame(TextChannel channel) {
@@ -463,11 +491,14 @@ public class Wordle extends ListenerAdapter {
     private void sendRetryMsg(TextChannel channel, String message, String answer) {
         channel.upsertPermissionOverride(players.get(channel)).setDenied(Permission.MESSAGE_SEND).queue();
 
-        if (isNonReal.get(channel)) channel.sendMessage(message)
-            .setActionRow(Button.success("restartgame:wordle", "New word").withEmoji(Emoji.fromUnicode("🔁"))).queue();
-        else channel.sendMessage(message)
-            .setActionRow(Button.danger("reportword:" + answer, "Report word").withEmoji(Emoji.fromUnicode("🚩")),
-                Button.success("restartgame:wordle", "New word").withEmoji(Emoji.fromUnicode("🔁"))).queue();
+        ArrayList<ItemComponent> buttons = new ArrayList<>();
+        if (!isNonReal.get(channel)) {
+            buttons.add(Button.danger("reportword:" + answer, "Report word").withEmoji(Emoji.fromUnicode("🚩")));
+            buttons.add(Button.primary("defineword:" + answer, "Define word").withEmoji(Emoji.fromUnicode("❔")));
+        }
+        buttons.add(Button.success("restartgame:wordle", "New word").withEmoji(Emoji.fromUnicode("🔁")));
+
+        channel.sendMessage(message).setActionRow(buttons).queue();
 
         deleteChannel.put(channel, Executors.newSingleThreadScheduledExecutor()
             .schedule(() -> new Wordle().endGame(channel), 45, TimeUnit.SECONDS));
