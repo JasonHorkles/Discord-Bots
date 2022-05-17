@@ -36,7 +36,7 @@ public class Events extends ListenerAdapter {
                 .queue();
 
             case "ecdebug" -> event.reply(
-                    "Please set `debug` to `true` in your config, run `/entityclearer reload`, then reproduce the issue.\nOnce complete, upload the logs to <https://paste.gg/>, click \"Submit anonymously\", and post the link in this channel.")
+                    "Please run the command `/ecl debug` in-game.\nOnce everything has completed, upload the newly created debug dump file from the EntityClearer plugin folder (/plugins/EntityClearer) to this channel.")
                 .queue();
 
             case "plgh" -> event.reply("""

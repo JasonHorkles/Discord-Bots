@@ -6,10 +6,7 @@ Phoenella/channel-blacklist.txt
 Phoenella/Shush Data
 Phoenella/Sounds
 Phoenella/src/main/java/me/jasonhorkles/phoenella/Secrets.java
-Phoenella/Wordle/daily.txt
-Phoenella/Wordle/leaderboard.txt
-Phoenella/Wordle/played-daily.txt
-Phoenella/Wordle/words.txt
+Phoenella/Wordle
 Quorum/lessons.txt
 Quorum/src/main/java/me/jasonhorkles/quorum/Events.java
 Quorum/src/main/java/me/jasonhorkles/quorum/Secrets.java
