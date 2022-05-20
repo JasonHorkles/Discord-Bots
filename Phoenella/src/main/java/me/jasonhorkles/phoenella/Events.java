@@ -170,15 +170,15 @@ public class Events extends ListenerAdapter {
             if (text.contains("play rock paper scissors") || text.contains("play rps")) {
                 channel.sendTyping().complete();
 
-                if (message.getMentionedMembers().isEmpty() || message.getMentionedMembers()
-                    .get(0) == member || message.getMentionedMembers().get(0).getUser().isBot()) {
+                if (message.getMentions().getMembers().isEmpty() || message.getMentions().getMembers()
+                    .get(0) == member || message.getMentions().getMembers().get(0).getUser().isBot()) {
                     message.reply("You must ping an opponent in your message!").queue();
                     return;
 
                 } else {
                     ArrayList<Member> players = new ArrayList<>();
                     players.add(member);
-                    players.add(message.getMentionedMembers().get(0));
+                    players.add(message.getMentions().getMembers().get(0));
 
                     TextChannel gameChannel = new RPS().startGame(players);
                     message.addReaction("👍").queue();

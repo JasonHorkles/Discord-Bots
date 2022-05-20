@@ -49,7 +49,7 @@ public class Events extends ListenerAdapter {
         Long id = event.getAuthor().getIdLong();
 
         int count = 0;
-        for (Member member : event.getMessage().getMentionedMembers())
+        for (Member member : event.getMessage().getMentions().getMembers())
             if (member.getRoles().toString().contains("646291178144399371")) count++;
 
         if (count > 0) {
