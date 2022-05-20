@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Wordle extends ListenerAdapter {
     //todo list
+    // remove duplicates on startup
     // custom wordle dictionary check
     // timed challenge with threads
     private static final ArrayList<String> wordList = new ArrayList<>();
@@ -92,8 +93,7 @@ public class Wordle extends ListenerAdapter {
             StringBuilder empties = new StringBuilder();
             empties.append("<:empty:959950240516046868> ".repeat(answers.get(channel).length()));
             try {
-                for (int x = 0; x < maxTries.get(channel); x++)
-                    lines.add(channel.sendMessage(empties).complete());
+                for (int x = 0; x < maxTries.get(channel); x++) lines.add(channel.sendMessage(empties).complete());
                 messages.put(channel, lines);
 
                 keyboard.put(channel, channel.sendMessage(
@@ -137,7 +137,10 @@ public class Wordle extends ListenerAdapter {
         TextChannel channel = event.getTextChannel();
 
         //noinspection ConstantConditions
-        if (event.getMember().getIdLong() != players.get(channel).getIdLong()) return;
+        if (event.getMember().getIdLong() != players.get(channel).getIdLong()) {
+            event.getMessage().delete().queueAfter(150, TimeUnit.MILLISECONDS);
+            return;
+        }
 
         Message message = event.getMessage();
         String input = message.getContentStripped().replaceAll("[^a-zA-Z]", "").toUpperCase();
@@ -145,7 +148,7 @@ public class Wordle extends ListenerAdapter {
 
         if (input.length() != answer.length()) {
             message.reply("Invalid length!").queue((del) -> del.delete().queueAfter(3, TimeUnit.SECONDS));
-            message.delete().queueAfter(100, TimeUnit.MILLISECONDS);
+            message.delete().queueAfter(150, TimeUnit.MILLISECONDS);
             return;
         }
 
@@ -157,7 +160,7 @@ public class Wordle extends ListenerAdapter {
                 message.reply("**" + input + "** isn't in the dictionary!")
                     .setActionRow(Button.primary("wordlerequest:" + input, "Request word!"))
                     .queue((del) -> del.delete().queueAfter(4, TimeUnit.SECONDS));
-                message.delete().queueAfter(100, TimeUnit.MILLISECONDS);
+                message.delete().queueAfter(150, TimeUnit.MILLISECONDS);
                 return;
             }
             wordRequest(input.toUpperCase(), event.getMember(), true);
@@ -169,11 +172,11 @@ public class Wordle extends ListenerAdapter {
             message.reply("**" + input + "** isn't in my dictionary!")
                 .setActionRow(Button.primary("wordlerequest:" + input, "Request word!"))
                 .queue((del) -> del.delete().queueAfter(5, TimeUnit.SECONDS));
-            message.delete().queueAfter(100, TimeUnit.MILLISECONDS);
+            message.delete().queueAfter(150, TimeUnit.MILLISECONDS);
             return;
         }
 
-        message.delete().queueAfter(100, TimeUnit.MILLISECONDS);
+        message.delete().queueAfter(150, TimeUnit.MILLISECONDS);
 
         ArrayList<Character> answerChars = new ArrayList<>(answer.chars().mapToObj(c -> (char) c).toList());
         ArrayList<Character> inputChars = new ArrayList<>(input.chars().mapToObj(c -> (char) c).toList());
