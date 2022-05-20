@@ -31,7 +31,9 @@ import java.util.concurrent.TimeUnit;
 
 public class Wordle extends ListenerAdapter {
     //todo list
-    // remove duplicates on startup
+    // remove daily wordle after 15 seconds after completion
+    // definition embeds / method
+    // remove duplicate words on startup
     // custom wordle dictionary check
     // timed challenge with threads
     private static final ArrayList<String> wordList = new ArrayList<>();
@@ -503,8 +505,10 @@ public class Wordle extends ListenerAdapter {
 
         channel.sendMessage(message).setActionRow(buttons).queue();
 
+        int delay = 45;
+        if (daily.get(channel)) delay = 15;
         deleteChannel.put(channel, Executors.newSingleThreadScheduledExecutor()
-            .schedule(() -> new Wordle().endGame(channel), 45, TimeUnit.SECONDS));
+            .schedule(() -> new Wordle().endGame(channel), delay, TimeUnit.SECONDS));
     }
 
     private void wordRequest(String word, Member member, boolean isAuto) {
