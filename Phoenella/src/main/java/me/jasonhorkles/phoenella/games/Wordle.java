@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 
 public class Wordle extends ListenerAdapter {
     //todo list
-    // remove daily wordle after 15 seconds after completion
     // definition embeds / method
     // remove duplicate words on startup
     // custom wordle dictionary check
