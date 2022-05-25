@@ -72,7 +72,8 @@ public class Events extends ListenerAdapter {
 
         // Thanks for coming :)
         if (event.getChannel().getIdLong() == 872977864029511791L && event.getAuthor()
-            .getIdLong() == 277291758503723010L && event.getMessage().getContentStripped().startsWith("np")) {
+            .getIdLong() == 277291758503723010L && event.getMessage().getContentStripped().toLowerCase()
+            .startsWith("np")) {
 
             EmbedBuilder embed = new EmbedBuilder();
 
