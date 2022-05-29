@@ -128,7 +128,7 @@ public class Weather extends ListenerAdapter {
 
         // Send messages and change status if a certain weather type
         String ping = "";
-        if (weatherName.startsWith("hailing")) {
+        if (weatherName != null) if (weatherName.startsWith("hailing")) {
             if (new Utils().shouldIPing(hailChannel)) ping = "<@&845055784156397608> ";
             hailChannel.sendMessage(ping + ":ice_cube: It's " + trimmedWeatherName + "! (" + weather + ")").queue();
             previousTypeChannel = hailChannel;
