@@ -78,8 +78,6 @@ public class Weather extends ListenerAdapter {
             weatherName = "hailing 🧊";
         else if (weather.toLowerCase().contains("snow") || weather.toLowerCase().contains("freezing rain"))
             weatherName = "snowing 🌨️";
-        else if (weather.toLowerCase().contains("thunder") || weather.toLowerCase()
-            .contains("lightning") || weather.toLowerCase().contains("t-storm")) weatherName = "thundering ⛈️";
 
         rainRate = Pws.currentRainRate;
         String intensity = null;
@@ -87,30 +85,25 @@ public class Weather extends ListenerAdapter {
         if (weatherName == null) if (rainRate > 0) {
             weather = "RAIN";
 
-            if (rainRate > 0 && rainRate < 0.1) {
-                weatherName = "drizzling 🌂";
-                rainIntensity = 1;
-                intensity = ":green_square::white_small_square::white_small_square::white_small_square::white_small_square:";
-
-            } else if (rainRate < 0.2) {
+            if (rainRate < 0.2) {
                 weatherName = "raining ☂️";
-                rainIntensity = 2;
-                intensity = ":green_square::green_square::white_small_square::white_small_square::white_small_square:";
+                rainIntensity = 1;
+                intensity = ":green_square::white_small_square::white_small_square::white_small_square:";
 
-            } else if (rainRate < 0.35) {
+            } else if (rainRate < 0.3) {
                 weatherName = "moderately raining ☔";
-                rainIntensity = 3;
-                intensity = ":green_square::green_square::yellow_square::white_small_square::white_small_square:";
+                rainIntensity = 2;
+                intensity = ":green_square::yellow_square::white_small_square::white_small_square:";
 
-            } else if (rainRate < 0.5) {
+            } else if (rainRate < 0.4) {
                 weatherName = "heavily raining 🌦️";
-                rainIntensity = 4;
-                intensity = ":green_square::green_square::yellow_square::orange_square::white_small_square:";
+                rainIntensity = 3;
+                intensity = ":green_square::yellow_square::orange_square::white_small_square:";
 
             } else {
                 weatherName = "pouring 🌧️";
-                rainIntensity = 5;
-                intensity = ":green_square::green_square::yellow_square::orange_square::red_square:";
+                rainIntensity = 4;
+                intensity = ":green_square::yellow_square::orange_square::red_square:";
             }
         }
 
@@ -125,7 +118,6 @@ public class Weather extends ListenerAdapter {
             }
         }
 
-        TextChannel thunderChannel = StormAlerts.api.getTextChannelById(843955628644892672L);
         TextChannel heavyRainChannel = StormAlerts.api.getTextChannelById(843955756596461578L);
         TextChannel rainChannel = StormAlerts.api.getTextChannelById(900248256515285002L);
         TextChannel rainConfirmationChannel = StormAlerts.api.getTextChannelById(921113488464695386L);
@@ -136,12 +128,7 @@ public class Weather extends ListenerAdapter {
 
         // Send messages and change status if a certain weather type
         String ping = "";
-        if (weatherName != null) if (weatherName.startsWith("thundering")) {
-            if (new Utils().shouldIPing(thunderChannel)) ping = "<@&843956144401416193> ";
-            thunderChannel.sendMessage(ping + ":thunder_cloud_rain: There's a thunderstorm! (" + weather + ")").queue();
-            previousTypeChannel = thunderChannel;
-
-        } else if (weatherName.startsWith("hailing")) {
+        if (weatherName.startsWith("hailing")) {
             if (new Utils().shouldIPing(hailChannel)) ping = "<@&845055784156397608> ";
             hailChannel.sendMessage(ping + ":ice_cube: It's " + trimmedWeatherName + "! (" + weather + ")").queue();
             previousTypeChannel = hailChannel;
@@ -170,7 +157,7 @@ public class Weather extends ListenerAdapter {
             if (!mightBeSnow || isNight) previousTypeChannel = rainChannel;
 
             switch (rainIntensity) {
-                case 5 -> {
+                case 4 -> {
                     String heavyPing = "";
                     if (new Utils().shouldIPing(heavyRainChannel)) heavyPing = "<@&843956325690900503> ";
                     heavyRainChannel.sendMessage(heavyPing + ":cloud_rain: It's " + doubleTrimmedWeatherName + "!")
@@ -180,10 +167,24 @@ public class Weather extends ListenerAdapter {
                         .queue();
                 }
 
-                case 4 -> rainChannel.sendMessage(
-                    ping + ":white_sun_rain_cloud: It's " + doubleTrimmedWeatherName + "!\n" + intensity).queue();
-
                 case 3 -> {
+                    if (!acceptRainForDay) if (mightBeSnow && !isNight) {
+                        rainConfirmationChannel.sendMessage(
+                                ping + ":white_sun_rain_cloud: It's " + doubleTrimmedWeatherName + "!\n" + intensity)
+                            .setActionRow(Button.success("acceptrain", "Accept").withEmoji(Emoji.fromUnicode("✅")),
+                                Button.primary("acceptrainforday", "Accept future rain for the day")
+                                    .withEmoji(Emoji.fromUnicode("☑️")),
+                                Button.secondary("unsurerain", "Unsure").withEmoji(Emoji.fromUnicode("❔")),
+                                Button.danger("denyrain", "Deny").withEmoji(Emoji.fromUnicode("✖️"))).complete()
+                            .delete().queueAfter(2, TimeUnit.HOURS, null,
+                                new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
+                        idle = true;
+
+                    } else rainChannel.sendMessage(
+                        ping + ":white_sun_rain_cloud: It's " + doubleTrimmedWeatherName + "!\n" + intensity).queue();
+                }
+
+                case 2 -> {
                     if (!acceptRainForDay) if (mightBeSnow && !isNight) {
                         rainConfirmationChannel.sendMessage(
                                 ping + ":umbrella: It's " + trimmedWeatherName + "!\n" + intensity)
@@ -194,14 +195,13 @@ public class Weather extends ListenerAdapter {
                                 Button.danger("denyrain", "Deny").withEmoji(Emoji.fromUnicode("✖️"))).complete()
                             .delete().queueAfter(2, TimeUnit.HOURS, null,
                                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
-                        rainConfirmationChannel.sendMessage("<@277291758503723010>").complete().delete()
-                            .queueAfter(250, TimeUnit.MILLISECONDS);
                         idle = true;
+
                     } else rainChannel.sendMessage(ping + ":umbrella: It's " + trimmedWeatherName + "!\n" + intensity)
                         .queue();
                 }
 
-                case 2 -> {
+                case 1 -> {
                     if (!acceptRainForDay) if (mightBeSnow && !isNight) {
                         rainConfirmationChannel.sendMessage(
                                 ping + ":umbrella2: It's " + trimmedWeatherName + "!\n" + intensity)
@@ -212,31 +212,10 @@ public class Weather extends ListenerAdapter {
                                 Button.danger("denyrain", "Deny").withEmoji(Emoji.fromUnicode("✖️"))).complete()
                             .delete().queueAfter(2, TimeUnit.HOURS, null,
                                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
-                        rainConfirmationChannel.sendMessage("<@277291758503723010>").complete().delete()
-                            .queueAfter(250, TimeUnit.MILLISECONDS);
                         idle = true;
 
                     } else rainChannel.sendMessage(ping + ":umbrella2: It's " + trimmedWeatherName + "!\n" + intensity)
                         .queue();
-                }
-
-                case 1 -> {
-                    if (!acceptRainForDay) if (mightBeSnow && !isNight) {
-                        rainConfirmationChannel.sendMessage(
-                                ping + ":closed_umbrella: It's " + trimmedWeatherName + "!\n" + intensity)
-                            .setActionRow(Button.success("acceptrain", "Accept").withEmoji(Emoji.fromUnicode("✅")),
-                                Button.primary("acceptrainforday", "Accept future rain for the day")
-                                    .withEmoji(Emoji.fromUnicode("☑️")),
-                                Button.secondary("unsurerain", "Unsure").withEmoji(Emoji.fromUnicode("❔")),
-                                Button.danger("denyrain", "Deny").withEmoji(Emoji.fromUnicode("✖️"))).complete()
-                            .delete().queueAfter(2, TimeUnit.HOURS, null,
-                                new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
-                        rainConfirmationChannel.sendMessage("<@277291758503723010>").complete().delete()
-                            .queueAfter(250, TimeUnit.MILLISECONDS);
-                        idle = true;
-
-                    } else rainChannel.sendMessage(
-                        ping + ":closed_umbrella: It's " + trimmedWeatherName + "!\n" + intensity).queue();
                 }
 
                 default -> System.out.println(
