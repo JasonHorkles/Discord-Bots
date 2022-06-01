@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Scanner;
 import java.util.concurrent.*;
@@ -32,8 +33,7 @@ public class StormAlerts extends ListenerAdapter {
     private static ScheduledFuture<?> alertTimer;
     private static ScheduledFuture<?> pwsTimer;
     private static ScheduledFuture<?> weatherTimer;
-    private static ScheduledFuture<?> workTimer;
-    private static ScheduledFuture<?> homeTimer;
+    private static final ArrayList<ScheduledFuture<?>> trafficTimers = new ArrayList<>();
 
     public static void main(String[] args) throws LoginException, InterruptedException, ParseException {
         System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Starting...");
@@ -106,34 +106,10 @@ public class StormAlerts extends ListenerAdapter {
             }
         }, 5, 90, TimeUnit.SECONDS);
 
-        // Schedule traffic check
-        DayOfWeek day = LocalDate.now().getDayOfWeek();
-        if (day != DayOfWeek.SATURDAY && day != DayOfWeek.SUNDAY) {
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd h:mm a");
-            Calendar toWork = Calendar.getInstance();
-            toWork.setTime(format.parse(LocalDate.now() + " 2:38 PM"));
-            Calendar toHome = Calendar.getInstance();
-            toHome.setTime(format.parse(LocalDate.now() + " 5:55 PM"));
-
-            long delay = toWork.getTimeInMillis() - System.currentTimeMillis();
-            long delay2 = toHome.getTimeInMillis() - System.currentTimeMillis();
-
-            if (delay >= 0) {
-                workTimer = Executors.newSingleThreadScheduledExecutor()
-                    .schedule(() -> new Traffic().checkTraffic(true), delay, TimeUnit.MILLISECONDS);
-                System.out.println(
-                    new Utils().getTime(Utils.Color.GREEN) + "Scheduled work traffic check in " + Math.round(
-                        delay / 3600000.0) + " hours.");
-            }
-
-            if (delay2 >= 0) {
-                homeTimer = Executors.newSingleThreadScheduledExecutor()
-                    .schedule(() -> new Traffic().checkTraffic(false), delay2, TimeUnit.MILLISECONDS);
-                System.out.println(
-                    new Utils().getTime(Utils.Color.GREEN) + "Scheduled home traffic check in " + Math.round(
-                        delay2 / 3600000.0) + " hours.");
-            }
-        }
+        // Schedule traffic checks
+        new StormAlerts().scheduleTrafficCheck("10:40 AM", true);
+        new StormAlerts().scheduleTrafficCheck("5:50 PM", false);
+        new StormAlerts().scheduleTrafficCheck("6:00 PM", false);
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new StormAlerts().shutdown(), "Shutdown Hook"));
@@ -157,6 +133,24 @@ public class StormAlerts extends ListenerAdapter {
         //noinspection SwitchStatementWithTooFewBranches
         switch (event.getName().toLowerCase()) {
             case "checknow" -> updateNow(event);
+        }
+    }
+
+    private void scheduleTrafficCheck(String time, boolean toWork) throws ParseException {
+        DayOfWeek day = LocalDate.now().getDayOfWeek();
+        if (day != DayOfWeek.SATURDAY && day != DayOfWeek.SUNDAY) {
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd h:mm a");
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(format.parse(LocalDate.now() + " " + time));
+
+            long delay = calendar.getTimeInMillis() - System.currentTimeMillis();
+
+            if (delay >= 0) {
+                trafficTimers.add(Executors.newSingleThreadScheduledExecutor()
+                    .schedule(() -> new Traffic().checkTraffic(toWork), delay, TimeUnit.MILLISECONDS));
+                System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Scheduled traffic check in " + Math.round(
+                    delay / 3600000.0) + " hours.");
+            }
         }
     }
 
@@ -209,13 +203,11 @@ public class StormAlerts extends ListenerAdapter {
         alertTimer.cancel(true);
         pwsTimer.cancel(true);
         weatherTimer.cancel(true);
-        if (workTimer != null) workTimer.cancel(true);
-        if (homeTimer != null) homeTimer.cancel(true);
+        if (!trafficTimers.isEmpty()) for (ScheduledFuture<?> task : trafficTimers) task.cancel(true);
         if (Weather.previousTypeChannel != null) {
             Message message = null;
             try {
-                message = new Utils().getMessages(Weather.previousTypeChannel, 1)
-                    .get(1, TimeUnit.SECONDS).get(0);
+                message = new Utils().getMessages(Weather.previousTypeChannel, 1).get(1, TimeUnit.SECONDS).get(0);
                 Thread.sleep(500);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 System.out.print(new Utils().getTime(Utils.Color.RED));
