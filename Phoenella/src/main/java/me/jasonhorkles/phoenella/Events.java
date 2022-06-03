@@ -405,26 +405,25 @@ public class Events extends ListenerAdapter {
 
             msg = new Utils().lookUp(text, new Utils().getFirstName(member));
             if (msg.equals("501")) {
-                int number = r.nextInt(18);
+                int number = r.nextInt(17);
                 switch (number) {
                     case 0 -> msg = "no";
                     case 1 -> msg = "yes";
-                    case 2 -> msg = "what";
+                    case 2 -> msg = "meh";
                     case 3 -> msg = "ok";
                     case 4 -> msg = "<:kek:841681203278774322>";
-                    case 5 -> msg = "what u want";
+                    case 5 -> msg = "bruh";
                     case 6 -> msg = "hmm";
-                    case 7 -> msg = "excuse me?";
-                    case 8 -> msg = "pardon?";
-                    case 9 -> msg = "no way!";
-                    case 10 -> msg = "¯\\_(ツ)_/¯";
-                    case 11 -> msg = "heck no dawg!";
-                    case 12 -> msg = "yup";
-                    case 13 -> msg = "nah";
-                    case 14 -> msg = "of course!";
-                    case 15 -> msg = "heh";
-                    case 16 -> msg = "i'm not sure if you'd want to know that answer...";
-                    case 17 -> msg = "of course not!";
+                    case 7 -> msg = "no way!";
+                    case 8 -> msg = "¯\\_(ツ)_/¯";
+                    case 9 -> msg = "heck no dawg!";
+                    case 10 -> msg = "yup";
+                    case 11 -> msg = "nah";
+                    case 12 -> msg = "of course!";
+                    case 13 -> msg = "heh\nno";
+                    case 14 -> msg = "i'm not sure if you'd want to know that answer...";
+                    case 15 -> msg = "of course not!";
+                    case 16 -> msg = "sure";
                 }
             }
             new Utils().sendMessage(null, message, msg, allCaps);
