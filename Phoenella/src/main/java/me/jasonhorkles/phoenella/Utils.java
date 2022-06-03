@@ -59,6 +59,7 @@ public class Utils {
 
     public void runNameCheckForGuild(Guild guild) {
         for (Member member : guild.getMembers()) {
+            if (member.getUser().isBot()) continue;
             System.out.println(
                 new Utils().getTime(Utils.Color.GREEN) + "Checking " + member.getEffectiveName() + "...");
 
