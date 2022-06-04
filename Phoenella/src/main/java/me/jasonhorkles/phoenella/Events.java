@@ -182,8 +182,8 @@ public class Events extends ListenerAdapter {
 
                     TextChannel gameChannel = new RPS().startGame(players);
                     message.addReaction("👍").queue();
-                    message.reply("Game created in " + gameChannel.getAsMention()).complete().delete()
-                        .queueAfter(15, TimeUnit.SECONDS);
+                    message.reply("Game created in " + gameChannel.getAsMention())
+                        .queue((del) -> del.delete().queueAfter(15, TimeUnit.SECONDS));
                 }
                 return;
             }
@@ -193,10 +193,9 @@ public class Events extends ListenerAdapter {
                 try {
                     TextChannel gameChannel = new Wordle().startGame(member, null, false, false, null);
                     message.addReaction("👍").queue();
-                    if (gameChannel == null)
-                        message.reply(
-                                "Either you already have an ongoing game with that word or you have too many games active at once!")
-                            .queue((del) -> del.delete().queueAfter(5, TimeUnit.SECONDS));
+                    if (gameChannel == null) message.reply(
+                            "Either you already have an ongoing game with that word or you have too many games active at once!")
+                        .queue((del) -> del.delete().queueAfter(5, TimeUnit.SECONDS));
                     else message.reply("Game created in " + gameChannel.getAsMention())
                         .queue((del) -> del.delete().queueAfter(15, TimeUnit.SECONDS));
                 } catch (IOException e) {
@@ -453,12 +452,14 @@ public class Events extends ListenerAdapter {
                 if (member.getRoles().toString().contains("751166721624375435") || member.getRoles().toString()
                     .contains("729108220479537202"))
                     event.getChannel().sendMessage(event.getMember().getAsMention() + ", I can't shush that person!")
-                        .complete().delete().queueAfter(5, TimeUnit.SECONDS, null,
-                            new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
+                        .queue((del) -> del.delete().queueAfter(5, TimeUnit.SECONDS, null,
+                            new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
+
                 else if (new Utils().shush(member, 600000)) event.getChannel()
                     .sendMessage(new Utils().getFirstName(member) + " just got shushed\nhttps://tenor.com/vfW7.gif")
-                    .complete().delete()
-                    .queueAfter(15, TimeUnit.SECONDS, null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
+                    .queue((del) -> del.delete().queueAfter(15, TimeUnit.SECONDS, null,
+                        new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
+
                 else event.getChannel().sendMessage(event.getMember()
                             .getAsMention() + ", that person is either already shushed or there was an error!").complete()
                         .delete().queueAfter(5, TimeUnit.SECONDS, null,
@@ -613,10 +614,9 @@ public class Events extends ListenerAdapter {
                         try {
                             TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, false, false,
                                 null);
-                            if (gameChannel == null)
-                                event.getHook().editOriginal(
-                                        "Either you already have an ongoing game with that word or you have too many games active at once!")
-                                    .queue();
+                            if (gameChannel == null) event.getHook().editOriginal(
+                                    "Either you already have an ongoing game with that word or you have too many games active at once!")
+                                .queue();
                             else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
                         } catch (IOException e) {
                             event.getHook().editOriginal("Couldn't generate a random word! Please try again later.")
@@ -653,10 +653,9 @@ public class Events extends ListenerAdapter {
 
                             TextChannel gameChannel = new Wordle().startGame(event.getMember(), word, false, true,
                                 null);
-                            if (gameChannel == null)
-                                event.getHook().editOriginal(
-                                        "Either you already have an ongoing game with that word or you have too many games active at once!")
-                                    .queue();
+                            if (gameChannel == null) event.getHook().editOriginal(
+                                    "Either you already have an ongoing game with that word or you have too many games active at once!")
+                                .queue();
                             else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
                         } catch (IOException e) {
                             event.getHook().editOriginal("Couldn't generate a random word! Please try again later.")

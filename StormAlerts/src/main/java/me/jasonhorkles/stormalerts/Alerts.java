@@ -156,20 +156,21 @@ public class Alerts {
             if (nwsHeadline != null) embed.setAuthor(nwsHeadline, null, null);
 
             switch (event) {
-                case "911 Telephone Outage Emergency" -> embed.setThumbnail(
-                    "http://surefirecpr.com/wp-content/uploads/call-911-1024x1024.jpg");
+                case "911 Telephone Outage Emergency" ->
+                    embed.setThumbnail("http://surefirecpr.com/wp-content/uploads/call-911-1024x1024.jpg");
 
                 case "Administrative Message" -> embed.setThumbnail(
                     "https://www.lifewire.com/thmb/IS4gxtmhvYTokbYCcm4ygOUBX50=/1920x1200/filters:fill(auto,1)/how-to-fix-the-unknown-message-not-found-on-iphone-error-849e332f4e9241db9cb80ef9ddb63e01.jpg");
 
-                case "Air Quality Alert" -> embed.setThumbnail(
-                    "https://breathepa.org/wp-content/uploads/2015/07/air-quality-alert-4x3-1.jpg");
+                case "Air Quality Alert" ->
+                    embed.setThumbnail("https://breathepa.org/wp-content/uploads/2015/07/air-quality-alert-4x3-1.jpg");
 
-                case "Blizzard Warning", "Blizzard Watch" -> embed.setThumbnail(
-                    "https://thestarryeye.typepad.com/.a/6a00d8341cdd0d53ef022ad3c2a6f5200d-pi");
+                case "Blizzard Warning", "Blizzard Watch" ->
+                    embed.setThumbnail("https://thestarryeye.typepad.com/.a/6a00d8341cdd0d53ef022ad3c2a6f5200d-pi");
 
-                case "Brisk Wind Advisory", "High Wind Warning", "High Wind Watch", "Wind Advisory", "Extreme Wind Warning" -> embed.setThumbnail(
-                    "https://creazilla-store.fra1.digitaloceanspaces.com/cliparts/76394/wind-clipart-xl.png");
+                case "Brisk Wind Advisory", "High Wind Warning", "High Wind Watch", "Wind Advisory", "Extreme Wind Warning" ->
+                    embed.setThumbnail(
+                        "https://creazilla-store.fra1.digitaloceanspaces.com/cliparts/76394/wind-clipart-xl.png");
 
                 case "Child Abduction Emergency" -> embed.setThumbnail(
                     "https://bloximages.chicago2.vip.townnews.com/tctimes.com/content/tncms/assets/v3/editorial/6/4e/64e135b2-043a-11e7-b2d1-d378823102d0/58c063da3ce0c.image.jpg?resize=400%2C328");
@@ -186,20 +187,25 @@ public class Alerts {
                 case "Extreme Cold Warning", "Extreme Cold Watch" -> embed.setThumbnail(
                     "https://clipart.world/wp-content/uploads/2021/04/Cold-Thermometer-clipart-transparent.png");
 
-                case "Extreme Fire Danger", "Fire Warning", "Fire Weather Watch", "Red Flag Warning" -> embed.setThumbnail(
-                    "http://dnrc.mt.gov/divisions/water/operations/images/floodplain/Fire_Icon.png/image");
+                case "Extreme Fire Danger", "Fire Warning", "Fire Weather Watch", "Red Flag Warning" ->
+                    embed.setThumbnail(
+                        "http://dnrc.mt.gov/divisions/water/operations/images/floodplain/Fire_Icon.png/image");
 
-                case "Flash Flood Statement", "Flash Flood Warning", "Flash Flood Watch", "Flood Advisory", "Flood Statement", "Flood Warning", "Flood Watch" -> embed.setThumbnail(
-                    "https://media.istockphoto.com/vectors/flood-disaster-home-vector-vector-id1038699624?k=6&m=1038699624&s=612x612&w=0&h=rUAO-3bCnkS67NhoBn_lKssFsfncWoSx0sTMJB6MbkE=");
+                case "Flash Flood Statement", "Flash Flood Warning", "Flash Flood Watch", "Flood Advisory", "Flood Statement", "Flood Warning", "Flood Watch" ->
+                    embed.setThumbnail(
+                        "https://media.istockphoto.com/vectors/flood-disaster-home-vector-vector-id1038699624?k=6&m=1038699624&s=612x612&w=0&h=rUAO-3bCnkS67NhoBn_lKssFsfncWoSx0sTMJB6MbkE=");
 
-                case "Snow Squall Warning", "Winter Storm Warning", "Winter Storm Watch", "Winter Weather Advisory" -> embed.setThumbnail(
-                    "https://cdn.discordapp.com/attachments/335445132520194058/918901071353614336/wintershovel.png");
+                case "Snow Squall Warning", "Winter Storm Warning", "Winter Storm Watch", "Winter Weather Advisory" ->
+                    embed.setThumbnail(
+                        "https://cdn.discordapp.com/attachments/335445132520194058/918901071353614336/wintershovel.png");
 
-                case "Freeze Warning", "Freeze Watch", "Frost Advisory", "Hard Freeze Warning", "Hard Freeze Watch" -> embed.setThumbnail(
-                    "https://thumbs.dreamstime.com/b/frost-texture-frozen-glass-surfaces-blue-ice-sheet-white-marks-frosty-crystal-winter-pattern-transparent-water-crystals-196937681.jpg");
+                case "Freeze Warning", "Freeze Watch", "Frost Advisory", "Hard Freeze Warning", "Hard Freeze Watch" ->
+                    embed.setThumbnail(
+                        "https://thumbs.dreamstime.com/b/frost-texture-frozen-glass-surfaces-blue-ice-sheet-white-marks-frosty-crystal-winter-pattern-transparent-water-crystals-196937681.jpg");
 
-                case "Severe Thunderstorm Warning", "Storm Watch", "Storm Warning", "Special Weather Statement", "Severe Weather Statement", "Severe Thunderstorm Watch" -> embed.setThumbnail(
-                    "https://cdn.discordapp.com/icons/843919716677582888/031643a212f5edbb8d153a5686796c0a.webp?size=128");
+                case "Severe Thunderstorm Warning", "Storm Watch", "Storm Warning", "Special Weather Statement", "Severe Weather Statement", "Severe Thunderstorm Watch" ->
+                    embed.setThumbnail(
+                        "https://cdn.discordapp.com/icons/843919716677582888/031643a212f5edbb8d153a5686796c0a.webp?size=128");
 
                 default -> embed.setThumbnail(
                     "https://media.discordapp.net/attachments/421827334534856705/871617342210203689/Warning.png?width=714&height=676");
@@ -225,8 +231,8 @@ public class Alerts {
                             new MessageBuilder().append("<@&850471690093854810>\n**[").append(severity.toUpperCase())
                                 .append("] ").append(event).append("** for ").append(area).setEmbeds(embed.build()).build())
                         .complete());
-                    alertsChannel.sendMessage("<@&850471690093854810>").complete().delete()
-                        .completeAfter(250, TimeUnit.MILLISECONDS);
+                    alertsChannel.sendMessage("<@&850471690093854810>")
+                        .queue((del) -> del.delete().queueAfter(250, TimeUnit.MILLISECONDS));
                 }
             }
         }

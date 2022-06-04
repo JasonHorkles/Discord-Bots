@@ -114,9 +114,9 @@ public class Wordle extends ListenerAdapter {
                         LetterType.NOT_GUESSED) + getLetter('N', LetterType.NOT_GUESSED) + getLetter('M',
                         LetterType.NOT_GUESSED)).complete());
 
-                channel.sendMessage(player.getAsMention()).complete().delete()
+                channel.sendMessage(player.getAsMention()).queue((del) -> del.delete()
                     .queueAfter(100, TimeUnit.MILLISECONDS, null,
-                        new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
+                        new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
 
                 channel.upsertPermissionOverride(player).setAllowed(Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL)
                     .queue();
