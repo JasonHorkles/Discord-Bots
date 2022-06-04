@@ -107,6 +107,9 @@ public class Events extends ListenerAdapter {
     /*@SuppressWarnings("ConstantConditions")
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+    System.out.println(new Utils().getTime(Utils.Color.GREEN) + event.getMember()
+            .getEffectiveName() + " used the /" + event.getName() + " command");
+            
         switch (event.getName().toLowerCase()) {
         }
     }*/

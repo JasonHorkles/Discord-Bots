@@ -130,6 +130,9 @@ public class StormAlerts extends ListenerAdapter {
     // Slash commands
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+        System.out.println(new Utils().getTime(Utils.Color.GREEN) + event.getMember()
+            .getEffectiveName() + " used the /" + event.getName() + " command");
+
         //noinspection SwitchStatementWithTooFewBranches
         switch (event.getName().toLowerCase()) {
             case "checknow" -> updateNow(event);

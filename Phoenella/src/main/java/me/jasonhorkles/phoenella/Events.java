@@ -571,6 +571,9 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+        System.out.println(new Utils().getTime(Utils.Color.GREEN) + new Utils().getFullName(
+            event.getMember()) + " used the /" + event.getName() + " command");
+
         switch (event.getName().toLowerCase()) {
             case "shush" -> {
                 Member member = event.getOption("user").getAsMember();

@@ -31,6 +31,9 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+        System.out.println(new Utils().getTime(Utils.Color.GREEN) + event.getMember()
+            .getEffectiveName() + " used the /" + event.getName() + " command");
+
         AudioChannel voiceChannel = event.getMember().getVoiceState().getChannel();
         long channelId = event.getChannel().getIdLong();
 

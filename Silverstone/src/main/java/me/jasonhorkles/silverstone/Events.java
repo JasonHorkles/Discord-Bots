@@ -23,6 +23,9 @@ public class Events extends ListenerAdapter {
     @SuppressWarnings("SuspiciousMethodCalls")
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+        System.out.println(new Utils().getTime(Utils.Color.GREEN) + event.getMember()
+            .getEffectiveName() + " used the /" + event.getName() + " command");
+
         // If in discord server and not a staff member or admin and in the wrong channel, make it private
         boolean ephemeral = event.isFromGuild() && event.getGuild()
             .getIdLong() == 455919765999976461L && !(event.getMember().getRoles()
