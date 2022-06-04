@@ -432,12 +432,12 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
+        if (event.getUser().isBot()) return;
+
         // Button clicker role
         if (event.getChannel().getIdLong() == 892104640567578674L)
             event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRoleById(892453842241859664L))
                 .queue();
-
-        if (event.getUser().isBot()) return;
 
         // kek
         if (event.getReactionEmote().getName().equalsIgnoreCase("kek"))
@@ -535,6 +535,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
+        if (event.getUser().isBot()) return;
         if (event.getChannel().getIdLong() != 892104640567578674L) return;
 
         try {
@@ -553,6 +554,8 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildMemberUpdateNickname(GuildMemberUpdateNicknameEvent event) {
+        if (event.getUser().isBot()) return;
+
         Member member = event.getMember();
         Guild guild = event.getGuild();
         String newNickname = event.getNewNickname();
