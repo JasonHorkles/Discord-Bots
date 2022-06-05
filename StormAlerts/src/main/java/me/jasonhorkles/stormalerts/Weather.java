@@ -17,6 +17,7 @@ import org.jsoup.nodes.Document;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -49,8 +50,9 @@ public class Weather extends ListenerAdapter {
             weather = doc.body().getElementsByClass("wob_dcp").get(0).text();
 
             String apiUrl = "https://api.weather.gov/stations/" + new Secrets().getNwsStation() + "/observations/latest";
-            visibilityInput = new Scanner(new URL(apiUrl).openStream(), StandardCharsets.UTF_8).useDelimiter("\\A")
-                .next();
+            InputStream stream = new URL(apiUrl).openStream();
+            visibilityInput = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").next();
+            stream.close();
         } catch (SocketTimeoutException ignored) {
             System.out.println(new Utils().getTime(Utils.Color.RED) + "Timed out checking the weather!");
         } catch (IndexOutOfBoundsException ignored) {

@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -34,7 +35,10 @@ public class Alerts {
 
         if (!StormAlerts.testing) {
             String apiUrl = "https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&zone=" + new Secrets().getAlertZone();
-            input = new Scanner(new URL(apiUrl).openStream(), StandardCharsets.UTF_8).useDelimiter("\\A").next();
+            InputStream stream = new URL(apiUrl).openStream();
+            input = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").next();
+            stream.close();
+            
         } else {
             File file = new File("StormAlerts/Tests/alerts-empty.json");
             Scanner fileScanner = new Scanner(file);

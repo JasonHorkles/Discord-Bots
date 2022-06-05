@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
@@ -15,7 +16,10 @@ public class CheckPollen {
 
         if (!AirCheck.testing) {
             String apiUrl = "https://api.tomorrow.io/v4/timelines?apikey=" + new Secrets().getApiKey() + "&location=" + new Secrets().getLocation() + "&units=imperial&timesteps=current&timezone=America/Denver&fields=treeIndex,grassIndex,weedIndex";
-            String out = new Scanner(new URL(apiUrl).openStream(), StandardCharsets.UTF_8).useDelimiter("\\A").next();
+
+            InputStream stream = new URL(apiUrl).openStream();
+            String out = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").next();
+            stream.close();
 
             input = new JSONObject(out);
         } else {

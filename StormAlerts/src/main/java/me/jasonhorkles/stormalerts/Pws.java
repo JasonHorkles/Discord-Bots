@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -30,7 +31,9 @@ public class Pws {
 
         if (!StormAlerts.testing) {
             String apiUrl = "https://api.ambientweather.net/v1/devices/?apiKey=" + new Secrets().getAwApiKey() + "&applicationKey=" + new Secrets().getAwAppKey();
-            String out = new Scanner(new URL(apiUrl).openStream(), StandardCharsets.UTF_8).useDelimiter("\\A").next();
+            InputStream stream = new URL(apiUrl).openStream();
+            String out = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").next();
+            stream.close();
 
             input = new JSONArray(out).getJSONObject(0);
         } else {
