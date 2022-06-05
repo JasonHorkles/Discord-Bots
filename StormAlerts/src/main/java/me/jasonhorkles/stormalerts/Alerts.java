@@ -36,7 +36,7 @@ public class Alerts {
         if (!StormAlerts.testing) {
             String apiUrl = "https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&zone=" + new Secrets().getAlertZone();
             InputStream stream = new URL(apiUrl).openStream();
-            input = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").next();
+            input = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine();
             stream.close();
             
         } else {

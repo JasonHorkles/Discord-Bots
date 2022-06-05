@@ -20,7 +20,7 @@ public class CheckAQI {
             String apiUrl = "https://api.tomorrow.io/v4/timelines?apikey=" + new Secrets().getApiKey() + "&location=" + new Secrets().getLocation() + "&units=imperial&timesteps=current&timezone=America/Denver&fields=epaHealthConcern,epaIndex";
 
             InputStream stream = new URL(apiUrl).openStream();
-            String out = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").next();
+            String out = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine();
             stream.close();
 
             input = new JSONObject(out);

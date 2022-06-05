@@ -51,7 +51,7 @@ public class Weather extends ListenerAdapter {
 
             String apiUrl = "https://api.weather.gov/stations/" + new Secrets().getNwsStation() + "/observations/latest";
             InputStream stream = new URL(apiUrl).openStream();
-            visibilityInput = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").next();
+            visibilityInput = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine();
             stream.close();
         } catch (SocketTimeoutException ignored) {
             System.out.println(new Utils().getTime(Utils.Color.RED) + "Timed out checking the weather!");

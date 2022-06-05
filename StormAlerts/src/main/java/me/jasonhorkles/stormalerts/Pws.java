@@ -32,7 +32,7 @@ public class Pws {
         if (!StormAlerts.testing) {
             String apiUrl = "https://api.ambientweather.net/v1/devices/?apiKey=" + new Secrets().getAwApiKey() + "&applicationKey=" + new Secrets().getAwAppKey();
             InputStream stream = new URL(apiUrl).openStream();
-            String out = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").next();
+            String out = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine();
             stream.close();
 
             input = new JSONArray(out).getJSONObject(0);
