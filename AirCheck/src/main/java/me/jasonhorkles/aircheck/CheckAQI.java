@@ -39,7 +39,7 @@ public class CheckAQI {
     }
 
     public void doAirStuff(ArrayList<String> air) {
-        System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Got the air!");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got the air!");
 
         int epaStatus = Integer.parseInt(air.get(0));
         int aqi = Integer.parseInt(air.get(1));

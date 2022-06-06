@@ -19,7 +19,7 @@ public class Silverstone {
     public static JDA api;
 
     public static void main(String[] args) throws LoginException, InterruptedException {
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Starting...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
         builder.disableIntents(GatewayIntent.GUILD_MESSAGE_TYPING);
@@ -64,11 +64,11 @@ public class Silverstone {
         }, "Console Input");
         input.start();
 
-        System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Done starting up!");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }
 
     public void shutdown() {
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Shutting down...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
         try {
             api.shutdownNow();
         } catch (NoClassDefFoundError ignored) {

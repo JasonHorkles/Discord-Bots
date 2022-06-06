@@ -18,7 +18,7 @@ public class ScheduleAnnouncements {
             message = new Utils().getMessages(Quorum.api.getTextChannelById(Events.activitiesID), 1)
                 .get(30, TimeUnit.SECONDS).get(0).getEmbeds().get(0);
         } catch (Exception e) {
-            System.out.println(new Utils().getTime(Utils.Color.RED) + "[ERROR] Couldn't get an activity message!");
+            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get an activity message!");
             e.printStackTrace();
             return;
         }
@@ -40,7 +40,7 @@ public class ScheduleAnnouncements {
                             .replace(":F", ":R") + "!").queue(), delay, TimeUnit.MILLISECONDS));
 
                 System.out.println(new Utils().getTime(
-                    Utils.Color.GREEN) + "Scheduled an announcement for \"" + activity + "\" in " + Math.round(
+                    Utils.LogColor.GREEN) + "Scheduled an announcement for \"" + activity + "\" in " + Math.round(
                     delay / 86400000.0) + " days.");
             }
         }

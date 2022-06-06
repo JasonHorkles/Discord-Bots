@@ -28,7 +28,7 @@ public class Alerts {
     private final String da = Secrets.Area.DA.getArea();
 
     public void checkAlerts() throws IOException {
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Checking alerts...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking alerts...");
 
         dontDeleteMe.clear();
         String input;
@@ -148,9 +148,9 @@ public class Alerts {
             }
 
             if (alertMessage == null)
-                System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Got an alert! " + event);
+                System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got an alert! " + event);
             else System.out.println(
-                new Utils().getTime(Utils.Color.GREEN) + "Got an update for the \"" + event + "\" alert!");
+                new Utils().getTime(Utils.LogColor.GREEN) + "Got an update for the \"" + event + "\" alert!");
 
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle(headline).setDescription(description)
@@ -249,7 +249,7 @@ public class Alerts {
         for (Message message : dontDeleteMe) deleteTheseMessages.remove(message);
         // For all the remaining to-delete messages
         for (Message message : deleteTheseMessages) {
-            System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Deleted \"" + message.getContentStripped()
+            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Deleted \"" + message.getContentStripped()
                 .replaceFirst(".*\n.*] ", "") + "\" alert as it no longer exists.");
             // Delete them
             message.delete().queue();

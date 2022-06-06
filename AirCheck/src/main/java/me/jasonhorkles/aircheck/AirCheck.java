@@ -23,7 +23,7 @@ public class AirCheck {
     private static ScheduledFuture<?> pollenTimer;
 
     public static void main(String[] args) throws LoginException, InterruptedException {
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Starting...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
         builder.disableIntents(GatewayIntent.GUILD_MESSAGE_TYPING);
@@ -40,11 +40,11 @@ public class AirCheck {
 
         // Air Quality
         airTimer = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Checking air quality...");
+            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking air quality...");
             try {
                 new CheckAQI().checkAir();
             } catch (Exception e) {
-                System.out.println(new Utils().getTime(Utils.Color.RED) + "[ERROR] Couldn't get the air quality!");
+                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the air quality!");
                 e.printStackTrace();
                 api.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
                 api.getPresence().setActivity(Activity.playing("⚠ Error"));
@@ -58,7 +58,7 @@ public class AirCheck {
                 new CheckPollen().checkConditions();
             } catch (Exception e) {
                 System.out.println(
-                    new Utils().getTime(Utils.Color.RED) + "[ERROR] Couldn't get the pollen conditions!");
+                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the pollen conditions!");
                 e.printStackTrace();
             }
         }, 5, 1800, TimeUnit.SECONDS);
@@ -74,11 +74,11 @@ public class AirCheck {
         }, "Console Input");
         input.start();
 
-        System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Done starting up!");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }
 
     public void shutdown() {
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Shutting down...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
         airTimer.cancel(true);
         pollenTimer.cancel(true);
         try {

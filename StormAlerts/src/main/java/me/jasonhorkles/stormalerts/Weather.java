@@ -39,7 +39,7 @@ public class Weather extends ListenerAdapter {
     private static boolean acceptRainForDay = false;
 
     public void checkConditions() throws IOException, ExecutionException, InterruptedException, TimeoutException {
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Checking weather...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking weather...");
 
         String visibilityInput = "null";
 
@@ -54,9 +54,9 @@ public class Weather extends ListenerAdapter {
             visibilityInput = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine();
             stream.close();
         } catch (SocketTimeoutException ignored) {
-            System.out.println(new Utils().getTime(Utils.Color.RED) + "Timed out checking the weather!");
+            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Timed out checking the weather!");
         } catch (IndexOutOfBoundsException ignored) {
-            System.out.println(new Utils().getTime(Utils.Color.RED) + "Couldn't get the weather! (No Results)");
+            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Couldn't get the weather! (No Results)");
         }
         else {
             Scanner weatherScanner = new Scanner(new File("StormAlerts/Tests/weather.txt"));
@@ -115,7 +115,7 @@ public class Weather extends ListenerAdapter {
             trimmedWeatherName = weatherName.substring(0, weatherName.length() - 2).trim();
             doubleTrimmedWeatherName = trimmedWeatherName.substring(0, trimmedWeatherName.length() - 1).trim();
             if (weatherName.equals(previousWeatherName)) {
-                System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Weather hasn't changed!");
+                System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Weather hasn't changed!");
                 return;
             }
         }
@@ -221,7 +221,7 @@ public class Weather extends ListenerAdapter {
                 }
 
                 default -> System.out.println(
-                    new Utils().getTime(Utils.Color.RED) + "[ERROR] It's raining, but there's no intensity!");
+                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] It's raining, but there's no intensity!");
             }
         }
 
@@ -248,7 +248,7 @@ public class Weather extends ListenerAdapter {
         else StormAlerts.api.getPresence().setActivity(Activity.playing("it's " + weatherName));
         previousWeatherName = weatherName;
 
-        System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Weather: " + weather);
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Weather: " + weather);
     }
 
     // Button press

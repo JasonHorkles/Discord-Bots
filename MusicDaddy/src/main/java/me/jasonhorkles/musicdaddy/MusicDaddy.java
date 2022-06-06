@@ -38,7 +38,7 @@ public class MusicDaddy {
     private static final ClientCredentialsRequest ccr = spotify.clientCredentials().build();
 
     public static void main(String[] args) throws LoginException, InterruptedException {
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Starting...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
         builder.disableIntents(GatewayIntent.GUILD_MESSAGE_TYPING);
@@ -55,7 +55,7 @@ public class MusicDaddy {
             ClientCredentials cc = ccr.execute();
             spotify.setAccessToken(cc.getAccessToken());
         } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.print(new Utils().getTime(Utils.Color.RED));
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
         }
 
@@ -98,7 +98,7 @@ public class MusicDaddy {
         api.getPresence().setStatus(OnlineStatus.ONLINE);
         api.getPresence().setActivity(Activity.listening("dope tunes"));
 
-        System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Done starting up!");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }
 
     private GuildMusicManager getMusicManager(Guild guild) {
@@ -122,11 +122,11 @@ public class MusicDaddy {
 
         System.gc();
 
-        System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Leaving voice channel in " + guild.getName());
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Leaving voice channel in " + guild.getName());
     }
 
     public void shutdown() {
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Shutting down...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
         try {
             AudioSourceManagers.registerLocalSource(PlayerManager.audioPlayerManager);
             final boolean[] inChannels = {false};
@@ -148,17 +148,17 @@ public class MusicDaddy {
 
                         @Override
                         public void playlistLoaded(AudioPlaylist playlist) {
-                            System.out.println(new Utils().getTime(Utils.Color.RED) + "Playlist");
+                            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Playlist");
                         }
 
                         @Override
                         public void noMatches() {
-                            System.out.println(new Utils().getTime(Utils.Color.RED) + "No file matches");
+                            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "No file matches");
                         }
 
                         @Override
                         public void loadFailed(FriendlyException e) {
-                            System.out.print(new Utils().getTime(Utils.Color.RED));
+                            System.out.print(new Utils().getTime(Utils.LogColor.RED));
                             e.printStackTrace();
                         }
                     });

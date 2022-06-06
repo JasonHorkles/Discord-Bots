@@ -117,7 +117,7 @@ public class PlayerManager {
                         ":warning: **Error:** `" + e.getMessage() + "`\nPlease report the error to <@277291758503723010>")
                     .queue();
                 System.out.println(
-                    new Utils().getTime(Utils.Color.RED) + "Error in Guild " + event.getGuild()
+                    new Utils().getTime(Utils.LogColor.RED) + "Error in Guild " + event.getGuild()
                         .getName() + ":");
                 e.printStackTrace();
             }
@@ -139,7 +139,7 @@ public class PlayerManager {
             audioManager.openAudioConnection(channel);
             audioManager.setSelfDeafened(true);
             System.out.println(
-                new Utils().getTime(Utils.Color.GREEN) + "Joining voice channel in " + guild.getName());
+                new Utils().getTime(Utils.LogColor.GREEN) + "Joining voice channel in " + guild.getName());
         }
     }
 }

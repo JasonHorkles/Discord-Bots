@@ -25,7 +25,7 @@ public class Pws {
 
     @SuppressWarnings("ConstantConditions")
     public void checkConditions() throws IOException {
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Checking PWS conditions...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking PWS conditions...");
 
         JSONObject input;
 

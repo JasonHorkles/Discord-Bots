@@ -36,7 +36,7 @@ public class StormAlerts extends ListenerAdapter {
     private static final ArrayList<ScheduledFuture<?>> trafficTimers = new ArrayList<>();
 
     public static void main(String[] args) throws LoginException, InterruptedException, ParseException {
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Starting...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
         builder.disableIntents(GatewayIntent.GUILD_MESSAGE_TYPING);
@@ -66,7 +66,7 @@ public class StormAlerts extends ListenerAdapter {
             try {
                 new Alerts().checkAlerts();
             } catch (Exception e) {
-                System.out.println(new Utils().getTime(Utils.Color.RED) + "[ERROR] Couldn't get the alerts!");
+                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!");
                 e.printStackTrace();
             }
         }, 1, 180, TimeUnit.SECONDS);
@@ -84,9 +84,9 @@ public class StormAlerts extends ListenerAdapter {
                 else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
 
                 System.out.println(
-                    new Utils().getTime(Utils.Color.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
+                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
                 if (reason.equals("")) {
-                    System.out.print(new Utils().getTime(Utils.Color.RED));
+                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
                 }
             }
@@ -99,7 +99,7 @@ public class StormAlerts extends ListenerAdapter {
                 new Weather().checkConditions();
             } catch (Exception e) {
                 System.out.println(
-                    new Utils().getTime(Utils.Color.RED) + "[ERROR] Couldn't get the weather conditions!");
+                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
                 e.printStackTrace();
                 api.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
                 api.getPresence().setActivity(Activity.playing("Error checking weather!"));
@@ -124,13 +124,13 @@ public class StormAlerts extends ListenerAdapter {
         }, "Console Input");
         input.start();
 
-        System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Done starting up!");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }
 
     // Slash commands
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        System.out.println(new Utils().getTime(Utils.Color.GREEN) + event.getMember()
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember()
             .getEffectiveName() + " used the /" + event.getName() + " command");
 
         //noinspection SwitchStatementWithTooFewBranches
@@ -151,8 +151,9 @@ public class StormAlerts extends ListenerAdapter {
             if (delay >= 0) {
                 trafficTimers.add(Executors.newSingleThreadScheduledExecutor()
                     .schedule(() -> new Traffic().checkTraffic(toWork), delay, TimeUnit.MILLISECONDS));
-                System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Scheduled traffic check in " + Math.round(
-                    delay / 3600000.0) + " hours.");
+                System.out.println(
+                    new Utils().getTime(Utils.LogColor.GREEN) + "Scheduled traffic check in " + Math.round(
+                        delay / 3600000.0) + " hours.");
             }
         }
     }
@@ -164,34 +165,35 @@ public class StormAlerts extends ListenerAdapter {
         if (isSlash) event.deferReply(true).complete();
 
         // Alerts
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Force checking alerts...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Force checking alerts...");
         if (isSlash) event.getHook().editOriginal("Checking alerts...").complete();
         try {
             new Alerts().checkAlerts();
         } catch (Exception e) {
-            System.out.println(new Utils().getTime(Utils.Color.RED) + "[ERROR] Couldn't get the alerts!");
+            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!");
             e.printStackTrace();
             error = "Couldn't get the alerts!";
         }
 
         // PWS / Rain
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Force checking PWS conditions...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Force checking PWS conditions...");
         if (isSlash) event.getHook().editOriginal("Checking PWS conditions...").complete();
         try {
             new Pws().checkConditions();
         } catch (Exception e) {
-            System.out.println(new Utils().getTime(Utils.Color.RED) + "[ERROR] Couldn't get the PWS conditions!");
+            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!");
             e.printStackTrace();
             error = "Couldn't get the PWS conditions!";
         }
 
         // Weather
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Force checking weather conditions...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Force checking weather conditions...");
         if (isSlash) event.getHook().editOriginal("Checking weather conditions...").complete();
         try {
             new Weather().checkConditions();
         } catch (Exception e) {
-            System.out.println(new Utils().getTime(Utils.Color.RED) + "[ERROR] Couldn't get the weather conditions!");
+            System.out.println(
+                new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
             e.printStackTrace();
             error = "Couldn't get the weather conditions!";
             api.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
@@ -202,7 +204,7 @@ public class StormAlerts extends ListenerAdapter {
     }
 
     public void shutdown() {
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Shutting down...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
         alertTimer.cancel(true);
         pwsTimer.cancel(true);
         weatherTimer.cancel(true);
@@ -213,7 +215,7 @@ public class StormAlerts extends ListenerAdapter {
                 message = new Utils().getMessages(Weather.previousTypeChannel, 1).get(1, TimeUnit.SECONDS).get(0);
                 Thread.sleep(500);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                System.out.print(new Utils().getTime(Utils.Color.RED));
+                System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
             }
             if (!message.getContentRaw().contains("Ended") && !message.getContentRaw().contains("restarted"))

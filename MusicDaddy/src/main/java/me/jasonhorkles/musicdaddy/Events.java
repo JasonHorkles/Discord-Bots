@@ -31,7 +31,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        System.out.println(new Utils().getTime(Utils.Color.GREEN) + event.getMember()
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember()
             .getEffectiveName() + " used the /" + event.getName() + " command");
 
         AudioChannel voiceChannel = event.getMember().getVoiceState().getChannel();
@@ -164,7 +164,7 @@ public class Events extends ListenerAdapter {
 
                         } else search = url;
                     } catch (IOException | SpotifyWebApiException | ParseException e) {
-                        System.out.print(new Utils().getTime(Utils.Color.RED));
+                        System.out.print(new Utils().getTime(Utils.LogColor.RED));
                         e.printStackTrace();
                         search = url;
                     }

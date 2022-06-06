@@ -58,7 +58,7 @@ public class AntiScam extends ListenerAdapter {
         } else attempts.put(id, 1);
 
         System.out.println(
-            new Utils().getTime(Utils.Color.YELLOW) + "Potential Nitro scam from " + name + " - " + attempts.get(
+            new Utils().getTime(Utils.LogColor.YELLOW) + "Potential Nitro scam from " + name + " - " + attempts.get(
                 id) + "/3");
 
         Executors.newSingleThreadScheduledExecutor().schedule(() -> takeWarning(id, name), 10, TimeUnit.MINUTES);
@@ -68,11 +68,11 @@ public class AntiScam extends ListenerAdapter {
         if (attempts.get(id) <= 1) {
             attempts.remove(id);
             System.out.println(new Utils().getTime(
-                Utils.Color.GREEN) + "Potential Nitro scam attempt from " + name + " removed - 0/3");
+                Utils.LogColor.GREEN) + "Potential Nitro scam attempt from " + name + " removed - 0/3");
         } else {
             attempts.put(id, attempts.get(id) - 1);
             System.out.println(new Utils().getTime(
-                Utils.Color.GREEN) + "Potential Nitro scam attempt from " + name + " removed - " + attempts.get(
+                Utils.LogColor.GREEN) + "Potential Nitro scam attempt from " + name + " removed - " + attempts.get(
                 id) + "/3");
         }
     }

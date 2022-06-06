@@ -24,7 +24,7 @@ public class Quorum {
     public static JDA api;
 
     public static void main(String[] args) throws LoginException, InterruptedException, ParseException {
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Starting...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
         builder.disableIntents(GatewayIntent.GUILD_MESSAGE_TYPING);
@@ -112,15 +112,15 @@ public class Quorum {
         }, "Console Input");
         input.start();
 
-        System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Done starting up!");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }
 
     public void shutdown() {
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Cancelling scheduled DMs...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Cancelling scheduled DMs...");
         for (ScheduledFuture<?> task : ScheduleDMs.schedules) task.cancel(false);
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Cancelling scheduled announcements...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Cancelling scheduled announcements...");
         for (ScheduledFuture<?> task : ScheduleAnnouncements.schedules) task.cancel(false);
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Shutting down...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
         try {
             api.shutdownNow();
         } catch (NoClassDefFoundError ignored) {

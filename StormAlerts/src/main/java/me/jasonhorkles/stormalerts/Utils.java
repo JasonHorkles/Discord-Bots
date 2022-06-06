@@ -19,23 +19,23 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class Utils {
-    public enum Color {
+    public enum LogColor {
         RED("\u001B[31m"), YELLOW("\u001B[33m"), GREEN("\u001B[32m");
 
-        private final String color;
+        private final String logColor;
 
-        Color(String color) {
-            this.color = color;
+        LogColor(String logColor) {
+            this.logColor = logColor;
         }
 
-        public String getColor() {
-            return color;
+        public String getLogColor() {
+            return logColor;
         }
     }
 
-    public String getTime(Color color) {
+    public String getTime(LogColor logColor) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm:ss a");
-        return color.getColor() + "[" + dtf.format(LocalDateTime.now()) + "] ";
+        return logColor.getLogColor() + "[" + dtf.format(LocalDateTime.now()) + "] ";
     }
 
     String value;
@@ -65,7 +65,7 @@ public class Utils {
                         }
                     }
                 } catch (Exception e) {
-                    System.out.print(new Utils().getTime(Utils.Color.RED));
+                    System.out.print(new Utils().getTime(LogColor.RED));
                     e.printStackTrace();
                 }
             }
@@ -93,7 +93,7 @@ public class Utils {
                 return message.getTimeEdited().isBefore(OffsetDateTime.now().minus(1, ChronoUnit.HOURS));
             else return message.getTimeCreated().isBefore(OffsetDateTime.now().minus(1, ChronoUnit.HOURS));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            System.out.print(new Utils().getTime(Utils.Color.RED));
+            System.out.print(new Utils().getTime(LogColor.RED));
             e.printStackTrace();
             return true;
         }

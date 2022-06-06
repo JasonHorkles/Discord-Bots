@@ -64,7 +64,7 @@ public class Events extends ListenerAdapter {
 
             event.getMessage().reply(message).queue(message1 -> message1.delete().queueAfter(5, TimeUnit.MINUTES, null,
                 new ErrorHandler().handle(ErrorResponse.UNKNOWN_MESSAGE, (e) -> System.out.println(
-                    new Utils().getTime(Utils.Color.RED) + "Unable to delete warning message."))));
+                    new Utils().getTime(Utils.LogColor.RED) + "Unable to delete warning message."))));
         }
     }
 
@@ -76,7 +76,7 @@ public class Events extends ListenerAdapter {
                 event.getMember().getUser().openPrivateChannel().flatMap(channel -> channel.sendMessage(
                         "Please reduce the amount of staff pings.\nYou may re-join the server @ https://discord.gg/GMEXvt9wVB"))
                     .queue(null, new ErrorHandler().handle(ErrorResponse.CANNOT_SEND_TO_USER, (e) -> System.out.println(
-                        new Utils().getTime(Utils.Color.RED) + "Can't send message to " + event.getMember()
+                        new Utils().getTime(Utils.LogColor.RED) + "Can't send message to " + event.getMember()
                             .getEffectiveName())));
                 if (event.getMember().getRoles().toString().contains("646291178144399371"))
                     event.getChannel().sendMessage(event.getMember().getEffectiveName() + " would be kicked!")
@@ -85,7 +85,7 @@ public class Events extends ListenerAdapter {
             }
         } else warnings.put(id, count);
 
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Warned " + event.getMember()
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Warned " + event.getMember()
             .getEffectiveName() + " for ping spam - " + warnings.get(id) + "/3");
 
         for (int x = count; x > 0; x--) {
@@ -93,7 +93,7 @@ public class Events extends ListenerAdapter {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
-                System.out.print(new Utils().getTime(Utils.Color.RED));
+                System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
             }
         }
@@ -121,7 +121,7 @@ public class Events extends ListenerAdapter {
         try {
             for (Long id : channels) {
                 System.out.println(
-                    new Utils().getTime(Utils.Color.YELLOW) + "Deleting messages in #" + jda.getTextChannelById(id)
+                    new Utils().getTime(Utils.LogColor.YELLOW) + "Deleting messages in #" + jda.getTextChannelById(id)
                         .getName() + "...");
 
                 for (Message message : new Utils().getMessages(jda.getTextChannelById(id), x)
@@ -140,9 +140,9 @@ public class Events extends ListenerAdapter {
                 }
             }
 
-            System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Deleted " + count + " messages.\n");
+            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Deleted " + count + " messages.\n");
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            System.out.print(new Utils().getTime(Utils.Color.RED));
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
         }
     }
@@ -151,11 +151,11 @@ public class Events extends ListenerAdapter {
         if (warnings.get(id) <= 1) {
             warnings.remove(id);
             System.out.println(
-                new Utils().getTime(Utils.Color.GREEN) + "Removed ping spam warning from " + name + " - 0/3");
+                new Utils().getTime(Utils.LogColor.GREEN) + "Removed ping spam warning from " + name + " - 0/3");
         } else {
             warnings.put(id, warnings.get(id) - 1);
             System.out.println(new Utils().getTime(
-                Utils.Color.GREEN) + "Removed ping spam warning from " + name + " - " + warnings.get(id) + "/3");
+                Utils.LogColor.GREEN) + "Removed ping spam warning from " + name + " - " + warnings.get(id) + "/3");
         }
     }
 }

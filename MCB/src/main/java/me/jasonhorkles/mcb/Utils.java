@@ -10,23 +10,23 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class Utils {
-    public enum Color {
+    public enum LogColor {
         RED("\u001B[31m"), YELLOW("\u001B[33m"), GREEN("\u001B[32m");
 
-        private final String color;
+        private final String logColor;
 
-        Color(String color) {
-            this.color = color;
+        LogColor(String logColor) {
+            this.logColor = logColor;
         }
 
-        public String getColor() {
-            return color;
+        public String getLogColor() {
+            return logColor;
         }
     }
 
-    public String getTime(Color color) {
+    public String getTime(LogColor logColor) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm:ss a");
-        return color.getColor() + "[" + dtf.format(LocalDateTime.now()) + "] ";
+        return logColor.getLogColor() + "[" + dtf.format(LocalDateTime.now()) + "] ";
     }
 
     public CompletableFuture<List<Message>> getMessages(MessageChannel channel, int count) {

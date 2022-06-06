@@ -28,7 +28,7 @@ public class Traffic {
                     if (input.getBoolean("roadClosure")) {
                         closed = true;
                         System.out.println(
-                            new Utils().getTime(Utils.Color.YELLOW) + "Traffic section " + section + " is closed!");
+                            new Utils().getTime(Utils.LogColor.YELLOW) + "Traffic section " + section + " is closed!");
                         break;
                     }
 
@@ -39,13 +39,13 @@ public class Traffic {
                         slowSection = section;
                     }
                     System.out.println(new Utils().getTime(
-                        Utils.Color.GREEN) + "Traffic section " + section + " is currently " + currentSpeed + " mph");
+                        Utils.LogColor.GREEN) + "Traffic section " + section + " is currently " + currentSpeed + " mph");
                 }
 
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
-                    System.out.print(new Utils().getTime(Utils.Color.RED));
+                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
                 }
             }

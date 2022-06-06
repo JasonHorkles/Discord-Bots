@@ -23,7 +23,7 @@ public class Events extends ListenerAdapter {
     @SuppressWarnings("SuspiciousMethodCalls")
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        System.out.println(new Utils().getTime(Utils.Color.GREEN) + event.getMember()
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember()
             .getEffectiveName() + " used the /" + event.getName() + " command");
 
         // If in discord server and not a staff member or admin and in the wrong channel, make it private
@@ -65,7 +65,7 @@ public class Events extends ListenerAdapter {
                 event.reply("Get LuckPerms help here: https://discord.gg/luckperms").setEphemeral(ephemeral).queue();
         }
 
-        System.out.println(new Utils().getTime(Utils.Color.GREEN) + event.getMember()
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember()
             .getEffectiveName() + " used the /" + event.getName() + " command");
     }
 
@@ -103,7 +103,7 @@ public class Events extends ListenerAdapter {
     // When recent chatter leaves
     @Override
     public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
-        System.out.println("\n" + new Utils().getTime(Utils.Color.YELLOW) + event.getUser().getName() + " left!");
+        System.out.println("\n" + new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser().getName() + " left!");
 
         OffsetDateTime thirtyMinsAgo = OffsetDateTime.now().minus(30, ChronoUnit.MINUTES);
         OffsetDateTime threeDaysAgo = OffsetDateTime.now().minus(3, ChronoUnit.DAYS);
@@ -113,7 +113,7 @@ public class Events extends ListenerAdapter {
                 continue;
             if (channels.getName().toLowerCase().contains("count")) continue;
 
-            System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Checking #" + channels.getName());
+            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking #" + channels.getName());
             boolean fromUser = false;
             try {
                 // Check the past 15 messages within 30 minutes
@@ -124,7 +124,7 @@ public class Events extends ListenerAdapter {
                         break;
                     }
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                System.out.print(new Utils().getTime(Utils.Color.RED));
+                System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
             }
 
@@ -134,7 +134,7 @@ public class Events extends ListenerAdapter {
                 if (message.getTimeCreated().isAfter(threeDaysAgo) && message.getAuthor().getIdLong() == event.getUser()
                     .getIdLong()) fromUser = true;
             } catch (ExecutionException | InterruptedException | TimeoutException e) {
-                System.out.print(new Utils().getTime(Utils.Color.RED));
+                System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
             }
 
