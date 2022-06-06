@@ -329,7 +329,6 @@ public class Utils {
             for (int x = 0; x < meanings.length() && x < 3; x++) {
                 if (x > 0) definitions.append("\n\n");
                 JSONObject info = meanings.getJSONObject(x);
-                System.out.println(info);
                 definitions.append("**").append(info.getString("partOfSpeech").toUpperCase()).append(":**");
 
                 JSONArray rawDefinitions = info.getJSONArray("definitions");
