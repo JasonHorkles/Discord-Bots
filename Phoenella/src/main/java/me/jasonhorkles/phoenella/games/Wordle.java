@@ -17,7 +17,6 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -439,10 +438,13 @@ public class Wordle extends ListenerAdapter {
 
         if (event.getComponentId().startsWith("reportword:")) {
             event.editButton(event.getButton().asDisabled()).queue();
+
+            String word = event.getComponentId().replace("reportword:", "");
+            
             //noinspection ConstantConditions
             event.getJDA().getTextChannelById(960213547944661042L).sendMessage(
-                    ":warning: Word report from " + new Utils().getFullName(
-                        event.getMember()) + ": **" + event.getComponentId().replace("reportword:", "") + "**")
+                    ":warning: Word report from " + new Utils().getFullName(event.getMember()) + ": **" + word + "**")
+                .setActionRow(Button.primary("defineword:" + word, "Define word").withEmoji(Emoji.fromUnicode("❔")))
                 .queue((msg) -> msg.addReaction("✅").queue((na) -> msg.addReaction("❌").queue()));
         }
 
@@ -450,28 +452,13 @@ public class Wordle extends ListenerAdapter {
             event.deferReply(true).queue();
 
             String word = event.getComponentId().replace("defineword:", "");
-            try {
-                String page = "https://www.dictionary.com/browse/" + word;
-                Connection conn = Jsoup.connect(page).timeout(15000);
-                Document doc = conn.ignoreHttpErrors(true).get();
+            MessageEmbed embed = new Utils().defineWord(word);
 
-                Elements elements = doc.body().getElementsByClass("one-click-content css-nnyc96 e1q3nk1v1");
-                if (elements.size() > 0) {
-                    String definition = elements.get(0).text();
-                    event.getHook().editOriginal("`" + definition + "`").queue();
+            if (embed.getDescription() != null) if (embed.getDescription().startsWith("Couldn't find "))
+                event.getHook().editOriginalEmbeds(embed).queue();
 
-                } else if (doc.body().getElementsByClass("no-results-title css-1cywoo2 e6aw9qa1").size() > 0)
-                    event.getHook().editOriginal("Couldn't find **" + word + "** in the dictionary!").queue();
-
-
-            } catch (IOException e) {
-                System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                e.printStackTrace();
-
-                event.getHook()
-                    .editOriginal("Failed to search dictionary for word **" + word + "**! Please try again later.")
-                    .queue();
-            }
+            else event.getHook().editOriginalEmbeds(embed).setActionRow(
+                    Button.danger("definitionreport", "Report definition").withEmoji(Emoji.fromUnicode("🚩"))).queue();
         }
     }
 
@@ -532,9 +519,9 @@ public class Wordle extends ListenerAdapter {
         Phoenella.api.getTextChannelById(960213547944661042L).sendMessage(
                 ":inbox_tray: " + s + " request from " + new Utils().getFullName(member) + ": **" + word + "**")
             .setActionRow(Button.primary("defineword:" + word, "Define word").withEmoji(Emoji.fromUnicode("❔")))
-            .queue((msg) -> msg.addReaction("✅").queue((na) -> msg.addReaction("❌").queue((na1) -> {
+            .queue((msg) -> msg.addReaction("✅").queue((m) -> {
                 if (isAuto) msg.addReaction("⛔").queue();
-            })));
+            }));
     }
 
     private enum LetterType {

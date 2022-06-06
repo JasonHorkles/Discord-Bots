@@ -407,9 +407,15 @@ public class Events extends ListenerAdapter {
             }
 
             if (text.startsWith("define ")) {
-                message.replyEmbeds(new Utils().defineWord(text.replace("define ", ""))).setActionRow(
-                        Button.danger("definitionreport", "Report definition").withEmoji(Emoji.fromUnicode("🚩")))
-                    .mentionRepliedUser(false).queue();
+                MessageEmbed embed = new Utils().defineWord(text.replace("define ", ""));
+
+                if (embed.getDescription() != null) if (embed.getDescription().startsWith("Couldn't find "))
+                    message.replyEmbeds(embed).mentionRepliedUser(false).queue();
+
+                else message.replyEmbeds(embed).setActionRow(
+                            Button.danger("definitionreport", "Report definition").withEmoji(Emoji.fromUnicode("🚩")))
+                        .mentionRepliedUser(false).queue();
+
                 return;
             }
 
@@ -484,9 +490,10 @@ public class Events extends ListenerAdapter {
                 File file = new File("Phoenella/Wordle/words.txt");
 
                 try {
-                    if (message.getContentStripped().contains("Word request")) {
+                    if (message.getContentStripped().toLowerCase().contains("word request")) {
                         FileWriter fileWriter = new FileWriter(file, true);
-                        fileWriter.write(message.getContentStripped().replaceAll(".*: ", "").toUpperCase() + "\n");
+                        String word = message.getContentStripped().replaceAll(".*: ", "").toUpperCase();
+                        fileWriter.write(word + "\n");
                         fileWriter.close();
 
                     } else if (message.getContentStripped().contains("Word report")) {
@@ -772,7 +779,7 @@ public class Events extends ListenerAdapter {
     public void onButtonInteraction(ButtonInteractionEvent event) {
         if (event.getComponentId().equals("definitionreport")) {
             Phoenella.api.openPrivateChannelById(277291758503723010L).flatMap(channel -> channel.sendMessage(
-                    ":warning: Word report from " + new Utils().getFullName(event.getMember()) + ":**")
+                    ":warning: Definition report from **" + new Utils().getFullName(event.getMember()) + ":**")
                 .setEmbeds(event.getMessage().getEmbeds().get(0))).queue();
             event.getMessage().delete().queue();
         }
