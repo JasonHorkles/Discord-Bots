@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
@@ -64,8 +65,7 @@ public class Events extends ListenerAdapter {
             if ((message.getContentRaw().toLowerCase().contains("phoenix") || message.getContentRaw().toLowerCase()
                 .contains("`phoe`")) && !isReply) return;
 
-            String text = message.getContentStripped().toLowerCase().replace("phoenella", "").replace("phoe", "")
-                .trim();
+            String text = message.getContentRaw().toLowerCase().replace("phoenella", "").replace("phoe", "").trim();
 
             // Utility
 
@@ -106,7 +106,7 @@ public class Events extends ListenerAdapter {
                 while (fileScanner.hasNextLine()) disabledChannels.add(fileScanner.nextLine());
             } catch (NoSuchElementException ignored) {
             } catch (FileNotFoundException e) {
-                System.out.print(new Utils().getTime(Utils.Color.RED));
+                System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
             }
 
@@ -119,7 +119,7 @@ public class Events extends ListenerAdapter {
                     for (String channels : disabledChannels) fileWriter.write(channels + "\n");
                     fileWriter.close();
                 } catch (IOException e) {
-                    System.out.print(new Utils().getTime(Utils.Color.RED));
+                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
                     message.reply(":see_no_evil: Uh oh! There's an error! <@277291758503723010>")
                         .mentionRepliedUser(false).queue();
@@ -140,7 +140,7 @@ public class Events extends ListenerAdapter {
                     for (String channels : disabledChannels) fileWriter.write(channels + "\n");
                     fileWriter.close();
                 } catch (IOException e) {
-                    System.out.print(new Utils().getTime(Utils.Color.RED));
+                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
                     message.reply(":see_no_evil: Uh oh! There's an error! <@277291758503723010>")
                         .mentionRepliedUser(false).queue();
@@ -158,7 +158,7 @@ public class Events extends ListenerAdapter {
                     return;
                 }
 
-                channel.sendMessage(message.getContentRaw().replaceAll("(?i).*say ", "")).queue();
+                channel.sendMessage(text.replaceAll("(?i).*say ", "")).queue();
                 message.delete().queue();
                 return;
             }
@@ -201,7 +201,7 @@ public class Events extends ListenerAdapter {
                 } catch (IOException e) {
                     message.reply("Couldn't generate a random word! Please try again later.")
                         .queue((del) -> del.delete().queueAfter(30, TimeUnit.SECONDS));
-                    System.out.print(new Utils().getTime(Utils.Color.RED));
+                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
                 }
                 return;
@@ -377,28 +377,39 @@ public class Events extends ListenerAdapter {
                 return;
             }
 
-            if (text.contains("search ")) {
-                String page = "https://www.google.com/search?q=" + URLEncoder.encode(text.replaceFirst("search ", ""),
-                    StandardCharsets.UTF_8).trim();
+            if (text.startsWith("search ")) {
+                String search = text.replaceFirst("search ", "");
+                String page = "https://www.google.com/search?q=" + URLEncoder.encode(search, StandardCharsets.UTF_8)
+                    .trim();
+
                 try {
                     Connection conn = Jsoup.connect(page).timeout(15000);
                     Document doc = conn.get();
                     msg = doc.body().getElementsByClass("ILfuVd").get(0).text();
 
                     EmbedBuilder embed = new EmbedBuilder();
-                    embed.setTitle(text.replaceFirst("search ", "").toUpperCase(), page);
+                    embed.setTitle(search.toUpperCase(), page);
                     embed.setColor(new Color(15, 157, 88));
                     embed.setDescription(msg);
 
                     message.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
+
                 } catch (IOException e) {
                     message.reply(e.getMessage()).mentionRepliedUser(false).queue();
-                    System.out.print(new Utils().getTime(Utils.Color.RED));
+                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
+
                 } catch (IndexOutOfBoundsException ignored) {
                     message.reply("I couldn't find a result for that!\n<" + page + ">").mentionRepliedUser(false)
                         .queue();
                 }
+                return;
+            }
+
+            if (text.startsWith("define ")) {
+                message.replyEmbeds(new Utils().defineWord(text.replace("define ", ""))).setActionRow(
+                        Button.danger("definitionreport", "Report definition").withEmoji(Emoji.fromUnicode("🚩")))
+                    .mentionRepliedUser(false).queue();
                 return;
             }
 
@@ -499,7 +510,7 @@ public class Events extends ListenerAdapter {
                 } catch (IOException e) {
                     message.reply("Failed to write word! See console for details.")
                         .queue((msg) -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
-                    System.out.print(new Utils().getTime(Utils.Color.RED));
+                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
                 }
             }
@@ -528,7 +539,7 @@ public class Events extends ListenerAdapter {
                 } catch (IOException e) {
                     message.reply("Failed to write word! See console for details.")
                         .queue((msg) -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
-                    System.out.print(new Utils().getTime(Utils.Color.RED));
+                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
                 }
             }
@@ -545,7 +556,7 @@ public class Events extends ListenerAdapter {
                 for (User reactionUsers : msgReactions.retrieveUsers().complete())
                     if (reactionUsers == event.getUser()) return;
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            System.out.print(new Utils().getTime(Utils.Color.RED));
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
         }
 
@@ -561,7 +572,7 @@ public class Events extends ListenerAdapter {
         Guild guild = event.getGuild();
         String newNickname = event.getNewNickname();
 
-        System.out.println(new Utils().getTime(Utils.Color.GREEN) + event.getMember().getUser()
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember().getUser()
             .getAsTag() + " changed their nickname from '" + event.getOldNickname() + "' to '" + newNickname + "'");
 
         // If not sushed
@@ -571,7 +582,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        System.out.println(new Utils().getTime(Utils.Color.GREEN) + new Utils().getFullName(
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + new Utils().getFullName(
             event.getMember()) + " used the /" + event.getName() + " command");
 
         switch (event.getName().toLowerCase()) {
@@ -624,7 +635,7 @@ public class Events extends ListenerAdapter {
                         } catch (IOException e) {
                             event.getHook().editOriginal("Couldn't generate a random word! Please try again later.")
                                 .queue();
-                            System.out.print(new Utils().getTime(Utils.Color.RED));
+                            System.out.print(new Utils().getTime(Utils.LogColor.RED));
                             e.printStackTrace();
                         }
                     }
@@ -641,7 +652,7 @@ public class Events extends ListenerAdapter {
                                 return;
                             }
                         } catch (FileNotFoundException e) {
-                            System.out.print(new Utils().getTime(Utils.Color.RED));
+                            System.out.print(new Utils().getTime(Utils.LogColor.RED));
                             e.printStackTrace();
                         }
 
@@ -663,7 +674,7 @@ public class Events extends ListenerAdapter {
                         } catch (IOException e) {
                             event.getHook().editOriginal("Couldn't generate a random word! Please try again later.")
                                 .queue();
-                            System.out.print(new Utils().getTime(Utils.Color.RED));
+                            System.out.print(new Utils().getTime(Utils.LogColor.RED));
                             e.printStackTrace();
                         }
                     }
@@ -683,7 +694,7 @@ public class Events extends ListenerAdapter {
                             try {
                                 leaderboard = new Scanner(new File("Phoenella/Wordle/leaderboard.txt"));
                             } catch (FileNotFoundException e) {
-                                System.out.print(new Utils().getTime(Utils.Color.RED));
+                                System.out.print(new Utils().getTime(Utils.LogColor.RED));
                                 e.printStackTrace();
                             }
                             HashMap<Member, Integer> lines = new HashMap<>();
@@ -754,6 +765,16 @@ public class Events extends ListenerAdapter {
 
             event.getJDA().getTextChannelById(956267174727671869L).sendMessageEmbeds(embed.build())
                 .setActionRow(Button.success("playwordle:" + word + ":" + tries, "Play it!")).queue();
+        }
+    }
+
+    @Override
+    public void onButtonInteraction(ButtonInteractionEvent event) {
+        if (event.getComponentId().equals("definitionreport")) {
+            Phoenella.api.openPrivateChannelById(277291758503723010L).flatMap(channel -> channel.sendMessage(
+                    ":warning: Word report from " + new Utils().getFullName(event.getMember()) + ":**")
+                .setEmbeds(event.getMessage().getEmbeds().get(0))).queue();
+            event.getMessage().delete().queue();
         }
     }
 }

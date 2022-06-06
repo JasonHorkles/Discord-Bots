@@ -48,18 +48,18 @@ public class PlayerManager {
 
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
-                System.out.println(new Utils().getTime(Utils.Color.RED) + "[ERROR] GOT A PLAYLIST");
+                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] GOT A PLAYLIST");
             }
 
             @Override
             public void noMatches() {
                 System.out.println(
-                    new Utils().getTime(Utils.Color.RED) + "[ERROR] NO MATCHES FOUND FOR \"" + file + "\"");
+                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] NO MATCHES FOUND FOR \"" + file + "\"");
             }
 
             @Override
             public void loadFailed(FriendlyException e) {
-                System.out.println(new Utils().getTime(Utils.Color.RED) + "[ERROR] FAILED TO LOAD");
+                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] FAILED TO LOAD");
                 e.printStackTrace();
             }
         });

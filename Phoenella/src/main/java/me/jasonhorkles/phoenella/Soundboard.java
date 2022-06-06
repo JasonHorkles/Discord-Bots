@@ -73,7 +73,7 @@ public class Soundboard extends ListenerAdapter {
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         if (event.getComponentId().startsWith("sound:")) {
-            System.out.println(new Utils().getTime(Utils.Color.YELLOW) + event.getUser()
+            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser()
                 .getAsTag() + " clicked the '" + event.getComponentId().replace("sound:", "") + "' button");
 
             if (event.getComponentId().equals("sound:forceswitch")) {
@@ -197,7 +197,7 @@ public class Soundboard extends ListenerAdapter {
             audioManager.setSelfDeafened(true);
         } catch (InsufficientPermissionException ignored) {
             System.out.println(new Utils().getTime(
-                Utils.Color.YELLOW) + "Couldn't join '" + channel.getName() + "' due to insufficient permissions!");
+                Utils.LogColor.YELLOW) + "Couldn't join '" + channel.getName() + "' due to insufficient permissions!");
         }
     }
 }

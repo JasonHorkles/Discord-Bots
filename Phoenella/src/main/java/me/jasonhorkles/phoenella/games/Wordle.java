@@ -167,7 +167,7 @@ public class Wordle extends ListenerAdapter {
             wordRequest(input.toUpperCase(), event.getMember(), true);
 
         } catch (IOException e) {
-            System.out.print(new Utils().getTime(Utils.Color.RED));
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
 
             message.reply("**" + input + "** isn't in my dictionary!")
@@ -309,7 +309,7 @@ public class Wordle extends ListenerAdapter {
                 }
                 writer.close();
             } catch (IOException e) {
-                System.out.print(new Utils().getTime(Utils.Color.RED));
+                System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
             }
 
@@ -368,7 +368,7 @@ public class Wordle extends ListenerAdapter {
                     else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
                 } catch (IOException e) {
                     event.getHook().editOriginal("Couldn't generate a random word! Please try again later.").queue();
-                    System.out.print(new Utils().getTime(Utils.Color.RED));
+                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
                 }
 
@@ -425,7 +425,7 @@ public class Wordle extends ListenerAdapter {
 
             } catch (IOException e) {
                 event.getHook().editOriginal("Couldn't generate a random word! Please try again later.").queue();
-                System.out.print(new Utils().getTime(Utils.Color.RED));
+                System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
             }
             return;
@@ -465,7 +465,7 @@ public class Wordle extends ListenerAdapter {
 
 
             } catch (IOException e) {
-                System.out.print(new Utils().getTime(Utils.Color.RED));
+                System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
 
                 event.getHook()
@@ -518,7 +518,7 @@ public class Wordle extends ListenerAdapter {
                 while (fileScanner.hasNextLine()) words.add(fileScanner.nextLine());
             } catch (NoSuchElementException ignored) {
             } catch (FileNotFoundException e) {
-                System.out.print(new Utils().getTime(Utils.Color.RED));
+                System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
             }
             if (words.contains(word.toUpperCase())) return;

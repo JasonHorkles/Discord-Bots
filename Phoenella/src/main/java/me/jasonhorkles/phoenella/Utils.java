@@ -1,18 +1,22 @@
 package me.jasonhorkles.phoenella;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import javax.annotation.Nullable;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.awt.*;
+import java.io.*;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -20,23 +24,23 @@ import java.util.concurrent.*;
 public class Utils {
     public static ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
 
-    public enum Color {
+    public enum LogColor {
         RED("\u001B[31m"), YELLOW("\u001B[33m"), GREEN("\u001B[32m");
 
-        private final String color;
+        private final String logColor;
 
-        Color(String color) {
-            this.color = color;
+        LogColor(String logColor) {
+            this.logColor = logColor;
         }
 
-        public String getColor() {
-            return color;
+        public String getLogColor() {
+            return logColor;
         }
     }
 
-    public String getTime(Color color) {
+    public String getTime(LogColor logColor) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm:ss a");
-        return color.getColor() + "[" + dtf.format(LocalDateTime.now()) + "] ";
+        return logColor.getLogColor() + "[" + dtf.format(LocalDateTime.now()) + "] ";
     }
 
     public CompletableFuture<List<Message>> getMessages(MessageChannel channel, int count) {
@@ -60,8 +64,7 @@ public class Utils {
     public void runNameCheckForGuild(Guild guild) {
         for (Member member : guild.getMembers()) {
             if (member.getUser().isBot()) continue;
-            System.out.println(
-                new Utils().getTime(Utils.Color.GREEN) + "Checking " + member.getEffectiveName() + "...");
+            System.out.println(getTime(LogColor.GREEN) + "Checking " + member.getEffectiveName() + "...");
 
             // If not sushed
             if (!member.getRoles().toString().contains("842490529744945192"))
@@ -84,8 +87,8 @@ public class Utils {
         // If nickname is invalid, remove their reactions
         Thread removeReactions = new Thread(() -> {
             try {
-                for (MessageReaction msgReactions : new Utils().getMessages(
-                    guild.getTextChannelById(892104640567578674L), 1).get(60, TimeUnit.SECONDS).get(0).getReactions())
+                for (MessageReaction msgReactions : getMessages(guild.getTextChannelById(892104640567578674L), 1).get(
+                    60, TimeUnit.SECONDS).get(0).getReactions())
                     for (User reactionUsers : msgReactions.retrieveUsers().complete())
                         if (reactionUsers == member.getUser()) msgReactions.removeReaction(reactionUsers).queue();
             } catch (InterruptedException | ExecutionException | TimeoutException ignored) {
@@ -113,16 +116,16 @@ public class Utils {
 
     private void addRoleToMember(Member member, Guild guild, RoleType roleType) {
         if (!member.getRoles().toString().contains(roleType.getRole())) {
-            System.out.println(new Utils().getTime(
-                Utils.Color.GREEN) + "Adding role '" + roleType + "' to '" + member.getEffectiveName() + "'");
+            System.out.println(
+                getTime(LogColor.GREEN) + "Adding role '" + roleType + "' to '" + member.getEffectiveName() + "'");
             guild.addRoleToMember(member, guild.getRoleById(roleType.getRole())).queue();
         }
     }
 
     private void removeRoleFromMember(Member member, Guild guild, RoleType roleType) {
         if (member.getRoles().toString().contains(roleType.getRole())) {
-            System.out.println(new Utils().getTime(
-                Utils.Color.GREEN) + "Removing role '" + roleType + "' from '" + member.getEffectiveName() + "'");
+            System.out.println(
+                getTime(LogColor.GREEN) + "Removing role '" + roleType + "' from '" + member.getEffectiveName() + "'");
             guild.removeRoleFromMember(member, guild.getRoleById(roleType.getRole())).queue();
         }
     }
@@ -176,8 +179,8 @@ public class Utils {
         else {
             Guild guild = member.getGuild();
             try {
-                if (!f.createNewFile()) System.out.println(
-                    new Utils().getTime(Utils.Color.RED) + "File '" + f.getName() + "' not created.");
+                if (!f.createNewFile())
+                    System.out.println(getTime(LogColor.RED) + "File '" + f.getName() + "' not created.");
                 FileWriter fw = new FileWriter(f, false);
                 fw.write(String.valueOf(System.currentTimeMillis() + duration));
 
@@ -196,8 +199,8 @@ public class Utils {
                     .queue();
                 return true;
             } catch (IOException e) {
-                System.out.println(new Utils().getTime(Utils.Color.RED) + "[ERROR] Couldn't shush " + member.getUser()
-                    .getAsTag() + "!");
+                System.out.println(
+                    getTime(LogColor.RED) + "[ERROR] Couldn't shush " + member.getUser().getAsTag() + "!");
                 e.printStackTrace();
                 guild.getTextChannelById(893184802084225115L)
                     .sendMessage("Couldn't shush " + member.getAsMention() + "!").queue();
@@ -218,14 +221,13 @@ public class Utils {
                 guild.addRoleToMember(member, guild.getRoleById(scanner.nextLine())).complete();
 
             scanner.close();
-            if (!f.delete())
-                System.out.println(new Utils().getTime(Utils.Color.RED) + "File '" + f.getName() + "' not deleted.");
+            if (!f.delete()) System.out.println(getTime(LogColor.RED) + "File '" + f.getName() + "' not deleted.");
 
             guild.getTextChannelById(893184802084225115L).sendMessage("Un-shushed " + member.getAsMention() + "!")
                 .queue();
         } catch (IOException e) {
-            System.out.println(new Utils().getTime(Utils.Color.RED) + "[ERROR] Couldn't un-shush " + member.getUser()
-                .getAsTag() + "!");
+            System.out.println(
+                getTime(LogColor.RED) + "[ERROR] Couldn't un-shush " + member.getUser().getAsTag() + "!");
             e.printStackTrace();
             guild.getTextChannelById(893184802084225115L)
                 .sendMessage("Couldn't un-shush " + member.getAsMention() + "!").queue();
@@ -253,11 +255,154 @@ public class Utils {
             FileWriter plays = new FileWriter("Phoenella/Wordle/played-daily.txt", false);
             plays.close();
 
-            System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Updated the daily Wordle!");
+            System.out.println(getTime(LogColor.GREEN) + "Updated the daily Wordle!");
         } catch (IOException e) {
-            System.out.print(getTime(Color.RED));
-            System.out.print(new Utils().getTime(Utils.Color.RED));
+            System.out.print(getTime(LogColor.RED));
+            System.out.print(getTime(LogColor.RED));
             e.printStackTrace();
         }
+    }
+
+    String value;
+
+    public String getJsonKey(JSONObject json, String key, boolean firstRun) {
+        boolean exists = json.has(key);
+        Iterator<?> keys;
+        String nextKeys;
+        if (firstRun) value = "null";
+
+        if (!exists) {
+            keys = json.keys();
+
+            while (keys.hasNext()) {
+                nextKeys = (String) keys.next();
+                try {
+                    if (json.get(nextKeys) instanceof JSONObject) getJsonKey(json.getJSONObject(nextKeys), key, false);
+                    else if (json.get(nextKeys) instanceof JSONArray) {
+                        JSONArray jsonArray = json.getJSONArray(nextKeys);
+
+                        int x = 0;
+                        if (x < jsonArray.length()) {
+                            String jsonArrayString = jsonArray.get(x).toString();
+                            JSONObject innerJSON = new JSONObject(jsonArrayString);
+
+                            getJsonKey(innerJSON, key, false);
+                        }
+                    }
+                } catch (Exception e) {
+                    System.out.print(getTime(LogColor.RED));
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            value = json.get(key).toString();
+            return value;
+        }
+
+        return value;
+    }
+
+    public MessageEmbed defineWord(String word) {
+        word = word.replaceAll(" .*", "");
+        EmbedBuilder embed = new EmbedBuilder();
+
+        try {
+            InputStream url;
+
+            try {
+                url = new URL("https://api.dictionaryapi.dev/api/v2/entries/en/" + word).openStream();
+            } catch (FileNotFoundException ignored) {
+                embed.setColor(new Color(212, 43, 65));
+                embed.setDescription("Couldn't find **" + word + "** in the dictionary!");
+                return embed.build();
+            }
+
+            JSONObject obj = new JSONArray(
+                new Scanner(url, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine()).getJSONObject(0);
+            url.close();
+
+            String receivedWord = getJsonKey(obj, "word", true);
+            String phonetic = getJsonKey(obj, "phonetic", true);
+            StringBuilder definitions = new StringBuilder();
+
+            JSONArray meanings = new JSONArray(obj.getJSONArray("meanings"));
+            for (int x = 0; x < meanings.length() && x < 3; x++) {
+                if (x > 0) definitions.append("\n\n");
+                JSONObject info = meanings.getJSONObject(x);
+                System.out.println(info);
+                definitions.append("**").append(info.getString("partOfSpeech").toUpperCase()).append(":**");
+
+                JSONArray rawDefinitions = info.getJSONArray("definitions");
+                int iterations = 0;
+                for (int y = 0; y < rawDefinitions.length() && iterations < 2; y++) {
+                    String newDefinition = rawDefinitions.getJSONObject(y).getString("definition");
+                    if (containsBadWord(newDefinition)) continue;
+
+                    definitions.append("\n• ").append(newDefinition);
+                    iterations++;
+                }
+            }
+
+            embed.setColor(new Color(15, 157, 88));
+            embed.setAuthor(receivedWord.toUpperCase() + " DEFINITION");
+            embed.setTitle(phonetic);
+            embed.setDescription(definitions);
+
+        } catch (IOException e) {
+            System.out.print(getTime(LogColor.RED));
+            e.printStackTrace();
+
+            embed.setColor(new Color(212, 43, 65));
+            embed.setDescription("Failed to search dictionary for word **" + word + "**! Please try again later.");
+        }
+
+        return embed.build();
+    }
+
+    /* BAD WORD LIST BELOW */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* BAD WORD LIST BELOW */
+
+    public boolean containsBadWord(String phrase) {
+        String[] badWords = {"\\bsex\\b", "\\bass\\b", "bitch", "fuck"};
+
+        for (String word : badWords) {
+            String temp = phrase.replaceAll(word, "REDACTED");
+            if (temp.contains("REDACTED")) return true;
+        }
+
+        return false;
     }
 }

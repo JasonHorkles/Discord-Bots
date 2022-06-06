@@ -40,7 +40,7 @@ public class Phoenella {
     public static boolean localWordleBoard = false;
 
     public static void main(String[] args) throws LoginException, InterruptedException, IOException, ExecutionException, TimeoutException, ParseException {
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Starting...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
         builder.disableIntents(GatewayIntent.GUILD_MESSAGE_TYPING);
@@ -73,7 +73,7 @@ public class Phoenella {
                     "Show the leaderboard message publicly?", false),
                 new SubcommandData("daily", "Play the daily Wordle"))).queue();
 
-        System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Starting nickname check...");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Starting nickname check...");
         new Utils().runNameCheckForGuild(api.getGuildById(729083627308056597L));
 
         // Check shushed users
@@ -87,12 +87,13 @@ public class Phoenella {
             Member member = api.getGuildById(729083627308056597L).getMemberById(f.getName().replace(".txt", ""));
             schedules.add(Executors.newSingleThreadScheduledExecutor()
                 .schedule(() -> new Utils().unshush(member), delay, TimeUnit.MILLISECONDS));
-            System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Scheduling the removal of " + member.getUser()
-                .getAsTag() + "'s shush in " + delay / 60000 + " minutes.");
+            System.out.println(
+                new Utils().getTime(Utils.LogColor.YELLOW) + "Scheduling the removal of " + member.getUser()
+                    .getAsTag() + "'s shush in " + delay / 60000 + " minutes.");
         }
 
         // Scan Wordle leaderboard for nonexistent players
-        System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Starting leaderboard check...");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Starting leaderboard check...");
         File leaderboardFile = new File("Phoenella/Wordle/leaderboard.txt");
         Scanner leaderboard = new Scanner(leaderboardFile);
         ArrayList<String> lines = new ArrayList<>();
@@ -103,7 +104,7 @@ public class Phoenella {
         }
 
         if (!lines.isEmpty()) if (lines.get(0).equalsIgnoreCase("local")) {
-            System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Leaderboard set to local mode!");
+            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Leaderboard set to local mode!");
             localWordleBoard = true;
         }
 
@@ -114,7 +115,7 @@ public class Phoenella {
                 long id = Long.parseLong(line.replaceFirst(":.*", ""));
                 Member member = api.getGuildById(729083627308056597L).getMemberById(id);
                 if (member == null) {
-                    System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Removing user with ID " + id);
+                    System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Removing user with ID " + id);
                     continue;
                 }
 
@@ -123,7 +124,7 @@ public class Phoenella {
             writer.close();
         }
 
-        System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Leaderboard check complete!");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Leaderboard check complete!");
 
         // Schedule daily Wordle
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd h:mm a");
@@ -136,8 +137,9 @@ public class Phoenella {
         if (delay >= 0) {
             schedules.add(Executors.newSingleThreadScheduledExecutor()
                 .schedule(() -> new Utils().updateDailyWordle(), delay, TimeUnit.MILLISECONDS));
-            System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Scheduled new daily Wordle in " + Math.round(
-                delay / 3600000.0) + " hours.");
+            System.out.println(
+                new Utils().getTime(Utils.LogColor.GREEN) + "Scheduled new daily Wordle in " + Math.round(
+                    delay / 3600000.0) + " hours.");
         }
 
         // Delete game channels
@@ -179,14 +181,14 @@ public class Phoenella {
 
         Runtime.getRuntime().gc();
 
-        System.out.println(new Utils().getTime(Utils.Color.GREEN) + "Done starting up!");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }
 
     public void shutdown() {
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Cancelling shushes...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Cancelling shushes...");
         for (ScheduledFuture<?> task : schedules) task.cancel(false);
         for (ScheduledFuture<?> task : Utils.schedules) task.cancel(false);
-        System.out.println(new Utils().getTime(Utils.Color.YELLOW) + "Shutting down...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
         // Close game channels
         for (TextChannel channel : api.getGuildById(729083627308056597L).getCategoryById(900747596245639238L)
             .getTextChannels())
