@@ -322,7 +322,8 @@ public class Utils {
             url.close();
 
             String receivedWord = getJsonKey(obj, "word", true);
-            String phonetic = getJsonKey(obj, "phonetic", true);
+            String phonetic = null;
+            if (obj.has("phonetic")) phonetic = obj.getString("phonetic");
             StringBuilder definitions = new StringBuilder();
 
             JSONArray meanings = new JSONArray(obj.getJSONArray("meanings"));
@@ -344,7 +345,7 @@ public class Utils {
 
             embed.setColor(new Color(15, 157, 88));
             embed.setAuthor(receivedWord.toUpperCase() + " DEFINITION");
-            embed.setTitle(phonetic);
+            if (phonetic != null) embed.setTitle(phonetic);
             embed.setDescription(definitions);
 
         } catch (IOException e) {
