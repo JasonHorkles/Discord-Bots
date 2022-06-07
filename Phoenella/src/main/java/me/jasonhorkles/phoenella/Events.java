@@ -778,10 +778,11 @@ public class Events extends ListenerAdapter {
                     ":warning: Definition report from **" + new Utils().getFullName(event.getMember()) + ":**")
                 .setEmbeds(event.getMessage().getEmbeds().get(0))).queue();
 
-            Message message = event.getMessage();
+            event.deferEdit().queue();
 
+            Message message = event.getMessage();
             if (!message.isEphemeral()) message.delete().queue();
-            else message.editMessageComponents(ActionRow.of(event.getButton().asDisabled())).queue();
+            else event.getHook().editOriginalComponents(ActionRow.of(event.getButton().asDisabled())).queue();
         }
     }
 }
