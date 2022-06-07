@@ -396,7 +396,7 @@ public class Utils {
     /* BAD WORD LIST BELOW */
 
     public boolean containsBadWord(String phrase) {
-        String[] badWords = {"\\bsex\\b", "\\bass\\b", "bitch", "fuck"};
+        String[] badWords = {"\\bsex\\b", "\\bass\\b", "bitch", "fuck", "breast"};
 
         for (String word : badWords) {
             String temp = phrase.replaceAll(word, "REDACTED");
