@@ -21,51 +21,60 @@ public class Traffic {
             int minSpeed = 100;
             int slowSection = 0;
 
-            for (int section = min; section <= max; section++) {
-                JSONObject input = new Secrets().getTrafficAtCoords(section).getJSONObject("flowSegmentData");
-                if (input != null) {
-                    // Check for closure
-                    if (input.getBoolean("roadClosure")) {
-                        closed = true;
-                        System.out.println(
-                            new Utils().getTime(Utils.LogColor.YELLOW) + "Traffic section " + section + " is closed!");
-                        break;
+            try {
+                for (int section = min; section <= max; section++) {
+                    JSONObject input = new Secrets().getTrafficAtCoords(section).getJSONObject("flowSegmentData");
+                    if (input != null) {
+                        // Check for closure
+                        if (input.getBoolean("roadClosure")) {
+                            closed = true;
+                            System.out.println(new Utils().getTime(
+                                Utils.LogColor.YELLOW) + "Traffic section " + section + " is closed!");
+                            break;
+                        }
+
+                        // Get speed
+                        int currentSpeed = input.getInt("currentSpeed");
+                        if (currentSpeed < minSpeed) {
+                            minSpeed = currentSpeed;
+                            slowSection = section;
+                        }
+                        System.out.println(new Utils().getTime(
+                            Utils.LogColor.GREEN) + "Traffic section " + section + " is currently " + currentSpeed + " mph");
                     }
 
-                    // Get speed
-                    int currentSpeed = input.getInt("currentSpeed");
-                    if (currentSpeed < minSpeed) {
-                        minSpeed = currentSpeed;
-                        slowSection = section;
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                        e.printStackTrace();
                     }
-                    System.out.println(new Utils().getTime(
-                        Utils.LogColor.GREEN) + "Traffic section " + section + " is currently " + currentSpeed + " mph");
                 }
 
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                    e.printStackTrace();
+                if (closed) {
+                    StormAlerts.api.openPrivateChannelById(277291758503723010L).flatMap(channel -> channel.sendMessage(
+                        "**" + new Secrets().getRoadName(north) + "** is closed! :no_entry:")).queue();
+                    return;
                 }
-            }
 
-            if (closed) {
-                StormAlerts.api.openPrivateChannelById(277291758503723010L).flatMap(channel -> channel.sendMessage(
-                    "**" + new Secrets().getRoadName(north) + "** is closed! :no_entry:")).queue();
-                return;
-            }
-
-            int finalMinSpeed = minSpeed;
-            int finalSlowSection = slowSection;
-            if (minSpeed <= 65 && minSpeed > 40) StormAlerts.api.openPrivateChannelById(277291758503723010L).flatMap(
-                    channel -> channel.sendMessage("**" + new Secrets().getRoadName(
+                int finalMinSpeed = minSpeed;
+                int finalSlowSection = slowSection;
+                if (minSpeed <= 65 && minSpeed > 40) StormAlerts.api.openPrivateChannelById(277291758503723010L)
+                    .flatMap(channel -> channel.sendMessage("**" + new Secrets().getRoadName(
                         north) + " section " + finalSlowSection + "** has a slowdown @ **" + finalMinSpeed + " mph**! :yellow_circle:"))
-                .queue();
-            else if (minSpeed <= 40) StormAlerts.api.openPrivateChannelById(277291758503723010L).flatMap(
-                    channel -> channel.sendMessage("**" + new Secrets().getRoadName(
-                        north) + " section " + finalSlowSection + "** has a slowdown @ **" + finalMinSpeed + " mph**! :red_circle:"))
-                .queue();
+                    .queue();
+                else if (minSpeed <= 40) StormAlerts.api.openPrivateChannelById(277291758503723010L).flatMap(
+                        channel -> channel.sendMessage("**" + new Secrets().getRoadName(
+                            north) + " section " + finalSlowSection + "** has a slowdown @ **" + finalMinSpeed + " mph**! :red_circle:"))
+                    .queue();
+
+            } catch (Exception e) {
+                System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                e.printStackTrace();
+
+                StormAlerts.api.openPrivateChannelById(277291758503723010L)
+                    .flatMap(channel -> channel.sendMessage("**Failed to check traffic!** :warning:")).queue();
+            }
         }, "Traffic Check");
         checks.start();
     }

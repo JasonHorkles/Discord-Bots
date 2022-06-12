@@ -31,24 +31,25 @@ public class Alerts {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking alerts...");
 
         dontDeleteMe.clear();
-        String input;
+        StringBuilder input = new StringBuilder();
 
         if (!StormAlerts.testing) {
             String apiUrl = "https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&zone=" + new Secrets().getAlertZone();
             InputStream stream = new URL(apiUrl).openStream();
-            input = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine();
+            Scanner scanner = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A");
+            while (scanner.hasNextLine()) input.append(scanner.nextLine());
             stream.close();
-            
+
         } else {
             File file = new File("StormAlerts/Tests/alerts-empty.json");
             Scanner fileScanner = new Scanner(file);
-            input = fileScanner.nextLine();
+            input.append(fileScanner.nextLine());
         }
 
         // Used to scan through every alert
         JSONArray alerts = new JSONArray();
         // Convert the input string to an object
-        JSONObject inputObject = new JSONObject(input);
+        JSONObject inputObject = new JSONObject(input.toString());
         // Get what type the input is
         String type = inputObject.getString("type");
 

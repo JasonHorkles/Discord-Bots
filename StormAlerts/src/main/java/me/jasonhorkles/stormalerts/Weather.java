@@ -41,7 +41,7 @@ public class Weather extends ListenerAdapter {
     public void checkConditions() throws IOException, ExecutionException, InterruptedException, TimeoutException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking weather...");
 
-        String visibilityInput = "null";
+        StringBuilder visibilityInput = new StringBuilder();
 
         if (!StormAlerts.testing) try {
             String page = "https://www.google.com/search?q=" + new Secrets().getWeatherSearch();
@@ -51,7 +51,8 @@ public class Weather extends ListenerAdapter {
 
             String apiUrl = "https://api.weather.gov/stations/" + new Secrets().getNwsStation() + "/observations/latest";
             InputStream stream = new URL(apiUrl).openStream();
-            visibilityInput = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine();
+            Scanner scanner = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A");
+            while (scanner.hasNextLine()) visibilityInput.append(scanner.nextLine());
             stream.close();
         } catch (SocketTimeoutException ignored) {
             System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Timed out checking the weather!");
@@ -62,11 +63,11 @@ public class Weather extends ListenerAdapter {
             Scanner weatherScanner = new Scanner(new File("StormAlerts/Tests/weather.txt"));
             Scanner visibilityScanner = new Scanner(new File("StormAlerts/Tests/visibility.json"));
             weather = weatherScanner.nextLine();
-            visibilityInput = visibilityScanner.nextLine();
+            visibilityInput.append(visibilityScanner.nextLine());
         }
 
         int visibility = (int) Math.round(
-            new JSONObject(visibilityInput).getJSONObject("properties").getJSONObject("visibility")
+            new JSONObject(visibilityInput.toString()).getJSONObject("properties").getJSONObject("visibility")
                 .getInt("value") / 1609d);
 
         long visibilityChannel = 899872710233051178L;
