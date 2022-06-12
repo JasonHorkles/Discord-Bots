@@ -22,7 +22,7 @@ import java.util.concurrent.*;
 
 @SuppressWarnings("ConstantConditions")
 public class Utils {
-    public static ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
+    public static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
 
     public enum LogColor {
         RED("\u001B[31m"), YELLOW("\u001B[33m"), GREEN("\u001B[32m");

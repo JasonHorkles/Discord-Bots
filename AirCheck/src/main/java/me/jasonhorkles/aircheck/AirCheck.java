@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings({"BusyWait"})
 public class AirCheck {
     public static JDA api;
-    public static boolean testing = false;
+    public static final boolean testing = false;
 
     private static ScheduledFuture<?> airTimer;
     private static ScheduledFuture<?> pollenTimer;

@@ -28,7 +28,7 @@ import java.util.concurrent.*;
 @SuppressWarnings({"BusyWait", "ConstantConditions"})
 public class StormAlerts extends ListenerAdapter {
     public static JDA api;
-    public static boolean testing = false;
+    public static final boolean testing = false;
 
     private static ScheduledFuture<?> alertTimer;
     private static ScheduledFuture<?> pwsTimer;

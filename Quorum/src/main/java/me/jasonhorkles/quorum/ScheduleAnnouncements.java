@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("ConstantConditions")
 public class ScheduleAnnouncements {
-    public static ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
+    public static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
 
     public void scheduleAnnouncements() {
         MessageEmbed message;

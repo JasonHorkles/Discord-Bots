@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("ConstantConditions")
 public class ScheduleDMs {
-    public static ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
+    public static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
 
     public void scheduleDMs() throws ParseException {
         File file = new File("Quorum/lessons.txt");

@@ -69,6 +69,7 @@ public class Silverstone {
 
     public void shutdown() {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
+        Time.task.cancel(true);
         try {
             api.shutdownNow();
         } catch (NoClassDefFoundError ignored) {
