@@ -14,15 +14,13 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.ErrorResponse;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
@@ -30,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 public class Wordle extends ListenerAdapter {
     //todo list
-    // definition embeds / method
     // remove duplicate words on startup
     // custom wordle dictionary check
     // timed challenge with threads
@@ -153,10 +150,9 @@ public class Wordle extends ListenerAdapter {
         }
 
         if (!isNonReal.get(channel)) if (!wordList.toString().contains(input)) try {
-            String page = "https://www.dictionary.com/browse/" + input;
-            Connection conn = Jsoup.connect(page).timeout(5000);
-            Document doc = conn.ignoreHttpErrors(true).get();
-            if (doc.body().getElementsByClass("no-results-title css-1cywoo2 e6aw9qa1").size() > 0) {
+            try {
+                new URL("https://api.dictionaryapi.dev/api/v2/entries/en/" + input.toLowerCase()).openStream();
+            } catch (FileNotFoundException ignored) {
                 message.reply("**" + input + "** isn't in the dictionary!")
                     .setActionRow(Button.primary("wordlerequest:" + input, "Request word!"))
                     .queue((del) -> del.delete().queueAfter(4, TimeUnit.SECONDS));
@@ -440,7 +436,7 @@ public class Wordle extends ListenerAdapter {
             event.editButton(event.getButton().asDisabled()).queue();
 
             String word = event.getComponentId().replace("reportword:", "");
-            
+
             //noinspection ConstantConditions
             event.getJDA().getTextChannelById(960213547944661042L).sendMessage(
                     ":warning: Word report from " + new Utils().getFullName(event.getMember()) + ": **" + word + "**")
