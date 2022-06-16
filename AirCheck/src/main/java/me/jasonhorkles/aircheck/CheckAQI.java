@@ -35,11 +35,6 @@ public class CheckAQI {
         air.add(new Utils().getJsonKey(input, "epaHealthConcern", true));
         air.add(new Utils().getJsonKey(input, "epaIndex", true));
 
-        doAirStuff(air);
-    }
-
-    public void doAirStuff(ArrayList<String> air) {
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got the air!");
 
         int epaStatus = Integer.parseInt(air.get(0));
         int aqi = Integer.parseInt(air.get(1));
@@ -56,5 +51,7 @@ public class CheckAQI {
 
         AirCheck.api.getPresence().setStatus(OnlineStatus.ONLINE);
         AirCheck.api.getPresence().setActivity(Activity.playing(airQualityName + " (" + aqi + ")"));
+
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got the air!");
     }
 }
