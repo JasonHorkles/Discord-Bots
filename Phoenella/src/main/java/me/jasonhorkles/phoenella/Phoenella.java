@@ -27,10 +27,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.*;
 
 @SuppressWarnings({"BusyWait", "ConstantConditions"})
@@ -125,6 +122,26 @@ public class Phoenella {
         }
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Leaderboard check complete!");
+
+        // Remove duplicate words from Wordle list
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Removing duplicate Wordle entries...");
+        File wordsFile = new File("Phoenella/Wordle/words.txt");
+        Scanner wordScanner = new Scanner(wordsFile);
+
+        ArrayList<String> originalWordList = new ArrayList<>();
+        while (wordScanner.hasNextLine()) if (wordScanner.hasNextLine()) originalWordList.add(wordScanner.nextLine());
+        HashSet<String> wordList = new HashSet<>(originalWordList);
+
+        int duplicates = originalWordList.size() - wordList.size();
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Removed " + duplicates + " duplicate words!");
+        originalWordList.clear();
+
+        FileWriter wordWriter = new FileWriter(wordsFile, false);
+        for (String word : wordList) wordWriter.write(word);
+        wordWriter.close();
+        wordList.clear();
+
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Duplicate word check complete!");
 
         // Schedule daily Wordle
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd h:mm a");
