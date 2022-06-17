@@ -137,7 +137,7 @@ public class Phoenella {
         originalWordList.clear();
 
         FileWriter wordWriter = new FileWriter(wordsFile, false);
-        for (String word : wordList) wordWriter.write(word);
+        for (String word : wordList) wordWriter.write(word + "\n");
         wordWriter.close();
         wordList.clear();
 
