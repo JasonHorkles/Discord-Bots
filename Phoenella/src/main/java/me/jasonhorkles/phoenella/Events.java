@@ -65,7 +65,7 @@ public class Events extends ListenerAdapter {
 
         if (!text.contains("PHOENELLA") && !isReply) return;
 
-        text = text.replace("PHOENELLA", "").replace("  ", " ");
+        text = text.replace("  ", " ").replaceAll(" ?PHOENELLA ?", "");
 
         // Utility
 
