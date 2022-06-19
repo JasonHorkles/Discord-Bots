@@ -78,8 +78,7 @@ public class Alerts {
 
             if (!description.toLowerCase().contains(fa.toLowerCase()) && !description.toLowerCase()
                 .contains(ce.toLowerCase()) && !description.toLowerCase()
-                .contains(ka.toLowerCase()) && !description.toLowerCase()
-                .contains(nwf.toLowerCase()) && !description.toLowerCase().contains(da.toLowerCase())) continue;
+                .contains(ka.toLowerCase()) && !description.toLowerCase().contains(nwf.toLowerCase())) continue;
 
             Message alertMessage = null;
             boolean sameAlert = false;
