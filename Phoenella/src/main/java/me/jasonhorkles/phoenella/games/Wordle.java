@@ -27,9 +27,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class Wordle extends ListenerAdapter {
-    //todo list
-    // custom wordle dictionary check
-    // timed challenge with threads
     private static final ArrayList<String> wordList = new ArrayList<>();
     private static final HashMap<TextChannel, ArrayList<Message>> messages = new HashMap<>();
     private static final HashMap<TextChannel, Boolean> daily = new HashMap<>();
