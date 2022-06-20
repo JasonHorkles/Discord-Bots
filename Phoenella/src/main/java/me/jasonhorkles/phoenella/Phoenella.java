@@ -106,19 +106,39 @@ public class Phoenella {
         }
 
         if (!localWordleBoard) {
-            FileWriter writer = new FileWriter(leaderboardFile, false);
+            FileWriter lbWriter = new FileWriter(leaderboardFile, false);
+            boolean dontDoCheck = false;
 
-            for (String line : lines) {
-                long id = Long.parseLong(line.replaceFirst(":.*", ""));
-                Member member = api.getGuildById(729083627308056597L).getMemberById(id);
-                if (member == null) {
-                    System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Removing user with ID " + id);
-                    continue;
+            if (LocalDate.now().getDayOfMonth() == 1) {
+                File lastClearedFile = new File("Phoenella/Wordle/last-cleared-leaderboard.txt");
+                int month = new Scanner(lastClearedFile).nextInt();
+                if (month != LocalDate.now().getMonthValue()) {
+                    FileWriter lastCleared = new FileWriter(lastClearedFile, false);
+                    lastCleared.write(String.valueOf(LocalDate.now().getMonthValue()));
+                    lastCleared.close();
+
+                    System.out.println(
+                        new Utils().getTime(Utils.LogColor.YELLOW) + "Clearing the leaderboard for the new month!");
+                    lbWriter.close();
+
+                    dontDoCheck = true;
+                }
+            }
+
+            if (!dontDoCheck) {
+                for (String line : lines) {
+                    long id = Long.parseLong(line.replaceFirst(":.*", ""));
+                    Member member = api.getGuildById(729083627308056597L).getMemberById(id);
+                    if (member == null) {
+                        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Removing user with ID " + id);
+                        continue;
+                    }
+
+                    lbWriter.write(line + "\n");
                 }
 
-                writer.write(line + "\n");
+                lbWriter.close();
             }
-            writer.close();
         }
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Leaderboard check complete!");
