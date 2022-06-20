@@ -724,6 +724,12 @@ public class Events extends ListenerAdapter {
     public void onModalInteraction(ModalInteractionEvent event) {
         if (event.getModalId().equals("customwordle")) {
             String word = event.getValue("word").getAsString().replaceAll("[^a-zA-Z]", "");
+
+            if (word.length() < 4) {
+                event.reply("**Error:** Invalid characters!").setEphemeral(true).queue();
+                return;
+            }
+
             int tries;
             try {
                 tries = Integer.parseInt(event.getValue("tries").getAsString());
