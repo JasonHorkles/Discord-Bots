@@ -186,25 +186,6 @@ public class Events extends ListenerAdapter {
             return;
         }
 
-        if (text.contains("play wordle") || text.contains("wordle me") || text.equals("wordle")) {
-            channel.sendTyping().complete();
-            try {
-                TextChannel gameChannel = new Wordle().startGame(member, null, false, false, null);
-                message.addReaction("👍").queue();
-                if (gameChannel == null) message.reply(
-                        "Either you already have an ongoing game with that word or you have too many games active at once!")
-                    .queue((del) -> del.delete().queueAfter(5, TimeUnit.SECONDS));
-                else message.reply("Game created in " + gameChannel.getAsMention())
-                    .queue((del) -> del.delete().queueAfter(15, TimeUnit.SECONDS));
-            } catch (IOException e) {
-                message.reply("Couldn't generate a random word! Please try again later.")
-                    .queue((del) -> del.delete().queueAfter(30, TimeUnit.SECONDS));
-                System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                e.printStackTrace();
-            }
-            return;
-        }
-
         // Ignore shushed people
         if (member.getRoles().toString().contains("842490529744945192")) return;
 
