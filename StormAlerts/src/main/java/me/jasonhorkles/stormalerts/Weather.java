@@ -32,7 +32,7 @@ import java.util.concurrent.*;
 public class Weather extends ListenerAdapter {
     public static TextChannel previousTypeChannel;
 
-    private static String weather;
+    private static String weather = "null";
     private static String previousWeatherName;
     private static String weatherName;
     private static double rainRate;
@@ -42,6 +42,8 @@ public class Weather extends ListenerAdapter {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking weather...");
 
         StringBuilder visibilityInput = new StringBuilder();
+
+        boolean weatherOffline = false;
 
         if (!StormAlerts.testing) try {
             String page = "https://www.google.com/search?q=" + new Secrets().getWeatherSearch();
@@ -56,8 +58,10 @@ public class Weather extends ListenerAdapter {
             stream.close();
         } catch (SocketTimeoutException ignored) {
             System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Timed out checking the weather!");
+            weatherOffline = true;
         } catch (IndexOutOfBoundsException ignored) {
             System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Couldn't get the weather! (No Results)");
+            weatherOffline = true;
         }
         else {
             Scanner weatherScanner = new Scanner(new File("StormAlerts/Tests/weather.txt"));
@@ -66,9 +70,11 @@ public class Weather extends ListenerAdapter {
             visibilityInput.append(visibilityScanner.nextLine());
         }
 
-        int visibility = (int) Math.round(
+        String visibility;
+        if (!weatherOffline) visibility = String.valueOf((int) Math.round(
             new JSONObject(visibilityInput.toString()).getJSONObject("properties").getJSONObject("visibility")
-                .getInt("value") / 1609d);
+                .getInt("value") / 1609d));
+        else visibility = "ERROR";
 
         long visibilityChannel = 899872710233051178L;
         if (!StormAlerts.api.getVoiceChannelById(visibilityChannel).getName()
