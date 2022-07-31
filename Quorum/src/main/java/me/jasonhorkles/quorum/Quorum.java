@@ -17,20 +17,21 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import javax.security.auth.login.LoginException;
 import java.text.ParseException;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeoutException;
 
 @SuppressWarnings("BusyWait")
 public class Quorum {
     public static JDA api;
 
-    public static void main(String[] args) throws LoginException, InterruptedException, ParseException {
+    public static void main(String[] args) throws LoginException, InterruptedException, ParseException, ExecutionException, TimeoutException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
         builder.disableIntents(GatewayIntent.GUILD_MESSAGE_TYPING);
         builder.disableCache(CacheFlag.ACTIVITY, CacheFlag.VOICE_STATE);
-        builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_EMOJIS, GatewayIntent.GUILD_MEMBERS,
-            GatewayIntent.DIRECT_MESSAGES);
+        builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS, GatewayIntent.DIRECT_MESSAGES);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setEnableShutdownHook(false);
@@ -69,22 +70,7 @@ public class Quorum {
                             new Command.Choice("May", "May"), new Command.Choice("June", "June"),
                             new Command.Choice("July", "July"), new Command.Choice("August", "August"),
                             new Command.Choice("September", "September"), new Command.Choice("October", "October"),
-                            new Command.Choice("November", "November"), new Command.Choice("December", "December")),
-                        new OptionData(OptionType.INTEGER, "date1", "The date of the activity", true),
-                        new OptionData(OptionType.STRING, "time1", "The time of the activity", true),
-                        new OptionData(OptionType.STRING, "activity1", "The activity & location, if applicable", true),
-                        new OptionData(OptionType.INTEGER, "date2", "The date of the activity", true),
-                        new OptionData(OptionType.STRING, "time2", "The time of the activity", true),
-                        new OptionData(OptionType.STRING, "activity2", "The activity & location, if applicable", true),
-                        new OptionData(OptionType.INTEGER, "date3", "The date of the activity", true),
-                        new OptionData(OptionType.STRING, "time3", "The time of the activity", true),
-                        new OptionData(OptionType.STRING, "activity3", "The activity & location, if applicable", true),
-                        new OptionData(OptionType.INTEGER, "date4", "The date of the activity", true),
-                        new OptionData(OptionType.STRING, "time4", "The time of the activity", true),
-                        new OptionData(OptionType.STRING, "activity4", "The activity & location, if applicable", true),
-                        new OptionData(OptionType.INTEGER, "date5", "The date of the activity", false),
-                        new OptionData(OptionType.STRING, "time5", "The time of the activity", false),
-                        new OptionData(OptionType.STRING, "activity5", "The activity & location, if applicable", false)),
+                            new Command.Choice("November", "November"), new Command.Choice("December", "December"))),
 
                     new SubcommandData("cancel", "Cancel an activity").addOptions(
                         new OptionData(OptionType.INTEGER, "line", "The activity line to edit", true)))
