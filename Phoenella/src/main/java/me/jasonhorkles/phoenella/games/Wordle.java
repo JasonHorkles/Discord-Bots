@@ -5,7 +5,11 @@ import me.jasonhorkles.phoenella.Phoenella;
 import me.jasonhorkles.phoenella.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
@@ -123,11 +127,11 @@ public class Wordle extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         if (!event.getMessage().isFromGuild()) return;
-        if (!event.getTextChannel().getName().contains("wordle")) return;
-        if (event.getTextChannel().getParentCategoryIdLong() != 900747596245639238L) return;
+        if (!event.getChannel().getName().contains("wordle")) return;
+        if (event.getChannel().asTextChannel().getParentCategoryIdLong() != 900747596245639238L) return;
         if (event.getAuthor().isBot()) return;
 
-        TextChannel channel = event.getTextChannel();
+        TextChannel channel = event.getChannel().asTextChannel();
 
         //noinspection ConstantConditions
         if (event.getMember().getIdLong() != players.get(channel).getIdLong()) {
@@ -249,9 +253,12 @@ public class Wordle extends ListenerAdapter {
 
                             EmbedBuilder newEmbed = new EmbedBuilder(embed);
                             newEmbed.clearFields();
+                            //noinspection ConstantConditions
                             newEmbed.addField(embed.getFields().get(0).getName(), embed.getFields().get(0).getValue(),
                                 true);
+                            //noinspection ConstantConditions
                             newEmbed.addField(embed.getFields().get(1).getName(), String.valueOf(wins), true);
+                            //noinspection ConstantConditions
                             newEmbed.addField(embed.getFields().get(2).getName(), embed.getFields().get(2).getValue(),
                                 true);
 
@@ -323,10 +330,13 @@ public class Wordle extends ListenerAdapter {
 
                             EmbedBuilder newEmbed = new EmbedBuilder(embed);
                             newEmbed.clearFields();
+                            //noinspection ConstantConditions
                             newEmbed.addField(embed.getFields().get(0).getName(), embed.getFields().get(0).getValue(),
                                 true);
+                            //noinspection ConstantConditions
                             newEmbed.addField(embed.getFields().get(1).getName(), embed.getFields().get(1).getValue(),
                                 true);
+                            //noinspection ConstantConditions
                             newEmbed.addField(embed.getFields().get(2).getName(), String.valueOf(fails), true);
 
                             original.editMessageEmbeds(newEmbed.build()).queue();
@@ -343,9 +353,9 @@ public class Wordle extends ListenerAdapter {
             case "endgame:wordle" -> {
                 event.editButton(event.getButton().asDisabled()).queue();
 
-                sendRetryMsg(event.getTextChannel(),
-                    "The word was **" + answers.get(event.getTextChannel()).toLowerCase() + "**!",
-                    answers.get(event.getTextChannel()));
+                sendRetryMsg(event.getChannel().asTextChannel(),
+                    "The word was **" + answers.get(event.getChannel().asTextChannel()).toLowerCase() + "**!",
+                    answers.get(event.getChannel().asTextChannel()));
             }
 
             case "restartgame:wordle" -> {
@@ -364,7 +374,7 @@ public class Wordle extends ListenerAdapter {
                 }
 
                 Executors.newSingleThreadScheduledExecutor()
-                    .schedule(() -> endGame(event.getTextChannel()), 10, TimeUnit.SECONDS);
+                    .schedule(() -> endGame(event.getChannel().asTextChannel()), 10, TimeUnit.SECONDS);
             }
 
             case "sharewordlescore" -> {
@@ -373,8 +383,8 @@ public class Wordle extends ListenerAdapter {
                     //noinspection ConstantConditions
                     event.getGuild().getTextChannelById(956267174727671869L).sendMessage("**" + new Utils().getFullName(
                         event.getMember()) + "** just finished the daily Wordle in **" + attempt.get(
-                        event.getTextChannel()) + "** tries!").complete();
-                    endGame(event.getTextChannel());
+                        event.getChannel().asTextChannel()) + "** tries!").complete();
+                    endGame(event.getChannel().asTextChannel());
                 }, "Share Wordle Score - " + new Utils().getFirstName(event.getMember()));
                 thread.start();
             }
@@ -402,9 +412,12 @@ public class Wordle extends ListenerAdapter {
 
                         EmbedBuilder embed = new EmbedBuilder(message);
                         embed.clearFields();
+                        //noinspection ConstantConditions
                         embed.addField(message.getFields().get(0).getName(), String.valueOf(plays), true);
+                        //noinspection ConstantConditions
                         embed.addField(message.getFields().get(1).getName(), message.getFields().get(1).getValue(),
                             true);
+                        //noinspection ConstantConditions
                         embed.addField(message.getFields().get(2).getName(), message.getFields().get(2).getValue(),
                             true);
 
@@ -437,7 +450,8 @@ public class Wordle extends ListenerAdapter {
             event.getJDA().getTextChannelById(960213547944661042L).sendMessage(
                     ":warning: Word report from " + new Utils().getFullName(event.getMember()) + ": **" + word + "**")
                 .setActionRow(Button.primary("defineword:" + word, "Define word").withEmoji(Emoji.fromUnicode("❔")))
-                .queue((msg) -> msg.addReaction("✅").queue((na) -> msg.addReaction("❌").queue()));
+                .queue((msg) -> msg.addReaction(Emoji.fromUnicode("✅"))
+                    .queue((na) -> msg.addReaction(Emoji.fromUnicode("❌")).queue()));
         }
 
         if (event.getComponentId().startsWith("defineword:")) {
@@ -511,8 +525,8 @@ public class Wordle extends ListenerAdapter {
         Phoenella.api.getTextChannelById(960213547944661042L).sendMessage(
                 ":inbox_tray: " + s + " request from " + new Utils().getFullName(member) + ": **" + word + "**")
             .setActionRow(Button.primary("defineword:" + word, "Define word").withEmoji(Emoji.fromUnicode("❔")))
-            .queue((msg) -> msg.addReaction("✅").queue((m) -> {
-                if (isAuto) msg.addReaction("⛔").queue();
+            .queue((msg) -> msg.addReaction(Emoji.fromUnicode("✅")).queue((m) -> {
+                if (isAuto) msg.addReaction(Emoji.fromUnicode("⛔")).queue();
             }));
     }
 

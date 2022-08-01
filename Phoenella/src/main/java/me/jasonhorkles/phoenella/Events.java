@@ -8,6 +8,7 @@ import me.jasonhorkles.phoenella.games.Wordle;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -52,7 +53,7 @@ public class Events extends ListenerAdapter {
         if (event.getAuthor().isBot()) return;
 
         Member member = event.getMember();
-        TextChannel channel = event.getTextChannel();
+        TextChannel channel = event.getChannel().asTextChannel();
         Message message = event.getMessage();
 
         boolean isReply = false;
@@ -123,7 +124,7 @@ public class Events extends ListenerAdapter {
                     .queue();
             }
 
-            message.addReaction("\uD83D\uDE2E").queue();
+            message.addReaction(Emoji.fromUnicode("\uD83D\uDE2E")).queue();
             return;
         }
 
@@ -144,7 +145,7 @@ public class Events extends ListenerAdapter {
                     .queue();
             }
 
-            message.addReaction("🙊").queue();
+            message.addReaction(Emoji.fromUnicode("🙊")).queue();
             return;
         }
 
@@ -179,7 +180,7 @@ public class Events extends ListenerAdapter {
                 players.add(message.getMentions().getMembers().get(0));
 
                 TextChannel gameChannel = new RPS().startGame(players);
-                message.addReaction("👍").queue();
+                message.addReaction(Emoji.fromUnicode("👍")).queue();
                 message.reply("Game created in " + gameChannel.getAsMention())
                     .queue((del) -> del.delete().queueAfter(15, TimeUnit.SECONDS));
             }
@@ -192,7 +193,7 @@ public class Events extends ListenerAdapter {
         // Message cooldowns
         for (String s : messageCooldown)
             if (s.equalsIgnoreCase(text)) {
-                message.addReaction("\uD83E\uDD2B").queue();
+                message.addReaction(Emoji.fromUnicode("\uD83E\uDD2B")).queue();
                 return;
             }
 
@@ -433,12 +434,11 @@ public class Events extends ListenerAdapter {
                 .queue();
 
         // kek
-        if (event.getReactionEmote().getName().equalsIgnoreCase("kek"))
-            event.retrieveMessage().complete().addReaction(event.getGuild().getEmoteById("841681203278774322")).queue();
+        if (event.getReaction().getEmoji().getName().equalsIgnoreCase("kek"))
+            event.retrieveMessage().complete().addReaction(event.getGuild().getEmojiById("841681203278774322")).queue();
 
         // Shush users
-        if (!event.getReactionEmote().isEmoji()) return;
-        if (event.getReactionEmote().getEmoji().equals("\uD83E\uDD2B"))
+        if (event.getReaction().getEmoji().getName().equals("\uD83E\uDD2B"))
             if (event.getMember().getRoles().toString().contains("751166721624375435") || event.getMember().getRoles()
                 .toString().contains("729108220479537202")) {
                 Member member = event.retrieveMessage().complete().getMember();
@@ -461,8 +461,8 @@ public class Events extends ListenerAdapter {
             }
 
         // Add / remove word from dictionary
-        if (event.getReactionEmote().getEmoji().equals("✅"))
-            if (event.getTextChannel().getIdLong() == 960213547944661042L) {
+        if (event.getReaction().getEmoji().getName().equals("✅"))
+            if (event.getChannel().getIdLong() == 960213547944661042L) {
                 Message message = event.retrieveMessage().complete();
                 File file = new File("Phoenella/Wordle/words.txt");
 
@@ -500,15 +500,15 @@ public class Events extends ListenerAdapter {
             }
 
         // Delete message
-        if (event.getReactionEmote().getEmoji().equals("❌") && event.getTextChannel()
+        if (event.getReaction().getEmoji().getName().equals("❌") && event.getChannel().asTextChannel()
             .getParentCategoryIdLong() != 900747596245639238L) {
             Message message = event.retrieveMessage().complete();
             if (message.getAuthor().equals(Phoenella.api.getSelfUser())) message.delete().queue();
         }
 
         // Prevent future requests for that word
-        if (event.getReactionEmote().getEmoji().equals("⛔"))
-            if (event.getTextChannel().getIdLong() == 960213547944661042L) {
+        if (event.getEmoji().getName().equals("⛔"))
+            if (event.getChannel().getIdLong() == 960213547944661042L) {
                 Message message = event.retrieveMessage().complete();
                 File file = new File("Phoenella/Wordle/banned-requests.txt");
 
@@ -668,7 +668,7 @@ public class Events extends ListenerAdapter {
                             event.reply("The leaderboard is currently disabled!").setEphemeral(true).queue();
                         else {
                             boolean ephemeral = true;
-                            if (event.getTextChannel().getParentCategoryIdLong() != 900747596245639238L)
+                            if (event.getChannel().asTextChannel().getParentCategoryIdLong() != 900747596245639238L)
                                 if (event.getOption("show") != null)
                                     ephemeral = !event.getOption("show").getAsBoolean();
 

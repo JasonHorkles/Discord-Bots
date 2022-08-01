@@ -57,7 +57,7 @@ public class Events extends ListenerAdapter {
             StringBuilder message = new StringBuilder(
                 "Hey " + event.getMember().getEffectiveName() + ", please don't ping staff members!");
 
-            if (event.getTextChannel().getParentCategoryIdLong() != 720690619822899231L) message.append(
+            if (event.getChannel().asTextChannel().getParentCategoryIdLong() != 720690619822899231L) message.append(
                 "\nIf there's a problem, make a ticket by typing `-ticket open <ticket name>` in any channel.");
 
             if (warnings.get(id) > 1) message.append("\n\n*Warning ").append(warnings.get(id)).append("/3*");

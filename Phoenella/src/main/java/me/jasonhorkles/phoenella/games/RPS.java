@@ -2,9 +2,9 @@ package me.jasonhorkles.phoenella.games;
 
 import me.jasonhorkles.phoenella.GameManager;
 import me.jasonhorkles.phoenella.Utils;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -54,7 +54,7 @@ public class RPS extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        TextChannel channel = event.getTextChannel();
+        TextChannel channel = event.getGuildChannel().asTextChannel();
         Member member = event.getMember();
 
         if (event.getComponentId().startsWith("rps:")) {
