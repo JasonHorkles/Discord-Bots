@@ -96,6 +96,8 @@ public class Utils {
             System.out.print(new Utils().getTime(LogColor.RED));
             e.printStackTrace();
             return true;
+        } catch (IndexOutOfBoundsException ignored) {
+            return true;
         }
     }
 }
