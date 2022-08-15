@@ -44,7 +44,7 @@ public class Phoenella {
         builder.disableCache(CacheFlag.ACTIVITY);
         builder.enableCache(CacheFlag.VOICE_STATE);
         builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES,
-            GatewayIntent.GUILD_VOICE_STATES);
+            GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.MESSAGE_CONTENT);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setEnableShutdownHook(false);
         builder.setStatus(OnlineStatus.ONLINE);
