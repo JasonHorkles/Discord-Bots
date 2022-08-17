@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -49,41 +48,35 @@ public class Quorum {
         //noinspection ConstantConditions
         CommandListUpdateAction commands = api.getGuildById(853775450680590387L).updateCommands();
 
-        commands.addCommands(Commands.slash("suggest", "Create a suggestion")
-                .addOption(OptionType.STRING, "suggestion", "Your suggestion", true),
+        OptionData months = new OptionData(OptionType.STRING, "month", "The month of the activities", true).addChoices(
+            new Command.Choice("January", "January"), new Command.Choice("February", "February"),
+            new Command.Choice("March", "March"), new Command.Choice("April", "April"),
+            new Command.Choice("May", "May"), new Command.Choice("June", "June"), new Command.Choice("July", "July"),
+            new Command.Choice("August", "August"), new Command.Choice("September", "September"),
+            new Command.Choice("October", "October"), new Command.Choice("November", "November"),
+            new Command.Choice("December", "December"));
 
-            Commands.slash("acceptsuggestion", "Accept a suggestion")
+        commands.addCommands(Commands.slash("suggest", "Create a suggestion"),
+
+            Commands.slash("suggestion-accept", "Accept a suggestion")
                 .addOption(OptionType.STRING, "message-id", "The message ID of the suggestion to accept", true),
 
-            Commands.slash("declinesuggestion", "Decline a suggestion")
+            Commands.slash("suggestion-decline", "Decline a suggestion")
                 .addOption(OptionType.STRING, "message-id", "The message ID of the suggestion to decline", true)
                 .addOption(OptionType.STRING, "decline-reason", "Why the suggestion was declined", false),
 
-            Commands.slash("editsuggestion", "Edit your previous suggestion")
-                .addOption(OptionType.STRING, "message-id", "The message ID of the suggestion to edit", true)
-                .addOption(OptionType.STRING, "suggestion", "Your edited suggestion", true),
+            Commands.slash("suggestion-edit", "Edit your previous suggestion")
+                .addOption(OptionType.STRING, "message-id", "The message ID of the suggestion to edit", true),
 
-            Commands.slash("activity", "Admin command").addSubcommands(
-                    new SubcommandData("create", "Create a new activity list").addOptions(
-                        new OptionData(OptionType.STRING, "month", "The month of the activities", true).addChoices(
-                            new Command.Choice("January", "January"), new Command.Choice("February", "February"),
-                            new Command.Choice("March", "March"), new Command.Choice("April", "April"),
-                            new Command.Choice("May", "May"), new Command.Choice("June", "June"),
-                            new Command.Choice("July", "July"), new Command.Choice("August", "August"),
-                            new Command.Choice("September", "September"), new Command.Choice("October", "October"),
-                            new Command.Choice("November", "November"), new Command.Choice("December", "December"))),
+            Commands.slash("activity", "Create/edit/cancel activities")
+                .addSubcommands(new SubcommandData("create", "Create a new activity list").addOptions(months),
 
-                    new SubcommandData("cancel", "Cancel an activity").addOptions(
-                        new OptionData(OptionType.INTEGER, "line", "The activity line to edit", true)))
+                    new SubcommandData("edit", "Edit an existing activity list").addOptions(months,
+                        new OptionData(OptionType.INTEGER, "line", "The activity line to edit", true)),
 
-                .addSubcommandGroups(new SubcommandGroupData("edit", "Edit an existing activity list").addSubcommands(
-                    new SubcommandData("date-time", "Edit the date & time of the activity").addOptions(
-                        new OptionData(OptionType.INTEGER, "line", "The activity line to edit", true),
-                        new OptionData(OptionType.INTEGER, "date", "The new date of the activity", true),
-                        new OptionData(OptionType.STRING, "time", "The new time of the activity", true)),
-                    new SubcommandData("activity", "Edit the activity").addOptions(
-                        new OptionData(OptionType.INTEGER, "line", "The activity line to edit", true),
-                        new OptionData(OptionType.STRING, "activity", "The updated activity", true))))).queue();
+                    new SubcommandData("cancel", "Cancel an activity").addOptions(months,
+                        new OptionData(OptionType.INTEGER, "line",
+                            "The activity line to cancel (between 1-4, or sometimes 1-5)", true)))).queue();
 
         new ScheduleDMs().scheduleDMs();
         new ScheduleAnnouncements().scheduleAnnouncements();
