@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("ConstantConditions")
 public class ScheduleDMs {
     public static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
+    private final String firstAssistantId = "858844650580475954";
 
     public void scheduleDMs() throws ParseException {
         File file = new File("Quorum/lessons.txt");
@@ -54,6 +55,7 @@ public class ScheduleDMs {
             }
         }
 
+        int usersLeft = 0;
         for (String names : name) {
             int index = name.indexOf(names);
 
@@ -70,8 +72,14 @@ public class ScheduleDMs {
                 link.get(index), delay);
 
             long delayReminder = futureReminder.getTimeInMillis() - System.currentTimeMillis();
-            if (delayReminder > 0) scheduleReminder(names, date.get(index), delayReminder);
+            if (delayReminder > 0) {
+                usersLeft++;
+                scheduleReminder(names, date.get(index), delayReminder);
+            }
         }
+
+        if (usersLeft == 0) Quorum.api.getTextChannelById(869009573774761984L)
+            .sendMessage("<@" + firstAssistantId + ">, there are no more lessons scheduled for the quorum").queue();
     }
 
     public void scheduleInitial(String name, String date, String title, String scripture, String link, long delay) {
@@ -91,7 +99,7 @@ public class ScheduleDMs {
                 System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
                 Quorum.api.getTextChannelById(869009573774761984L).sendMessage(
-                        ":warning: **ERROR:** Failed to message **" + name + "** to prepare their lesson for next Sunday! <@277291758503723010>")
+                        ":warning: **ERROR:** Failed to message **" + name + "** to prepare their lesson for next Sunday! <@" + firstAssistantId + ">")
                     .queue();
             }
         }, delay, TimeUnit.MILLISECONDS));
@@ -117,7 +125,7 @@ public class ScheduleDMs {
                 System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
                 Quorum.api.getTextChannelById(869009573774761984L).sendMessage(
-                        ":warning: **ERROR:** Failed to remind **" + name + "** to prepare their lesson for this Sunday! <@277291758503723010>")
+                        ":warning: **ERROR:** Failed to remind **" + name + "** to prepare their lesson for this Sunday! <@" + firstAssistantId + ">")
                     .queue();
             }
         }, delay, TimeUnit.MILLISECONDS));
