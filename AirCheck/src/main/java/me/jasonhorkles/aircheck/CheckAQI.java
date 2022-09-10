@@ -2,6 +2,7 @@ package me.jasonhorkles.aircheck;
 
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -9,44 +10,52 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class CheckAQI {
     public void checkAir() throws IOException {
-        JSONObject input;
+        JSONArray input;
 
         if (!AirCheck.testing) {
-            String apiUrl = "https://api.tomorrow.io/v4/timelines?apikey=" + new Secrets().getApiKey() + "&location=" + new Secrets().getLocation() + "&units=imperial&timesteps=current&timezone=America/Denver&fields=epaHealthConcern,epaIndex";
+            String apiUrl = "https://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json&zipCode=" + new Secrets().getZip() + "&distance=25&API_KEY=" + new Secrets().getAqiApiKey();
 
             InputStream stream = new URL(apiUrl).openStream();
             String out = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine();
             stream.close();
 
-            input = new JSONObject(out);
+            input = new JSONArray(out);
         } else {
             File file = new File("AirCheck/air.json");
             Scanner fileScanner = new Scanner(file);
 
-            input = new JSONObject(fileScanner.nextLine());
+            input = new JSONArray(fileScanner.nextLine());
         }
 
-        ArrayList<String> air = new ArrayList<>();
-        air.add(new Utils().getJsonKey(input, "epaHealthConcern", true));
-        air.add(new Utils().getJsonKey(input, "epaIndex", true));
+        JSONObject pm25 = null;
+        for (int x = 0; x < input.length(); x++) {
+            if (!input.getJSONObject(x).getString("ParameterName").equals("PM2.5")) continue;
+            pm25 = input.getJSONObject(x);
+        }
 
+        if (pm25 == null) {
+            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't find the PM2.5!");
+            AirCheck.api.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
+            AirCheck.api.getPresence().setActivity(Activity.playing("⚠ Error"));
+            return;
+        }
 
-        int epaStatus = Integer.parseInt(air.get(0));
-        int aqi = Integer.parseInt(air.get(1));
+        int catNumber = pm25.getJSONObject("Category").getInt("Number");
+        int aqi = pm25.getInt("AQI");
 
-        String airQualityName = switch (epaStatus) {
-            case 0 -> "Good \uD83D\uDFE2";
-            case 1 -> "Moderate \uD83D\uDFE1";
-            case 2 -> "Unhealty for sensitive groups \uD83D\uDFE0";
-            case 3 -> "Unhealthy \uD83D\uDD34";
-            case 4 -> "Very unhealthy ⚫";
-            case 5 -> "Hazardous ⚠";
-            default -> String.valueOf(epaStatus);
+        String airQualityName = switch (catNumber) {
+            case 1 -> "Good \uD83D\uDFE2";
+            case 2 -> "Moderate \uD83D\uDFE1";
+            case 3 -> "Unhealty for sensitive groups \uD83D\uDFE0";
+            case 4 -> "Unhealthy \uD83D\uDD34";
+            case 5 -> "Very unhealthy ⚫";
+            case 6 -> "Hazardous ⚠";
+            case 7 -> "⚠ Unavailable";
+            default -> "⚠ Error: " + catNumber;
         };
 
         AirCheck.api.getPresence().setStatus(OnlineStatus.ONLINE);

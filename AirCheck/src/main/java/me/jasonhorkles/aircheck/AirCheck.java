@@ -49,7 +49,7 @@ public class AirCheck {
                 api.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
                 api.getPresence().setActivity(Activity.playing("⚠ Error"));
             }
-        }, 0, 3600, TimeUnit.SECONDS);
+        }, 0, 15, TimeUnit.MINUTES);
 
 
         // Pollen
