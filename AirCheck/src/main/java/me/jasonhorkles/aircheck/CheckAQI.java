@@ -61,6 +61,6 @@ public class CheckAQI {
         AirCheck.api.getPresence().setStatus(OnlineStatus.ONLINE);
         AirCheck.api.getPresence().setActivity(Activity.playing(airQualityName + " (" + aqi + ")"));
 
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got the air!");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got the air! (" + aqi + ")");
     }
 }
