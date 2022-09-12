@@ -49,11 +49,12 @@ public class AirCheck {
                 api.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
                 api.getPresence().setActivity(Activity.playing("⚠ Error"));
             }
-        }, 0, 15, TimeUnit.MINUTES);
+        }, 1, 1800, TimeUnit.SECONDS);
 
 
         // Pollen
         pollenTimer = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking pollen quality...");
             try {
                 new CheckPollen().checkConditions();
             } catch (Exception e) {
@@ -61,7 +62,7 @@ public class AirCheck {
                     new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the pollen conditions!");
                 e.printStackTrace();
             }
-        }, 5, 1800, TimeUnit.SECONDS);
+        }, 2, 10800, TimeUnit.SECONDS);
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new AirCheck().shutdown(), "Shutdown Hook"));

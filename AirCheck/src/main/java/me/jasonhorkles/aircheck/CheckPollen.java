@@ -1,5 +1,6 @@
 package me.jasonhorkles.aircheck;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -15,7 +16,7 @@ public class CheckPollen {
         JSONObject input;
 
         if (!AirCheck.testing) {
-            String apiUrl = "https://api.tomorrow.io/v4/timelines?apikey=" + new Secrets().getApiKey() + "&location=" + new Secrets().getLocation() + "&units=imperial&timesteps=current&timezone=America/Denver&fields=treeIndex,grassIndex,weedIndex";
+            String apiUrl = "http://dataservice.accuweather.com/forecasts/v1/daily/1day/" + new Secrets().getLocationCode() + "?apikey=" + new Secrets().getPollenApiKey() + "&details=true";
 
             InputStream stream = new URL(apiUrl).openStream();
             String out = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine();
@@ -29,38 +30,49 @@ public class CheckPollen {
             input = new JSONObject(fileScanner.nextLine());
         }
 
-        int grassIndex = Integer.parseInt(new Utils().getJsonKey(input, "grassIndex", true));
-        int ragweedIndex = Integer.parseInt(new Utils().getJsonKey(input, "weedIndex", true));
-        int treeIndex = Integer.parseInt(new Utils().getJsonKey(input, "treeIndex", true));
+        JSONArray pollen = input.getJSONArray("DailyForecasts").getJSONObject(0).getJSONArray("AirAndPollen");
+        int grassIndex = -1;
+        int weedIndex = -1;
+        int treeIndex = -1;
+
+        for (int x = 0; x < pollen.length(); x++) {
+            JSONObject obj = pollen.getJSONObject(x);
+
+            switch (obj.getString("Name")) {
+                case "Grass" -> grassIndex = obj.getInt("CategoryValue");
+                case "Ragweed" -> weedIndex = obj.getInt("CategoryValue");
+                case "Tree" -> treeIndex = obj.getInt("CategoryValue");
+            }
+        }
 
         String treeIndexName = switch (treeIndex) {
-            case 0 -> "None \uD83D\uDFE2";
-            case 1 -> "Very low \uD83D\uDFE1";
-            case 2 -> "Low \uD83D\uDFE0";
-            case 3 -> "Medium \uD83D\uDD34";
-            case 4 -> "High ⚫";
-            case 5 -> "Very high ⚠";
+            case 1 -> "None \uD83D\uDFE2";
+            case 2 -> "Very low \uD83D\uDFE1";
+            case 3 -> "Low \uD83D\uDFE0";
+            case 4 -> "Medium \uD83D\uDD34";
+            case 5 -> "High ⚫";
+            case 6 -> "Very high ⚠";
             default -> String.valueOf(treeIndex);
         };
 
         String grassIndexName = switch (grassIndex) {
-            case 0 -> "None \uD83D\uDFE2";
-            case 1 -> "Very low \uD83D\uDFE1";
-            case 2 -> "Low \uD83D\uDFE0";
-            case 3 -> "Medium \uD83D\uDD34";
-            case 4 -> "High ⚫";
-            case 5 -> "Very high ⚠";
+            case 1 -> "None \uD83D\uDFE2";
+            case 2 -> "Very low \uD83D\uDFE1";
+            case 3 -> "Low \uD83D\uDFE0";
+            case 4 -> "Medium \uD83D\uDD34";
+            case 5 -> "High ⚫";
+            case 6 -> "Very high ⚠";
             default -> String.valueOf(grassIndex);
         };
 
-        String ragweedIndexName = switch (ragweedIndex) {
-            case 0 -> "None \uD83D\uDFE2";
-            case 1 -> "Very low \uD83D\uDFE1";
-            case 2 -> "Low \uD83D\uDFE0";
-            case 3 -> "Medium \uD83D\uDD34";
-            case 4 -> "High ⚫";
-            case 5 -> "Very high ⚠";
-            default -> String.valueOf(ragweedIndex);
+        String ragweedIndexName = switch (weedIndex) {
+            case 1 -> "None \uD83D\uDFE2";
+            case 2 -> "Very low \uD83D\uDFE1";
+            case 3 -> "Low \uD83D\uDFE0";
+            case 4 -> "Medium \uD83D\uDD34";
+            case 5 -> "High ⚫";
+            case 6 -> "Very high ⚠";
+            default -> String.valueOf(weedIndex);
         };
 
         long grassPollenChannel = 877269665578115092L;
@@ -76,5 +88,8 @@ public class CheckPollen {
         long treePollenChannel = 877269444160815104L;
         if (!AirCheck.api.getVoiceChannelById(treePollenChannel).getName().equals("Tree | " + treeIndexName))
             AirCheck.api.getVoiceChannelById(treePollenChannel).getManager().setName("Tree | " + treeIndexName).queue();
+
+        System.out.println(new Utils().getTime(
+            Utils.LogColor.GREEN) + "Got the pollen! (G:" + grassIndex + " W:" + weedIndex + " T:" + treeIndex + ")");
     }
 }
