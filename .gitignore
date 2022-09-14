@@ -1,3 +1,5 @@
+*/target/*
+.idea
 AirCheck/air.json
 AirCheck/pollen.json
 AirCheck/src/main/java/me/jasonhorkles/aircheck/Secrets.java
