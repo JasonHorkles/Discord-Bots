@@ -18,7 +18,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("ConstantConditions")
 public class Utils {
@@ -86,17 +89,17 @@ public class Utils {
     private void nonStudentNick(Member member, Guild guild) {
         // If nickname is invalid, remove their reactions
         Thread removeReactions = new Thread(() -> {
-            try {
-                for (MessageReaction msgReactions : getMessages(guild.getTextChannelById(892104640567578674L), 1).get(
-                    60, TimeUnit.SECONDS).get(0).getReactions())
-                    for (User reactionUsers : msgReactions.retrieveUsers().complete())
-                        if (reactionUsers == member.getUser()) msgReactions.removeReaction(reactionUsers).queue();
-            } catch (InterruptedException | ExecutionException | TimeoutException ignored) {
-            }
+            for (MessageReaction msgReactions : guild.getTextChannelById(892104640567578674L)
+                .retrieveMessageById(892105471689912391L).complete().getReactions())
+                for (User reactionUsers : msgReactions.retrieveUsers().complete())
+                    if (reactionUsers == member.getUser()) {
+                        System.out.println(
+                            getTime(LogColor.YELLOW) + "Removing reaction from " + reactionUsers.getName() + "...");
+                        msgReactions.removeReaction(reactionUsers).queue();
+                    }
         }, "Remove Reactions - " + getFirstName(member));
         removeReactions.start();
 
-        removeRoleFromMember(member, guild, RoleType.BUTTON);
         removeRoleFromMember(member, guild, RoleType.STUDENT);
     }
 
@@ -114,7 +117,7 @@ public class Utils {
         }
     }
 
-    private void addRoleToMember(Member member, Guild guild, RoleType roleType) {
+    public void addRoleToMember(Member member, Guild guild, RoleType roleType) {
         if (!member.getRoles().toString().contains(roleType.getRole())) {
             System.out.println(
                 getTime(LogColor.GREEN) + "Adding role '" + roleType + "' to '" + member.getEffectiveName() + "'");
@@ -122,7 +125,7 @@ public class Utils {
         }
     }
 
-    private void removeRoleFromMember(Member member, Guild guild, RoleType roleType) {
+    public void removeRoleFromMember(Member member, Guild guild, RoleType roleType) {
         if (member.getRoles().toString().contains(roleType.getRole())) {
             System.out.println(
                 getTime(LogColor.GREEN) + "Removing role '" + roleType + "' from '" + member.getEffectiveName() + "'");

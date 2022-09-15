@@ -37,9 +37,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 @SuppressWarnings("ConstantConditions")
 public class Events extends ListenerAdapter {
@@ -430,8 +428,7 @@ public class Events extends ListenerAdapter {
 
         // Button clicker role
         if (event.getChannel().getIdLong() == 892104640567578674L)
-            event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRoleById(892453842241859664L))
-                .queue();
+            new Utils().addRoleToMember(event.getMember(), event.getGuild(), Utils.RoleType.BUTTON);
 
         // kek
         if (event.getReaction().getEmoji().getName().equalsIgnoreCase("kek"))
@@ -507,26 +504,25 @@ public class Events extends ListenerAdapter {
         }
 
         // Prevent future requests for that word
-        if (event.getEmoji().getName().equals("⛔"))
-            if (event.getChannel().getIdLong() == 960213547944661042L) {
-                Message message = event.retrieveMessage().complete();
-                File file = new File("Phoenella/Wordle/banned-requests.txt");
+        if (event.getEmoji().getName().equals("⛔")) if (event.getChannel().getIdLong() == 960213547944661042L) {
+            Message message = event.retrieveMessage().complete();
+            File file = new File("Phoenella/Wordle/banned-requests.txt");
 
-                try {
-                    if (message.getContentStripped().contains("Auto word request")) {
-                        FileWriter fileWriter = new FileWriter(file, true);
-                        fileWriter.write(message.getContentStripped().replaceAll(".*: ", "").toUpperCase() + "\n");
-                        fileWriter.close();
-                    }
-                    message.delete().queue();
-
-                } catch (IOException e) {
-                    message.reply("Failed to write word! See console for details.")
-                        .queue((msg) -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
-                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                    e.printStackTrace();
+            try {
+                if (message.getContentStripped().contains("Auto word request")) {
+                    FileWriter fileWriter = new FileWriter(file, true);
+                    fileWriter.write(message.getContentStripped().replaceAll(".*: ", "").toUpperCase() + "\n");
+                    fileWriter.close();
                 }
+                message.delete().queue();
+
+            } catch (IOException e) {
+                message.reply("Failed to write word! See console for details.")
+                    .queue((msg) -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+                System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                e.printStackTrace();
             }
+        }
     }
 
     @Override
@@ -534,18 +530,24 @@ public class Events extends ListenerAdapter {
         if (event.getUser().isBot()) return;
         if (event.getChannel().getIdLong() != 892104640567578674L) return;
 
-        try {
-            for (MessageReaction msgReactions : new Utils().getMessages(event.getChannel(), 1).get(30, TimeUnit.SECONDS)
-                .get(0).getReactions())
+        //todo Check user roles instead of all the reactions to make it faster
+        Thread checkReactions = new Thread(() -> {
+            boolean userHasReactions = false;
+            for (MessageReaction msgReactions : event.getGuild().getTextChannelById(892104640567578674L)
+                .retrieveMessageById(892105471689912391L).complete().getReactions())
                 for (User reactionUsers : msgReactions.retrieveUsers().complete())
-                    if (reactionUsers == event.getUser()) return;
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            System.out.print(new Utils().getTime(Utils.LogColor.RED));
-            e.printStackTrace();
-        }
+                    if (reactionUsers == event.getUser()) {
+                        userHasReactions = true;
+                        break;
+                    }
 
-        event.getGuild().removeRoleFromMember(event.getMember(), event.getGuild().getRoleById(892453842241859664L))
-            .queue();
+            if (!userHasReactions)
+                new Utils().removeRoleFromMember(event.getMember(), event.getGuild(), Utils.RoleType.BUTTON);
+            else System.out.println(new Utils().getTime(
+                Utils.LogColor.YELLOW) + "Not removing button clicker role from " + new Utils().getFirstName(
+                event.getMember()) + "...");
+        }, "Check Reactions - " + new Utils().getFirstName(event.getMember()));
+        checkReactions.start();
     }
 
     @Override
