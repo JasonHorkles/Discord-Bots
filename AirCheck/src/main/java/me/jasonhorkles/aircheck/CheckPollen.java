@@ -46,32 +46,32 @@ public class CheckPollen {
         }
 
         String treeIndexName = switch (treeIndex) {
-            case 1 -> "None \uD83D\uDFE2";
-            case 2 -> "Very low \uD83D\uDFE1";
-            case 3 -> "Low \uD83D\uDFE0";
-            case 4 -> "Medium \uD83D\uDD34";
-            case 5 -> "High ⚫";
-            case 6 -> "Very high ⚠";
+            case 1 -> "Low \uD83D\uDFE2";
+            case 2 -> "Moderate \uD83D\uDFE1";
+            case 3 -> "High \uD83D\uDFE0";
+            case 4 -> "Very high \uD83D\uDD34";
+            case 5 -> "Extreme ⚠";
+            case 6 -> "⚠ :( ⚠";
             default -> String.valueOf(treeIndex);
         };
 
         String grassIndexName = switch (grassIndex) {
-            case 1 -> "None \uD83D\uDFE2";
-            case 2 -> "Very low \uD83D\uDFE1";
-            case 3 -> "Low \uD83D\uDFE0";
-            case 4 -> "Medium \uD83D\uDD34";
-            case 5 -> "High ⚫";
-            case 6 -> "Very high ⚠";
+            case 1 -> "Low \uD83D\uDFE2";
+            case 2 -> "Moderate \uD83D\uDFE1";
+            case 3 -> "High \uD83D\uDFE0";
+            case 4 -> "Very high \uD83D\uDD34";
+            case 5 -> "Extreme ⚠";
+            case 6 -> "⚠ :( ⚠";
             default -> String.valueOf(grassIndex);
         };
 
         String ragweedIndexName = switch (weedIndex) {
-            case 1 -> "None \uD83D\uDFE2";
-            case 2 -> "Very low \uD83D\uDFE1";
-            case 3 -> "Low \uD83D\uDFE0";
-            case 4 -> "Medium \uD83D\uDD34";
-            case 5 -> "High ⚫";
-            case 6 -> "Very high ⚠";
+            case 1 -> "Low \uD83D\uDFE2";
+            case 2 -> "Moderate \uD83D\uDFE1";
+            case 3 -> "High \uD83D\uDFE0";
+            case 4 -> "Very high \uD83D\uDD34";
+            case 5 -> "Extreme ⚠";
+            case 6 -> "⚠ :( ⚠";
             default -> String.valueOf(weedIndex);
         };
 
