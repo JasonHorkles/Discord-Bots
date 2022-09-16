@@ -183,13 +183,16 @@ public class Pws {
 
         int lightningDistance = Math.toIntExact(Math.round(
             Double.parseDouble(new Utils().checkIfNull(new Utils().getJsonKey(input, "lightning_distance", true)))));
+        String s = "s";
+        if (lightningDistance == 1) s = "";
+        
         TextChannel lightningChannel = StormAlerts.api.getTextChannelById(899876734999089192L);
 
         String ping = "";
         if (new Utils().shouldIPing(lightningChannel)) ping = "<@&896877424824954881>\n";
 
         lightningChannel.sendMessage(
-                ping + ":cloud_lightning: Lightning detected **~" + lightningDistance + " miles** from Eastern Farmington <t:" + (lightningTimeLong / 1000) + ":R>!")
+                ping + ":cloud_lightning: Lightning detected **~" + lightningDistance + " mile" + s + "** from Eastern Farmington <t:" + (lightningTimeLong / 1000) + ":R>!")
             .queue();
 
         FileWriter fw = new FileWriter(file, false);
