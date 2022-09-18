@@ -19,9 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("ConstantConditions")
 public class Utils {
@@ -174,69 +172,6 @@ public class Utils {
         if (channel != null) channel.sendMessage(message).queue();
         else if (replyTo != null) replyTo.reply(message).mentionRepliedUser(false).queue();
         else throw new NullPointerException("No TextChannel or Message defined");
-    }
-
-    public boolean shush(Member member, long duration) {
-        File f = new File("Phoenella/Shush Data/" + member.getId() + ".txt");
-        if (f.exists()) return false;
-        else {
-            Guild guild = member.getGuild();
-            try {
-                if (!f.createNewFile())
-                    System.out.println(getTime(LogColor.RED) + "File '" + f.getName() + "' not created.");
-                FileWriter fw = new FileWriter(f, false);
-                fw.write(String.valueOf(System.currentTimeMillis() + duration));
-
-                guild.addRoleToMember(member, guild.getRoleById(842490529744945192L)).queue();
-                for (Role roles : member.getRoles()) {
-                    fw.write("\n" + roles.getId());
-                    guild.removeRoleFromMember(member, roles).complete();
-                }
-                fw.close();
-
-                schedules.add(Executors.newSingleThreadScheduledExecutor()
-                    .schedule(() -> unshush(member), duration, TimeUnit.MILLISECONDS));
-
-                guild.getTextChannelById(893184802084225115L)
-                    .sendMessage("Shushed " + member.getAsMention() + " for " + duration / 60000 + " minute(s)!")
-                    .queue();
-                return true;
-            } catch (IOException e) {
-                System.out.println(
-                    getTime(LogColor.RED) + "[ERROR] Couldn't shush " + member.getUser().getAsTag() + "!");
-                e.printStackTrace();
-                guild.getTextChannelById(893184802084225115L)
-                    .sendMessage("Couldn't shush " + member.getAsMention() + "!").queue();
-                return false;
-            }
-        }
-    }
-
-    public void unshush(Member member) {
-        File f = new File("Phoenella/Shush Data/" + member.getId() + ".txt");
-        Guild guild = member.getGuild();
-        if (f.exists()) try {
-            Scanner scanner = new Scanner(f);
-            scanner.nextLine();
-
-            guild.removeRoleFromMember(member, guild.getRoleById(842490529744945192L)).queue();
-            while (scanner.hasNextLine())
-                guild.addRoleToMember(member, guild.getRoleById(scanner.nextLine())).complete();
-
-            scanner.close();
-            if (!f.delete()) System.out.println(getTime(LogColor.RED) + "File '" + f.getName() + "' not deleted.");
-
-            guild.getTextChannelById(893184802084225115L).sendMessage("Un-shushed " + member.getAsMention() + "!")
-                .queue();
-        } catch (IOException e) {
-            System.out.println(
-                getTime(LogColor.RED) + "[ERROR] Couldn't un-shush " + member.getUser().getAsTag() + "!");
-            e.printStackTrace();
-            guild.getTextChannelById(893184802084225115L)
-                .sendMessage("Couldn't un-shush " + member.getAsMention() + "!").queue();
-        }
-
-        runNameCheckForUser(member.getEffectiveName(), member, guild);
     }
 
     public void updateDailyWordle() {

@@ -185,9 +185,6 @@ public class Events extends ListenerAdapter {
             return;
         }
 
-        // Ignore shushed people
-        if (member.getRoles().toString().contains("842490529744945192")) return;
-
         // Message cooldowns
         for (String s : messageCooldown)
             if (s.equalsIgnoreCase(text)) {
@@ -427,38 +424,45 @@ public class Events extends ListenerAdapter {
         if (event.getUser().isBot()) return;
 
         // Button clicker role
-        if (event.getChannel().getIdLong() == 892104640567578674L)
+        if (event.getChannel().getIdLong() == 892104640567578674L) {
             new Utils().addRoleToMember(event.getMember(), event.getGuild(), Utils.RoleType.BUTTON);
+            return;
+        }
 
         // kek
-        if (event.getReaction().getEmoji().getName().equalsIgnoreCase("kek"))
+        if (event.getReaction().getEmoji().getName().equalsIgnoreCase("kek")) {
             event.retrieveMessage().complete().addReaction(event.getGuild().getEmojiById("841681203278774322")).queue();
+            return;
+        }
 
         // Shush users
-        if (event.getReaction().getEmoji().getName().equals("\uD83E\uDD2B"))
+        if (event.getReaction().getEmoji().getName().equals("\uD83E\uDD2B")) {
+            // Verify if mod or coach
             if (event.getMember().getRoles().toString().contains("751166721624375435") || event.getMember().getRoles()
-                .toString().contains("729108220479537202")) {
-                Member member = event.retrieveMessage().complete().getMember();
-                // 600000 = 10 mins
-                if (member.getRoles().toString().contains("751166721624375435") || member.getRoles().toString()
-                    .contains("729108220479537202"))
-                    event.getChannel().sendMessage(event.getMember().getAsMention() + ", I can't shush that person!")
-                        .queue((del) -> del.delete().queueAfter(5, TimeUnit.SECONDS, null,
-                            new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
+                .toString().contains("729108220479537202")) event.retrieveMessage().queue((message) -> {
+                Member member = message.getMember();
 
-                else if (new Utils().shush(member, 600000)) event.getChannel()
-                    .sendMessage(new Utils().getFirstName(member) + " just got shushed\nhttps://tenor.com/vfW7.gif")
+                if (member.isTimedOut()) {
+                    event.getChannel()
+                        .sendMessage(event.getMember().getAsMention() + ", that person is already shushed!").queue(
+                            (m) -> m.delete().queueAfter(5, TimeUnit.SECONDS, null,
+                                new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
+                    return;
+                }
+
+                member.timeoutFor(10, TimeUnit.MINUTES).queue((na) -> event.getChannel()
+                    .sendMessage(new Utils().getFirstName(member) + " just got shushed!\nhttps://tenor.com/vfW7.gif")
                     .queue((del) -> del.delete().queueAfter(15, TimeUnit.SECONDS, null,
-                        new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
-
-                else event.getChannel().sendMessage(event.getMember()
-                            .getAsMention() + ", that person is either already shushed or there was an error!").complete()
-                        .delete().queueAfter(5, TimeUnit.SECONDS, null,
-                            new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
-            }
+                        new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE))), (na1) -> event.getChannel()
+                    .sendMessage(event.getMember().getAsMention() + ", I can't shush that person!").queue(
+                        (del) -> del.delete().queueAfter(5, TimeUnit.SECONDS, null,
+                            new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE))));
+            });
+            return;
+        }
 
         // Add / remove word from dictionary
-        if (event.getReaction().getEmoji().getName().equals("✅"))
+        if (event.getReaction().getEmoji().getName().equals("✅")) {
             if (event.getChannel().getIdLong() == 960213547944661042L) {
                 Message message = event.retrieveMessage().complete();
                 File file = new File("Phoenella/Wordle/words.txt");
@@ -495,12 +499,15 @@ public class Events extends ListenerAdapter {
                     e.printStackTrace();
                 }
             }
+            return;
+        }
 
         // Delete message
         if (event.getReaction().getEmoji().getName().equals("❌") && event.getChannel().asTextChannel()
             .getParentCategoryIdLong() != 900747596245639238L) {
             Message message = event.retrieveMessage().complete();
             if (message.getAuthor().equals(Phoenella.api.getSelfUser())) message.delete().queue();
+            return;
         }
 
         // Prevent future requests for that word
@@ -571,29 +578,8 @@ public class Events extends ListenerAdapter {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + new Utils().getFullName(
             event.getMember()) + " used the /" + event.getName() + " command");
 
+        //noinspection SwitchStatementWithTooFewBranches
         switch (event.getName().toLowerCase()) {
-            case "shush" -> {
-                Member member = event.getOption("user").getAsMember();
-                long duration = event.getOption("duration").getAsLong() * 60000;
-
-                if (member.getRoles().toString().contains("751166721624375435") || member.getRoles().toString()
-                    .contains("729108220479537202")) {
-                    event.reply("I can't shush " + new Utils().getFirstName(member) + "!").setEphemeral(true).queue();
-                    return;
-                }
-
-                if (new Utils().shush(member, duration)) event.reply("Successfully shushed " + new Utils().getFirstName(
-                    member) + " for " + duration / 60000 + " minute(s)!").setEphemeral(true).queue();
-                else event.reply("Unable to shush " + new Utils().getFirstName(member) + "! Are they already shushed?")
-                    .setEphemeral(true).queue();
-            }
-
-            case "unshush" -> {
-                Member member = event.getOption("user").getAsMember();
-                new Utils().unshush(member);
-                event.reply("Unshushing " + new Utils().getFirstName(member) + "!").setEphemeral(true).queue();
-            }
-
             case "wordle" -> {
                 switch (event.getSubcommandName()) {
                     case "create" -> {

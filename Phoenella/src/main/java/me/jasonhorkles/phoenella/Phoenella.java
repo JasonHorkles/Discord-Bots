@@ -58,13 +58,8 @@ public class Phoenella {
 
         CommandListUpdateAction commands = api.getGuildById(729083627308056597L).updateCommands();
 
-        commands.addCommands(
-            Commands.slash("shush", "Shush a user").addOption(OptionType.USER, "user", "Who to shush", true)
-                .addOption(OptionType.INTEGER, "duration", "The duration in minutes to shush them for", true),
-
-            Commands.slash("unshush", "Un-shush a user").addOption(OptionType.USER, "user", "Who to un-shush", true),
-
-            Commands.slash("wordle", "Wordle!").addSubcommands(new SubcommandData("play", "Play with a random word"),
+        commands.addCommands(Commands.slash("wordle", "Wordle!")
+            .addSubcommands(new SubcommandData("play", "Play with a random word"),
                 new SubcommandData("create", "Create a Wordle for others to play"),
                 new SubcommandData("leaderboard", "View the Wordle leaderboard").addOption(OptionType.BOOLEAN, "show",
                     "Show the leaderboard message publicly?", false),
@@ -72,22 +67,6 @@ public class Phoenella {
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Starting nickname check...");
         new Utils().runNameCheckForGuild(api.getGuildById(729083627308056597L));
-
-        // Check shushed users
-        File shushes = new File("Phoenella/Shush Data");
-        if (shushes.listFiles().length > 0) for (File f : shushes.listFiles()) {
-            Scanner scanner = new Scanner(f);
-            long delay = scanner.nextLong() - System.currentTimeMillis();
-            if (delay < 0) delay = 0;
-            scanner.close();
-
-            Member member = api.getGuildById(729083627308056597L).getMemberById(f.getName().replace(".txt", ""));
-            schedules.add(Executors.newSingleThreadScheduledExecutor()
-                .schedule(() -> new Utils().unshush(member), delay, TimeUnit.MILLISECONDS));
-            System.out.println(
-                new Utils().getTime(Utils.LogColor.YELLOW) + "Scheduling the removal of " + member.getUser()
-                    .getAsTag() + "'s shush in " + delay / 60000 + " minutes.");
-        }
 
         // Scan Wordle leaderboard for nonexistent players
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Starting leaderboard check...");
@@ -222,7 +201,6 @@ public class Phoenella {
     }
 
     public void shutdown() {
-        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Cancelling shushes...");
         for (ScheduledFuture<?> task : schedules) task.cancel(false);
         for (ScheduledFuture<?> task : Utils.schedules) task.cancel(false);
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
