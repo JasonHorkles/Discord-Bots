@@ -452,7 +452,7 @@ public class Events extends ListenerAdapter {
 
                 member.timeoutFor(10, TimeUnit.MINUTES).queue((na) -> event.getChannel()
                     .sendMessage(new Utils().getFirstName(member) + " just got shushed!\nhttps://tenor.com/vfW7.gif")
-                    .queue((del) -> del.delete().queueAfter(15, TimeUnit.SECONDS, null,
+                    .queue((del) -> del.delete().queueAfter(10, TimeUnit.MINUTES, null,
                         new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE))), (na1) -> event.getChannel()
                     .sendMessage(event.getMember().getAsMention() + ", I can't shush that person!").queue(
                         (del) -> del.delete().queueAfter(5, TimeUnit.SECONDS, null,
