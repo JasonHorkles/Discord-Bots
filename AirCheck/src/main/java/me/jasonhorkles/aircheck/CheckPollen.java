@@ -51,7 +51,6 @@ public class CheckPollen {
             case 3 -> "High \uD83D\uDFE0";
             case 4 -> "Very high \uD83D\uDD34";
             case 5 -> "Extreme ⚠";
-            case 6 -> "⚠ :( ⚠";
             default -> String.valueOf(treeIndex);
         };
 
@@ -61,7 +60,6 @@ public class CheckPollen {
             case 3 -> "High \uD83D\uDFE0";
             case 4 -> "Very high \uD83D\uDD34";
             case 5 -> "Extreme ⚠";
-            case 6 -> "⚠ :( ⚠";
             default -> String.valueOf(grassIndex);
         };
 
@@ -71,7 +69,6 @@ public class CheckPollen {
             case 3 -> "High \uD83D\uDFE0";
             case 4 -> "Very high \uD83D\uDD34";
             case 5 -> "Extreme ⚠";
-            case 6 -> "⚠ :( ⚠";
             default -> String.valueOf(weedIndex);
         };
 
