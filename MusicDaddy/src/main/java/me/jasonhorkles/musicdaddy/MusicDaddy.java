@@ -64,25 +64,22 @@ public class MusicDaddy {
 
         api.addEventListener(new Events());
 
-        for (Guild guilds : api.getGuilds()) {
-            CommandListUpdateAction commands = guilds.updateCommands();
+        CommandListUpdateAction commands = api.updateCommands();
 
-            commands.addCommands(Commands.slash("play", "Add a video / playlist to the queue")
-                    .addOption(OptionType.STRING, "url", "Link to the video / playlist", true)
-                    .addOption(OptionType.BOOLEAN, "shuffle",
-                        "Whether or not the playlist should be shuffled (if applicable)", false)
-                    .addOption(OptionType.INTEGER, "maxsongs",
-                        "The maximum amount of songs to play from the playlist (if applicable) - limit 100", false),
-                Commands.slash("search", "Search for a video on YouTube")
-                    .addOption(OptionType.STRING, "title", "What to search for", true)
-                    .addOption(OptionType.INTEGER, "result", "The nth result to use", false),
-                Commands.slash("skip", "Skip the current video"), Commands.slash("stop", "Stop the audio"),
-                Commands.slash("pause", "Toggle the paused state of the audio"),
-                Commands.slash("volume", "Change the volume")
-                    .addOption(OptionType.INTEGER, "volume", "The volume level (default 100, allows 1-150)", true),
-                Commands.slash("np", "Displays the currently playing track"),
-                Commands.slash("queue", "Displays the current queue")).queue();
-        }
+        commands.addCommands(Commands.slash("play", "Add a video / playlist to the queue")
+                .addOption(OptionType.STRING, "url", "Link to the video / playlist", true)
+                .addOption(OptionType.BOOLEAN, "shuffle", "Whether or not the playlist should be shuffled (if applicable)",
+                    false).addOption(OptionType.INTEGER, "maxsongs",
+                    "The maximum amount of songs to play from the playlist (if applicable) - limit 100", false),
+            Commands.slash("search", "Search for a video on YouTube")
+                .addOption(OptionType.STRING, "title", "What to search for", true)
+                .addOption(OptionType.INTEGER, "result", "The nth result to use", false),
+            Commands.slash("skip", "Skip the current video"), Commands.slash("stop", "Stop the audio"),
+            Commands.slash("pause", "Toggle the paused state of the audio"),
+            Commands.slash("volume", "Change the volume")
+                .addOption(OptionType.INTEGER, "volume", "The volume level (default 100, allows 1-150)", true),
+            Commands.slash("np", "Displays the currently playing track"),
+            Commands.slash("queue", "Displays the current queue")).queue();
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new MusicDaddy().shutdown(), "Shutdown Hook"));
