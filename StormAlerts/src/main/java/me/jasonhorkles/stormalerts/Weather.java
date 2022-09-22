@@ -248,7 +248,10 @@ public class Weather extends ListenerAdapter {
         // Nothing exciting
         if (weatherName == null) idle = true;
 
+        if (!idle) StormAlerts.api.getPresence().setStatus(OnlineStatus.ONLINE);
+
         if (idle) {
+            StormAlerts.api.getPresence().setActivity(Activity.watching("for gnarly weather"));
             StormAlerts.api.getPresence().setStatus(OnlineStatus.IDLE);
 
             if (previousTypeChannel != null) {
@@ -258,14 +261,12 @@ public class Weather extends ListenerAdapter {
                         .replace("!", "! (Ended at <t:" + System.currentTimeMillis() / 1000 + ":t>)")).queue();
                 previousTypeChannel = null;
             }
-        } else StormAlerts.api.getPresence().setStatus(OnlineStatus.ONLINE);
+        } else if (weather.equals("RAIN")) {
+            StormAlerts.api.getPresence().setActivity(Activity.watching("the rain @ " + rainRate + " in/hr"));
+            System.out.println(new Utils().getTime(
+                Utils.LogColor.GREEN) + "Raining @ " + rainRate + "/" + Pws.currentRainRate + " in/hr");
+        } else StormAlerts.api.getPresence().setActivity(Activity.playing("it's " + weatherName));
 
-        if (idle) StormAlerts.api.getPresence().setActivity(Activity.watching("for gnarly weather"));
-
-        else if (weather.equals("RAIN")) StormAlerts.api.getPresence()
-            .setActivity(Activity.playing("it's " + weatherName + " @ " + rainRate + " in/hr"));
-
-        else StormAlerts.api.getPresence().setActivity(Activity.playing("it's " + weatherName));
         previousWeatherName = weatherName;
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Weather: " + weather);
