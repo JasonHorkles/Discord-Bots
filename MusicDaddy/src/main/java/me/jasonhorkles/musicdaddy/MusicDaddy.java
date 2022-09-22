@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.hc.core5.http.ParseException;
@@ -64,9 +63,7 @@ public class MusicDaddy {
 
         api.addEventListener(new Events());
 
-        CommandListUpdateAction commands = api.updateCommands();
-
-        commands.addCommands(Commands.slash("play", "Add a video / playlist to the queue")
+        api.updateCommands().addCommands(Commands.slash("play", "Add a video / playlist to the queue")
                 .addOption(OptionType.STRING, "url", "Link to the video / playlist", true)
                 .addOption(OptionType.BOOLEAN, "shuffle", "Whether or not the playlist should be shuffled (if applicable)",
                     false).addOption(OptionType.INTEGER, "maxsongs",
@@ -80,6 +77,7 @@ public class MusicDaddy {
                 .addOption(OptionType.INTEGER, "volume", "The volume level (default 100, allows 1-150)", true),
             Commands.slash("np", "Displays the currently playing track"),
             Commands.slash("queue", "Displays the current queue")).queue();
+
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new MusicDaddy().shutdown(), "Shutdown Hook"));

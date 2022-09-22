@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
@@ -40,9 +39,8 @@ public class Silverstone {
         api.addEventListener(new AntiScam(), new Events(), new Testing());
 
         //noinspection ConstantConditions
-        CommandListUpdateAction commands = api.getGuildById(455919765999976461L).updateCommands();
-
-        commands.addCommands(Commands.slash("ecdebug", "EntityClearer debug"),
+        api.getGuildById(455919765999976461L).updateCommands()
+            .addCommands(Commands.slash("ecdebug", "EntityClearer debug"),
                 Commands.slash("paste", "Get a link to paste text to")
                     .addOption(OptionType.STRING, "what", "What should be pasted", true),
                 Commands.slash("plgh", "Links to the plugins on GitHub"),

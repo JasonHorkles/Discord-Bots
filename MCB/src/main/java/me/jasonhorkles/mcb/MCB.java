@@ -11,7 +11,6 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
@@ -49,29 +48,30 @@ public class MCB {
 
         api.addEventListener(new Events(), new AntiScam());
 
-        CommandListUpdateAction commands = api.getGuildById(603190205393928193L).updateCommands();
+        api.getGuildById(603190205393928193L).updateCommands().addCommands(
+            Commands.slash("buildrequest", "Create/edit/delete a request for a build/builder").addSubcommandGroups(
+                new SubcommandGroupData("create", "Create a request").addSubcommands(
+                    new SubcommandData("builders", "Searching for a builder or builders").addOptions(
+                        new OptionData(OptionType.STRING, "platform", "The main platform that will be used",
+                            true).addChoices(new Command.Choice("Java", "java"),
+                            new Command.Choice("Bedrock", "bedrock")),
+                        new OptionData(OptionType.STRING, "version", "The Minecraft version that will be used", true),
+                        new OptionData(OptionType.INTEGER, "count", "The amount of builders needed", true),
+                        new OptionData(OptionType.INTEGER, "budget",
+                            "The budget each builder should expect to be paid, converted to USD (set to 0 for a free request)",
+                            true), new OptionData(OptionType.STRING, "description",
+                            "The description of the request with additional info (optional)", false)),
 
-        commands.addCommands(Commands.slash("buildrequest", "Create/edit/delete a request for a build/builder")
-            .addSubcommandGroups(new SubcommandGroupData("create", "Create a request").addSubcommands(
-                new SubcommandData("builders", "Searching for a builder or builders").addOptions(
-                    new OptionData(OptionType.STRING, "platform", "The main platform that will be used",
-                        true).addChoices(new Command.Choice("Java", "java"), new Command.Choice("Bedrock", "bedrock")),
-                    new OptionData(OptionType.STRING, "version", "The Minecraft version that will be used", true),
-                    new OptionData(OptionType.INTEGER, "count", "The amount of builders needed", true),
-                    new OptionData(OptionType.INTEGER, "budget",
-                        "The budget each builder should expect to be paid, converted to USD (set to 0 for a free request)",
-                        true), new OptionData(OptionType.STRING, "description",
-                        "The description of the request with additional info (optional)", false)),
-
-                new SubcommandData("builds", "Searching for a specific build").addOptions(
-                    new OptionData(OptionType.STRING, "platform", "The main platform that will be used",
-                        true).addChoices(new Command.Choice("Java", "java"), new Command.Choice("Bedrock", "bedrock")),
-                    new OptionData(OptionType.STRING, "version", "The Minecraft version that will be used", true),
-                    new OptionData(OptionType.STRING, "build", "A brief overview of the build needed", true),
-                    new OptionData(OptionType.INTEGER, "budget",
-                        "The budget the builder/team should expect to be paid, converted to USD (set to 0 for a free request)",
-                        true), new OptionData(OptionType.STRING, "description",
-                        "The description of the request with additional info (optional)", false)))).addSubcommands(
+                    new SubcommandData("builds", "Searching for a specific build").addOptions(
+                        new OptionData(OptionType.STRING, "platform", "The main platform that will be used",
+                            true).addChoices(new Command.Choice("Java", "java"),
+                            new Command.Choice("Bedrock", "bedrock")),
+                        new OptionData(OptionType.STRING, "version", "The Minecraft version that will be used", true),
+                        new OptionData(OptionType.STRING, "build", "A brief overview of the build needed", true),
+                        new OptionData(OptionType.INTEGER, "budget",
+                            "The budget the builder/team should expect to be paid, converted to USD (set to 0 for a free request)",
+                            true), new OptionData(OptionType.STRING, "description",
+                            "The description of the request with additional info (optional)", false)))).addSubcommands(
 
                 new SubcommandData("edit", "Edit an existing request").addOptions(
                     new OptionData(OptionType.STRING, "id", "The ID of the message to delete", true),

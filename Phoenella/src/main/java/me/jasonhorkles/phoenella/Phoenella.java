@@ -15,7 +15,6 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
@@ -54,11 +53,10 @@ public class Phoenella {
         // Wait until the api works
         while (api.getGuildById(729083627308056597L) == null) Thread.sleep(100);
 
+        // Cache members
         api.getGuildById(729083627308056597L).loadMembers().get();
 
-        CommandListUpdateAction commands = api.getGuildById(729083627308056597L).updateCommands();
-
-        commands.addCommands(Commands.slash("wordle", "Wordle!")
+        api.getGuildById(729083627308056597L).updateCommands().addCommands(Commands.slash("wordle", "Wordle!")
             .addSubcommands(new SubcommandData("play", "Play with a random word"),
                 new SubcommandData("create", "Create a Wordle for others to play"),
                 new SubcommandData("leaderboard", "View the Wordle leaderboard").addOption(OptionType.BOOLEAN, "show",

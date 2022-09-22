@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
@@ -56,9 +55,8 @@ public class StormAlerts extends ListenerAdapter {
         api.addEventListener(new Weather());
 
         //noinspection ConstantConditions
-        CommandListUpdateAction commands = api.getGuildById(843919716677582888L).updateCommands();
-
-        commands.addCommands(Commands.slash("checknow", "Force all the checks")).queue();
+        api.getGuildById(843919716677582888L).updateCommands()
+            .addCommands(Commands.slash("checknow", "Force all checks")).queue();
 
 
         // Alerts

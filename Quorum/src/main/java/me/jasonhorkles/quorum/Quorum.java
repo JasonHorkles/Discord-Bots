@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
@@ -45,9 +44,6 @@ public class Quorum {
 
         api.addEventListener(new Events());
 
-        //noinspection ConstantConditions
-        CommandListUpdateAction commands = api.getGuildById(853775450680590387L).updateCommands();
-
         OptionData months = new OptionData(OptionType.STRING, "month", "The month of the activities", true).addChoices(
             new Command.Choice("January", "January"), new Command.Choice("February", "February"),
             new Command.Choice("March", "March"), new Command.Choice("April", "April"),
@@ -56,28 +52,30 @@ public class Quorum {
             new Command.Choice("October", "October"), new Command.Choice("November", "November"),
             new Command.Choice("December", "December"));
 
-        commands.addCommands(Commands.slash("suggest", "Create a suggestion"),
+        //noinspection ConstantConditions
+        api.getGuildById(853775450680590387L).updateCommands()
+            .addCommands(Commands.slash("suggest", "Create a suggestion"),
 
-            Commands.slash("suggestion-accept", "Accept a suggestion")
-                .addOption(OptionType.STRING, "message-id", "The message ID of the suggestion to accept", true),
+                Commands.slash("suggestion-accept", "Accept a suggestion")
+                    .addOption(OptionType.STRING, "message-id", "The message ID of the suggestion to accept", true),
 
-            Commands.slash("suggestion-decline", "Decline a suggestion")
-                .addOption(OptionType.STRING, "message-id", "The message ID of the suggestion to decline", true)
-                .addOption(OptionType.STRING, "decline-reason", "Why the suggestion was declined", false),
+                Commands.slash("suggestion-decline", "Decline a suggestion")
+                    .addOption(OptionType.STRING, "message-id", "The message ID of the suggestion to decline", true)
+                    .addOption(OptionType.STRING, "decline-reason", "Why the suggestion was declined", false),
 
-            Commands.slash("suggestion-edit", "Edit your previous suggestion")
-                .addOption(OptionType.STRING, "message-id", "The message ID of the suggestion to edit", true),
+                Commands.slash("suggestion-edit", "Edit your previous suggestion")
+                    .addOption(OptionType.STRING, "message-id", "The message ID of the suggestion to edit", true),
 
-            Commands.slash("activity", "Create/edit/cancel activities")
-                .addSubcommands(new SubcommandData("create", "Create a new activity list").addOptions(months),
+                Commands.slash("activity", "Create/edit/cancel activities")
+                    .addSubcommands(new SubcommandData("create", "Create a new activity list").addOptions(months),
 
-                    new SubcommandData("edit", "Edit an existing activity list").addOptions(months,
-                        new OptionData(OptionType.INTEGER, "line",
-                            "The activity line to cancel (between 1-4, or sometimes 1-5)", true)),
+                        new SubcommandData("edit", "Edit an existing activity list").addOptions(months,
+                            new OptionData(OptionType.INTEGER, "line",
+                                "The activity line to cancel (between 1-4, or sometimes 1-5)", true)),
 
-                    new SubcommandData("cancel", "Cancel an activity").addOptions(months,
-                        new OptionData(OptionType.INTEGER, "line",
-                            "The activity line to cancel (between 1-4, or sometimes 1-5)", true)))).queue();
+                        new SubcommandData("cancel", "Cancel an activity").addOptions(months,
+                            new OptionData(OptionType.INTEGER, "line",
+                                "The activity line to cancel (between 1-4, or sometimes 1-5)", true)))).queue();
 
         new ScheduleDMs().scheduleDMs();
         new ScheduleAnnouncements().scheduleAnnouncements();
