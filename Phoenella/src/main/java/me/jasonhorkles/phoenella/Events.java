@@ -464,6 +464,12 @@ public class Events extends ListenerAdapter {
         // Add / remove word from dictionary
         if (event.getReaction().getEmoji().getName().equals("✅")) {
             if (event.getChannel().getIdLong() == 960213547944661042L) {
+                if (event.getUserIdLong() != 277291758503723010L) {
+                    System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser()
+                        .getAsTag() + " just tried to accept a Wordle word!");
+                    return;
+                }
+
                 Message message = event.retrieveMessage().complete();
                 File file = new File("Phoenella/Wordle/words.txt");
 
@@ -512,6 +518,12 @@ public class Events extends ListenerAdapter {
 
         // Prevent future requests for that word
         if (event.getEmoji().getName().equals("⛔")) if (event.getChannel().getIdLong() == 960213547944661042L) {
+            if (event.getUserIdLong() != 277291758503723010L) {
+                System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser()
+                    .getAsTag() + " just tried to decline a Wordle word!");
+                return;
+            }
+
             Message message = event.retrieveMessage().complete();
             File file = new File("Phoenella/Wordle/banned-requests.txt");
 
