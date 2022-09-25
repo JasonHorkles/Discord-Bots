@@ -39,7 +39,6 @@ public class Quorum {
         //noinspection ConstantConditions
         jda.getGuildById(853775450680590387L).loadMembers().get();
 
-
         OptionData months = new OptionData(OptionType.STRING, "month", "The month of the activities", true).addChoices(
             new Command.Choice("January", "January"), new Command.Choice("February", "February"),
             new Command.Choice("March", "March"), new Command.Choice("April", "April"),
