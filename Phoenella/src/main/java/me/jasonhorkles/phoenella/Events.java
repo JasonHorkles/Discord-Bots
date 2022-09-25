@@ -512,8 +512,9 @@ public class Events extends ListenerAdapter {
         // Delete message
         if (event.getReaction().getEmoji().getName().equals("❌") && event.getChannel().asTextChannel()
             .getParentCategoryIdLong() != 900747596245639238L) {
-            Message message = event.retrieveMessage().complete();
-            if (message.getAuthor().equals(Phoenella.jda.getSelfUser())) message.delete().queue();
+            event.retrieveMessage().queue((message -> {
+                if (message.getAuthor().equals(Phoenella.jda.getSelfUser())) message.delete().queue();
+            }));
             return;
         }
 

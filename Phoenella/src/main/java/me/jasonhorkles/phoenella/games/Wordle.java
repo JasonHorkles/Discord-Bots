@@ -527,6 +527,7 @@ public class Wordle extends ListenerAdapter {
             .setActionRow(Button.primary("defineword:" + word, "Define word").withEmoji(Emoji.fromUnicode("❔")))
             .queue((msg) -> msg.addReaction(Emoji.fromUnicode("✅")).queue((m) -> {
                 if (isAuto) msg.addReaction(Emoji.fromUnicode("⛔")).queue();
+                else msg.addReaction(Emoji.fromUnicode("❌")).queue();
             }));
     }
 
