@@ -451,13 +451,18 @@ public class Events extends ListenerAdapter {
                     return;
                 }
 
-                member.timeoutFor(10, TimeUnit.MINUTES).queue((na) -> event.getChannel()
-                    .sendMessage(new Utils().getFirstName(member) + " just got shushed!\nhttps://tenor.com/vfW7.gif")
-                    .queue((del) -> del.delete().queueAfter(10, TimeUnit.MINUTES, null,
-                        new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE))), (na1) -> event.getChannel()
-                    .sendMessage(event.getMember().getAsMention() + ", I can't shush that person!").queue(
-                        (del) -> del.delete().queueAfter(5, TimeUnit.SECONDS, null,
-                            new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE))));
+                member.timeoutFor(10, TimeUnit.MINUTES).queue(
+                    (na) -> event.getChannel().sendMessage(new Utils().getFirstName(member) + " just got shushed!")
+                        .queue((del) -> {
+                            del.delete().queueAfter(10, TimeUnit.MINUTES, null,
+                                new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
+                            event.getChannel().sendMessage("https://tenor.com/vfW7.gif").queue((del2) -> del2.delete()
+                                .queueAfter(10, TimeUnit.MINUTES, null,
+                                    new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
+                        }), (na1) -> event.getChannel()
+                        .sendMessage(event.getMember().getAsMention() + ", I can't shush that person!").queue(
+                            (del) -> del.delete().queueAfter(5, TimeUnit.SECONDS, null,
+                                new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE))));
             });
             return;
         }
@@ -551,7 +556,7 @@ public class Events extends ListenerAdapter {
         if (event.getUser().isBot()) return;
         if (event.getChannel().getIdLong() != 892104640567578674L) return;
 
-        //todo Check user roles instead of all the reactions to make it faster
+        //todo Change to select menus
         Thread checkReactions = new Thread(() -> {
             boolean userHasReactions = false;
             for (MessageReaction msgReactions : event.getGuild().getTextChannelById(892104640567578674L)
