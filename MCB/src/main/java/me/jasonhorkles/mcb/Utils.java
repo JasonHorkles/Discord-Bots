@@ -1,7 +1,7 @@
 package me.jasonhorkles.mcb;
 
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

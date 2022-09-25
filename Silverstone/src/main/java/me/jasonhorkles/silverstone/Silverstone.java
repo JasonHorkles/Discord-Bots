@@ -10,13 +10,12 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
-import javax.security.auth.login.LoginException;
 import java.util.Scanner;
 
 public class Silverstone {
     public static JDA jda;
 
-    public static void main(String[] args) throws LoginException, InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
@@ -29,7 +28,7 @@ public class Silverstone {
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.watching("Dave"));
         builder.setEnableShutdownHook(false);
-        builder.addEventListeners(new AntiScam(), new Events(), new Testing());
+        builder.addEventListeners(new Events(), new Testing());
         jda = builder.build();
 
         jda.awaitReady();

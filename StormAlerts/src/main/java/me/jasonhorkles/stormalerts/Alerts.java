@@ -1,9 +1,8 @@
 package me.jasonhorkles.stormalerts;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -225,16 +224,14 @@ public class Alerts {
 
             switch (alertType) {
                 case "Alert" -> dontDeleteMe.add(alertsChannel.sendMessage(
-                        new MessageBuilder().append("<@&850471646191812700>\n**[").append(severity.toUpperCase())
-                            .append("] ").append(event).append("** for ").append(area).setEmbeds(embed.build()).build())
-                    .complete());
+                        "<@&850471646191812700>\n**[" + severity.toUpperCase() + "] " + event + "** for " + area)
+                    .setEmbeds(embed.build()).complete());
 
                 case "Update" -> {
                     dontDeleteMe.remove(alertMessage);
                     dontDeleteMe.add(alertMessage.editMessage(
-                            new MessageBuilder().append("<@&850471690093854810>\n**[").append(severity.toUpperCase())
-                                .append("] ").append(event).append("** for ").append(area).setEmbeds(embed.build()).build())
-                        .complete());
+                            "<@&850471690093854810>\n**[" + severity.toUpperCase() + "] " + event + "** for " + area)
+                        .setEmbeds(embed.build()).complete());
                     alertsChannel.sendMessage("<@&850471690093854810>")
                         .queue((del) -> del.delete().queueAfter(250, TimeUnit.MILLISECONDS));
                 }

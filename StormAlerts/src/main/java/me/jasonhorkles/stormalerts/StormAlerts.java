@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import javax.annotation.Nullable;
-import javax.security.auth.login.LoginException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -34,7 +33,7 @@ public class StormAlerts extends ListenerAdapter {
     private static ScheduledFuture<?> weatherTimer;
     private static final ArrayList<ScheduledFuture<?>> trafficTimers = new ArrayList<>();
 
-    public static void main(String[] args) throws LoginException, InterruptedException, ParseException {
+    public static void main(String[] args) throws InterruptedException, ParseException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());

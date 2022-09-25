@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
-import javax.security.auth.login.LoginException;
 import java.text.ParseException;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
@@ -22,7 +21,7 @@ import java.util.concurrent.TimeoutException;
 public class Quorum {
     public static JDA jda;
 
-    public static void main(String[] args) throws LoginException, InterruptedException, ParseException, ExecutionException, TimeoutException {
+    public static void main(String[] args) throws InterruptedException, ParseException, ExecutionException, TimeoutException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());

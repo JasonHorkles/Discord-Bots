@@ -3,7 +3,7 @@ package me.jasonhorkles.phoenella.games;
 import me.jasonhorkles.phoenella.GameManager;
 import me.jasonhorkles.phoenella.Utils;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;

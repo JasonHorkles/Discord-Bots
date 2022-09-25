@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -18,7 +18,6 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
-import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -35,7 +34,7 @@ public class Phoenella {
     public static JDA jda;
     public static boolean localWordleBoard = false;
 
-    public static void main(String[] args) throws LoginException, InterruptedException, IOException, ExecutionException, TimeoutException, ParseException {
+    public static void main(String[] args) throws InterruptedException, IOException, ExecutionException, TimeoutException, ParseException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
@@ -160,7 +159,7 @@ public class Phoenella {
 
         TextChannel soundboardChannel = jda.getTextChannelById(903324139195084820L);
         if (new Utils().getMessages(soundboardChannel, 1).get(30, TimeUnit.SECONDS).isEmpty())
-            soundboardChannel.sendMessage("**Select a sound!**").setActionRows(
+            soundboardChannel.sendMessage("**Select a sound!**").setComponents(
                 ActionRow.of(Button.primary("sound:benny", "Benny Hill"), Button.primary("sound:bfg", "BFG Division"),
                     Button.primary("sound:careless", "Careless Whisper"), Button.primary("sound:crickets", "Crickets"),
                     Button.primary("sound:discord", "Discord")),
@@ -176,8 +175,7 @@ public class Phoenella {
                     Button.secondary("sound:flysave", "What a Save"), Button.secondary("sound:yeet", "Yeet")),
                 ActionRow.of(Button.danger("sound:stop", "Stop Sounds").withEmoji(Emoji.fromUnicode("🛑")))).queue();
 
-        jda.addEventListener(new Events(), new Soundboard(), new GameManager(), new RPS(), new Wordle(),
-            new AntiScam());
+        jda.addEventListener(new Events(), new Soundboard(), new GameManager(), new RPS(), new Wordle());
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new Phoenella().shutdown(), "Shutdown Hook"));

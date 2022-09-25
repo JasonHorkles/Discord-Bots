@@ -2,6 +2,8 @@ package me.jasonhorkles.phoenella;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Connection;

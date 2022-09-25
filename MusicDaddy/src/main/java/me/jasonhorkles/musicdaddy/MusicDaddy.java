@@ -24,7 +24,6 @@ import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.credentials.ClientCredentials;
 import se.michaelthelin.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 
-import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -35,7 +34,7 @@ public class MusicDaddy {
 
     private static final ClientCredentialsRequest ccr = spotify.clientCredentials().build();
 
-    public static void main(String[] args) throws LoginException, InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());

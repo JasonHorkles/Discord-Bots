@@ -81,7 +81,7 @@ public class Events extends ListenerAdapter {
                 if (event.getMember().getRoles().toString().contains("646291178144399371"))
                     event.getChannel().sendMessage(event.getMember().getEffectiveName() + " would be kicked!")
                         .queueAfter(100, TimeUnit.MILLISECONDS);
-                else event.getMember().kick("Ping spam").queueAfter(100, TimeUnit.MILLISECONDS);
+                else event.getMember().kick().reason("Ping spam").queueAfter(100, TimeUnit.MILLISECONDS);
             }
         } else warnings.put(id, count);
 
