@@ -69,9 +69,8 @@ public class Alerts {
         for (Object objects : alerts) {
             JSONObject alert = new JSONObject(objects.toString());
 
-            String description = new Utils().getJsonKey(alert, "description", true).replace(fa, "**" + fa + "**")
-                .replace(ce, "**" + ce + "**").replace(ka, "**" + ka + "**").replace(nwf, "**" + nwf + "**")
-                .replace(da, "**" + da + "**").replace("\\n", " ").replace("  ", "\n\n");
+            String description = boldAreas(
+                new Utils().getJsonKey(alert, "description", true).replace("\\n", " ").replace("  ", "\n\n"));
             String id = new Utils().getJsonKey(alert, "id", true).replaceFirst("urn:oid:", "");
             String event = new Utils().getJsonKey(alert, "event", true);
 
@@ -130,9 +129,7 @@ public class Alerts {
                 if (!idFound) alertType = "Alert";
             }
 
-            String area = new Utils().getJsonKey(alert, "areaDesc", true).replace(fa, "**" + fa + "**")
-                .replace(ce, "**" + ce + "**").replace(ka, "**" + ka + "**").replace(nwf, "**" + nwf + "**")
-                .replace(da, "**" + da + "**");
+            String area = boldAreas(new Utils().getJsonKey(alert, "areaDesc", true));
             String severity = new Utils().getJsonKey(alert, "severity", true);
             String certainty = new Utils().getJsonKey(alert, "certainty", true);
             String urgency = new Utils().getJsonKey(alert, "urgency", true);
@@ -251,5 +248,16 @@ public class Alerts {
             // Delete them
             message.delete().queue();
         }
+    }
+
+    private String boldAreas(String input) {
+        return input.replace(fa, "**" + fa + "**").replace(ce, "**" + ce + "**").replace(ka, "**" + ka + "**")
+            .replace(nwf, "**" + nwf + "**").replace(da, "**" + da + "**")
+
+            .replace(fa.toUpperCase(), "**" + fa.toUpperCase() + "**")
+            .replace(ce.toUpperCase(), "**" + ce.toUpperCase() + "**")
+            .replace(ka.toUpperCase(), "**" + ka.toUpperCase() + "**")
+            .replace(nwf.toUpperCase(), "**" + nwf.toUpperCase() + "**")
+            .replace(da.toUpperCase(), "**" + da.toUpperCase() + "**");
     }
 }
