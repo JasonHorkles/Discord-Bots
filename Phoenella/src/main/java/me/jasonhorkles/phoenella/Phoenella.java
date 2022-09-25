@@ -29,7 +29,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.*;
 
-@SuppressWarnings({"BusyWait", "ConstantConditions"})
+@SuppressWarnings({"ConstantConditions"})
 public class Phoenella {
     private static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
     public static JDA api;
@@ -39,7 +39,6 @@ public class Phoenella {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
-        builder.disableIntents(GatewayIntent.GUILD_MESSAGE_TYPING);
         builder.disableCache(CacheFlag.ACTIVITY);
         builder.enableCache(CacheFlag.VOICE_STATE);
         builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES,
@@ -50,8 +49,7 @@ public class Phoenella {
         builder.setActivity(Activity.playing("Wordle"));
         api = builder.build();
 
-        // Wait until the api works
-        while (api.getGuildById(729083627308056597L) == null) Thread.sleep(100);
+        api.awaitReady();
 
         // Cache members
         api.getGuildById(729083627308056597L).loadMembers().get();

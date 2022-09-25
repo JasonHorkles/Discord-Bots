@@ -19,7 +19,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeoutException;
 
-@SuppressWarnings("BusyWait")
 public class Quorum {
     public static JDA api;
 
@@ -27,22 +26,20 @@ public class Quorum {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
-        builder.disableIntents(GatewayIntent.GUILD_MESSAGE_TYPING);
         builder.disableCache(CacheFlag.ACTIVITY, CacheFlag.VOICE_STATE);
         builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS, GatewayIntent.DIRECT_MESSAGES,
             GatewayIntent.MESSAGE_CONTENT);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setEnableShutdownHook(false);
+        builder.addEventListeners(new Events());
         api = builder.build();
 
-        // Wait until the api works
-        while (api.getGuildById(853775450680590387L) == null) Thread.sleep(100);
+        api.awaitReady();
 
         //noinspection ConstantConditions
         api.getGuildById(853775450680590387L).loadMembers().get();
 
-        api.addEventListener(new Events());
 
         OptionData months = new OptionData(OptionType.STRING, "month", "The month of the activities", true).addChoices(
             new Command.Choice("January", "January"), new Command.Choice("February", "February"),

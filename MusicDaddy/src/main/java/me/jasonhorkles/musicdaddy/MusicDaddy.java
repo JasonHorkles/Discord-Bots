@@ -28,7 +28,6 @@ import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.util.Scanner;
 
-@SuppressWarnings({"BusyWait"})
 public class MusicDaddy {
     public static JDA api;
     public static final SpotifyApi spotify = new SpotifyApi.Builder().setClientId(new Secrets().getSpotifyClientId())
@@ -40,7 +39,6 @@ public class MusicDaddy {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
-        builder.disableIntents(GatewayIntent.GUILD_MESSAGE_TYPING);
         builder.disableCache(CacheFlag.ACTIVITY);
         builder.enableCache(CacheFlag.VOICE_STATE);
         builder.enableIntents(GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_MEMBERS);
@@ -48,6 +46,7 @@ public class MusicDaddy {
         builder.setStatus(OnlineStatus.IDLE);
         builder.setActivity(Activity.listening("startup sounds"));
         builder.setEnableShutdownHook(false);
+        builder.addEventListeners(new Events());
         api = builder.build();
 
         try {
@@ -58,10 +57,7 @@ public class MusicDaddy {
             e.printStackTrace();
         }
 
-        // Wait until the api works
-        while (api.getGuilds().isEmpty()) Thread.sleep(100);
-
-        api.addEventListener(new Events());
+        api.awaitReady();
 
         api.updateCommands().addCommands(Commands.slash("play", "Add a video / playlist to the queue")
                 .addOption(OptionType.STRING, "url", "Link to the video / playlist", true)

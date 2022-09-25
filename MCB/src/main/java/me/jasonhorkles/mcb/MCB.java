@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings({"BusyWait", "ConstantConditions"})
+@SuppressWarnings({"ConstantConditions"})
 public class MCB {
     public static JDA api;
 
@@ -30,7 +30,6 @@ public class MCB {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
-        builder.disableIntents(GatewayIntent.GUILD_MESSAGE_TYPING);
         builder.disableCache(CacheFlag.ACTIVITY, CacheFlag.VOICE_STATE);
         builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
@@ -38,15 +37,13 @@ public class MCB {
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.watching("you"));
         builder.setEnableShutdownHook(false);
+        builder.addEventListeners(new Events(), new AntiScam());
         api = builder.build();
 
-        // Wait until the api works
-        while (api.getGuildById(603190205393928193L) == null) Thread.sleep(100);
+        api.awaitReady();
 
-        //noinspection ConstantConditions
+        // Cache members
         api.getGuildById(603190205393928193L).loadMembers().get();
-
-        api.addEventListener(new Events(), new AntiScam());
 
         api.getGuildById(603190205393928193L).updateCommands().addCommands(
             Commands.slash("buildrequest", "Create/edit/delete a request for a build/builder").addSubcommandGroups(

@@ -24,7 +24,7 @@ import java.util.Calendar;
 import java.util.Scanner;
 import java.util.concurrent.*;
 
-@SuppressWarnings({"BusyWait", "ConstantConditions"})
+@SuppressWarnings({"ConstantConditions"})
 public class StormAlerts extends ListenerAdapter {
     public static JDA api;
     public static final boolean testing = false;
@@ -38,7 +38,6 @@ public class StormAlerts extends ListenerAdapter {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
-        builder.disableIntents(GatewayIntent.GUILD_MESSAGE_TYPING);
         builder.disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS,
             CacheFlag.VOICE_STATE);
         builder.enableIntents(GatewayIntent.GUILD_MESSAGES);
@@ -46,13 +45,10 @@ public class StormAlerts extends ListenerAdapter {
         builder.setBulkDeleteSplittingEnabled(false);
         builder.setStatus(OnlineStatus.DO_NOT_DISTURB);
         builder.setEnableShutdownHook(false);
+        builder.addEventListeners(new StormAlerts(), new Weather());
         api = builder.build();
 
-        // Wait until the api works
-        while (api.getGuildById(843919716677582888L) == null) Thread.sleep(100);
-
-        api.addEventListener(new StormAlerts());
-        api.addEventListener(new Weather());
+        api.awaitReady();
 
         //noinspection ConstantConditions
         api.getGuildById(843919716677582888L).updateCommands()

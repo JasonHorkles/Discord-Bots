@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import javax.security.auth.login.LoginException;
 import java.util.Scanner;
 
-@SuppressWarnings("BusyWait")
 public class Silverstone {
     public static JDA api;
 
@@ -21,7 +20,6 @@ public class Silverstone {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
-        builder.disableIntents(GatewayIntent.GUILD_MESSAGE_TYPING);
         builder.disableCache(CacheFlag.ACTIVITY);
         builder.enableIntents(GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES,
             GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.MESSAGE_CONTENT);
@@ -31,12 +29,10 @@ public class Silverstone {
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.watching("Dave"));
         builder.setEnableShutdownHook(false);
+        builder.addEventListeners(new AntiScam(), new Events(), new Testing());
         api = builder.build();
 
-        // Wait until the api works
-        while (api.getGuildById(455919765999976461L) == null) Thread.sleep(100);
-
-        api.addEventListener(new AntiScam(), new Events(), new Testing());
+        api.awaitReady();
 
         //noinspection ConstantConditions
         api.getGuildById(455919765999976461L).updateCommands()

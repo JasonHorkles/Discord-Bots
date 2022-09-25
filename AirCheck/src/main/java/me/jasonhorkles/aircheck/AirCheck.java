@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
@@ -14,7 +13,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings({"BusyWait"})
 public class AirCheck {
     public static JDA api;
     public static final boolean testing = false;
@@ -26,7 +24,6 @@ public class AirCheck {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
-        builder.disableIntents(GatewayIntent.GUILD_MESSAGE_TYPING);
         builder.disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS,
             CacheFlag.VOICE_STATE);
         builder.setMemberCachePolicy(MemberCachePolicy.NONE);
@@ -35,8 +32,7 @@ public class AirCheck {
         builder.setEnableShutdownHook(false);
         api = builder.build();
 
-        // Wait until the api works
-        while (api.getGuildById(843919716677582888L) == null) Thread.sleep(100);
+        api.awaitReady();
 
         // Air Quality
         airTimer = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
