@@ -97,7 +97,7 @@ public class Events extends ListenerAdapter {
     }
 
     public void scheduleWarningRemoval(Long id, String name) {
-        Executors.newSingleThreadScheduledExecutor().schedule(() -> takeWarning(id, name), 5, TimeUnit.MINUTES);
+        Executors.newSingleThreadScheduledExecutor().schedule(() -> takeWarning(id, name), 15, TimeUnit.MINUTES);
     }
 
     @SuppressWarnings("ConstantConditions")
