@@ -35,8 +35,7 @@ public class Events extends ListenerAdapter {
         if (event.getAuthor().isBot()) return;
 
         // Give roles
-        if (event.getMessage().getChannel().getIdLong() == 603190904303386635L || event.getMessage().getChannel()
-            .getIdLong() == 603193297879433216L)
+        if (event.getMessage().getChannel().getIdLong() == 1023721665332523098L)
             if (!event.getMessage().getAttachments().isEmpty() || event.getMessage().getContentStripped().toLowerCase()
                 .contains("http")) if (!event.getMember().getRoles().toString().contains("646293661729947658"))
                 event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRoleById(646293661729947658L))
