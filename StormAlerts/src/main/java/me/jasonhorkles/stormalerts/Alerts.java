@@ -59,7 +59,7 @@ public class Alerts {
         else for (Object feature : inputObject.getJSONArray("features"))
             alerts.put(new JSONObject(feature.toString()).getJSONObject("properties"));
 
-        TextChannel alertsChannel = StormAlerts.api.getTextChannelById(850442466775662613L);
+        TextChannel alertsChannel = StormAlerts.jda.getTextChannelById(850442466775662613L);
 
         if (alerts.isEmpty()) {
             alertsChannel.purgeMessages(alertsChannel.getIterableHistory().complete());

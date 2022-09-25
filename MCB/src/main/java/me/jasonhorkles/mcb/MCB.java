@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings({"ConstantConditions"})
 public class MCB {
-    public static JDA api;
+    public static JDA jda;
 
     public static void main(String[] args) throws LoginException, InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
@@ -38,14 +38,14 @@ public class MCB {
         builder.setActivity(Activity.watching("you"));
         builder.setEnableShutdownHook(false);
         builder.addEventListeners(new Events(), new AntiScam());
-        api = builder.build();
+        jda = builder.build();
 
-        api.awaitReady();
+        jda.awaitReady();
 
         // Cache members
-        api.getGuildById(603190205393928193L).loadMembers().get();
+        jda.getGuildById(603190205393928193L).loadMembers().get();
 
-        api.getGuildById(603190205393928193L).updateCommands().addCommands(
+        jda.getGuildById(603190205393928193L).updateCommands().addCommands(
             Commands.slash("buildrequest", "Create/edit/delete a request for a build/builder").addSubcommandGroups(
                 new SubcommandGroupData("create", "Create a request").addSubcommands(
                     new SubcommandData("builders", "Searching for a builder or builders").addOptions(
@@ -91,7 +91,7 @@ public class MCB {
         long initalDelay = duration.getSeconds();
 
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(() -> new Events().deleteMessages(api, 250), initalDelay,
+        scheduler.scheduleAtFixedRate(() -> new Events().deleteMessages(jda, 250), initalDelay,
             TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
 
         // Add shutdown hooks
@@ -111,7 +111,7 @@ public class MCB {
     public void shutdown() {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
         try {
-            api.shutdownNow();
+            jda.shutdownNow();
         } catch (NoClassDefFoundError ignored) {
         }
     }

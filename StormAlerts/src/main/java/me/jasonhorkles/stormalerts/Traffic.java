@@ -16,7 +16,7 @@ public class Traffic {
                         if (input.getBoolean("roadClosure")) {
                             System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + new Secrets().getRoadName(
                                 north) + " Traffic section " + section + "/" + max + " is closed!");
-                            StormAlerts.api.openPrivateChannelById(277291758503723010L).flatMap(
+                            StormAlerts.jda.openPrivateChannelById(277291758503723010L).flatMap(
                                 channel -> channel.sendMessage(
                                     "**" + new Secrets().getRoadName(north) + "** is closed! :no_entry:")).queue();
                             continue;
@@ -30,12 +30,12 @@ public class Traffic {
 
                         int finalSection = section;
                         if (currentSpeed <= 55 && currentSpeed >= 40)
-                            StormAlerts.api.openPrivateChannelById(277291758503723010L).flatMap(
+                            StormAlerts.jda.openPrivateChannelById(277291758503723010L).flatMap(
                                     channel -> channel.sendMessage("**" + new Secrets().getRoadName(
                                         north) + " section " + finalSection + "/" + max + "** has a slowdown @ **" + currentSpeed + " mph**! :yellow_circle:"))
                                 .queue();
 
-                        else if (currentSpeed < 40) StormAlerts.api.openPrivateChannelById(277291758503723010L).flatMap(
+                        else if (currentSpeed < 40) StormAlerts.jda.openPrivateChannelById(277291758503723010L).flatMap(
                                 channel -> channel.sendMessage("**" + new Secrets().getRoadName(
                                     north) + " section " + finalSection + "/" + max + "** has a slowdown @ **" + currentSpeed + " mph**! :red_circle:"))
                             .queue();
@@ -53,7 +53,7 @@ public class Traffic {
                 System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
 
-                StormAlerts.api.openPrivateChannelById(277291758503723010L)
+                StormAlerts.jda.openPrivateChannelById(277291758503723010L)
                     .flatMap(channel -> channel.sendMessage("**Failed to check traffic!** :warning:")).queue();
             }
         }, "Traffic Check");

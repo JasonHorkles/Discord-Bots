@@ -14,7 +14,7 @@ import javax.security.auth.login.LoginException;
 import java.util.Scanner;
 
 public class Silverstone {
-    public static JDA api;
+    public static JDA jda;
 
     public static void main(String[] args) throws LoginException, InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
@@ -30,12 +30,12 @@ public class Silverstone {
         builder.setActivity(Activity.watching("Dave"));
         builder.setEnableShutdownHook(false);
         builder.addEventListeners(new AntiScam(), new Events(), new Testing());
-        api = builder.build();
+        jda = builder.build();
 
-        api.awaitReady();
+        jda.awaitReady();
 
         //noinspection ConstantConditions
-        api.getGuildById(455919765999976461L).updateCommands()
+        jda.getGuildById(455919765999976461L).updateCommands()
             .addCommands(Commands.slash("ecdebug", "EntityClearer debug"),
                 Commands.slash("paste", "Get a link to paste text to")
                     .addOption(OptionType.STRING, "what", "What should be pasted", true),
@@ -65,7 +65,7 @@ public class Silverstone {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
         Time.task.cancel(true);
         try {
-            api.shutdownNow();
+            jda.shutdownNow();
         } catch (NoClassDefFoundError ignored) {
         }
     }

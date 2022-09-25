@@ -39,8 +39,8 @@ public class CheckAQI {
 
         if (pm25 == null) {
             System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't find the PM2.5!");
-            AirCheck.api.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-            AirCheck.api.getPresence().setActivity(Activity.playing("⚠ Error"));
+            AirCheck.jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
+            AirCheck.jda.getPresence().setActivity(Activity.playing("⚠ Error"));
             return;
         }
 
@@ -58,8 +58,8 @@ public class CheckAQI {
             default -> "⚠ Error: " + catNumber;
         };
 
-        AirCheck.api.getPresence().setStatus(OnlineStatus.ONLINE);
-        AirCheck.api.getPresence().setActivity(Activity.playing(airQualityName + " (" + aqi + ")"));
+        AirCheck.jda.getPresence().setStatus(OnlineStatus.ONLINE);
+        AirCheck.jda.getPresence().setActivity(Activity.playing(airQualityName + " (" + aqi + ")"));
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got the air! (" + aqi + ")");
     }

@@ -56,7 +56,7 @@ public class Events extends ListenerAdapter {
 
         boolean isReply = false;
         if (message.getMessageReference() != null)
-            if (message.getMessageReference().getMessage().getAuthor().equals(Phoenella.api.getSelfUser()))
+            if (message.getMessageReference().getMessage().getAuthor().equals(Phoenella.jda.getSelfUser()))
                 isReply = true;
 
         String text = message.getContentRaw().toLowerCase().replaceAll("\\bphoenella\\b", "PHOENELLA")
@@ -512,7 +512,7 @@ public class Events extends ListenerAdapter {
         if (event.getReaction().getEmoji().getName().equals("❌") && event.getChannel().asTextChannel()
             .getParentCategoryIdLong() != 900747596245639238L) {
             Message message = event.retrieveMessage().complete();
-            if (message.getAuthor().equals(Phoenella.api.getSelfUser())) message.delete().queue();
+            if (message.getAuthor().equals(Phoenella.jda.getSelfUser())) message.delete().queue();
             return;
         }
 
@@ -761,7 +761,7 @@ public class Events extends ListenerAdapter {
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         if (event.getComponentId().equals("definitionreport")) {
-            Phoenella.api.openPrivateChannelById(277291758503723010L).flatMap(channel -> channel.sendMessage(
+            Phoenella.jda.openPrivateChannelById(277291758503723010L).flatMap(channel -> channel.sendMessage(
                     ":warning: Definition report from **" + new Utils().getFullName(event.getMember()) + ":**")
                 .setEmbeds(event.getMessage().getEmbeds().get(0))).queue();
 

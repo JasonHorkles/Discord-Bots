@@ -14,7 +14,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class AirCheck {
-    public static JDA api;
+    public static JDA jda;
     public static final boolean testing = false;
 
     private static ScheduledFuture<?> airTimer;
@@ -30,9 +30,9 @@ public class AirCheck {
         builder.setBulkDeleteSplittingEnabled(false);
         builder.setStatus(OnlineStatus.IDLE);
         builder.setEnableShutdownHook(false);
-        api = builder.build();
+        jda = builder.build();
 
-        api.awaitReady();
+        jda.awaitReady();
 
         // Air Quality
         airTimer = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
@@ -42,8 +42,8 @@ public class AirCheck {
             } catch (Exception e) {
                 System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the air quality!");
                 e.printStackTrace();
-                api.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-                api.getPresence().setActivity(Activity.playing("⚠ Error"));
+                jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
+                jda.getPresence().setActivity(Activity.playing("⚠ Error"));
             }
         }, 1, 1800, TimeUnit.SECONDS);
 
@@ -79,7 +79,7 @@ public class AirCheck {
         airTimer.cancel(true);
         pollenTimer.cancel(true);
         try {
-            api.shutdownNow();
+            jda.shutdownNow();
         } catch (NoClassDefFoundError ignored) {
         }
     }

@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class MusicDaddy {
-    public static JDA api;
+    public static JDA jda;
     public static final SpotifyApi spotify = new SpotifyApi.Builder().setClientId(new Secrets().getSpotifyClientId())
         .setClientSecret(new Secrets().getSpotifyClientSecret()).build();
 
@@ -47,7 +47,7 @@ public class MusicDaddy {
         builder.setActivity(Activity.listening("startup sounds"));
         builder.setEnableShutdownHook(false);
         builder.addEventListeners(new Events());
-        api = builder.build();
+        jda = builder.build();
 
         try {
             ClientCredentials cc = ccr.execute();
@@ -57,9 +57,9 @@ public class MusicDaddy {
             e.printStackTrace();
         }
 
-        api.awaitReady();
+        jda.awaitReady();
 
-        api.updateCommands().addCommands(Commands.slash("play", "Add a video / playlist to the queue")
+        jda.updateCommands().addCommands(Commands.slash("play", "Add a video / playlist to the queue")
                 .addOption(OptionType.STRING, "url", "Link to the video / playlist", true)
                 .addOption(OptionType.BOOLEAN, "shuffle", "Whether or not the playlist should be shuffled (if applicable)",
                     false).addOption(OptionType.INTEGER, "maxsongs",
@@ -86,8 +86,8 @@ public class MusicDaddy {
         }, "Console Input");
         input.start();
 
-        api.getPresence().setStatus(OnlineStatus.ONLINE);
-        api.getPresence().setActivity(Activity.listening("dope tunes"));
+        jda.getPresence().setStatus(OnlineStatus.ONLINE);
+        jda.getPresence().setActivity(Activity.listening("dope tunes"));
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }
@@ -121,7 +121,7 @@ public class MusicDaddy {
         try {
             AudioSourceManagers.registerLocalSource(PlayerManager.audioPlayerManager);
             final boolean[] inChannels = {false};
-            for (Guild guild : api.getGuilds()) {
+            for (Guild guild : jda.getGuilds()) {
                 GuildMusicManager musicManager = getMusicManager(guild);
 
                 PlayerManager.audioPlayerManager.loadItemOrdered(musicManager, "MusicDaddy/Shutting Down.mp3",
@@ -159,7 +159,7 @@ public class MusicDaddy {
         }
 
         try {
-            for (Guild guild : api.getGuilds())
+            for (Guild guild : jda.getGuilds())
                 if (guild.getAudioManager().isConnected()) {
                     GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
                     musicManager.scheduler.player.stopTrack();
@@ -168,7 +168,7 @@ public class MusicDaddy {
 
                     guild.getAudioManager().closeAudioConnection();
                 }
-            api.shutdownNow();
+            jda.shutdownNow();
         } catch (NoClassDefFoundError ignored) {
         }
     }

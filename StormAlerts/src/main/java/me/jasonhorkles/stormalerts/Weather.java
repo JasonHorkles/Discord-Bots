@@ -77,9 +77,9 @@ public class Weather extends ListenerAdapter {
         else visibility = "ERROR";
 
         long visibilityChannel = 899872710233051178L;
-        if (!StormAlerts.api.getVoiceChannelById(visibilityChannel).getName()
+        if (!StormAlerts.jda.getVoiceChannelById(visibilityChannel).getName()
             .equals("Visibility | " + visibility + " mi"))
-            StormAlerts.api.getVoiceChannelById(visibilityChannel).getManager()
+            StormAlerts.jda.getVoiceChannelById(visibilityChannel).getManager()
                 .setName("Visibility | " + visibility + " mi").queue();
 
         weatherName = null;
@@ -131,11 +131,11 @@ public class Weather extends ListenerAdapter {
             }
         }
 
-        TextChannel heavyRainChannel = StormAlerts.api.getTextChannelById(843955756596461578L);
-        TextChannel rainChannel = StormAlerts.api.getTextChannelById(900248256515285002L);
-        TextChannel rainConfirmationChannel = StormAlerts.api.getTextChannelById(921113488464695386L);
-        TextChannel snowChannel = StormAlerts.api.getTextChannelById(845010495865618503L);
-        TextChannel hailChannel = StormAlerts.api.getTextChannelById(845010798367473736L);
+        TextChannel heavyRainChannel = StormAlerts.jda.getTextChannelById(843955756596461578L);
+        TextChannel rainChannel = StormAlerts.jda.getTextChannelById(900248256515285002L);
+        TextChannel rainConfirmationChannel = StormAlerts.jda.getTextChannelById(921113488464695386L);
+        TextChannel snowChannel = StormAlerts.jda.getTextChannelById(845010495865618503L);
+        TextChannel hailChannel = StormAlerts.jda.getTextChannelById(845010798367473736L);
 
         boolean idle = false;
 
@@ -158,7 +158,7 @@ public class Weather extends ListenerAdapter {
             if (new Utils().shouldIPing(rainChannel)) ping = "<@&843956362059841596> ";
 
             boolean mightBeSnow = false;
-            OffsetDateTime lastSnow = new Utils().getMessages(StormAlerts.api.getTextChannelById(845010495865618503L),
+            OffsetDateTime lastSnow = new Utils().getMessages(StormAlerts.jda.getTextChannelById(845010495865618503L),
                 1).get(30, TimeUnit.SECONDS).get(0).getTimeCreated();
             if (lastSnow.isAfter(OffsetDateTime.now().minusDays(3))) mightBeSnow = true;
 
@@ -248,11 +248,11 @@ public class Weather extends ListenerAdapter {
         // Nothing exciting
         if (weatherName == null) idle = true;
 
-        if (!idle) StormAlerts.api.getPresence().setStatus(OnlineStatus.ONLINE);
+        if (!idle) StormAlerts.jda.getPresence().setStatus(OnlineStatus.ONLINE);
 
         if (idle) {
-            StormAlerts.api.getPresence().setActivity(Activity.watching("for gnarly weather"));
-            StormAlerts.api.getPresence().setStatus(OnlineStatus.IDLE);
+            StormAlerts.jda.getPresence().setActivity(Activity.watching("for gnarly weather"));
+            StormAlerts.jda.getPresence().setStatus(OnlineStatus.IDLE);
 
             if (previousTypeChannel != null) {
                 Message message = new Utils().getMessages(previousTypeChannel, 1).get(30, TimeUnit.SECONDS).get(0);
@@ -262,10 +262,10 @@ public class Weather extends ListenerAdapter {
                 previousTypeChannel = null;
             }
         } else if (weather.equals("RAIN")) {
-            StormAlerts.api.getPresence().setActivity(Activity.watching("the rain @ " + rainRate + " in/hr"));
+            StormAlerts.jda.getPresence().setActivity(Activity.watching("the rain @ " + rainRate + " in/hr"));
             System.out.println(new Utils().getTime(
                 Utils.LogColor.GREEN) + "Raining @ " + rainRate + "/" + Pws.currentRainRate + " in/hr");
-        } else StormAlerts.api.getPresence().setActivity(Activity.playing("it's " + weatherName));
+        } else StormAlerts.jda.getPresence().setActivity(Activity.playing("it's " + weatherName));
 
         previousWeatherName = weatherName;
 
@@ -296,13 +296,13 @@ public class Weather extends ListenerAdapter {
 
             case "unsurerain" -> {
                 event.deferEdit().queue();
-                TextChannel rainChannel = StormAlerts.api.getTextChannelById(900248256515285002L);
+                TextChannel rainChannel = StormAlerts.jda.getTextChannelById(900248256515285002L);
                 rainChannel.sendMessage(event.getMessage().getContentRaw().replace("<@&843956362059841596> ", "")
                     .replace("!", "! (May be snow melting in the rain gauge)")).queue();
                 event.getMessage().delete().queue();
 
-                StormAlerts.api.getPresence().setStatus(OnlineStatus.ONLINE);
-                StormAlerts.api.getPresence()
+                StormAlerts.jda.getPresence().setStatus(OnlineStatus.ONLINE);
+                StormAlerts.jda.getPresence()
                     .setActivity(Activity.playing("it's possibly " + weatherName + " @ " + rainRate + " in/hr"));
                 previousWeatherName = weatherName;
                 previousTypeChannel = rainChannel;
@@ -317,12 +317,12 @@ public class Weather extends ListenerAdapter {
 
     private void acceptRain(ButtonInteractionEvent event) {
         event.deferEdit().queue();
-        TextChannel rainChannel = StormAlerts.api.getTextChannelById(900248256515285002L);
+        TextChannel rainChannel = StormAlerts.jda.getTextChannelById(900248256515285002L);
         rainChannel.sendMessage(event.getMessage().getContentRaw()).queue();
         event.getMessage().delete().queue();
 
-        StormAlerts.api.getPresence().setStatus(OnlineStatus.ONLINE);
-        StormAlerts.api.getPresence()
+        StormAlerts.jda.getPresence().setStatus(OnlineStatus.ONLINE);
+        StormAlerts.jda.getPresence()
             .setActivity(Activity.playing("it's " + weatherName + " @ " + rainRate + " in/hr"));
         previousWeatherName = weatherName;
         previousTypeChannel = rainChannel;

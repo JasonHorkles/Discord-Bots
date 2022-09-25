@@ -20,7 +20,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeoutException;
 
 public class Quorum {
-    public static JDA api;
+    public static JDA jda;
 
     public static void main(String[] args) throws LoginException, InterruptedException, ParseException, ExecutionException, TimeoutException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
@@ -33,12 +33,12 @@ public class Quorum {
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setEnableShutdownHook(false);
         builder.addEventListeners(new Events());
-        api = builder.build();
+        jda = builder.build();
 
-        api.awaitReady();
+        jda.awaitReady();
 
         //noinspection ConstantConditions
-        api.getGuildById(853775450680590387L).loadMembers().get();
+        jda.getGuildById(853775450680590387L).loadMembers().get();
 
 
         OptionData months = new OptionData(OptionType.STRING, "month", "The month of the activities", true).addChoices(
@@ -50,7 +50,7 @@ public class Quorum {
             new Command.Choice("December", "December"));
 
         //noinspection ConstantConditions
-        api.getGuildById(853775450680590387L).updateCommands()
+        jda.getGuildById(853775450680590387L).updateCommands()
             .addCommands(Commands.slash("suggest", "Create a suggestion"),
 
                 Commands.slash("suggestion-accept", "Accept a suggestion")
@@ -98,7 +98,7 @@ public class Quorum {
         for (ScheduledFuture<?> task : ScheduleAnnouncements.schedules) task.cancel(false);
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
         try {
-            api.shutdownNow();
+            jda.shutdownNow();
         } catch (NoClassDefFoundError ignored) {
         }
     }

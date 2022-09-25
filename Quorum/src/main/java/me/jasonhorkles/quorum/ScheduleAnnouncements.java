@@ -13,7 +13,7 @@ public class ScheduleAnnouncements {
     public static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
 
     public void scheduleAnnouncements() throws ExecutionException, InterruptedException, TimeoutException {
-        for (Message message : new Utils().getMessages(Quorum.api.getTextChannelById(Events.activitiesID), 3)
+        for (Message message : new Utils().getMessages(Quorum.jda.getTextChannelById(Events.activitiesID), 3)
             .get(30, TimeUnit.SECONDS)) {
             // Check if it has embeds
             if (message.getEmbeds().isEmpty()) continue;
@@ -36,7 +36,7 @@ public class ScheduleAnnouncements {
                 long delay = future.getTimeInMillis() - System.currentTimeMillis();
                 if (delay > 0) {
                     schedules.add(Executors.newSingleThreadScheduledExecutor().schedule(
-                        () -> Quorum.api.getTextChannelById(Events.announcementsID).sendMessage(
+                        () -> Quorum.jda.getTextChannelById(Events.announcementsID).sendMessage(
                             "<@&858784990107140118>\nReminder: **" + activity + "** starts " + activities.getName()
                                 .replace(":F", ":R") + "!").queue(), delay, TimeUnit.MILLISECONDS));
 

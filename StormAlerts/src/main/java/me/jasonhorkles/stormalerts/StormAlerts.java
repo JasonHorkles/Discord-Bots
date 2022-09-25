@@ -26,7 +26,7 @@ import java.util.concurrent.*;
 
 @SuppressWarnings({"ConstantConditions"})
 public class StormAlerts extends ListenerAdapter {
-    public static JDA api;
+    public static JDA jda;
     public static final boolean testing = false;
 
     private static ScheduledFuture<?> alertTimer;
@@ -46,12 +46,12 @@ public class StormAlerts extends ListenerAdapter {
         builder.setStatus(OnlineStatus.DO_NOT_DISTURB);
         builder.setEnableShutdownHook(false);
         builder.addEventListeners(new StormAlerts(), new Weather());
-        api = builder.build();
+        jda = builder.build();
 
-        api.awaitReady();
+        jda.awaitReady();
 
         //noinspection ConstantConditions
-        api.getGuildById(843919716677582888L).updateCommands()
+        jda.getGuildById(843919716677582888L).updateCommands()
             .addCommands(Commands.slash("checknow", "Force all checks")).queue();
 
 
@@ -95,8 +95,8 @@ public class StormAlerts extends ListenerAdapter {
                 System.out.println(
                     new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
                 e.printStackTrace();
-                api.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-                api.getPresence().setActivity(Activity.playing("Error checking weather!"));
+                jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
+                jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
             }
         }, 5, 90, TimeUnit.SECONDS);
 
@@ -190,8 +190,8 @@ public class StormAlerts extends ListenerAdapter {
                 new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
             e.printStackTrace();
             error = "Couldn't get the weather conditions!";
-            api.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-            api.getPresence().setActivity(Activity.playing("Error checking weather!"));
+            jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
+            jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
         }
 
         if (isSlash) event.getHook().editOriginal(error).complete();
@@ -218,7 +218,7 @@ public class StormAlerts extends ListenerAdapter {
             Weather.previousTypeChannel = null;
         }
         try {
-            api.shutdownNow();
+            jda.shutdownNow();
         } catch (NoClassDefFoundError ignored) {
         }
     }

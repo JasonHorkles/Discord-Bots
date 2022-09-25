@@ -73,18 +73,18 @@ public class CheckPollen {
         };
 
         long grassPollenChannel = 877269665578115092L;
-        if (!AirCheck.api.getVoiceChannelById(grassPollenChannel).getName().equals("Grass | " + grassIndexName))
-            AirCheck.api.getVoiceChannelById(grassPollenChannel).getManager().setName("Grass | " + grassIndexName)
+        if (!AirCheck.jda.getVoiceChannelById(grassPollenChannel).getName().equals("Grass | " + grassIndexName))
+            AirCheck.jda.getVoiceChannelById(grassPollenChannel).getManager().setName("Grass | " + grassIndexName)
                 .queue();
 
         long ragweedPollenChannel = 877269703180054577L;
-        if (!AirCheck.api.getVoiceChannelById(ragweedPollenChannel).getName().equals("Ragweed | " + ragweedIndexName))
-            AirCheck.api.getVoiceChannelById(ragweedPollenChannel).getManager().setName("Ragweed | " + ragweedIndexName)
+        if (!AirCheck.jda.getVoiceChannelById(ragweedPollenChannel).getName().equals("Ragweed | " + ragweedIndexName))
+            AirCheck.jda.getVoiceChannelById(ragweedPollenChannel).getManager().setName("Ragweed | " + ragweedIndexName)
                 .queue();
 
         long treePollenChannel = 877269444160815104L;
-        if (!AirCheck.api.getVoiceChannelById(treePollenChannel).getName().equals("Tree | " + treeIndexName))
-            AirCheck.api.getVoiceChannelById(treePollenChannel).getManager().setName("Tree | " + treeIndexName).queue();
+        if (!AirCheck.jda.getVoiceChannelById(treePollenChannel).getName().equals("Tree | " + treeIndexName))
+            AirCheck.jda.getVoiceChannelById(treePollenChannel).getManager().setName("Tree | " + treeIndexName).queue();
 
         System.out.println(new Utils().getTime(
             Utils.LogColor.GREEN) + "Got the pollen! (G:" + grassIndex + " W:" + weedIndex + " T:" + treeIndex + ")");

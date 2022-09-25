@@ -32,7 +32,7 @@ import java.util.concurrent.*;
 @SuppressWarnings({"ConstantConditions"})
 public class Phoenella {
     private static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
-    public static JDA api;
+    public static JDA jda;
     public static boolean localWordleBoard = false;
 
     public static void main(String[] args) throws LoginException, InterruptedException, IOException, ExecutionException, TimeoutException, ParseException {
@@ -47,14 +47,14 @@ public class Phoenella {
         builder.setEnableShutdownHook(false);
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.playing("Wordle"));
-        api = builder.build();
+        jda = builder.build();
 
-        api.awaitReady();
+        jda.awaitReady();
 
         // Cache members
-        api.getGuildById(729083627308056597L).loadMembers().get();
+        jda.getGuildById(729083627308056597L).loadMembers().get();
 
-        api.getGuildById(729083627308056597L).updateCommands().addCommands(Commands.slash("wordle", "Wordle!")
+        jda.getGuildById(729083627308056597L).updateCommands().addCommands(Commands.slash("wordle", "Wordle!")
             .addSubcommands(new SubcommandData("play", "Play with a random word"),
                 new SubcommandData("create", "Create a Wordle for others to play"),
                 new SubcommandData("leaderboard", "View the Wordle leaderboard").addOption(OptionType.BOOLEAN, "show",
@@ -62,7 +62,7 @@ public class Phoenella {
                 new SubcommandData("daily", "Play the daily Wordle"))).queue();
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Starting nickname check...");
-        new Utils().runNameCheckForGuild(api.getGuildById(729083627308056597L));
+        new Utils().runNameCheckForGuild(jda.getGuildById(729083627308056597L));
 
         // Scan Wordle leaderboard for nonexistent players
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Starting leaderboard check...");
@@ -103,7 +103,7 @@ public class Phoenella {
             if (!dontDoCheck) {
                 for (String line : lines) {
                     long id = Long.parseLong(line.replaceFirst(":.*", ""));
-                    Member member = api.getGuildById(729083627308056597L).getMemberById(id);
+                    Member member = jda.getGuildById(729083627308056597L).getMemberById(id);
                     if (member == null) {
                         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Removing user with ID " + id);
                         continue;
@@ -155,10 +155,10 @@ public class Phoenella {
         }
 
         // Delete game channels
-        for (TextChannel channel : api.getCategoryById(900747596245639238L).getTextChannels())
+        for (TextChannel channel : jda.getCategoryById(900747596245639238L).getTextChannels())
             channel.delete().queue();
 
-        TextChannel soundboardChannel = api.getTextChannelById(903324139195084820L);
+        TextChannel soundboardChannel = jda.getTextChannelById(903324139195084820L);
         if (new Utils().getMessages(soundboardChannel, 1).get(30, TimeUnit.SECONDS).isEmpty())
             soundboardChannel.sendMessage("**Select a sound!**").setActionRows(
                 ActionRow.of(Button.primary("sound:benny", "Benny Hill"), Button.primary("sound:bfg", "BFG Division"),
@@ -176,7 +176,7 @@ public class Phoenella {
                     Button.secondary("sound:flysave", "What a Save"), Button.secondary("sound:yeet", "Yeet")),
                 ActionRow.of(Button.danger("sound:stop", "Stop Sounds").withEmoji(Emoji.fromUnicode("🛑")))).queue();
 
-        api.addEventListener(new Events(), new Soundboard(), new GameManager(), new RPS(), new Wordle(),
+        jda.addEventListener(new Events(), new Soundboard(), new GameManager(), new RPS(), new Wordle(),
             new AntiScam());
 
         // Add shutdown hooks
@@ -201,12 +201,12 @@ public class Phoenella {
         for (ScheduledFuture<?> task : Utils.schedules) task.cancel(false);
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
         // Close game channels
-        for (TextChannel channel : api.getGuildById(729083627308056597L).getCategoryById(900747596245639238L)
+        for (TextChannel channel : jda.getGuildById(729083627308056597L).getCategoryById(900747596245639238L)
             .getTextChannels())
             channel.sendMessage("Sorry, but I'm now shutting down. This channel will be deleted when I start back up.")
                 .complete();
         try {
-            api.shutdownNow();
+            jda.shutdownNow();
         } catch (NoClassDefFoundError ignored) {
         }
     }

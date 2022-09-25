@@ -38,7 +38,7 @@ public class PlayerManager {
     }
 
     public void loadAndPlay(String file) {
-        final GuildMusicManager musicManager = getMusicManager(Phoenella.api.getGuildById(729083627308056597L));
+        final GuildMusicManager musicManager = getMusicManager(Phoenella.jda.getGuildById(729083627308056597L));
 
         audioPlayerManager.loadItemOrdered(musicManager, file, new AudioLoadResultHandler() {
             @Override

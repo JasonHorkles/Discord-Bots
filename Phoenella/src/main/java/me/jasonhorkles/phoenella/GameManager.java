@@ -14,7 +14,7 @@ import java.util.ArrayList;
 @SuppressWarnings("ConstantConditions")
 public class GameManager extends ListenerAdapter {
     public TextChannel createChannel(Game game, ArrayList<Member> players) {
-        TextChannel channel = Phoenella.api.getCategoryById(900747596245639238L)
+        TextChannel channel = Phoenella.jda.getCategoryById(900747596245639238L)
             .createTextChannel(new Utils().getFirstName(players.get(0)) + "-" + game.toString().toLowerCase())
             .complete();
 

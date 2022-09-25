@@ -522,7 +522,7 @@ public class Wordle extends ListenerAdapter {
         else s = "Word";
 
         //noinspection ConstantConditions
-        Phoenella.api.getTextChannelById(960213547944661042L).sendMessage(
+        Phoenella.jda.getTextChannelById(960213547944661042L).sendMessage(
                 ":inbox_tray: " + s + " request from " + new Utils().getFullName(member) + ": **" + word + "**")
             .setActionRow(Button.primary("defineword:" + word, "Define word").withEmoji(Emoji.fromUnicode("❔")))
             .queue((msg) -> msg.addReaction(Emoji.fromUnicode("✅")).queue((m) -> {

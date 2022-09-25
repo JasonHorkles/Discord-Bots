@@ -19,7 +19,7 @@ public class Time {
             time -= TimeUnit.DAYS.toMillis(months * 30);
             long days = TimeUnit.MILLISECONDS.toDays(time);
 
-            VoiceChannel channel = Silverstone.api.getVoiceChannelById(914918234518593546L);
+            VoiceChannel channel = Silverstone.jda.getVoiceChannelById(914918234518593546L);
             channel.getManager().setName(years + " years " + months + " months " + days + " days").queue();
         }, 0, 6, TimeUnit.HOURS);
     }

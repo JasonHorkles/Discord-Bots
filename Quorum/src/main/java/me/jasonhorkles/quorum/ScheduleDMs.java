@@ -78,27 +78,27 @@ public class ScheduleDMs {
             }
         }
 
-        if (usersLeft == 0) Quorum.api.getTextChannelById(869009573774761984L)
+        if (usersLeft == 0) Quorum.jda.getTextChannelById(869009573774761984L)
             .sendMessage("<@" + firstAssistantId + ">, there are no more lessons scheduled for the quorum").queue();
     }
 
     public void scheduleInitial(String name, String date, String title, String scripture, String link, long delay) {
         schedules.add(Executors.newSingleThreadScheduledExecutor().schedule(() -> {
             try {
-                Quorum.api.getGuildById(853775450680590387L).getMembersByEffectiveName(name, true).get(0).getUser()
+                Quorum.jda.getGuildById(853775450680590387L).getMembersByEffectiveName(name, true).get(0).getUser()
                     .openPrivateChannel().flatMap(channel -> channel.sendMessage(
                             "Hey there! You have a lesson to give in Priest Quorum next Sunday: <t:" + parseDateToUnix(
                                 date) + ">\n\nThe topic for the week is: **" + title + "**\n(" + scripture + ")\n\nIf you won't be able to give the lesson or have any questions, message us over in <#853775451708719125>")
                         .setActionRow(Button.link(link, "Open"))).queue();
 
-                Quorum.api.getTextChannelById(869009573774761984L)
+                Quorum.jda.getTextChannelById(869009573774761984L)
                     .sendMessage("Messaged **" + name + "** to prepare his lesson for next Sunday: " + title).queue();
                 System.out.println(new Utils().getTime(
                     Utils.LogColor.GREEN) + "Messaged " + name + " to prepare his lesson for next Sunday: " + title);
             } catch (NullPointerException e) {
                 System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
-                Quorum.api.getTextChannelById(869009573774761984L).sendMessage(
+                Quorum.jda.getTextChannelById(869009573774761984L).sendMessage(
                         ":warning: **ERROR:** Failed to message **" + name + "** to prepare their lesson for next Sunday! <@" + firstAssistantId + ">")
                     .queue();
             }
@@ -112,19 +112,19 @@ public class ScheduleDMs {
     public void scheduleReminder(String name, String date, long delay) {
         schedules.add(Executors.newSingleThreadScheduledExecutor().schedule(() -> {
             try {
-                Quorum.api.getGuildById(853775450680590387L).getMembersByEffectiveName(name, true).get(0).getUser()
+                Quorum.jda.getGuildById(853775450680590387L).getMembersByEffectiveName(name, true).get(0).getUser()
                     .openPrivateChannel().flatMap(channel -> channel.sendMessage(
                         "Don't forget to prepare your lesson for Priest Quorum this Sunday (<t:" + parseDateToUnix(
                             date) + ">) if you haven't already :arrow_up:")).queue();
 
-                Quorum.api.getTextChannelById(869009573774761984L)
+                Quorum.jda.getTextChannelById(869009573774761984L)
                     .sendMessage("Reminded **" + name + "** to prepare his lesson for this Sunday!").queue();
                 System.out.println(new Utils().getTime(
                     Utils.LogColor.GREEN) + "Reminded " + name + " to prepare his lesson for this Sunday!");
             } catch (NullPointerException e) {
                 System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
-                Quorum.api.getTextChannelById(869009573774761984L).sendMessage(
+                Quorum.jda.getTextChannelById(869009573774761984L).sendMessage(
                         ":warning: **ERROR:** Failed to remind **" + name + "** to prepare their lesson for this Sunday! <@" + firstAssistantId + ">")
                     .queue();
             }
