@@ -75,6 +75,17 @@ public class Events extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
 
+        // Ignore my FAQs thread
+        if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD)
+            if (event.getChannel().getIdLong() == 1024004210511057046L)
+                if (event.getAuthor().getIdLong() != 277291758503723010L) {
+                    System.out.println(
+                        new Utils().getTime(Utils.LogColor.YELLOW) + "Deleting message from " + event.getAuthor()
+                            .getAsTag() + " in FAQs post!");
+                    event.getMessage().delete().queue();
+                    return;
+                }
+
         // Thanks for coming :)
         if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD)
             if (event.getGuildChannel().asThreadChannel().getParentChannel()
