@@ -3,7 +3,10 @@ package me.jasonhorkles.silverstone;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -46,7 +49,6 @@ public class Events extends ListenerAdapter {
                 **EntityClearer:** <https://github.com/SilverstoneMC/EntityClearer>
                 **ExpensiveDeaths:** <https://github.com/SilverstoneMC/ExpensiveDeaths>
                 **FileCleaner:** <https://github.com/SilverstoneMC/FileCleaner>
-                **SimpleBooks:** <https://github.com/SilverstoneMC/SimpleBooks>
                 """).setEphemeral(ephemeral).queue();
 
             case "plugins" ->
@@ -74,28 +76,30 @@ public class Events extends ListenerAdapter {
         if (event.getAuthor().isBot()) return;
 
         // Thanks for coming :)
-        if (event.getChannel().getIdLong() == 872977864029511791L && event.getAuthor()
-            .getIdLong() == 277291758503723010L && event.getMessage().getContentStripped().toLowerCase()
-            .startsWith("np")) {
+        if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD)
+            if (event.getGuildChannel().asThreadChannel().getParentChannel()
+                .getIdLong() == 1023735878075564042L && event.getAuthor()
+                .getIdLong() == 277291758503723010L && event.getMessage().getContentStripped().toLowerCase()
+                .startsWith("np")) {
 
-            EmbedBuilder embed = new EmbedBuilder();
+                EmbedBuilder embed = new EmbedBuilder();
 
-            embed.setTitle(
-                "Thank you for coming. If you enjoy the plugin and are happy with the support you received, please consider leaving a review on Spigot \\:)");
-            embed.setDescription(
-                "[EntityClearer](https://www.spigotmc.org/resources/entityclearer.90802/)\n[ExpensiveDeaths](https://www.spigotmc.org/resources/expensivedeaths.96065/)\n[FileCleaner](https://www.spigotmc.org/resources/filecleaner.93372/)\n[SimpleBooks](https://www.spigotmc.org/resources/simplebooks.95698/)");
-            embed.setColor(new Color(19, 196, 88));
+                embed.setTitle(
+                    "Thank you for coming. If you enjoy the plugin and are happy with the support you received, please consider leaving a review on Spigot \\:)");
+                embed.setDescription(
+                    "[EntityClearer](https://www.spigotmc.org/resources/entityclearer.90802/)\n[ExpensiveDeaths](https://www.spigotmc.org/resources/expensivedeaths.96065/)\n[FileCleaner](https://www.spigotmc.org/resources/filecleaner.93372/)");
+                embed.setColor(new Color(19, 196, 88));
 
-            event.getChannel().sendMessageEmbeds(embed.build()).queue();
-        }
+                event.getChannel().sendMessageEmbeds(embed.build()).queue();
+            }
 
         // Direct to plugin support
-        if (event.getChannel().getIdLong() != 872977864029511791L && !event.getMember().getRoles().toString()
+        if (event.getChannel().getIdLong() != 1023735878075564042L && !event.getMember().getRoles().toString()
             .contains("667793980318154783")) {
             String message = event.getMessage().getContentStripped().toLowerCase().replace(" ", "");
             if (message.contains("entityclearer") || message.contains("expensivedeaths") || message.contains(
-                "filecleaner") || message.contains("simplebooks"))
-                event.getMessage().reply("Please go to <#872977864029511791> if you need help with Jason's plugins.")
+                "filecleaner"))
+                event.getMessage().reply("Please go to <#1023735878075564042> if you need help with Jason's plugins.")
                     .mentionRepliedUser(true).queue();
         }
     }
@@ -108,12 +112,18 @@ public class Events extends ListenerAdapter {
         OffsetDateTime thirtyMinsAgo = OffsetDateTime.now().minus(30, ChronoUnit.MINUTES);
         OffsetDateTime threeDaysAgo = OffsetDateTime.now().minus(3, ChronoUnit.DAYS);
 
-        for (TextChannel channels : event.getGuild().getTextChannels()) {
-            if (!event.getGuild().getRoleById(847954304333512714L).hasPermission(channels, Permission.MESSAGE_SEND))
-                continue;
-            if (channels.getName().toLowerCase().contains("count")) continue;
+        for (ThreadChannel channels : event.getGuild().getChannelById(ForumChannel.class, 1023735878075564042L)
+            .getThreadChannels()) {
+            if (channels.isArchived()) continue;
 
-            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking #" + channels.getName());
+            System.out.println(
+                new Utils().getTime(Utils.LogColor.YELLOW) + "Checking post '" + channels.getName() + "'");
+
+            if (channels.getOwnerIdLong() == event.getUser().getIdLong()) {
+                sendOPLeaveMessage(channels, event.getUser());
+                continue;
+            }
+
             boolean fromUser = false;
             try {
                 // Check the past 15 messages within 30 minutes
@@ -139,16 +149,29 @@ public class Events extends ListenerAdapter {
             }
 
             // If the user that left sent the latest or a recent message, say so
-            if (fromUser) {
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setTitle("Recent chatter " + event.getUser().getAsTag() + " has left the server");
-                embed.setDescription(event.getUser().getAsMention());
-                embed.setThumbnail(event.getUser().getAvatarUrl());
-                embed.setColor(new Color(255, 200, 0));
-
-                channels.sendMessageEmbeds(embed.build()).queue();
-                break;
-            }
+            if (fromUser) sendRecentLeaveMessage(channels, event.getUser());
         }
+    }
+
+    private void sendRecentLeaveMessage(ThreadChannel channel, User user) {
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setTitle("Recent chatter " + user.getAsTag() + " has left the server");
+        embed.setDescription(user.getAsMention());
+        embed.setThumbnail(user.getAvatarUrl());
+        embed.setColor(new Color(255, 200, 0));
+
+        channel.sendMessageEmbeds(embed.build()).queue();
+    }
+
+    private void sendOPLeaveMessage(ThreadChannel channel, User user) {
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setTitle("Original poster " + user.getAsTag() + " has left the server");
+        embed.setDescription(user.getAsMention());
+        embed.setFooter("This post will now be closed and locked");
+        embed.setThumbnail(user.getAvatarUrl());
+        embed.setColor(new Color(255, 100, 0));
+
+        channel.sendMessageEmbeds(embed.build())
+            .queue((na) -> channel.getManager().setLocked(true).queueAfter(2, TimeUnit.SECONDS));
     }
 }
