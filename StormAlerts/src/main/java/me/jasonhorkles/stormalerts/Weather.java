@@ -122,12 +122,13 @@ public class Weather extends ListenerAdapter {
 
         String trimmedWeatherName = null;
         String doubleTrimmedWeatherName = null;
+        boolean dontSendAlerts = false;
         if (weatherName != null) {
             trimmedWeatherName = weatherName.substring(0, weatherName.length() - 2).trim();
             doubleTrimmedWeatherName = trimmedWeatherName.substring(0, trimmedWeatherName.length() - 1).trim();
             if (weatherName.equals(previousWeatherName)) {
                 System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Weather hasn't changed!");
-                return;
+                dontSendAlerts = true;
             }
         }
 
@@ -142,17 +143,22 @@ public class Weather extends ListenerAdapter {
         // Send messages and change status if a certain weather type
         String ping = "";
         if (weatherName != null) if (weatherName.startsWith("hailing")) {
-            if (new Utils().shouldIPing(hailChannel)) ping = "<@&845055784156397608> ";
-            // 🧊
-            hailChannel.sendMessage(ping + "\uD83E\uDDCA It's " + trimmedWeatherName + "! (" + weather + ")").queue();
-            previousTypeChannel = hailChannel;
+            if (!dontSendAlerts) {
+                if (new Utils().shouldIPing(hailChannel)) ping = "<@&845055784156397608> ";
+                // 🧊
+                hailChannel.sendMessage(ping + "\uD83E\uDDCA It's " + trimmedWeatherName + "! (" + weather + ")")
+                    .queue();
+                previousTypeChannel = hailChannel;
+            }
 
         } else if (weatherName.startsWith("snowing")) {
-            if (new Utils().shouldIPing(snowChannel)) ping = "<@&845055624165064734> ";
-            // 🌨️
-            snowChannel.sendMessage(ping + "\uD83C\uDF28️ It's " + doubleTrimmedWeatherName + "! (" + weather + ")")
-                .queue();
-            previousTypeChannel = snowChannel;
+            if (!dontSendAlerts) {
+                if (new Utils().shouldIPing(snowChannel)) ping = "<@&845055624165064734> ";
+                // 🌨️
+                snowChannel.sendMessage(ping + "\uD83C\uDF28️ It's " + doubleTrimmedWeatherName + "! (" + weather + ")")
+                    .queue();
+                previousTypeChannel = snowChannel;
+            }
 
         } else if (weather.equals("RAIN")) {
             if (new Utils().shouldIPing(rainChannel)) ping = "<@&843956362059841596> ";
@@ -173,22 +179,24 @@ public class Weather extends ListenerAdapter {
 
             switch (rainIntensity) {
                 case 4 -> {
-                    String heavyPing = "";
-                    if (new Utils().shouldIPing(heavyRainChannel)) heavyPing = "<@&843956325690900503> ";
-                    // 🌧️
-                    heavyRainChannel.sendMessage(
-                            heavyPing + "\uD83C\uDF27️ It's " + doubleTrimmedWeatherName + "! (" + rainRate + " in/hr)")
-                        .queue();
+                    if (!dontSendAlerts) {
+                        String heavyPing = "";
+                        if (new Utils().shouldIPing(heavyRainChannel)) heavyPing = "<@&843956325690900503> ";
+                        // 🌧️
+                        heavyRainChannel.sendMessage(
+                                heavyPing + "\uD83C\uDF27️ It's " + doubleTrimmedWeatherName + "! (" + rainRate + " in/hr)")
+                            .queue();
 
-                    rainChannel.sendMessage(
-                            ping + "\uD83C\uDF27️ It's " + doubleTrimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
-                        .queue();
+                        rainChannel.sendMessage(
+                                ping + "\uD83C\uDF27️ It's " + doubleTrimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
+                            .queue();
+                    }
                 }
 
                 case 3 -> {
                     if (!acceptRainForDay) if (mightBeSnow && !isNight) {
                         // 🌦️
-                        rainConfirmationChannel.sendMessage(
+                        if (!dontSendAlerts) rainConfirmationChannel.sendMessage(
                                 ping + "\uD83C\uDF26️ It's " + doubleTrimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
                             .setActionRow(Button.success("acceptrain", "Accept").withEmoji(Emoji.fromUnicode("✅")),
                                 Button.primary("acceptrainforday", "Accept future rain for the day")
@@ -199,14 +207,14 @@ public class Weather extends ListenerAdapter {
                                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
                         idle = true;
 
-                    } else rainChannel.sendMessage(
+                    } else if (!dontSendAlerts) rainChannel.sendMessage(
                             ping + "\uD83C\uDF26️ It's " + doubleTrimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
                         .queue();
                 }
 
                 case 2 -> {
                     if (!acceptRainForDay) if (mightBeSnow && !isNight) {
-                        rainConfirmationChannel.sendMessage(
+                        if (!dontSendAlerts) rainConfirmationChannel.sendMessage(
                                 ping + "☔ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
                             .setActionRow(Button.success("acceptrain", "Accept").withEmoji(Emoji.fromUnicode("✅")),
                                 Button.primary("acceptrainforday", "Accept future rain for the day")
@@ -217,14 +225,14 @@ public class Weather extends ListenerAdapter {
                                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
                         idle = true;
 
-                    } else rainChannel.sendMessage(
+                    } else if (!dontSendAlerts) rainChannel.sendMessage(
                             ping + "☔ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
                         .queue();
                 }
 
                 case 1 -> {
                     if (!acceptRainForDay) if (mightBeSnow && !isNight) {
-                        rainConfirmationChannel.sendMessage(
+                        if (!dontSendAlerts) rainConfirmationChannel.sendMessage(
                                 ping + "☂️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
                             .setActionRow(Button.success("acceptrain", "Accept").withEmoji(Emoji.fromUnicode("✅")),
                                 Button.primary("acceptrainforday", "Accept future rain for the day")
@@ -235,7 +243,7 @@ public class Weather extends ListenerAdapter {
                                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
                         idle = true;
 
-                    } else rainChannel.sendMessage(
+                    } else if (!dontSendAlerts) rainChannel.sendMessage(
                             ping + "☂️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
                         .queue();
                 }
@@ -323,7 +331,7 @@ public class Weather extends ListenerAdapter {
 
         StormAlerts.jda.getPresence().setStatus(OnlineStatus.ONLINE);
         StormAlerts.jda.getPresence()
-            .setActivity(Activity.playing("it's " + weatherName + " @ " + rainRate + " in/hr"));
+            .setActivity(Activity.watching("the rain @ " + rainRate + " in/hr"));
         previousWeatherName = weatherName;
         previousTypeChannel = rainChannel;
     }
