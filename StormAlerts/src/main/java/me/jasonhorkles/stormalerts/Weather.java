@@ -272,7 +272,7 @@ public class Weather extends ListenerAdapter {
         } else if (weather.equals("RAIN")) {
             StormAlerts.jda.getPresence().setActivity(Activity.watching("the rain @ " + rainRate + " in/hr"));
             System.out.println(new Utils().getTime(
-                Utils.LogColor.GREEN) + "Raining @ " + rainRate + "/" + Pws.currentRainRate + " in/hr");
+                Utils.LogColor.GREEN) + "Raining @ " + rainRate + " in/hr");
         } else StormAlerts.jda.getPresence().setActivity(Activity.playing("it's " + weatherName));
 
         previousWeatherName = weatherName;

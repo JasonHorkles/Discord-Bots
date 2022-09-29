@@ -47,23 +47,11 @@ public class Pws {
 
         temperature = new Utils().checkIfNull(new Utils().getJsonKey(input, "tempf", true));
 
-        Double rainRate;
         try {
-            rainRate = Double.parseDouble(new Utils().getJsonKey(input, "hourlyrainin", true));
+            currentRainRate = Double.parseDouble(new Utils().getJsonKey(input, "hourlyrainin", true));
         } catch (NumberFormatException ignored) {
-            rainRate = null;
+            currentRainRate = -1;
         }
-        long rainRateChannel = 879098584421789706L;
-
-        if (rainRate != null) {
-            currentRainRate = rainRate;
-            if (!rateLimited) if (!StormAlerts.jda.getVoiceChannelById(rainRateChannel).getName()
-                .equals("Rate | " + rainRate + " in/hr"))
-                StormAlerts.jda.getVoiceChannelById(rainRateChannel).getManager()
-                    .setName("Rate | " + rainRate + " in/hr").queue();
-        } else if (!rateLimited)
-            if (!StormAlerts.jda.getVoiceChannelById(rainRateChannel).getName().equals("Rate | ERROR in/hr"))
-                StormAlerts.jda.getVoiceChannelById(rainRateChannel).getManager().setName("Rate | ERROR in/hr").queue();
 
         if (!rateLimited) {
             String humidity = new Utils().checkIfNull(new Utils().getJsonKey(input, "humidity", true));
