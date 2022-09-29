@@ -1,26 +1,37 @@
 package me.jasonhorkles.mcb;
 
-import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 
-import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Events extends ListenerAdapter {
     private final Map<Long, Integer> warnings = new HashMap<>();
 
+    // Forums
+    private static final Long showBuilds = 1023721665332523098L;
+    private static final Long buildAdvice = 1023721017144786945L;
+    private static final Long buildRequests = 1023709419017617438L;
+    private static final Long[] forums = new Long[]{showBuilds, buildAdvice, buildRequests};
+
+    // Channels
     private static final Long letsPlay = 688770749191815323L;
     private static final Long hire = 625728304410001410L;
     private static final Long showServer = 603881733322047508L;
@@ -28,6 +39,7 @@ public class Events extends ListenerAdapter {
     private static final Long shopping = 615208624855449613L;
     //    private static final Long logs = 603585853444456449L;
     private static final Long[] channels = new Long[]{letsPlay, hire, showServer, youtube, shopping};
+
 
     @SuppressWarnings("ConstantConditions")
     @Override
@@ -99,39 +111,6 @@ public class Events extends ListenerAdapter {
         Executors.newSingleThreadScheduledExecutor().schedule(() -> takeWarning(id, name), 15, TimeUnit.MINUTES);
     }
 
-    @SuppressWarnings("ConstantConditions")
-    public void deleteMessages(JDA jda, int x) {
-        int count = 0;
-
-        try {
-            for (Long id : channels) {
-                System.out.println(
-                    new Utils().getTime(Utils.LogColor.YELLOW) + "Deleting messages in #" + jda.getTextChannelById(id)
-                        .getName() + "...");
-
-                for (Message message : new Utils().getMessages(jda.getTextChannelById(id), x)
-                    .get(45, TimeUnit.SECONDS)) {
-                    Member member = jda.getGuildById(603190205393928193L)
-                        .getMemberById(message.getAuthor().getIdLong());
-
-                    if (message.getTimeCreated().isBefore(OffsetDateTime.now().minus(2, ChronoUnit.WEEKS))) continue;
-
-                    if (member == null) {
-                        if (count % 45 == 0) Thread.sleep(5000);
-
-                        message.delete().queue();
-                        count++;
-                    }
-                }
-            }
-
-            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Deleted " + count + " messages.\n");
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            System.out.print(new Utils().getTime(Utils.LogColor.RED));
-            e.printStackTrace();
-        }
-    }
-
     private void takeWarning(Long id, String name) {
         if (warnings.get(id) <= 1) {
             warnings.remove(id);
@@ -141,6 +120,63 @@ public class Events extends ListenerAdapter {
             warnings.put(id, warnings.get(id) - 1);
             System.out.println(new Utils().getTime(
                 Utils.LogColor.GREEN) + "Removed ping spam warning from " + name + " - " + warnings.get(id) + "/3");
+        }
+    }
+
+    // When recent chatter leaves
+    @Override
+    public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
+        System.out.println("\n" + new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser().getName() + " left!");
+
+        for (Long channelId : forums)
+            //noinspection ConstantConditions
+            for (ThreadChannel thread : event.getJDA().getChannelById(ForumChannel.class, channelId)
+                .getThreadChannels()) {
+                if (thread.isArchived()) continue;
+
+                System.out.println(
+                    new Utils().getTime(Utils.LogColor.YELLOW) + "Checking post '" + thread.getName() + "'");
+
+                if (thread.getOwnerIdLong() == event.getUser().getIdLong()) {
+                    EmbedBuilder embed = new EmbedBuilder();
+                    embed.setTitle("Original poster " + event.getUser().getAsTag() + " has left the server");
+                    embed.setDescription(event.getUser().getAsMention());
+                    embed.setFooter("This post will now be closed and locked");
+                    embed.setThumbnail(event.getUser().getAvatarUrl());
+                    embed.setColor(new Color(255, 100, 0));
+
+                    thread.sendMessageEmbeds(embed.build()).queue(
+                        (na) -> thread.getManager().setArchived(true).setLocked(true).queueAfter(1, TimeUnit.SECONDS));
+                }
+
+                deleteMessages(event.getUser());
+            }
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    public void deleteMessages(User author) {
+        AtomicInteger count = new AtomicInteger();
+
+        try {
+            for (Long channelId : channels)
+                for (Message message : new Utils().getMessages(MCB.jda.getTextChannelById(channelId), 25)
+                    .get(45, TimeUnit.SECONDS)) {
+                    if (message.getAuthor().getIdLong() != author.getIdLong()) continue;
+
+                    message.delete().queue((na) -> {
+                        System.out.println(new Utils().getTime(
+                            Utils.LogColor.YELLOW) + "Deleted message from " + author.getAsTag() + " in #" + MCB.jda.getTextChannelById(
+                            channelId).getName() + ".");
+
+                        count.getAndIncrement();
+                    });
+                }
+
+            System.out.println(new Utils().getTime(
+                Utils.LogColor.GREEN) + "Successfully deleted " + count + " messages from " + author.getAsTag() + ".\n");
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            e.printStackTrace();
         }
     }
 }

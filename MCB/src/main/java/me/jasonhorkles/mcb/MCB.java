@@ -8,12 +8,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
-import java.time.Duration;
-import java.time.ZonedDateTime;
 import java.util.Scanner;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings({"ConstantConditions"})
 public class MCB {
@@ -37,17 +32,6 @@ public class MCB {
 
         // Cache members
         jda.getGuildById(603190205393928193L).loadMembers().get();
-
-        ZonedDateTime now = ZonedDateTime.now();
-        ZonedDateTime nextRun = now.withHour(0).withMinute(0).withSecond(0);
-        if (now.compareTo(nextRun) > 0) nextRun = nextRun.plusDays(1);
-
-        Duration duration = Duration.between(now, nextRun);
-        long initalDelay = duration.getSeconds();
-
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(() -> new Events().deleteMessages(jda, 250), initalDelay,
-            TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new MCB().shutdown(), "Shutdown Hook"));
