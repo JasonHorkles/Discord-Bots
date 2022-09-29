@@ -47,7 +47,7 @@ public class Events extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
 
-        // Give roles
+        // Give starter builder role
         if (event.getMessage().getChannel().getIdLong() == 1023721665332523098L)
             if (!event.getMessage().getAttachments().isEmpty() || event.getMessage().getContentStripped().toLowerCase()
                 .contains("http")) if (!event.getMember().getRoles().toString().contains("646293661729947658"))
