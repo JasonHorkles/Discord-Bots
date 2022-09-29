@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -128,6 +129,8 @@ public class Events extends ListenerAdapter {
     public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
         System.out.println("\n" + new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser().getName() + " left!");
 
+        AtomicInteger count = new AtomicInteger();
+
         for (Long channelId : forums)
             //noinspection ConstantConditions
             for (ThreadChannel thread : event.getJDA().getChannelById(ForumChannel.class, channelId)
@@ -145,38 +148,42 @@ public class Events extends ListenerAdapter {
                     embed.setThumbnail(event.getUser().getAvatarUrl());
                     embed.setColor(new Color(255, 100, 0));
 
-                    thread.sendMessageEmbeds(embed.build()).queue(
-                        (na) -> thread.getManager().setArchived(true).setLocked(true).queueAfter(1, TimeUnit.SECONDS));
+                    thread.sendMessageEmbeds(embed.build()).queue((na) -> {
+                        thread.getManager().setArchived(true).setLocked(true).queueAfter(1, TimeUnit.SECONDS);
+                        count.getAndIncrement();
+                    });
                 }
 
-                deleteMessages(event.getUser());
             }
+
+        System.out.println(
+            new Utils().getTime(Utils.LogColor.GREEN) + "Successfully closed and locked " + count + " posts!\n");
+
+        deleteMessages(event.getUser());
     }
 
     @SuppressWarnings("ConstantConditions")
     public void deleteMessages(User author) {
         AtomicInteger count = new AtomicInteger();
 
-        try {
-            for (Long channelId : channels)
-                for (Message message : new Utils().getMessages(MCB.jda.getTextChannelById(channelId), 25)
-                    .get(45, TimeUnit.SECONDS)) {
+        for (Long channelId : channels) {
+            TextChannel channel = MCB.jda.getTextChannelById(channelId);
+            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking #" + channel.getName() + "...");
+
+            try {
+                for (Message message : new Utils().getMessages(channel, 25).get(45, TimeUnit.SECONDS)) {
                     if (message.getAuthor().getIdLong() != author.getIdLong()) continue;
 
-                    message.delete().queue((na) -> {
-                        System.out.println(new Utils().getTime(
-                            Utils.LogColor.YELLOW) + "Deleted message from " + author.getAsTag() + " in #" + MCB.jda.getTextChannelById(
-                            channelId).getName() + ".");
-
-                        count.getAndIncrement();
-                    });
+                    message.delete().queue((na) -> count.getAndIncrement());
                 }
 
-            System.out.println(new Utils().getTime(
-                Utils.LogColor.GREEN) + "Successfully deleted " + count + " messages from " + author.getAsTag() + ".\n");
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            System.out.print(new Utils().getTime(Utils.LogColor.RED));
-            e.printStackTrace();
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                e.printStackTrace();
+            }
         }
+
+        System.out.println(new Utils().getTime(
+            Utils.LogColor.GREEN) + "Successfully deleted " + count + " messages from " + author.getAsTag() + "!\n");
     }
 }
