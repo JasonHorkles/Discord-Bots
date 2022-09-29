@@ -148,16 +148,14 @@ public class Events extends ListenerAdapter {
                     embed.setThumbnail(event.getUser().getAvatarUrl());
                     embed.setColor(new Color(255, 100, 0));
 
-                    thread.sendMessageEmbeds(embed.build()).queue((na) -> {
-                        thread.getManager().setArchived(true).setLocked(true).queueAfter(1, TimeUnit.SECONDS);
-                        count.getAndIncrement();
-                    });
+                    thread.sendMessageEmbeds(embed.build()).queue(
+                        (na) -> thread.getManager().setArchived(true).setLocked(true).queueAfter(1, TimeUnit.SECONDS));
+                    count.getAndIncrement();
                 }
 
             }
 
-        System.out.println(
-            new Utils().getTime(Utils.LogColor.GREEN) + "Successfully closed and locked " + count + " posts!\n");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Closed and locked " + count + " posts!");
 
         deleteMessages(event.getUser());
     }
@@ -174,7 +172,8 @@ public class Events extends ListenerAdapter {
                 for (Message message : new Utils().getMessages(channel, 25).get(45, TimeUnit.SECONDS)) {
                     if (message.getAuthor().getIdLong() != author.getIdLong()) continue;
 
-                    message.delete().queue((na) -> count.getAndIncrement());
+                    message.delete().queue();
+                    count.getAndIncrement();
                 }
 
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -184,6 +183,6 @@ public class Events extends ListenerAdapter {
         }
 
         System.out.println(new Utils().getTime(
-            Utils.LogColor.GREEN) + "Successfully deleted " + count + " messages from " + author.getAsTag() + "!\n");
+            Utils.LogColor.GREEN) + "Deleted " + count + " messages from " + author.getAsTag() + "!\n");
     }
 }
