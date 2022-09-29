@@ -123,22 +123,22 @@ public class Events extends ListenerAdapter {
         OffsetDateTime thirtyMinsAgo = OffsetDateTime.now().minus(30, ChronoUnit.MINUTES);
         OffsetDateTime threeDaysAgo = OffsetDateTime.now().minus(3, ChronoUnit.DAYS);
 
-        for (ThreadChannel threads : event.getGuild().getChannelById(ForumChannel.class, 1023735878075564042L)
+        for (ThreadChannel thread : event.getGuild().getChannelById(ForumChannel.class, 1023735878075564042L)
             .getThreadChannels()) {
-            if (threads.isArchived()) continue;
+            if (thread.isArchived()) continue;
 
             System.out.println(
-                new Utils().getTime(Utils.LogColor.YELLOW) + "Checking post '" + threads.getName() + "'");
+                new Utils().getTime(Utils.LogColor.YELLOW) + "Checking post '" + thread.getName() + "'");
 
-            if (threads.getOwnerIdLong() == event.getUser().getIdLong()) {
-                sendOPLeaveMessage(threads, event.getUser());
+            if (thread.getOwnerIdLong() == event.getUser().getIdLong()) {
+                sendOPLeaveMessage(thread, event.getUser());
                 continue;
             }
 
             boolean fromUser = false;
             try {
                 // Check the past 15 messages within 30 minutes
-                for (Message messages : new Utils().getMessages(threads, 15).get(30, TimeUnit.SECONDS))
+                for (Message messages : new Utils().getMessages(thread, 15).get(30, TimeUnit.SECONDS))
                     if (messages.getTimeCreated().isAfter(thirtyMinsAgo) && messages.getAuthor()
                         .getIdLong() == event.getUser().getIdLong()) {
                         fromUser = true;
@@ -151,7 +151,7 @@ public class Events extends ListenerAdapter {
 
             // If message isn't from the past 30 minutes, see if it's at least the latest message within 3 days
             if (!fromUser) try {
-                Message message = new Utils().getMessages(threads, 1).get(30, TimeUnit.SECONDS).get(0);
+                Message message = new Utils().getMessages(thread, 1).get(30, TimeUnit.SECONDS).get(0);
                 if (message.getTimeCreated().isAfter(threeDaysAgo) && message.getAuthor().getIdLong() == event.getUser()
                     .getIdLong()) fromUser = true;
             } catch (ExecutionException | InterruptedException | TimeoutException e) {
@@ -160,7 +160,7 @@ public class Events extends ListenerAdapter {
             }
 
             // If the user that left sent the latest or a recent message, say so
-            if (fromUser) sendRecentLeaveMessage(threads, event.getUser());
+            if (fromUser) sendRecentLeaveMessage(thread, event.getUser());
         }
     }
 
