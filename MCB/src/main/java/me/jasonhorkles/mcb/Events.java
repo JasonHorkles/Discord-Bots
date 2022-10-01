@@ -129,7 +129,7 @@ public class Events extends ListenerAdapter {
     public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
         System.out.println("\n" + new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser().getName() + " left!");
 
-        AtomicInteger count = new AtomicInteger();
+        int count = 0;
 
         for (Long channelId : forums)
             //noinspection ConstantConditions
@@ -150,7 +150,7 @@ public class Events extends ListenerAdapter {
 
                     thread.sendMessageEmbeds(embed.build()).queue(
                         (na) -> thread.getManager().setArchived(true).setLocked(true).queueAfter(1, TimeUnit.SECONDS));
-                    count.getAndIncrement();
+                    count++;
                 }
 
             }
