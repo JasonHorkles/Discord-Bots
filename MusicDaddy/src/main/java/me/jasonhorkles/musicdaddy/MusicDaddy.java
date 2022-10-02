@@ -1,10 +1,6 @@
 package me.jasonhorkles.musicdaddy;
 
-import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
-import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
-import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import me.jasonhorkles.musicdaddy.lavaplayer.GuildMusicManager;
 import me.jasonhorkles.musicdaddy.lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.JDA;
@@ -94,14 +90,6 @@ public class MusicDaddy {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }
 
-    private GuildMusicManager getMusicManager(Guild guild) {
-        return PlayerManager.musicManagers.computeIfAbsent(guild.getIdLong(), (guildId) -> {
-            GuildMusicManager guildMusicManager = new GuildMusicManager(PlayerManager.audioPlayerManager);
-            guild.getAudioManager().setSendingHandler(guildMusicManager.getSendHandler());
-            return guildMusicManager;
-        });
-    }
-
     public void leaveChannel(Guild guild) {
         GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
         musicManager.scheduler.player.stopTrack();
@@ -122,41 +110,14 @@ public class MusicDaddy {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
         try {
             AudioSourceManagers.registerLocalSource(PlayerManager.audioPlayerManager);
-            final boolean[] inChannels = {false};
-            for (Guild guild : jda.getGuilds()) {
-                GuildMusicManager musicManager = getMusicManager(guild);
 
-                PlayerManager.audioPlayerManager.loadItemOrdered(musicManager, "MusicDaddy/Shutting Down.mp3",
-                    new AudioLoadResultHandler() {
-                        @Override
-                        public void trackLoaded(AudioTrack track) {
-                            if (!guild.getAudioManager().isConnected()) return;
-                            inChannels[0] = true;
-
-                            musicManager.scheduler.queue.clear();
-                            musicManager.scheduler.queue(track);
-                            if (musicManager.scheduler.player.getPlayingTrack() != null)
-                                musicManager.scheduler.nextTrack();
-                        }
-
-                        @Override
-                        public void playlistLoaded(AudioPlaylist playlist) {
-                            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Playlist");
-                        }
-
-                        @Override
-                        public void noMatches() {
-                            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "No file matches");
-                        }
-
-                        @Override
-                        public void loadFailed(FriendlyException e) {
-                            System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                            e.printStackTrace();
-                        }
-                    });
+            for (Guild guild : Events.currentVoiceChannel.keySet()) {
+                if (!guild.getAudioManager().isConnected()) continue;
+                new Utils().playFile(guild, "MusicDaddy/Shutting Down.mp3");
             }
-            if (inChannels[0]) Thread.sleep(3000);
+
+            if (!Events.currentVoiceChannel.isEmpty()) Thread.sleep(3000);
+
         } catch (InterruptedException | NoClassDefFoundError ignored) {
         }
 

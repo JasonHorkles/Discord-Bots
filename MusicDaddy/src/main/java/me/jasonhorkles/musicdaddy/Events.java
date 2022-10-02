@@ -24,8 +24,6 @@ import se.michaelthelin.spotify.model_objects.specification.TrackSimplified;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("ConstantConditions")
 public class Events extends ListenerAdapter {
@@ -259,7 +257,12 @@ public class Events extends ListenerAdapter {
                     return;
                 }
 
-                PlayerManager.getInstance().loadAndPlay(event, "https://www.youtube.com/watch?v=3_-a9nVZYjk", false);
+                String file = "MusicDaddy/Shutting Down.mp3";
+                Random r = new Random();
+                if (r.nextInt(1, 21) == 20) file = "MusicDaddy/Shutting Down 2.mp3";
+                else if (r.nextInt(1, 101) == 100) file = "MusicDaddy/Shutting Down 3.mp3";
+
+                new Utils().playFile(event.getGuild(), file);
                 currentVoiceChannel.put(event.getGuild(), voiceChannel);
 
                 // Bass drop start
@@ -269,10 +272,6 @@ public class Events extends ListenerAdapter {
                         event.getMember().getVoiceState().getChannel().asVoiceChannel().
                     }
                 }, 20000, TimeUnit.MILLISECONDS);*/
-
-                // Bass drop end
-                Executors.newSingleThreadScheduledExecutor()
-                    .schedule(musicManager.scheduler::nextTrack, 84500, TimeUnit.MILLISECONDS);
             }
         }
     }
