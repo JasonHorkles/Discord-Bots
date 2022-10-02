@@ -152,7 +152,6 @@ public class Events extends ListenerAdapter {
                         (na) -> thread.getManager().setArchived(true).setLocked(true).queueAfter(1, TimeUnit.SECONDS));
                     count++;
                 }
-
             }
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Closed and locked " + count + " posts!");
