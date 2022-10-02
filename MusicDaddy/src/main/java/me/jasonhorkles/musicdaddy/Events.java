@@ -24,6 +24,8 @@ import se.michaelthelin.spotify.model_objects.specification.TrackSimplified;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("ConstantConditions")
 public class Events extends ListenerAdapter {
@@ -249,6 +251,28 @@ public class Events extends ListenerAdapter {
 
                 if (additional > 0) msg.append("\n\n...and ").append(additional).append(" more...");
                 event.getHook().editOriginal(msg.toString()).queue();
+            }
+
+            case "outro" -> {
+                if (voiceChannel == null) {
+                    event.getHook().editOriginal("You must be in a voice channel to do that!").queue();
+                    return;
+                }
+
+                PlayerManager.getInstance().loadAndPlay(event, "https://www.youtube.com/watch?v=3_-a9nVZYjk", false);
+                currentVoiceChannel.put(event.getGuild(), voiceChannel);
+
+                // Bass drop start
+                // May not be possible
+                /*Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+                    if (event.getMember().getVoiceState().getChannel() != null) {
+                        event.getMember().getVoiceState().getChannel().asVoiceChannel().
+                    }
+                }, 20000, TimeUnit.MILLISECONDS);*/
+
+                // Bass drop end
+                Executors.newSingleThreadScheduledExecutor()
+                    .schedule(musicManager.scheduler::nextTrack, 84500, TimeUnit.MILLISECONDS);
             }
         }
     }

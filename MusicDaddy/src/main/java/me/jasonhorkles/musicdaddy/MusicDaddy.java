@@ -73,6 +73,9 @@ public class MusicDaddy {
             Commands.slash("np", "Displays the currently playing track"),
             Commands.slash("queue", "Displays the current queue")).queue();
 
+        //noinspection ConstantConditions
+        jda.getGuildById(605786572519899206L).updateCommands()
+            .addCommands(Commands.slash("outro", "Play the outro song")).queue();
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new MusicDaddy().shutdown(), "Shutdown Hook"));
