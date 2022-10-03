@@ -24,6 +24,8 @@ import se.michaelthelin.spotify.model_objects.specification.TrackSimplified;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("ConstantConditions")
 public class Events extends ListenerAdapter {
@@ -35,14 +37,10 @@ public class Events extends ListenerAdapter {
             .getEffectiveName() + " used the /" + event.getName() + " command");
 
         AudioChannel voiceChannel = event.getMember().getVoiceState().getChannel();
-        long channelId = event.getChannel().getIdLong();
-
-        // Channels to send the messages in publicly
-        boolean ephemeral = channelId != 421827334534856705L && channelId != 904470304145961010L && channelId != 904485469482516521L;
-        event.deferReply().setEphemeral(ephemeral).queue();
-
         GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
         AudioPlayer audioPlayer = musicManager.player;
+
+        event.deferReply().setEphemeral(true).queue();
 
         switch (event.getName().toLowerCase()) {
             case "play", "search" -> {
@@ -81,7 +79,8 @@ public class Events extends ListenerAdapter {
                             for (PlaylistTrack track : tracks) {
                                 if (x > maxSongs) break;
                                 PlayerManager.getInstance()
-                                    .loadAndPlay(event, "ytsearch:" + track.getTrack().getName() + " song audio", true);
+                                    .loadAndPlay(event, "ytsearch:" + track.getTrack().getName() + " song audio", true,
+                                        false);
 
                                 if (msg.length() < 1800)
                                     msg.append("\nSuccessfully added **").append(track.getTrack().getName())
@@ -115,7 +114,7 @@ public class Events extends ListenerAdapter {
                                 if (x > maxSongs) break;
                                 PlayerManager.getInstance().loadAndPlay(event,
                                     "ytsearch:" + track.getName() + " " + track.getArtists()[0].getName() + " audio",
-                                    true);
+                                    true, false);
 
                                 if (msg.length() < 1800) msg.append("\nSuccessfully added **").append(track.getName())
                                     .append("** to the queue!");
@@ -149,7 +148,7 @@ public class Events extends ListenerAdapter {
                                 if (x > maxSongs) break;
                                 PlayerManager.getInstance().loadAndPlay(event,
                                     "ytsearch:" + track.getName() + " " + track.getArtists()[0].getName() + " audio",
-                                    true);
+                                    true, false);
 
                                 if (msg.length() < 1800) msg.append("\nSuccessfully added **").append(track.getName())
                                     .append("** to the queue!");
@@ -171,7 +170,7 @@ public class Events extends ListenerAdapter {
                     else search = url;
                 } else search = "ytsearch:" + event.getOption("title").getAsString();
 
-                PlayerManager.getInstance().loadAndPlay(event, search, false);
+                PlayerManager.getInstance().loadAndPlay(event, search, false, false);
                 currentVoiceChannel.put(event.getGuild(), voiceChannel);
             }
 
@@ -194,6 +193,7 @@ public class Events extends ListenerAdapter {
             case "pause" -> {
                 boolean paused = audioPlayer.isPaused();
                 AudioManager audioManager = event.getGuild().getAudioManager();
+
                 if (paused) {
                     audioPlayer.setPaused(false);
                     audioManager.setSelfMuted(false);
@@ -257,21 +257,28 @@ public class Events extends ListenerAdapter {
                     return;
                 }
 
-                String file = "MusicDaddy/Shutting Down.mp3";
+                String file = "MusicDaddy/Outro Song.mp3";
                 Random r = new Random();
-                if (r.nextInt(1, 21) == 20) file = "MusicDaddy/Shutting Down 2.mp3";
-                else if (r.nextInt(1, 101) == 100) file = "MusicDaddy/Shutting Down 3.mp3";
+                if (r.nextInt(1, 21) == 20) file = "MusicDaddy/Outro Song 2.mp3";
+                else if (r.nextInt(1, 101) == 100) file = "MusicDaddy/Outro Song 3.mp3";
 
-                new Utils().playFile(event.getGuild(), file);
+                PlayerManager.getInstance().loadAndPlay(event, file, false, true);
                 currentVoiceChannel.put(event.getGuild(), voiceChannel);
 
-                // Bass drop start
-                // May not be possible
-                /*Executors.newSingleThreadScheduledExecutor().schedule(() -> {
-                    if (event.getMember().getVoiceState().getChannel() != null) {
-                        event.getMember().getVoiceState().getChannel().asVoiceChannel().
-                    }
-                }, 20000, TimeUnit.MILLISECONDS);*/
+                event.getHook().editOriginal("Remember to like and subscribe").queue();
+
+                // Bass drop
+                Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+                    if (event.getOption("disconnectall") == null || !event.getOption("disconnectall").getAsBoolean()) {
+                        if (event.getMember().getVoiceState().getChannel() != null)
+                            event.getGuild().kickVoiceMember(event.getMember()).queue();
+
+                    } else for (Member member : voiceChannel.getMembers())
+                        try {
+                            event.getGuild().kickVoiceMember(member).queue();
+                        } catch (IllegalStateException ignored) {
+                        }
+                }, 53350, TimeUnit.MILLISECONDS);
             }
         }
     }

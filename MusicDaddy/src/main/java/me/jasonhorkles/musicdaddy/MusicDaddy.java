@@ -1,6 +1,9 @@
 package me.jasonhorkles.musicdaddy;
 
-import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import me.jasonhorkles.musicdaddy.lavaplayer.GuildMusicManager;
 import me.jasonhorkles.musicdaddy.lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.JDA;
@@ -21,6 +24,7 @@ import se.michaelthelin.spotify.model_objects.credentials.ClientCredentials;
 import se.michaelthelin.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class MusicDaddy {
@@ -70,8 +74,9 @@ public class MusicDaddy {
             Commands.slash("queue", "Displays the current queue")).queue();
 
         //noinspection ConstantConditions
-        jda.getGuildById(605786572519899206L).updateCommands()
-            .addCommands(Commands.slash("outro", "Play the outro song")).queue();
+        jda.getGuildById(605786572519899206L).updateCommands().addCommands(
+            Commands.slash("outro", "Play the outro song").addOption(OptionType.BOOLEAN, "disconnectall",
+                "Disconnects everyone in the voice channel at the drop (default: false)")).queue();
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new MusicDaddy().shutdown(), "Shutdown Hook"));
@@ -109,15 +114,43 @@ public class MusicDaddy {
     public void shutdown() {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
         try {
-            AudioSourceManagers.registerLocalSource(PlayerManager.audioPlayerManager);
+            ArrayList<Guild> connectedGuilds = new ArrayList<>();
 
-            for (Guild guild : Events.currentVoiceChannel.keySet()) {
-                if (!guild.getAudioManager().isConnected()) continue;
-                new Utils().playFile(guild, "MusicDaddy/Shutting Down.mp3");
+            for (Guild guild : jda.getGuilds())
+                if (guild.getAudioManager().isConnected()) connectedGuilds.add(guild);
+
+            for (Guild guild : connectedGuilds) {
+                GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
+
+                PlayerManager.audioPlayerManager.loadItemOrdered(musicManager, "MusicDaddy/Shutting Down.mp3",
+                    new AudioLoadResultHandler() {
+                        @Override
+                        public void trackLoaded(AudioTrack track) {
+                            musicManager.scheduler.queue.clear();
+                            musicManager.scheduler.queue(track);
+                            if (musicManager.scheduler.player.getPlayingTrack() != null)
+                                musicManager.scheduler.nextTrack();
+                        }
+
+                        @Override
+                        public void playlistLoaded(AudioPlaylist playlist) {
+                            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Playlist");
+                        }
+
+                        @Override
+                        public void noMatches() {
+                            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "No file matches");
+                        }
+
+                        @Override
+                        public void loadFailed(FriendlyException e) {
+                            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                            e.printStackTrace();
+                        }
+                    });
             }
 
-            if (!Events.currentVoiceChannel.isEmpty()) Thread.sleep(3000);
-
+            if (!connectedGuilds.isEmpty()) Thread.sleep(3000);
         } catch (InterruptedException | NoClassDefFoundError ignored) {
         }
 

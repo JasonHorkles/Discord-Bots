@@ -27,6 +27,7 @@ public class PlayerManager {
 
     public PlayerManager() {
         AudioSourceManagers.registerRemoteSources(audioPlayerManager);
+        AudioSourceManagers.registerLocalSource(audioPlayerManager);
     }
 
     public GuildMusicManager getMusicManager(Guild guild) {
@@ -39,7 +40,7 @@ public class PlayerManager {
         });
     }
 
-    public void loadAndPlay(SlashCommandInteractionEvent event, String search, boolean isSpotifyList) {
+    public void loadAndPlay(SlashCommandInteractionEvent event, String search, boolean isSpotifyList, boolean isFile) {
         final GuildMusicManager musicManager = getMusicManager(event.getGuild());
 
         audioPlayerManager.loadItemOrdered(musicManager, search, new AudioLoadResultHandler() {
@@ -49,7 +50,9 @@ public class PlayerManager {
 
                 musicManager.scheduler.queue(track);
 
-                event.getHook().editOriginal("Successfully added " + track.getInfo().uri + " to the queue!").queue();
+                if (!isFile)
+                    event.getHook().editOriginal("Successfully added " + track.getInfo().uri + " to the queue!")
+                        .queue();
             }
 
             @Override
@@ -113,12 +116,13 @@ public class PlayerManager {
 
             @Override
             public void loadFailed(FriendlyException e) {
-                event.getChannel().sendMessage(
+                event.getHook().editOriginal(
                         ":warning: **Error:** `" + e.getMessage() + "`\nPlease report the error to <@277291758503723010>")
                     .queue();
+
                 System.out.println(
-                    new Utils().getTime(Utils.LogColor.RED) + "Error in Guild " + event.getGuild()
-                        .getName() + ":");
+                    new Utils().getTime(Utils.LogColor.RED) + "Error in Guild " + event.getGuild().getName() + ":");
+
                 e.printStackTrace();
             }
         });
