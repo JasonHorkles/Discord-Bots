@@ -16,7 +16,7 @@ public class CheckPollen {
         JSONObject input;
 
         if (!AirCheck.testing) {
-            String apiUrl = "http://dataservice.accuweather.com/forecasts/v1/daily/1day/" + new Secrets().getLocationCode() + "?apikey=" + new Secrets().getPollenApiKey() + "&details=true";
+            String apiUrl = "http://dataservice.accuweather.com/forecasts/v1/daily/1day/" + new Secrets().getLocationCode() + "?apikey=" + new Secrets().getAccuApiKey() + "&details=true";
 
             InputStream stream = new URL(apiUrl).openStream();
             String out = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine();
