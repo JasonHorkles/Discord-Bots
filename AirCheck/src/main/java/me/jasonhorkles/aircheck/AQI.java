@@ -12,7 +12,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
-public class CheckAQI {
+public class AQI {
     public void checkAir() throws IOException {
         JSONArray input;
 
