@@ -13,9 +13,12 @@ import java.util.ArrayList;
 
 @SuppressWarnings("ConstantConditions")
 public class GameManager extends ListenerAdapter {
-    public TextChannel createChannel(Game game, ArrayList<Member> players) {
+    public TextChannel createChannel(Game game, ArrayList<Member> players, boolean isDailyWordle) {
+        StringBuilder daily = new StringBuilder();
+        if (isDailyWordle) daily.append("daily-");
+
         TextChannel channel = Phoenella.jda.getCategoryById(900747596245639238L)
-            .createTextChannel(new Utils().getFirstName(players.get(0)) + "-" + game.toString().toLowerCase())
+            .createTextChannel(new Utils().getFirstName(players.get(0)) + "-" + daily + game.toString().toLowerCase())
             .complete();
 
         for (Member player : players)

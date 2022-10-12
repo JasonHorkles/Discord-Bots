@@ -26,7 +26,7 @@ public class RPS extends ListenerAdapter {
     private static final HashMap<Member, String> player2Selection = new HashMap<>();
 
     public TextChannel startGame(ArrayList<Member> playerList) {
-        TextChannel channel = new GameManager().createChannel(GameManager.Game.RPS, playerList);
+        TextChannel channel = new GameManager().createChannel(GameManager.Game.RPS, playerList, false);
 
         player1.put(channel, playerList.get(0));
         player2.put(channel, playerList.get(1));

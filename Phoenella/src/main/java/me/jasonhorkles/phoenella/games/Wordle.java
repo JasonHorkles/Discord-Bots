@@ -71,7 +71,7 @@ public class Wordle extends ListenerAdapter {
             if (players.get(channels) == player) if (Objects.equals(channels.getTopic(), obfuscatedAnswer)) return null;
 
         TextChannel channel = new GameManager().createChannel(GameManager.Game.WORDLE,
-            new ArrayList<>(Collections.singleton(player)));
+            new ArrayList<>(Collections.singleton(player)), isDaily);
 
         Wordle.isNonReal.put(channel, isUserGenerated);
         players.put(channel, player);
@@ -127,7 +127,7 @@ public class Wordle extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         if (!event.getMessage().isFromGuild()) return;
-        if (!event.getChannel().getName().contains("wordle")) return;
+        if (!event.getChannel().getName().endsWith("wordle")) return;
         if (event.getChannel().asTextChannel().getParentCategoryIdLong() != 900747596245639238L) return;
         if (event.getAuthor().isBot()) return;
 
