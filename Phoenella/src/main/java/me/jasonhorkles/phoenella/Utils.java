@@ -69,38 +69,25 @@ public class Utils {
             if (member.getUser().isBot()) continue;
             System.out.println(getTime(LogColor.GREEN) + "Checking " + member.getEffectiveName() + "...");
 
-            // If not sushed
-            if (!member.getRoles().toString().contains("842490529744945192"))
-                if (hasGoodNickname(member.getEffectiveName()))
-                    if (member.getEffectiveName().toLowerCase().contains("(parent)")) {
-                        addRoleToMember(member, guild, RoleType.PARENT);
-                        nonStudentNick(member, guild);
-                    } else {
-                        removeRoleFromMember(member, guild, RoleType.PARENT);
-                        addRoleToMember(member, guild, RoleType.STUDENT);
-                    }
-                else {
-                    removeRoleFromMember(member, guild, RoleType.PARENT);
+            if (hasGoodNickname(member.getEffectiveName()))
+                if (member.getEffectiveName().toLowerCase().contains("(parent)")) {
+                    addRoleToMember(member, guild, RoleType.PARENT);
                     nonStudentNick(member, guild);
+                } else {
+                    removeRoleFromMember(member, guild, RoleType.PARENT);
+                    addRoleToMember(member, guild, RoleType.STUDENT);
                 }
+            else {
+                removeRoleFromMember(member, guild, RoleType.PARENT);
+                nonStudentNick(member, guild);
+            }
         }
     }
 
     private void nonStudentNick(Member member, Guild guild) {
-        // If nickname is invalid, remove their reactions
-        Thread removeReactions = new Thread(() -> {
-            for (MessageReaction msgReactions : guild.getTextChannelById(892104640567578674L)
-                .retrieveMessageById(892105471689912391L).complete().getReactions())
-                for (User reactionUsers : msgReactions.retrieveUsers().complete())
-                    if (reactionUsers == member.getUser()) {
-                        System.out.println(
-                            getTime(LogColor.YELLOW) + "Removing reaction from " + reactionUsers.getName() + "...");
-                        msgReactions.removeReaction(reactionUsers).queue();
-                    }
-        }, "Remove Reactions - " + getFirstName(member));
-        removeReactions.start();
-
+        // If nickname is invalid remove student role
         removeRoleFromMember(member, guild, RoleType.STUDENT);
+        removeRoleFromMember(member, guild, RoleType.BUTTON);
     }
 
     public enum RoleType {
@@ -118,18 +105,22 @@ public class Utils {
     }
 
     public void addRoleToMember(Member member, Guild guild, RoleType roleType) {
-        if (!member.getRoles().toString().contains(roleType.getRole())) {
-            System.out.println(
-                getTime(LogColor.GREEN) + "Adding role '" + roleType + "' to '" + member.getEffectiveName() + "'");
-            guild.addRoleToMember(member, guild.getRoleById(roleType.getRole())).queue();
+        Role role = guild.getRoleById(roleType.getRole());
+
+        if (!member.getRoles().contains(role)) {
+            System.out.println(getTime(LogColor.GREEN) + "Adding " + roleType.toString()
+                .toLowerCase() + " role to '" + member.getEffectiveName() + "'");
+            guild.addRoleToMember(member, role).queue();
         }
     }
 
     public void removeRoleFromMember(Member member, Guild guild, RoleType roleType) {
-        if (member.getRoles().toString().contains(roleType.getRole())) {
-            System.out.println(
-                getTime(LogColor.GREEN) + "Removing role '" + roleType + "' from '" + member.getEffectiveName() + "'");
-            guild.removeRoleFromMember(member, guild.getRoleById(roleType.getRole())).queue();
+        Role role = guild.getRoleById(roleType.getRole());
+
+        if (member.getRoles().contains(role)) {
+            System.out.println(getTime(LogColor.GREEN) + "Removing " + roleType.toString()
+                .toLowerCase() + " role from '" + member.getEffectiveName() + "'");
+            guild.removeRoleFromMember(member, role).queue();
         }
     }
 

@@ -17,7 +17,6 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -426,12 +425,6 @@ public class Events extends ListenerAdapter {
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (event.getUser().isBot()) return;
 
-        // Button clicker role
-        if (event.getChannel().getIdLong() == 892104640567578674L) {
-            new Utils().addRoleToMember(event.getMember(), event.getGuild(), Utils.RoleType.BUTTON);
-            return;
-        }
-
         // kek
         if (event.getReaction().getEmoji().getName().equalsIgnoreCase("kek")) {
             event.retrieveMessage().complete().addReaction(event.getGuild().getEmojiById("841681203278774322")).queue();
@@ -551,31 +544,6 @@ public class Events extends ListenerAdapter {
                 e.printStackTrace();
             }
         }
-    }
-
-    @Override
-    public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
-        if (event.getUser().isBot()) return;
-        if (event.getChannel().getIdLong() != 892104640567578674L) return;
-
-        //todo Change to select menus
-        Thread checkReactions = new Thread(() -> {
-            boolean userHasReactions = false;
-            for (MessageReaction msgReactions : event.getGuild().getTextChannelById(892104640567578674L)
-                .retrieveMessageById(892105471689912391L).complete().getReactions())
-                for (User reactionUsers : msgReactions.retrieveUsers().complete())
-                    if (reactionUsers == event.getUser()) {
-                        userHasReactions = true;
-                        break;
-                    }
-
-            if (!userHasReactions)
-                new Utils().removeRoleFromMember(event.getMember(), event.getGuild(), Utils.RoleType.BUTTON);
-            else System.out.println(new Utils().getTime(
-                Utils.LogColor.YELLOW) + "Not removing button clicker role from " + new Utils().getFirstName(
-                event.getMember()) + "...");
-        }, "Check Reactions - " + new Utils().getFirstName(event.getMember()));
-        checkReactions.start();
     }
 
     @Override
@@ -809,11 +777,20 @@ public class Events extends ListenerAdapter {
                 new Thread(() -> {
                     for (SelectOption option : event.getSelectedOptions()) {
                         Role role = guild.getRoleById(option.getValue());
-                        if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
+                        if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).complete();
                         else guild.addRoleToMember(member, role).complete();
                     }
 
-                    //todo add/remove button clicker role
+                    ArrayList<Role> roles = new ArrayList<>(member.getRoles().stream().toList());
+                    // Student
+                    roles.remove(guild.getRoleById(892267754730709002L));
+                    // Button
+                    roles.remove(guild.getRoleById(892453842241859664L));
+
+                    // If the person has no other roles
+                    if (roles.isEmpty()) new Utils().removeRoleFromMember(member, guild, Utils.RoleType.BUTTON);
+                        // If the person does have other roles
+                    else new Utils().addRoleToMember(member, guild, Utils.RoleType.BUTTON);
 
                     event.getHook().editOriginal("Done!").queue();
                 }, "Add Roles - " + new Utils().getFirstName(member)).start();
