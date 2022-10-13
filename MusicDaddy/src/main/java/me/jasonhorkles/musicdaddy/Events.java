@@ -278,7 +278,7 @@ public class Events extends ListenerAdapter {
                             event.getGuild().kickVoiceMember(member).queue();
                         } catch (IllegalStateException ignored) {
                         }
-                }, 54000, TimeUnit.MILLISECONDS);
+                }, 54250, TimeUnit.MILLISECONDS);
             }
         }
     }
