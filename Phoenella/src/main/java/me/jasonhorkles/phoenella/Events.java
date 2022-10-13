@@ -812,6 +812,9 @@ public class Events extends ListenerAdapter {
                         if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
                         else guild.addRoleToMember(member, role).complete();
                     }
+
+                    //todo add/remove button clicker role
+
                     event.getHook().editOriginal("Done!").queue();
                 }, "Add Roles - " + new Utils().getFirstName(member)).start();
             }

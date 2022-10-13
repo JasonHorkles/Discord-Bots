@@ -203,45 +203,6 @@ public class Utils {
         }
     }
 
-    String value;
-
-    public String getJsonKey(JSONObject json, String key, boolean firstRun) {
-        boolean exists = json.has(key);
-        Iterator<?> keys;
-        String nextKeys;
-        if (firstRun) value = "null";
-
-        if (!exists) {
-            keys = json.keys();
-
-            while (keys.hasNext()) {
-                nextKeys = (String) keys.next();
-                try {
-                    if (json.get(nextKeys) instanceof JSONObject) getJsonKey(json.getJSONObject(nextKeys), key, false);
-                    else if (json.get(nextKeys) instanceof JSONArray) {
-                        JSONArray jsonArray = json.getJSONArray(nextKeys);
-
-                        int x = 0;
-                        if (x < jsonArray.length()) {
-                            String jsonArrayString = jsonArray.get(x).toString();
-                            JSONObject innerJSON = new JSONObject(jsonArrayString);
-
-                            getJsonKey(innerJSON, key, false);
-                        }
-                    }
-                } catch (Exception e) {
-                    System.out.print(getTime(LogColor.RED));
-                    e.printStackTrace();
-                }
-            }
-        } else {
-            value = json.get(key).toString();
-            return value;
-        }
-
-        return value;
-    }
-
     public MessageEmbed defineWord(String word) {
         word = word.replaceAll(" .*", "");
         EmbedBuilder embed = new EmbedBuilder();
@@ -261,7 +222,7 @@ public class Utils {
                 new Scanner(url, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine()).getJSONObject(0);
             url.close();
 
-            String receivedWord = getJsonKey(obj, "word", true);
+            String receivedWord = obj.getString("word");
             String phonetic = null;
             if (obj.has("phonetic")) phonetic = obj.getString("phonetic");
             StringBuilder definitions = new StringBuilder();
