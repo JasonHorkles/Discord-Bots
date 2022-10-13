@@ -807,69 +807,11 @@ public class Events extends ListenerAdapter {
                 Member member = event.getMember();
 
                 new Thread(() -> {
-                    for (SelectOption option : event.getSelectedOptions())
-                        switch (option.getValue()) {
-                            case "casting" -> {
-                                Role role = guild.getRoleById("778445820693184514");
-                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
-                                else guild.addRoleToMember(member, role).complete();
-                            }
-
-                            case "chess" -> {
-                                Role role = guild.getRoleById("1019287692690853958");
-                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
-                                else guild.addRoleToMember(member, role).complete();
-                            }
-
-                            case "dota" -> {
-                                Role role = guild.getRoleById("759142712334352407");
-                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
-                                else guild.addRoleToMember(member, role).complete();
-                            }
-
-                            case "iteam" -> {
-                                Role role = guild.getRoleById("784070450346852382");
-                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
-                                else guild.addRoleToMember(member, role).complete();
-                            }
-
-                            case "league" -> {
-                                Role role = guild.getRoleById("729105903181365371");
-                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
-                                else guild.addRoleToMember(member, role).complete();
-                            }
-
-                            case "mkart" -> {
-                                Role role = guild.getRoleById("1022329350160392202");
-                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
-                                else guild.addRoleToMember(member, role).complete();
-                            }
-
-                            case "ow" -> {
-                                Role role = guild.getRoleById("809151427632562267");
-                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
-                                else guild.addRoleToMember(member, role).complete();
-                            }
-
-                            case "pokemon" -> {
-                                Role role = guild.getRoleById("843983225562595338");
-                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
-                                else guild.addRoleToMember(member, role).complete();
-                            }
-
-                            case "rl" -> {
-                                Role role = guild.getRoleById("729105671643070555");
-                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
-                                else guild.addRoleToMember(member, role).complete();
-                            }
-
-                            case "smash" -> {
-                                Role role = guild.getRoleById("729105800538095688");
-                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
-                                else guild.addRoleToMember(member, role).complete();
-                            }
-                        }
-
+                    for (SelectOption option : event.getSelectedOptions()) {
+                        Role role = guild.getRoleById(option.getValue());
+                        if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
+                        else guild.addRoleToMember(member, role).complete();
+                    }
                     event.getHook().editOriginal("Done!").queue();
                 }, "Add Roles - " + new Utils().getFirstName(member)).start();
             }

@@ -200,20 +200,25 @@ public class Phoenella {
                 //noinspection ConstantConditions
                 if (!new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).get(0).getAuthor().isBot()) {
                     ArrayList<SelectOption> selectOptions = new ArrayList<>();
-                    selectOptions.add(SelectOption.of("Casting", "casting").withEmoji(Emoji.fromUnicode("📢")));
-                    selectOptions.add(SelectOption.of("Chess", "chess")
-                        .withEmoji(Emoji.fromCustom("chess", 1019285706159440033L, false)));
-                    selectOptions.add(SelectOption.of("Dota 2", "dota").withEmoji(Emoji.fromUnicode("🗡️")));
-                    selectOptions.add(SelectOption.of("iTeam", "iteam").withEmoji(Emoji.fromUnicode("🖥️")));
                     selectOptions.add(
-                        SelectOption.of("League of Legends", "league").withEmoji(Emoji.fromUnicode("⚔️")));
-                    selectOptions.add(SelectOption.of("Mario Kart", "mkart")
+                        SelectOption.of("Casting", "778445820693184514").withEmoji(Emoji.fromUnicode("📢")));
+                    selectOptions.add(SelectOption.of("Chess", "1019287692690853958")
+                        .withEmoji(Emoji.fromCustom("chess", 1019285706159440033L, false)));
+                    selectOptions.add(
+                        SelectOption.of("Dota 2", "759142712334352407").withEmoji(Emoji.fromUnicode("🗡️")));
+                    selectOptions.add(
+                        SelectOption.of("iTeam", "784070450346852382").withEmoji(Emoji.fromUnicode("🖥️")));
+                    selectOptions.add(
+                        SelectOption.of("League of Legends", "729105903181365371").withEmoji(Emoji.fromUnicode("⚔️")));
+                    selectOptions.add(SelectOption.of("Mario Kart", "1022329350160392202")
                         .withEmoji(Emoji.fromCustom("mariokart", 1022329065799163974L, false)));
-                    selectOptions.add(SelectOption.of("Overwatch", "ow").withEmoji(Emoji.fromUnicode("🔫")));
-                    selectOptions.add(SelectOption.of("Pokémon", "pokemon")
+                    selectOptions.add(
+                        SelectOption.of("Overwatch", "809151427632562267").withEmoji(Emoji.fromUnicode("🔫")));
+                    selectOptions.add(SelectOption.of("Pokémon", "843983225562595338")
                         .withEmoji(Emoji.fromCustom("pokeball", 1022328739868180540L, false)));
-                    selectOptions.add(SelectOption.of("Rocket League", "rl").withEmoji(Emoji.fromUnicode("🚙")));
-                    selectOptions.add(SelectOption.of("Smash", "smash").withEmoji(Emoji.fromUnicode("👊")));
+                    selectOptions.add(
+                        SelectOption.of("Rocket League", "729105671643070555").withEmoji(Emoji.fromUnicode("🚙")));
+                    selectOptions.add(SelectOption.of("Smash", "729105800538095688").withEmoji(Emoji.fromUnicode("👊")));
 
                     channel.sendMessage("**Select applicable roles:**\n*Each selection acts as a toggle*").addActionRow(
                         SelectMenu.create("role-select").addOptions(selectOptions).setMinValues(0)
