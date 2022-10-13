@@ -777,8 +777,16 @@ public class Events extends ListenerAdapter {
                 new Thread(() -> {
                     for (SelectOption option : event.getSelectedOptions()) {
                         Role role = guild.getRoleById(option.getValue());
-                        if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).complete();
-                        else guild.addRoleToMember(member, role).complete();
+                        if (member.getRoles().contains(role)) {
+                            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Removing " + role.getName()
+                                .toLowerCase() + " role from '" + member.getEffectiveName() + "'");
+                            guild.removeRoleFromMember(member, role).complete();
+
+                        } else {
+                            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Adding " + role.getName()
+                                .toLowerCase() + " role to '" + member.getEffectiveName() + "'");
+                            guild.addRoleToMember(member, role).complete();
+                        }
                     }
 
                     ArrayList<Role> roles = new ArrayList<>(member.getRoles().stream().toList());

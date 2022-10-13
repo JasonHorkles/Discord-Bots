@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Connection;
@@ -85,9 +86,21 @@ public class Utils {
     }
 
     private void nonStudentNick(Member member, Guild guild) {
+        // Coach
+        if (member.getRoles().contains(guild.getRoleById(729108220479537202L))) return;
+
         // If nickname is invalid remove student role
         removeRoleFromMember(member, guild, RoleType.STUDENT);
         removeRoleFromMember(member, guild, RoleType.BUTTON);
+
+        for (SelectOption option : Phoenella.selectOptions) {
+            Role role = guild.getRoleById(option.getValue());
+            if (member.getRoles().contains(role)) {
+                guild.removeRoleFromMember(member, role).queue();
+                System.out.println(getTime(LogColor.YELLOW) + "Removing " + role.getName()
+                    .toLowerCase() + " role from '" + member.getEffectiveName() + "'");
+            }
+        }
     }
 
     public enum RoleType {
@@ -108,7 +121,7 @@ public class Utils {
         Role role = guild.getRoleById(roleType.getRole());
 
         if (!member.getRoles().contains(role)) {
-            System.out.println(getTime(LogColor.GREEN) + "Adding " + roleType.toString()
+            System.out.println(getTime(LogColor.YELLOW) + "Adding " + roleType.toString()
                 .toLowerCase() + " role to '" + member.getEffectiveName() + "'");
             guild.addRoleToMember(member, role).queue();
         }
@@ -118,7 +131,7 @@ public class Utils {
         Role role = guild.getRoleById(roleType.getRole());
 
         if (member.getRoles().contains(role)) {
-            System.out.println(getTime(LogColor.GREEN) + "Removing " + roleType.toString()
+            System.out.println(getTime(LogColor.YELLOW) + "Removing " + roleType.toString()
                 .toLowerCase() + " role from '" + member.getEffectiveName() + "'");
             guild.removeRoleFromMember(member, role).queue();
         }

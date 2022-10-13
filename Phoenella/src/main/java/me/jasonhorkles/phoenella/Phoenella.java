@@ -33,8 +33,9 @@ import java.util.concurrent.*;
 @SuppressWarnings({"ConstantConditions"})
 public class Phoenella {
     private static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
-    public static JDA jda;
+    public static ArrayList<SelectOption> selectOptions = new ArrayList<>();
     public static boolean localWordleBoard = false;
+    public static JDA jda;
 
     public static void main(String[] args) throws InterruptedException, IOException, ExecutionException, TimeoutException, ParseException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
@@ -62,6 +63,35 @@ public class Phoenella {
                     "Show the leaderboard message publicly?", false),
                 new SubcommandData("daily", "Play the daily Wordle"))).queue();
 
+        // Send select menu message if needed
+        try {
+            TextChannel channel = jda.getTextChannelById(892104640567578674L);
+            selectOptions.add(SelectOption.of("Casting", "778445820693184514").withEmoji(Emoji.fromUnicode("📢")));
+            selectOptions.add(SelectOption.of("Chess", "1019287692690853958")
+                .withEmoji(Emoji.fromCustom("chess", 1019285706159440033L, false)));
+            selectOptions.add(SelectOption.of("Dota 2", "759142712334352407").withEmoji(Emoji.fromUnicode("🗡️")));
+            selectOptions.add(SelectOption.of("iTeam", "784070450346852382").withEmoji(Emoji.fromUnicode("🖥️")));
+            selectOptions.add(
+                SelectOption.of("League of Legends", "729105903181365371").withEmoji(Emoji.fromUnicode("⚔️")));
+            selectOptions.add(SelectOption.of("Mario Kart", "1022329350160392202")
+                .withEmoji(Emoji.fromCustom("mariokart", 1022329065799163974L, false)));
+            selectOptions.add(SelectOption.of("Overwatch", "809151427632562267").withEmoji(Emoji.fromUnicode("🔫")));
+            selectOptions.add(SelectOption.of("Pokémon", "843983225562595338")
+                .withEmoji(Emoji.fromCustom("pokeball", 1022328739868180540L, false)));
+            selectOptions.add(SelectOption.of("Rocket League", "729105671643070555").withEmoji(Emoji.fromUnicode("🚙")));
+            selectOptions.add(SelectOption.of("Smash", "729105800538095688").withEmoji(Emoji.fromUnicode("👊")));
+
+            if (new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).isEmpty())
+                channel.sendMessage("**Select applicable roles:**\n*Each selection acts as a toggle*").addActionRow(
+                        SelectMenu.create("role-select").addOptions(selectOptions).setMinValues(0)
+                            .setMaxValues(selectOptions.size()).build())
+                    .addActionRow(Button.secondary("viewroles", "Your Roles")).queue();
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            e.printStackTrace();
+        }
+
+        // Guild nickname check
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Starting nickname check...");
         new Utils().runNameCheckForGuild(jda.getGuildById(729083627308056597L));
 
@@ -190,38 +220,6 @@ public class Phoenella {
             }
         }, "Console Input");
         input.start();
-
-        // Send select menu message if needed
-        try {
-            TextChannel channel = jda.getTextChannelById(892104640567578674L);
-            //noinspection ConstantConditions
-            if (new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).isEmpty()) {
-                ArrayList<SelectOption> selectOptions = new ArrayList<>();
-                selectOptions.add(SelectOption.of("Casting", "778445820693184514").withEmoji(Emoji.fromUnicode("📢")));
-                selectOptions.add(SelectOption.of("Chess", "1019287692690853958")
-                    .withEmoji(Emoji.fromCustom("chess", 1019285706159440033L, false)));
-                selectOptions.add(SelectOption.of("Dota 2", "759142712334352407").withEmoji(Emoji.fromUnicode("🗡️")));
-                selectOptions.add(SelectOption.of("iTeam", "784070450346852382").withEmoji(Emoji.fromUnicode("🖥️")));
-                selectOptions.add(
-                    SelectOption.of("League of Legends", "729105903181365371").withEmoji(Emoji.fromUnicode("⚔️")));
-                selectOptions.add(SelectOption.of("Mario Kart", "1022329350160392202")
-                    .withEmoji(Emoji.fromCustom("mariokart", 1022329065799163974L, false)));
-                selectOptions.add(SelectOption.of("Overwatch", "809151427632562267").withEmoji(Emoji.fromUnicode("🔫")));
-                selectOptions.add(SelectOption.of("Pokémon", "843983225562595338")
-                    .withEmoji(Emoji.fromCustom("pokeball", 1022328739868180540L, false)));
-                selectOptions.add(
-                    SelectOption.of("Rocket League", "729105671643070555").withEmoji(Emoji.fromUnicode("🚙")));
-                selectOptions.add(SelectOption.of("Smash", "729105800538095688").withEmoji(Emoji.fromUnicode("👊")));
-
-                channel.sendMessage("**Select applicable roles:**\n*Each selection acts as a toggle*").addActionRow(
-                        SelectMenu.create("role-select").addOptions(selectOptions).setMinValues(0)
-                            .setMaxValues(selectOptions.size()).build())
-                    .addActionRow(Button.secondary("viewroles", "Your Roles")).queue();
-            }
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            System.out.print(new Utils().getTime(Utils.LogColor.RED));
-            e.printStackTrace();
-        }
 
         Runtime.getRuntime().gc();
 
