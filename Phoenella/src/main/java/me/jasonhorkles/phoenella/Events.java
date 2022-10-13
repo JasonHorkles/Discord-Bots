@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameE
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
@@ -22,6 +23,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Modal;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.requests.ErrorResponse;
@@ -755,7 +757,7 @@ public class Events extends ListenerAdapter {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setAuthor(new Utils().getFullName(event.getMember()) + " has created a Wordle!", null,
                 event.getMember().getEffectiveAvatarUrl());
-            embed.setColor(new Color(56, 224, 104));
+            embed.setColor(new Color(47, 49, 54));
             embed.addField("Plays", "0", true);
             embed.addField("Passes", "0", true);
             embed.addField("Fails", "0", true);
@@ -767,16 +769,110 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        if (event.getComponentId().equals("definitionreport")) {
-            Phoenella.jda.openPrivateChannelById(277291758503723010L).flatMap(channel -> channel.sendMessage(
-                    ":warning: Definition report from **" + new Utils().getFullName(event.getMember()) + ":**")
-                .setEmbeds(event.getMessage().getEmbeds().get(0))).queue();
+        switch (event.getComponentId()) {
+            case "definitionreport" -> {
+                Phoenella.jda.openPrivateChannelById(277291758503723010L).flatMap(channel -> channel.sendMessage(
+                        ":warning: Definition report from **" + new Utils().getFullName(event.getMember()) + ":**")
+                    .setEmbeds(event.getMessage().getEmbeds().get(0))).queue();
 
-            event.deferEdit().queue();
+                event.deferEdit().queue();
 
-            Message message = event.getMessage();
-            if (!message.isEphemeral()) message.delete().queue();
-            else event.getHook().editOriginalComponents(ActionRow.of(event.getButton().asDisabled())).queue();
+                Message message = event.getMessage();
+                if (!message.isEphemeral()) message.delete().queue();
+                else event.getHook().editOriginalComponents(ActionRow.of(event.getButton().asDisabled())).queue();
+            }
+
+            case "viewroles" -> {
+                event.deferReply(true).queue();
+                StringBuilder roleList = new StringBuilder();
+                for (Role role : event.getMember().getRoles()) roleList.append(role.getAsMention()).append("\n");
+
+                event.getHook().editOriginal(roleList.toString()).queue();
+            }
+        }
+    }
+
+    @Override
+    public void onSelectMenuInteraction(SelectMenuInteractionEvent event) {
+        //noinspection SwitchStatementWithTooFewBranches
+        switch (event.getComponentId()) {
+            case "role-select" -> {
+                if (event.getSelectedOptions().isEmpty()) {
+                    event.deferEdit().queue();
+                    return;
+                }
+
+                event.deferReply(true).queue();
+                Guild guild = event.getGuild();
+                Member member = event.getMember();
+
+                new Thread(() -> {
+                    for (SelectOption option : event.getSelectedOptions())
+                        switch (option.getValue()) {
+                            case "casting" -> {
+                                Role role = guild.getRoleById("778445820693184514");
+                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
+                                else guild.addRoleToMember(member, role).complete();
+                            }
+
+                            case "chess" -> {
+                                Role role = guild.getRoleById("1019287692690853958");
+                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
+                                else guild.addRoleToMember(member, role).complete();
+                            }
+
+                            case "dota" -> {
+                                Role role = guild.getRoleById("759142712334352407");
+                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
+                                else guild.addRoleToMember(member, role).complete();
+                            }
+
+                            case "iteam" -> {
+                                Role role = guild.getRoleById("784070450346852382");
+                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
+                                else guild.addRoleToMember(member, role).complete();
+                            }
+
+                            case "league" -> {
+                                Role role = guild.getRoleById("729105903181365371");
+                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
+                                else guild.addRoleToMember(member, role).complete();
+                            }
+
+                            case "mkart" -> {
+                                Role role = guild.getRoleById("1022329350160392202");
+                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
+                                else guild.addRoleToMember(member, role).complete();
+                            }
+
+                            case "ow" -> {
+                                Role role = guild.getRoleById("809151427632562267");
+                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
+                                else guild.addRoleToMember(member, role).complete();
+                            }
+
+                            case "pokemon" -> {
+                                Role role = guild.getRoleById("843983225562595338");
+                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
+                                else guild.addRoleToMember(member, role).complete();
+                            }
+
+                            case "rl" -> {
+                                Role role = guild.getRoleById("729105671643070555");
+                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
+                                else guild.addRoleToMember(member, role).complete();
+                            }
+
+                            case "smash" -> {
+                                Role role = guild.getRoleById("729105800538095688");
+                                if (member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue();
+                                else guild.addRoleToMember(member, role).complete();
+                            }
+                        }
+
+                    event.getHook().editOriginal("Done!").queue();
+                }, "Add Roles - " + new Utils().getFirstName(member)).start();
+            }
         }
     }
 }

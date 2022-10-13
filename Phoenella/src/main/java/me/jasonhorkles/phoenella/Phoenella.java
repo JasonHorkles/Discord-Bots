@@ -14,6 +14,8 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -190,6 +192,39 @@ public class Phoenella {
         input.start();
 
         Runtime.getRuntime().gc();
+
+        // Send select menu message if needed
+        Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+            try {
+                TextChannel channel = jda.getTextChannelById(900760753324302366L);
+                //noinspection ConstantConditions
+                if (!new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).get(0).getAuthor().isBot()) {
+                    ArrayList<SelectOption> selectOptions = new ArrayList<>();
+                    selectOptions.add(SelectOption.of("Casting", "casting").withEmoji(Emoji.fromUnicode("📢")));
+                    selectOptions.add(SelectOption.of("Chess", "chess")
+                        .withEmoji(Emoji.fromCustom("chess", 1019285706159440033L, false)));
+                    selectOptions.add(SelectOption.of("Dota 2", "dota").withEmoji(Emoji.fromUnicode("🗡️")));
+                    selectOptions.add(SelectOption.of("iTeam", "iteam").withEmoji(Emoji.fromUnicode("🖥️")));
+                    selectOptions.add(
+                        SelectOption.of("League of Legends", "league").withEmoji(Emoji.fromUnicode("⚔️")));
+                    selectOptions.add(SelectOption.of("Mario Kart", "mkart")
+                        .withEmoji(Emoji.fromCustom("mariokart", 1022329065799163974L, false)));
+                    selectOptions.add(SelectOption.of("Overwatch", "ow").withEmoji(Emoji.fromUnicode("🔫")));
+                    selectOptions.add(SelectOption.of("Pokémon", "pokemon")
+                        .withEmoji(Emoji.fromCustom("pokeball", 1022328739868180540L, false)));
+                    selectOptions.add(SelectOption.of("Rocket League", "rl").withEmoji(Emoji.fromUnicode("🚙")));
+                    selectOptions.add(SelectOption.of("Smash", "smash").withEmoji(Emoji.fromUnicode("👊")));
+
+                    channel.sendMessage("**Select applicable roles:**\n*Each selection acts as a toggle*").addActionRow(
+                        SelectMenu.create("role-select").addOptions(selectOptions).setMinValues(0)
+                            .setMaxValues(selectOptions.size())
+                            .build()).addActionRow(Button.secondary("viewroles", "Your Roles")).queue();
+                }
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                e.printStackTrace();
+            }
+        }, 1, TimeUnit.SECONDS);
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }
