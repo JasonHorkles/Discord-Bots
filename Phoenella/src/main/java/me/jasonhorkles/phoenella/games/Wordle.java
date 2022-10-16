@@ -154,20 +154,17 @@ public class Wordle extends ListenerAdapter {
                 new URL("https://api.dictionaryapi.dev/api/v2/entries/en/" + input.toLowerCase()).openStream();
             } catch (FileNotFoundException ignored) {
                 message.reply("**" + input + "** isn't in the dictionary!")
-                    .setActionRow(Button.primary("wordlerequest:" + input, "Request word!"))
                     .queue((del) -> del.delete().queueAfter(4, TimeUnit.SECONDS));
                 message.delete().queueAfter(150, TimeUnit.MILLISECONDS);
                 return;
             }
-            wordRequest(input.toUpperCase(), event.getMember(), true);
+            wordRequest(input.toUpperCase(), event.getMember());
 
         } catch (IOException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
 
-            message.reply("**" + input + "** isn't in my dictionary!")
-                .setActionRow(Button.primary("wordlerequest:" + input, "Request word!"))
-                .queue((del) -> del.delete().queueAfter(5, TimeUnit.SECONDS));
+            message.reply("<@277291758503723010> `" + e.getMessage() + "`").queue();
             message.delete().queueAfter(150, TimeUnit.MILLISECONDS);
             return;
         }
@@ -435,12 +432,6 @@ public class Wordle extends ListenerAdapter {
             return;
         }
 
-        if (event.getComponentId().startsWith("wordlerequest:")) {
-            event.editButton(event.getButton().asDisabled()).queue();
-            wordRequest(event.getComponentId().replace("wordlerequest:", ""), event.getMember(), false);
-            return;
-        }
-
         if (event.getComponentId().startsWith("reportword:")) {
             event.editButton(event.getButton().asDisabled()).queue();
 
@@ -503,32 +494,24 @@ public class Wordle extends ListenerAdapter {
             .schedule(() -> new Wordle().endGame(channel), delay, TimeUnit.SECONDS));
     }
 
-    private void wordRequest(String word, Member member, boolean isAuto) {
-        if (isAuto) {
-            ArrayList<String> words = new ArrayList<>();
-            try {
-                Scanner fileScanner = new Scanner(new File("Phoenella/Wordle/banned-requests.txt"));
-                while (fileScanner.hasNextLine()) words.add(fileScanner.nextLine());
-            } catch (NoSuchElementException ignored) {
-            } catch (FileNotFoundException e) {
-                System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                e.printStackTrace();
-            }
-            if (words.contains(word.toUpperCase())) return;
+    private void wordRequest(String word, Member member) {
+        ArrayList<String> words = new ArrayList<>();
+        try {
+            Scanner fileScanner = new Scanner(new File("Phoenella/Wordle/banned-requests.txt"));
+            while (fileScanner.hasNextLine()) words.add(fileScanner.nextLine());
+        } catch (NoSuchElementException ignored) {
+        } catch (FileNotFoundException e) {
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            e.printStackTrace();
         }
-
-        String s;
-        if (isAuto) s = "Auto word";
-        else s = "Word";
+        if (words.contains(word.toUpperCase())) return;
 
         //noinspection ConstantConditions
         Phoenella.jda.getTextChannelById(960213547944661042L).sendMessage(
-                ":inbox_tray: " + s + " request from " + new Utils().getFullName(member) + ": **" + word + "**")
-            .setActionRow(Button.primary("defineword:" + word, "Define word").withEmoji(Emoji.fromUnicode("❔")))
-            .queue((msg) -> msg.addReaction(Emoji.fromUnicode("✅")).queue((m) -> {
-                if (isAuto) msg.addReaction(Emoji.fromUnicode("⛔")).queue();
-                else msg.addReaction(Emoji.fromUnicode("❌")).queue();
-            }));
+                ":inbox_tray: Auto word request from " + new Utils().getFullName(member) + ": **" + word + "**")
+            .setActionRow(Button.primary("defineword:" + word, "Define word").withEmoji(Emoji.fromUnicode("❔"))).queue(
+                (msg) -> msg.addReaction(Emoji.fromUnicode("✅"))
+                    .queue((m) -> msg.addReaction(Emoji.fromUnicode("⛔")).queue()));
     }
 
     private enum LetterType {
