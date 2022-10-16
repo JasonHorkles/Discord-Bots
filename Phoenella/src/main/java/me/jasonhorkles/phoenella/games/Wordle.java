@@ -149,6 +149,12 @@ public class Wordle extends ListenerAdapter {
             return;
         }
 
+        if (new Utils().containsBadWord(input)) {
+            message.reply("Nope not doing that").queue((del) -> del.delete().queueAfter(3, TimeUnit.SECONDS));
+            message.delete().queueAfter(150, TimeUnit.MILLISECONDS);
+            return;
+        }
+
         if (!isNonReal.get(channel)) if (!wordList.toString().contains(input)) try {
             try {
                 new URL("https://api.dictionaryapi.dev/api/v2/entries/en/" + input.toLowerCase()).openStream();
