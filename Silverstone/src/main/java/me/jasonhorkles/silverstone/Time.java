@@ -1,6 +1,8 @@
 package me.jasonhorkles.silverstone;
 
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import org.joda.time.LocalDate;
+import org.joda.time.Period;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
@@ -12,15 +14,12 @@ public class Time {
 
     public void updateTime() {
         task = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            long time = System.currentTimeMillis() - 1511420400000L;
-            long years = (long) Math.floor(TimeUnit.MILLISECONDS.toDays(time) / 365.24);
-            time -= TimeUnit.DAYS.toMillis((long) (years * 365.24));
-            long months = (long) Math.floor(TimeUnit.MILLISECONDS.toDays(time) / 30F);
-            time -= TimeUnit.DAYS.toMillis(months * 30);
-            long days = TimeUnit.MILLISECONDS.toDays(time);
+            Period p = new Period(new LocalDate(1511420400000L), LocalDate.now());
 
             VoiceChannel channel = Silverstone.jda.getVoiceChannelById(914918234518593546L);
-            channel.getManager().setName(years + " years " + months + " months " + days + " days").queue();
+            channel.getManager().setName(
+                    p.getYears() + " years " + p.getMonths() + " months " + (p.getDays() + (p.getWeeks() * 7)) + " days")
+                .queue();
         }, 0, 6, TimeUnit.HOURS);
     }
 }
