@@ -197,7 +197,7 @@ public class Weather extends ListenerAdapter {
                     if (!acceptRainForDay) if (mightBeSnow && !isNight) {
                         // 🌦️
                         if (!dontSendAlerts) rainConfirmationChannel.sendMessage(
-                                ping + "\uD83C\uDF26️ It's " + doubleTrimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
+                                "[CONFIRMATION NEEDED] " + ping + "\uD83C\uDF26️ It's " + doubleTrimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
                             .setActionRow(Button.success("acceptrain", "Accept").withEmoji(Emoji.fromUnicode("✅")),
                                 Button.primary("acceptrainforday", "Accept future rain for the day")
                                     .withEmoji(Emoji.fromUnicode("☑️")),
@@ -215,7 +215,7 @@ public class Weather extends ListenerAdapter {
                 case 2 -> {
                     if (!acceptRainForDay) if (mightBeSnow && !isNight) {
                         if (!dontSendAlerts) rainConfirmationChannel.sendMessage(
-                                ping + "☔ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
+                                "[CONFIRMATION NEEDED] " + ping + "☔ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
                             .setActionRow(Button.success("acceptrain", "Accept").withEmoji(Emoji.fromUnicode("✅")),
                                 Button.primary("acceptrainforday", "Accept future rain for the day")
                                     .withEmoji(Emoji.fromUnicode("☑️")),
@@ -233,7 +233,7 @@ public class Weather extends ListenerAdapter {
                 case 1 -> {
                     if (!acceptRainForDay) if (mightBeSnow && !isNight) {
                         if (!dontSendAlerts) rainConfirmationChannel.sendMessage(
-                                ping + "☂️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
+                                "[CONFIRMATION NEEDED] " + ping + "☂️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
                             .setActionRow(Button.success("acceptrain", "Accept").withEmoji(Emoji.fromUnicode("✅")),
                                 Button.primary("acceptrainforday", "Accept future rain for the day")
                                     .withEmoji(Emoji.fromUnicode("☑️")),
@@ -271,8 +271,7 @@ public class Weather extends ListenerAdapter {
             }
         } else if (weather.equals("RAIN")) {
             StormAlerts.jda.getPresence().setActivity(Activity.watching("the rain @ " + rainRate + " in/hr"));
-            System.out.println(new Utils().getTime(
-                Utils.LogColor.GREEN) + "Raining @ " + rainRate + " in/hr");
+            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Raining @ " + rainRate + " in/hr");
         } else StormAlerts.jda.getPresence().setActivity(Activity.playing("it's " + weatherName));
 
         previousWeatherName = weatherName;
@@ -326,12 +325,12 @@ public class Weather extends ListenerAdapter {
     private void acceptRain(ButtonInteractionEvent event) {
         event.deferEdit().queue();
         TextChannel rainChannel = StormAlerts.jda.getTextChannelById(900248256515285002L);
-        rainChannel.sendMessage(event.getMessage().getContentRaw()).queue();
+        rainChannel.sendMessage(event.getMessage().getContentRaw().replaceFirst("\\[CONFIRMATION NEEDED] ", ""))
+            .queue();
         event.getMessage().delete().queue();
 
         StormAlerts.jda.getPresence().setStatus(OnlineStatus.ONLINE);
-        StormAlerts.jda.getPresence()
-            .setActivity(Activity.watching("the rain @ " + rainRate + " in/hr"));
+        StormAlerts.jda.getPresence().setActivity(Activity.watching("the rain @ " + rainRate + " in/hr"));
         previousWeatherName = weatherName;
         previousTypeChannel = rainChannel;
     }
