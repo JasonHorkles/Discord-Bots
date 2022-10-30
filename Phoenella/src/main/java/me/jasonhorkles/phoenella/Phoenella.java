@@ -14,8 +14,8 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -33,7 +33,7 @@ import java.util.concurrent.*;
 @SuppressWarnings({"ConstantConditions"})
 public class Phoenella {
     private static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
-    public static ArrayList<SelectOption> selectOptions = new ArrayList<>();
+    public static final ArrayList<SelectOption> selectOptions = new ArrayList<>();
     public static boolean localWordleBoard = false;
     public static JDA jda;
 
@@ -83,7 +83,7 @@ public class Phoenella {
 
             if (new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).isEmpty())
                 channel.sendMessage("**Select applicable roles:**\n*Each selection acts as a toggle*").addActionRow(
-                        SelectMenu.create("role-select").addOptions(selectOptions).setMinValues(0)
+                        StringSelectMenu.create("role-select").addOptions(selectOptions).setMinValues(0)
                             .setMaxValues(selectOptions.size()).build())
                     .addActionRow(Button.secondary("viewroles", "Your Roles")).queue();
         } catch (InterruptedException | ExecutionException | TimeoutException e) {

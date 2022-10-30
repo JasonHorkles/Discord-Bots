@@ -6,9 +6,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -20,15 +18,17 @@ public class Soundboard extends ListenerAdapter {
     private static AudioChannel currentVoiceChannel = null;
 
     @Override
-    public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
+    public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
         if (event.getMember().getUser().isBot()) return;
-        if (currentVoiceChannel == null) joinVC(event.getGuild(), event.getChannelJoined());
-    }
 
-    @Override
-    public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
-        if (event.getMember().getUser().isBot()) return;
-        if (event.getChannelJoined() != currentVoiceChannel && event.getChannelLeft() == currentVoiceChannel) {
+        // Join
+        if (event.getChannelJoined() != null && event.getChannelLeft() == null) {
+            if (currentVoiceChannel == null) joinVC(event.getGuild(), event.getChannelJoined());
+        }
+
+        // Leave
+        else if (event.getChannelJoined() == null && event.getChannelLeft() != null) {
+            if (currentVoiceChannel == null) return;
 
             int membersInChannel = currentVoiceChannel.getMembers().size();
             for (Member member : currentVoiceChannel.getMembers()) if (member.getUser().isBot()) membersInChannel--;
@@ -39,34 +39,33 @@ public class Soundboard extends ListenerAdapter {
                 musicManager.scheduler.queue.clear();
                 musicManager.player.destroy();
 
-                joinVC(event.getGuild(), event.getChannelJoined());
+                for (VoiceChannel voiceChannels : event.getGuild().getVoiceChannels())
+                    if (!voiceChannels.getMembers().isEmpty())
+                        if (!voiceChannels.getMembers().contains(event.getGuild().getMemberById(892263254825500692L))) {
+                            joinVC(event.getGuild(), voiceChannels);
+                            return;
+                        }
+                AudioManager audioManager = event.getGuild().getAudioManager();
+                audioManager.closeAudioConnection();
+                currentVoiceChannel = null;
             }
         }
-    }
 
-    @Override
-    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
-        if (event.getMember().getUser().isBot()) return;
-        if (currentVoiceChannel == null) return;
+        // Move
+        else if (event.getChannelJoined() != currentVoiceChannel && event.getChannelLeft() == currentVoiceChannel) {
 
-        int membersInChannel = currentVoiceChannel.getMembers().size();
-        for (Member member : currentVoiceChannel.getMembers()) if (member.getUser().isBot()) membersInChannel--;
+            int membersInChannel = currentVoiceChannel.getMembers().size();
+            for (Member member : currentVoiceChannel.getMembers())
+                if (member.getUser().isBot()) membersInChannel--;
 
-        if (membersInChannel == 0) {
-            GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
-            musicManager.scheduler.player.stopTrack();
-            musicManager.scheduler.queue.clear();
-            musicManager.player.destroy();
+            if (membersInChannel == 0) {
+                GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
+                musicManager.scheduler.player.stopTrack();
+                musicManager.scheduler.queue.clear();
+                musicManager.player.destroy();
 
-            for (VoiceChannel voiceChannels : event.getGuild().getVoiceChannels())
-                if (!voiceChannels.getMembers().isEmpty())
-                    if (!voiceChannels.getMembers().contains(event.getGuild().getMemberById(892263254825500692L))) {
-                        joinVC(event.getGuild(), voiceChannels);
-                        return;
-                    }
-            AudioManager audioManager = event.getGuild().getAudioManager();
-            audioManager.closeAudioConnection();
-            currentVoiceChannel = null;
+                joinVC(event.getGuild(), event.getChannelJoined());
+            }
         }
     }
 

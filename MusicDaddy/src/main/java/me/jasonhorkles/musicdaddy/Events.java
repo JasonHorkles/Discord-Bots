@@ -9,8 +9,7 @@ import me.jasonhorkles.musicdaddy.lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -284,22 +283,11 @@ public class Events extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
+    public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
+        if (event.getChannelLeft() == null) return;
         if (event.getMember().getUser().isBot()) return;
         if (!Events.currentVoiceChannel.containsKey(event.getGuild())) return;
-        int membersInChannel = currentVoiceChannel.get(event.getGuild()).getMembers().size();
-        for (Member member : currentVoiceChannel.get(event.getGuild()).getMembers())
-            if (member.getUser().isBot()) membersInChannel--;
-        if (membersInChannel > 0) return;
 
-        if (event.getChannelLeft() == currentVoiceChannel.get(event.getGuild()))
-            new MusicDaddy().leaveChannel(event.getGuild());
-    }
-
-    @Override
-    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
-        if (event.getMember().getUser().isBot()) return;
-        if (!Events.currentVoiceChannel.containsKey(event.getGuild())) return;
         int membersInChannel = currentVoiceChannel.get(event.getGuild()).getMembers().size();
         for (Member member : currentVoiceChannel.get(event.getGuild()).getMembers())
             if (member.getUser().isBot()) membersInChannel--;
