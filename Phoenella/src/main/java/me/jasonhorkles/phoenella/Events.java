@@ -84,7 +84,7 @@ public class Events extends ListenerAdapter {
         if (text.contains("stop") || text.contains("shut down")) if (member.getIdLong() == 277291758503723010L) {
             message.reply("Shutting down...").mentionRepliedUser(false).queue();
             PteroClient ptero = PteroBuilder.createClient(new Secrets().getPteroUrl(), new Secrets().getPteroApiKey());
-            ptero.retrieveServerByIdentifier("af9d05bc").flatMap(ClientServer::stop).executeAsync();
+            ptero.retrieveServerByIdentifier("5243694c").flatMap(ClientServer::stop).executeAsync();
             return;
         }
 
