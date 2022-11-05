@@ -79,7 +79,7 @@ public class Events extends ListenerAdapter {
 
             if (warnings.get(id) > 1) message.append("\n\n*Warning ").append(warnings.get(id)).append("/3*");
 
-            event.getMessage().reply(message).queue(message1 -> message1.delete().queueAfter(5, TimeUnit.MINUTES, null,
+            event.getMessage().reply(message).queue(message1 -> message1.delete().queueAfter(15, TimeUnit.MINUTES, null,
                 new ErrorHandler().handle(ErrorResponse.UNKNOWN_MESSAGE, (e) -> System.out.println(
                     new Utils().getTime(Utils.LogColor.RED) + "Unable to delete warning message."))));
         }
@@ -89,9 +89,9 @@ public class Events extends ListenerAdapter {
     public void warn(Long id, MessageReceivedEvent event, int count) {
         if (warnings.containsKey(id)) {
             warnings.put(id, warnings.get(id) + count);
-            if (warnings.get(id) >= 3) event.getMember().timeoutFor(10, TimeUnit.MINUTES).queue(null,
+            if (warnings.get(id) >= 3) event.getMember().timeoutFor(12, TimeUnit.HOURS).queue(null,
                 (na) -> event.getChannel().sendMessage("<@277291758503723010>").queue((del) -> del.delete()
-                    .queueAfter(5, TimeUnit.SECONDS, null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE))));
+                    .queueAfter(15, TimeUnit.SECONDS, null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE))));
         } else warnings.put(id, count);
 
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Warned " + event.getMember()
