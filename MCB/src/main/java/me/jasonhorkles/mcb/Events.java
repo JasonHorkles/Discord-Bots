@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -183,5 +184,16 @@ public class Events extends ListenerAdapter {
 
         System.out.println(new Utils().getTime(
             Utils.LogColor.GREEN) + "Deleted " + count + " messages from " + author.getAsTag() + "!\n");
+    }
+
+    @Override
+    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+        if (event.getName().equalsIgnoreCase("enginehub")) {
+            @SuppressWarnings("ConstantConditions") boolean ephemeral = !event.getMember().getRoles().toString()
+                .contains("646291178144399371");
+
+            event.reply("Join the EngineHub Discord for WorldEdit/WorldGuard support at https://discord.gg/enginehub")
+                .setEphemeral(ephemeral).queue();
+        }
     }
 }
