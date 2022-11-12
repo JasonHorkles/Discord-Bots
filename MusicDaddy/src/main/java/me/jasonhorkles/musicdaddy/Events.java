@@ -14,11 +14,14 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.apache.hc.core5.http.ParseException;
+import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
+import se.michaelthelin.spotify.model_objects.credentials.ClientCredentials;
 import se.michaelthelin.spotify.model_objects.specification.Paging;
 import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 import se.michaelthelin.spotify.model_objects.specification.TrackSimplified;
+import se.michaelthelin.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 
 import java.io.IOException;
 import java.util.*;
@@ -29,6 +32,10 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("ConstantConditions")
 public class Events extends ListenerAdapter {
     public static final HashMap<Guild, AudioChannel> currentVoiceChannel = new HashMap<>();
+
+    private static final SpotifyApi spotify = new SpotifyApi.Builder().setClientId(new Secrets().getSpotifyClientId())
+        .setClientSecret(new Secrets().getSpotifyClientSecret()).build();
+    private static final ClientCredentialsRequest ccr = spotify.clientCredentials().build();
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
@@ -52,15 +59,23 @@ public class Events extends ListenerAdapter {
                 if (event.getName().equalsIgnoreCase("play")) {
                     String url = event.getOption("url").getAsString();
                     if (url.contains("spotify")) try {
+                        try {
+                            ClientCredentials cc = ccr.execute();
+                            spotify.setAccessToken(cc.getAccessToken());
+                        } catch (IOException | SpotifyWebApiException | ParseException e) {
+                            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                            e.printStackTrace();
+                        }
+
                         if (url.contains("track")) {
                             url = url.replaceFirst(".*track/", "").replaceAll("\\?si=.*", "");
-                            Track track = MusicDaddy.spotify.getTrack(url).build().execute();
+                            Track track = spotify.getTrack(url).build().execute();
 
                             search = "ytsearch:" + track.getName() + " " + track.getArtists()[0].getName() + " audio";
 
                         } else if (url.contains("playlist")) {
                             url = url.replaceFirst(".*playlist/", "").replaceAll("\\?si=.*", "");
-                            Paging<PlaylistTrack> playlist = MusicDaddy.spotify.getPlaylistsItems(url).build()
+                            Paging<PlaylistTrack> playlist = spotify.getPlaylistsItems(url).build()
                                 .execute();
                             List<PlaylistTrack> tracks = new ArrayList<>(Arrays.asList(playlist.getItems()));
                             boolean shuffle = false;
@@ -95,7 +110,7 @@ public class Events extends ListenerAdapter {
 
                         } else if (url.contains("album")) {
                             url = url.replaceFirst(".*album/", "").replaceAll("\\?si=.*", "");
-                            Paging<TrackSimplified> album = MusicDaddy.spotify.getAlbumsTracks(url).build().execute();
+                            Paging<TrackSimplified> album = spotify.getAlbumsTracks(url).build().execute();
                             List<TrackSimplified> tracks = new ArrayList<>(Arrays.asList(album.getItems()));
                             boolean shuffle = false;
                             if (event.getOption("shuffle") != null) shuffle = event.getOption("shuffle").getAsBoolean();
@@ -128,7 +143,7 @@ public class Events extends ListenerAdapter {
 
                         } else if (url.contains("artist")) {
                             url = url.replaceFirst(".*artist/", "").replaceAll("\\?si=.*", "");
-                            Track[] artistTracks = MusicDaddy.spotify.getArtistsTopTracks(url, CountryCode.US).build()
+                            Track[] artistTracks = spotify.getArtistsTopTracks(url, CountryCode.US).build()
                                 .execute();
                             List<Track> tracks = new ArrayList<>(Arrays.asList(artistTracks));
                             boolean shuffle = false;
@@ -185,6 +200,8 @@ public class Events extends ListenerAdapter {
             }
 
             case "stop" -> {
+                musicManager.scheduler.queue.clear();
+                audioPlayer.getPlayingTrack().stop();
                 new MusicDaddy().leaveChannel(event.getGuild());
                 event.getHook().editOriginal("Audio stopped!").queue();
             }

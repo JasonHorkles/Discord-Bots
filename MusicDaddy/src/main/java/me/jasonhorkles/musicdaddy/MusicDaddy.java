@@ -17,22 +17,12 @@ import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import org.apache.hc.core5.http.ParseException;
-import se.michaelthelin.spotify.SpotifyApi;
-import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
-import se.michaelthelin.spotify.model_objects.credentials.ClientCredentials;
-import se.michaelthelin.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class MusicDaddy {
     public static JDA jda;
-    public static final SpotifyApi spotify = new SpotifyApi.Builder().setClientId(new Secrets().getSpotifyClientId())
-        .setClientSecret(new Secrets().getSpotifyClientSecret()).build();
-
-    private static final ClientCredentialsRequest ccr = spotify.clientCredentials().build();
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
@@ -47,14 +37,6 @@ public class MusicDaddy {
         builder.setEnableShutdownHook(false);
         builder.addEventListeners(new Events());
         jda = builder.build();
-
-        try {
-            ClientCredentials cc = ccr.execute();
-            spotify.setAccessToken(cc.getAccessToken());
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.print(new Utils().getTime(Utils.LogColor.RED));
-            e.printStackTrace();
-        }
 
         jda.awaitReady();
 
