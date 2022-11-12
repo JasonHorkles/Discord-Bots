@@ -104,15 +104,22 @@ public class Events extends ListenerAdapter {
                 event.getChannel().sendMessageEmbeds(embed.build()).queue();
             }
 
-        // Direct to plugin support
-        if (event.getChannel().getIdLong() != 1023735878075564042L && !event.getMember().getRoles().toString()
-            .contains("667793980318154783")) {
-            String message = event.getMessage().getContentStripped().toLowerCase().replace(" ", "");
-            if (message.contains("entityclearer") || message.contains("expensivedeaths") || message.contains(
-                "filecleaner"))
-                event.getMessage().reply("Please go to <#1023735878075564042> if you need help with Jason's plugins.")
-                    .mentionRepliedUser(true).queue();
-        }
+        // Direct to plugin support (not in thread)
+        if (event.getMessage().getChannelType() != ChannelType.GUILD_PUBLIC_THREAD && !event.getMember().getRoles()
+            .toString().contains("667793980318154783")) sendToPluginSupport(event);
+
+        // Direct to plugin support (in thread)
+        if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD && !event.getMember().getRoles()
+            .toString().contains("667793980318154783"))
+            if (event.getGuildChannel().asThreadChannel().getParentChannel().getIdLong() == 1023735878075564042L)
+                sendToPluginSupport(event);
+    }
+
+    private void sendToPluginSupport(MessageReceivedEvent event) {
+        String message = event.getMessage().getContentStripped().toLowerCase().replace(" ", "");
+        if (message.contains("entityclearer") || message.contains("expensivedeaths") || message.contains("filecleaner"))
+            event.getMessage().reply("Please go to <#1023735878075564042> if you need help with Jason's plugins.")
+                .mentionRepliedUser(true).queue();
     }
 
     // When recent chatter leaves
@@ -127,8 +134,7 @@ public class Events extends ListenerAdapter {
             .getThreadChannels()) {
             if (thread.isArchived()) continue;
 
-            System.out.println(
-                new Utils().getTime(Utils.LogColor.YELLOW) + "Checking post '" + thread.getName() + "'");
+            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking post '" + thread.getName() + "'");
 
             if (thread.getOwnerIdLong() == event.getUser().getIdLong()) {
                 sendOPLeaveMessage(thread, event.getUser());
