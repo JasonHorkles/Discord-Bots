@@ -55,7 +55,7 @@ public class Silverstone {
         new Time().updateTime();
 
         // Cache last counting number and verify last 10 messages
-        TextChannel counting = jda.getChannelById(TextChannel.class, 1041206953860419604L);
+        TextChannel counting = jda.getChannelById(TextChannel.class, 816885380577230906L);
         //noinspection ConstantConditions
         LinkedList<Message> messages = new LinkedList<>(
             new Utils().getMessages(counting, 50).get(60, TimeUnit.SECONDS));
