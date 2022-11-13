@@ -117,7 +117,28 @@ public class Events extends ListenerAdapter {
 
         // Counting
         if (event.getChannel().getIdLong() == 1041206953860419604L) {
+            Message m = event.getMessage();
+            int value;
+            try {
+                // Errors if invalid int, resulting in catch statement running
+                value = Integer.parseInt(m.getContentRaw());
 
+                if (lastNumber == -2) lastNumber = value + 1;
+
+                // If value is 1 less than the last number, update the last number value
+                if (value + 1 == lastNumber) lastNumber = value;
+                else {
+                    System.out.println(
+                        new Utils().getTime(Utils.LogColor.YELLOW) + "Deleting invalid number from counting: " + value);
+                    m.delete().queue();
+                }
+
+            } catch (NumberFormatException ignored) {
+                // NaN
+                System.out.println(new Utils().getTime(
+                    Utils.LogColor.YELLOW) + "Deleting invalid message from counting: " + m.getContentRaw());
+                m.delete().queue();
+            }
         }
 
         // Ping

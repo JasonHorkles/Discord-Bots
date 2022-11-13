@@ -62,7 +62,7 @@ public class Silverstone {
         // Sort messages oldest to newest
         messages.sort(Comparator.comparing(ISnowflake::getTimeCreated));
 
-        int lastNumber = -1;
+        int lastNumber = -2;
         if (!messages.isEmpty()) {
             boolean isFirstNumber = true;
 
