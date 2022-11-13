@@ -18,7 +18,7 @@ public class Time {
 
             VoiceChannel channel = Silverstone.jda.getVoiceChannelById(914918234518593546L);
             channel.getManager().setName(
-                    p.getYears() + " years " + p.getMonths() + " months " + (p.getDays() + (p.getWeeks() * 7)) + " days")
+                    p.getYears() + "y " + p.getMonths() + "m " + (p.getDays() + (p.getWeeks() * 7)) + "d")
                 .queue();
         }, 0, 6, TimeUnit.HOURS);
     }
