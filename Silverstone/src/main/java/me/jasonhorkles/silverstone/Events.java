@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -21,7 +22,7 @@ import java.util.concurrent.TimeoutException;
 
 @SuppressWarnings("ConstantConditions")
 public class Events extends ListenerAdapter {
-    //todo reaction to convert txt file to code block
+    public static int lastNumber;
 
     @SuppressWarnings("SuspiciousMethodCalls")
     @Override
@@ -113,6 +114,15 @@ public class Events extends ListenerAdapter {
             .toString().contains("667793980318154783"))
             if (event.getGuildChannel().asThreadChannel().getParentChannel().getIdLong() == 1023735878075564042L)
                 sendToPluginSupport(event);
+
+        // Counting
+        if (event.getChannel().getIdLong() == 1041206953860419604L) {
+
+        }
+
+        // Ping
+        if (event.getMessage().getContentRaw().contains("<@277291758503723010>"))
+            event.getMessage().addReaction(Emoji.fromCustom("piiiiiing", 658749607488127017L, false)).queue();
     }
 
     private void sendToPluginSupport(MessageReceivedEvent event) {
