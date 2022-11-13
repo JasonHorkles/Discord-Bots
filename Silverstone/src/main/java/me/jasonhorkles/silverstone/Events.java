@@ -116,7 +116,7 @@ public class Events extends ListenerAdapter {
                 sendToPluginSupport(event);
 
         // Counting
-        if (event.getChannel().getIdLong() == 1041206953860419604L) {
+        if (event.getChannel().getIdLong() == 816885380577230906L) {
             Message m = event.getMessage();
             int value;
             try {
