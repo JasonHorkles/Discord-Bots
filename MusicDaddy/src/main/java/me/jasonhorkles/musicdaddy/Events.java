@@ -75,8 +75,7 @@ public class Events extends ListenerAdapter {
 
                         } else if (url.contains("playlist")) {
                             url = url.replaceFirst(".*playlist/", "").replaceAll("\\?si=.*", "");
-                            Paging<PlaylistTrack> playlist = spotify.getPlaylistsItems(url).build()
-                                .execute();
+                            Paging<PlaylistTrack> playlist = spotify.getPlaylistsItems(url).build().execute();
                             List<PlaylistTrack> tracks = new ArrayList<>(Arrays.asList(playlist.getItems()));
                             boolean shuffle = false;
                             if (event.getOption("shuffle") != null) shuffle = event.getOption("shuffle").getAsBoolean();
@@ -143,8 +142,7 @@ public class Events extends ListenerAdapter {
 
                         } else if (url.contains("artist")) {
                             url = url.replaceFirst(".*artist/", "").replaceAll("\\?si=.*", "");
-                            Track[] artistTracks = spotify.getArtistsTopTracks(url, CountryCode.US).build()
-                                .execute();
+                            Track[] artistTracks = spotify.getArtistsTopTracks(url, CountryCode.US).build().execute();
                             List<Track> tracks = new ArrayList<>(Arrays.asList(artistTracks));
                             boolean shuffle = false;
                             if (event.getOption("shuffle") != null) shuffle = event.getOption("shuffle").getAsBoolean();
@@ -201,7 +199,6 @@ public class Events extends ListenerAdapter {
 
             case "stop" -> {
                 musicManager.scheduler.queue.clear();
-                audioPlayer.getPlayingTrack().stop();
                 new MusicDaddy().leaveChannel(event.getGuild());
                 event.getHook().editOriginal("Audio stopped!").queue();
             }
