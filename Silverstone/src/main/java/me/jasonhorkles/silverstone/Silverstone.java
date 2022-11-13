@@ -4,18 +4,26 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class Silverstone {
     public static JDA jda;
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
@@ -45,6 +53,50 @@ public class Silverstone {
             .queue();
 
         new Time().updateTime();
+
+        // Cache last counting number and verify last 10 messages
+        TextChannel counting = jda.getChannelById(TextChannel.class, 1041206953860419604L);
+        //noinspection ConstantConditions
+        LinkedList<Message> messages = new LinkedList<>(
+            new Utils().getMessages(counting, 50).get(60, TimeUnit.SECONDS));
+        // Sort messages oldest to newest
+        messages.sort(Comparator.comparing(ISnowflake::getTimeCreated));
+
+        int lastNumber = -1;
+        if (!messages.isEmpty()) {
+            boolean isFirstNumber = true;
+
+            for (Message m : messages) {
+                if (m == null) break;
+
+                int value;
+                try {
+                    // Errors if invalid int, resulting in catch statement running
+                    value = Integer.parseInt(m.getContentRaw());
+
+                    // Set first number
+                    if (isFirstNumber) {
+                        lastNumber = value + 1;
+                        isFirstNumber = false;
+                    }
+
+                    // If value is 1 less than the last number, update the last number value
+                    if (value + 1 == lastNumber) lastNumber = value;
+                    else {
+                        System.out.println(new Utils().getTime(
+                            Utils.LogColor.YELLOW) + "Deleting invalid number from counting: " + value);
+                        m.delete().queue();
+                    }
+
+                } catch (NumberFormatException ignored) {
+                    // NaN
+                    System.out.println(new Utils().getTime(
+                        Utils.LogColor.YELLOW) + "Deleting invalid message from counting: " + m.getContentRaw());
+                    m.delete().queue();
+                }
+            }
+        }
+        Events.lastNumber = lastNumber;
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new Silverstone().shutdown(), "Shutdown Hook"));
