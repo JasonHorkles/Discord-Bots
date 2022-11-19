@@ -34,7 +34,7 @@ public class Silverstone {
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setBulkDeleteSplittingEnabled(false);
         builder.setStatus(OnlineStatus.ONLINE);
-        builder.setActivity(Activity.watching("Dave"));
+        builder.setActivity(Activity.watching("the days go by"));
         builder.setEnableShutdownHook(false);
         builder.addEventListeners(new Events(), new Testing());
         jda = builder.build();
