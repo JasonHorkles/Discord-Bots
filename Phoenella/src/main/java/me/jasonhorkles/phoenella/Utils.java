@@ -235,16 +235,22 @@ public class Utils {
             for (int x = 0; x < meanings.length() && x < 3; x++) {
                 if (x > 0) definitions.append("\n\n");
                 JSONObject info = meanings.getJSONObject(x);
-                definitions.append("**").append(info.getString("partOfSpeech").toUpperCase()).append(":**");
 
+                ArrayList<String> definitionList = new ArrayList<>();
                 JSONArray rawDefinitions = info.getJSONArray("definitions");
                 int iterations = 0;
                 for (int y = 0; y < rawDefinitions.length() && iterations < 2; y++) {
                     String newDefinition = rawDefinitions.getJSONObject(y).getString("definition");
                     if (containsBadWord(newDefinition)) continue;
 
-                    definitions.append("\n• ").append(newDefinition);
+                    definitionList.add(newDefinition);
                     iterations++;
+                }
+
+                if (!definitionList.isEmpty()) {
+                    definitions.append("**").append(info.getString("partOfSpeech").toUpperCase()).append(":**");
+                    for (String definition : definitionList)
+                        definitions.append("\n• ").append(definition);
                 }
             }
 
