@@ -304,7 +304,7 @@ public class Weather extends ListenerAdapter {
             case "unsurerain" -> {
                 event.deferEdit().queue();
                 TextChannel rainChannel = StormAlerts.jda.getTextChannelById(900248256515285002L);
-                rainChannel.sendMessage(event.getMessage().getContentRaw().replace("<@&843956362059841596> ", "")
+                rainChannel.sendMessage(event.getMessage().getContentRaw().replaceFirst("\\[CONFIRMATION NEEDED] ", "")
                     .replace("!", "! (May be snow melting in the rain gauge)")).queue();
                 event.getMessage().delete().queue();
 
