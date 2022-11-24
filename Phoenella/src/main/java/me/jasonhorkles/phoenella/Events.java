@@ -397,7 +397,7 @@ public class Events extends ListenerAdapter {
 
         msg = new Utils().lookUp(text, new Utils().getFirstName(member));
         if (msg.equals("501")) {
-            int number = r.nextInt(17);
+            int number = r.nextInt(20);
             switch (number) {
                 case 0 -> msg = "no";
                 case 1 -> msg = "yes";
@@ -416,6 +416,9 @@ public class Events extends ListenerAdapter {
                 case 14 -> msg = "i'm not sure if you'd want to know that answer...";
                 case 15 -> msg = "of course not!";
                 case 16 -> msg = "sure";
+                case 17 -> msg = "https://tenor.com/ovll.gif";
+                case 18 -> msg = "https://tenor.com/bihu2.gif";
+                case 19 -> msg = "https://tenor.com/bQZAM.gif";
             }
         }
         new Utils().sendMessage(null, message, msg, allCaps);
