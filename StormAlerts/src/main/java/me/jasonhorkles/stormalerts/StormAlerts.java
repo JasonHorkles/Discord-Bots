@@ -124,7 +124,7 @@ public class StormAlerts extends ListenerAdapter {
             selectOptions.add(SelectOption.of("Rain", "843956362059841596").withEmoji(Emoji.fromUnicode("🌦️")));
             selectOptions.add(SelectOption.of("Heavy Rain", "843956325690900503").withEmoji(Emoji.fromUnicode("🌧️")));
             selectOptions.add(
-                SelectOption.of("BETA High Wind (Coming Soon)", "1046148944108978227")
+                SelectOption.of("BETA High Wind", "1046148944108978227")
                     .withEmoji(Emoji.fromUnicode("🍃")));
             selectOptions.add(
                 SelectOption.of("Lightning Info", "896877424824954881").withEmoji(Emoji.fromUnicode("⚡")));
