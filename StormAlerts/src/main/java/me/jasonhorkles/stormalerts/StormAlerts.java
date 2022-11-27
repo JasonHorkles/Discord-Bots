@@ -139,8 +139,6 @@ public class StormAlerts extends ListenerAdapter {
             e.printStackTrace();
         }
 
-        jda.addEventListener(new Events());
-
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new StormAlerts().shutdown(), "Shutdown Hook"));
         Thread input = new Thread(() -> {
