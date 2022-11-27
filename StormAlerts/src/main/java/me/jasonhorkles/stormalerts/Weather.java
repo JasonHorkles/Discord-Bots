@@ -32,12 +32,12 @@ import java.util.concurrent.*;
 public class Weather extends ListenerAdapter {
     public static TextChannel previousTypeChannel;
 
-    private static String weather = "null";
-    private static String previousWeatherName;
-    private static String weatherName;
-    private static double rainRate;
     private static boolean acceptRainForDay = false;
+    private static double rainRate;
     private static ScheduledFuture<?> scheduledSnowMessage;
+    private static String previousWeatherName;
+    private static String weather = "null";
+    private static String weatherName;
 
     public void checkConditions() throws IOException, ExecutionException, InterruptedException, TimeoutException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking weather...");
@@ -300,7 +300,7 @@ public class Weather extends ListenerAdapter {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Weather: " + weather);
     }
 
-    // Rain stuff
+    // Rain confirmation stuff
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         switch (event.getComponentId()) {

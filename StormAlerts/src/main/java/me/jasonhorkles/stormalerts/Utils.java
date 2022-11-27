@@ -85,11 +85,6 @@ public class Utils {
         return channel.getIterableHistory().takeAsync(count).thenApply(ArrayList::new);
     }
 
-    public String checkIfNull(String string) {
-        if (string.equalsIgnoreCase("null")) string = "ERROR";
-        return string;
-    }
-
     public boolean shouldIPing(TextChannel channel) {
         try {
             Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).get(0);
