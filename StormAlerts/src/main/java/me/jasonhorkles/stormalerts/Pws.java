@@ -169,11 +169,11 @@ public class Pws {
         if (previousLightningTime.equals(lightningTimeLong)) return;
         if (lightningTimeLong < System.currentTimeMillis() - 600000) return;
 
-        int lightningDistance = Math.toIntExact(Math.round(
-            Double.parseDouble(new Utils().checkIfNull(new Utils().getJsonKey(input, "lightning_distance", true)))));
+        int lightningDistance = Math.toIntExact(
+            Math.round(Double.parseDouble(new Utils().getJsonKey(input, "lightning_distance", true))));
         String s = "s";
         if (lightningDistance == 1) s = "";
-        
+
         TextChannel lightningChannel = StormAlerts.jda.getTextChannelById(899876734999089192L);
 
         String ping = "";
