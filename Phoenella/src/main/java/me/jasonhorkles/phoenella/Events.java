@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
@@ -687,7 +688,7 @@ public class Events extends ListenerAdapter {
                             finalLeaderboard.append("```");
 
                             EmbedBuilder embed = new EmbedBuilder();
-                            embed.setColor(new Color(56, 224, 104));
+                            embed.setColor(new Color(47, 49, 54));
                             embed.setTitle("Wordle Leaderboard");
                             embed.setFooter("User-generated words are not counted");
                             embed.setDescription(finalLeaderboard);
@@ -755,10 +756,27 @@ public class Events extends ListenerAdapter {
 
             case "viewroles" -> {
                 event.deferReply(true).queue();
-                StringBuilder roleList = new StringBuilder();
-                for (Role role : event.getMember().getRoles()) roleList.append(role.getAsMention()).append("\n");
 
-                event.getHook().editOriginal(roleList.toString()).queue();
+                StringBuilder roleList = new StringBuilder();
+                StringBuilder notRoleList = new StringBuilder();
+                for (SelectOption option : ((StringSelectMenu) event.getMessage().getActionRows().get(0).getComponents()
+                    .get(0)).getOptions()) {
+                    Role role = event.getGuild().getRoleById(option.getValue());
+
+                    if (event.getMember().getRoles().contains(role)) roleList.append(role.getAsMention()).append("\n");
+                    else notRoleList.append(role.getAsMention()).append("\n");
+                }
+
+                if (roleList.isEmpty()) roleList.append("None");
+                if (notRoleList.isEmpty()) notRoleList.append("None");
+
+                EmbedBuilder embed = new EmbedBuilder();
+                embed.addField("You have", roleList.toString(), true);
+                embed.addBlankField(true);
+                embed.addField("You don't have", notRoleList.toString(), true);
+                embed.setColor(new Color(47, 49, 54));
+
+                event.getHook().editOriginalEmbeds(embed.build()).queue();
             }
         }
     }
@@ -803,7 +821,28 @@ public class Events extends ListenerAdapter {
                         // If the person does have other roles
                     else new Utils().addRoleToMember(member, guild, Utils.RoleType.BUTTON);
 
-                    event.getHook().editOriginal("Done!").queue();
+                    // Show user's roles
+                    StringBuilder roleList = new StringBuilder();
+                    StringBuilder notRoleList = new StringBuilder();
+                    for (SelectOption option : ((StringSelectMenu) event.getMessage().getActionRows().get(0)
+                        .getComponents().get(0)).getOptions()) {
+                        Role role = event.getGuild().getRoleById(option.getValue());
+
+                        if (event.getMember().getRoles().contains(role))
+                            roleList.append(role.getAsMention()).append("\n");
+                        else notRoleList.append(role.getAsMention()).append("\n");
+                    }
+
+                    if (roleList.isEmpty()) roleList.append("None");
+                    if (notRoleList.isEmpty()) notRoleList.append("None");
+
+                    EmbedBuilder embed = new EmbedBuilder();
+                    embed.addField("You have", roleList.toString(), true);
+                    embed.addBlankField(true);
+                    embed.addField("You don't have", notRoleList.toString(), true);
+                    embed.setColor(new Color(47, 49, 54));
+
+                    event.getHook().editOriginalEmbeds(embed.build()).queue();
                 }, "Add Roles - " + new Utils().getFirstName(member)).start();
             }
         }
