@@ -49,6 +49,7 @@ public class Phoenella {
         builder.setEnableShutdownHook(false);
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.playing("Wordle"));
+        builder.addEventListeners(new Events(), new Soundboard(), new GameManager(), new RPS(), new Wordle());
         jda = builder.build();
 
         jda.awaitReady();
@@ -206,8 +207,6 @@ public class Phoenella {
                     Button.secondary("sound:tech", "Technical Difficulties"),
                     Button.secondary("sound:flysave", "What a Save"), Button.secondary("sound:yeet", "Yeet")),
                 ActionRow.of(Button.danger("sound:stop", "Stop Sounds").withEmoji(Emoji.fromUnicode("🛑")))).queue();
-
-        jda.addEventListener(new Events(), new Soundboard(), new GameManager(), new RPS(), new Wordle());
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new Phoenella().shutdown(), "Shutdown Hook"));
