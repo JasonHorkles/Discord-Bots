@@ -5,13 +5,16 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import org.jetbrains.annotations.Nullable;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -44,7 +47,7 @@ public class StormAlerts extends ListenerAdapter {
         builder.setBulkDeleteSplittingEnabled(false);
         builder.setStatus(OnlineStatus.DO_NOT_DISTURB);
         builder.setEnableShutdownHook(false);
-        builder.addEventListeners(new StormAlerts(), new Weather());
+        builder.addEventListeners(new Events(), new Weather());
         jda = builder.build();
 
         jda.awaitReady();
@@ -104,6 +107,40 @@ public class StormAlerts extends ListenerAdapter {
         new StormAlerts().scheduleTrafficCheck("5:50 PM", false);
         new StormAlerts().scheduleTrafficCheck("6:00 PM", false);
 
+        // Send select menu message if needed
+        try {
+            TextChannel channel = jda.getTextChannelById(843919716677582891L);
+            ArrayList<SelectOption> selectOptions = new ArrayList<>();
+
+            selectOptions.add(
+                SelectOption.of("New NWS Alerts", "850471646191812700").withEmoji(Emoji.fromUnicode("⚠️")));
+            selectOptions.add(
+                SelectOption.of("NWS Alert Updates", "850471690093854810").withEmoji(Emoji.fromUnicode("📝")));
+            selectOptions.add(
+                SelectOption.of("BETA New Records (Coming Soon)", "1046149064519073813")
+                    .withEmoji(Emoji.fromUnicode("📊")));
+            selectOptions.add(SelectOption.of("Snow", "845055624165064734").withEmoji(Emoji.fromUnicode("🌨️")));
+            selectOptions.add(SelectOption.of("Hail", "845055784156397608").withEmoji(Emoji.fromUnicode("🧊")));
+            selectOptions.add(SelectOption.of("Rain", "843956362059841596").withEmoji(Emoji.fromUnicode("🌦️")));
+            selectOptions.add(SelectOption.of("Heavy Rain", "843956325690900503").withEmoji(Emoji.fromUnicode("🌧️")));
+            selectOptions.add(
+                SelectOption.of("BETA High Wind (Coming Soon)", "1046148944108978227")
+                    .withEmoji(Emoji.fromUnicode("🍃")));
+            selectOptions.add(
+                SelectOption.of("Lightning Info", "896877424824954881").withEmoji(Emoji.fromUnicode("⚡")));
+
+            if (new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).isEmpty())
+                channel.sendMessage("**Select your desired notifications below:**\n*Each selection acts as a toggle*")
+                    .addActionRow(StringSelectMenu.create("role-select").addOptions(selectOptions).setMinValues(0)
+                        .setMaxValues(selectOptions.size()).build())
+                    .addActionRow(Button.secondary("viewroles", "Your Roles")).queue();
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            e.printStackTrace();
+        }
+
+        jda.addEventListener(new Events());
+
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new StormAlerts().shutdown(), "Shutdown Hook"));
         Thread input = new Thread(() -> {
@@ -118,18 +155,6 @@ public class StormAlerts extends ListenerAdapter {
         input.start();
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
-    }
-
-    // Slash commands
-    @Override
-    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember()
-            .getEffectiveName() + " used the /" + event.getName() + " command");
-
-        //noinspection SwitchStatementWithTooFewBranches
-        switch (event.getName().toLowerCase()) {
-            case "checknow" -> updateNow(event);
-        }
     }
 
     private void scheduleTrafficCheck(String time, boolean toWork) throws ParseException {
@@ -149,51 +174,6 @@ public class StormAlerts extends ListenerAdapter {
                         delay / 3600000.0) + " hours.");
             }
         }
-    }
-
-    public void updateNow(@Nullable SlashCommandInteractionEvent event) {
-        String error = "Done!";
-        boolean isSlash = event != null;
-
-        if (isSlash) event.deferReply(true).complete();
-
-        // Alerts
-        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Force checking alerts...");
-        if (isSlash) event.getHook().editOriginal("Checking alerts...").complete();
-        try {
-            new Alerts().checkAlerts();
-        } catch (Exception e) {
-            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!");
-            e.printStackTrace();
-            error = "Couldn't get the alerts!";
-        }
-
-        // PWS / Rain
-        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Force checking PWS conditions...");
-        if (isSlash) event.getHook().editOriginal("Checking PWS conditions...").complete();
-        try {
-            new Pws().checkConditions();
-        } catch (Exception e) {
-            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!");
-            e.printStackTrace();
-            error = "Couldn't get the PWS conditions!";
-        }
-
-        // Weather
-        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Force checking weather conditions...");
-        if (isSlash) event.getHook().editOriginal("Checking weather conditions...").complete();
-        try {
-            new Weather().checkConditions();
-        } catch (Exception e) {
-            System.out.println(
-                new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
-            e.printStackTrace();
-            error = "Couldn't get the weather conditions!";
-            jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-            jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
-        }
-
-        if (isSlash) event.getHook().editOriginal(error).complete();
     }
 
     public void shutdown() {

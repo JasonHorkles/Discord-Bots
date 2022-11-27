@@ -279,7 +279,7 @@ public class Weather extends ListenerAdapter {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Weather: " + weather);
     }
 
-    // Button press
+    // Rain stuff
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         switch (event.getComponentId()) {
@@ -322,7 +322,7 @@ public class Weather extends ListenerAdapter {
         }
     }
 
-    private void acceptRain(ButtonInteractionEvent event) {
+    public void acceptRain(ButtonInteractionEvent event) {
         event.deferEdit().queue();
         TextChannel rainChannel = StormAlerts.jda.getTextChannelById(900248256515285002L);
         rainChannel.sendMessage(event.getMessage().getContentRaw().replaceFirst("\\[CONFIRMATION NEEDED] ", ""))

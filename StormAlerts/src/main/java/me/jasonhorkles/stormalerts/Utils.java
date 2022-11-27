@@ -1,8 +1,12 @@
 package me.jasonhorkles.stormalerts;
 
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -99,5 +103,50 @@ public class Utils {
         } catch (IndexOutOfBoundsException ignored) {
             return true;
         }
+    }
+
+    public void updateNow(@Nullable SlashCommandInteractionEvent event) {
+        String error = "Done!";
+        boolean isSlash = event != null;
+
+        if (isSlash) event.deferReply(true).complete();
+
+        // Alerts
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Force checking alerts...");
+        if (isSlash) event.getHook().editOriginal("Checking alerts...").complete();
+        try {
+            new Alerts().checkAlerts();
+        } catch (Exception e) {
+            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!");
+            e.printStackTrace();
+            error = "Couldn't get the alerts!";
+        }
+
+        // PWS / Rain
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Force checking PWS conditions...");
+        if (isSlash) event.getHook().editOriginal("Checking PWS conditions...").complete();
+        try {
+            new Pws().checkConditions();
+        } catch (Exception e) {
+            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!");
+            e.printStackTrace();
+            error = "Couldn't get the PWS conditions!";
+        }
+
+        // Weather
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Force checking weather conditions...");
+        if (isSlash) event.getHook().editOriginal("Checking weather conditions...").complete();
+        try {
+            new Weather().checkConditions();
+        } catch (Exception e) {
+            System.out.println(
+                new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
+            e.printStackTrace();
+            error = "Couldn't get the weather conditions!";
+            StormAlerts.jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
+            StormAlerts.jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
+        }
+
+        if (isSlash) event.getHook().editOriginal(error).complete();
     }
 }
