@@ -49,8 +49,6 @@ public class Pws {
 
         temperature = new Utils().getJsonKey(input, "tempf", true);
 
-        double windGust = Double.parseDouble(new Utils().getJsonKey(input, "windgustmph", true));
-
         try {
             currentRainRate = Double.parseDouble(new Utils().getJsonKey(input, "hourlyrainin", true));
         } catch (NumberFormatException ignored) {
@@ -88,6 +86,7 @@ public class Pws {
                 StormAlerts.jda.getVoiceChannelById(windCurrentChannel).getManager()
                     .setName("Current | " + wind + " mph").queue();
 
+            String windGust = new Utils().getJsonKey(input, "windgustmph", true);
             long windGustChannel = 889226727266594876L;
             if (!StormAlerts.jda.getVoiceChannelById(windGustChannel).getName().equals("Gusts | " + windGust + " mph"))
                 StormAlerts.jda.getVoiceChannelById(windGustChannel).getManager()
@@ -160,6 +159,7 @@ public class Pws {
 
 
         // Wind alerts
+        double windGust = Double.parseDouble(new Utils().getJsonKey(input, "windgustmph", true));
         if (windGust >= 30 && lastAlertedWindGust < windGust) {
             TextChannel windChannel = StormAlerts.jda.getTextChannelById(1028358818050080768L);
 
