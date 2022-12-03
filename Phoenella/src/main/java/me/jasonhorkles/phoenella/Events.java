@@ -65,7 +65,7 @@ public class Events extends ListenerAdapter {
         String text = message.getContentRaw().toLowerCase().replaceAll("\\bphoenella\\b", "PHOENELLA")
             .replaceAll("\\bphoe\\b", "PHOENELLA").trim();
 
-        if (!text.contains("PHOENELLA") && !isReply) return;
+        if (!text.contains("PHOENELLA") && !isReply && channel.getIdLong() != 892802385301352548L) return;
 
         text = text.replace("  ", " ").replaceAll(" ?PHOENELLA ?", "");
 
