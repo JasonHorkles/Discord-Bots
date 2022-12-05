@@ -6,7 +6,9 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -172,36 +174,51 @@ public class Events extends ListenerAdapter {
                 continue;
             }
 
-            boolean fromUser = false;
-            try {
-                // Check the past 15 messages within 30 minutes
-                for (Message messages : new Utils().getMessages(thread, 15).get(30, TimeUnit.SECONDS))
-                    if (messages.getTimeCreated().isAfter(thirtyMinsAgo) && messages.getAuthor()
-                        .getIdLong() == event.getUser().getIdLong()) {
-                        fromUser = true;
-                        break;
-                    }
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                e.printStackTrace();
-            }
+            // If the user that left sent the latest or a recent message, say so
+            if (checkIfFromUser(thirtyMinsAgo, threeDaysAgo, thread, event.getUser().getIdLong()))
+                sendRecentLeaveMessage(thread, event.getUser());
+        }
 
-            // If message isn't from the past 30 minutes, see if it's at least the latest message within 3 days
-            if (!fromUser) try {
-                Message message = new Utils().getMessages(thread, 1).get(30, TimeUnit.SECONDS).get(0);
-                if (message.getTimeCreated().isAfter(threeDaysAgo) && message.getAuthor().getIdLong() == event.getUser()
-                    .getIdLong()) fromUser = true;
-            } catch (ExecutionException | InterruptedException | TimeoutException e) {
-                System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                e.printStackTrace();
-            }
+        Long[] textChannels = {592208420602380328L, 456108521210118146L};
+        for (long channelId : textChannels) {
+            TextChannel channel = event.getGuild().getTextChannelById(channelId);
+            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking #" + channel.getName());
 
             // If the user that left sent the latest or a recent message, say so
-            if (fromUser) sendRecentLeaveMessage(thread, event.getUser());
+            if (checkIfFromUser(thirtyMinsAgo, threeDaysAgo, channel, event.getUser().getIdLong()))
+                sendRecentLeaveMessage(channel, event.getUser());
         }
     }
 
-    private void sendRecentLeaveMessage(ThreadChannel channel, User user) {
+    private boolean checkIfFromUser(OffsetDateTime thirtyMinsAgo, OffsetDateTime threeDaysAgo, MessageChannel channel, Long userId) {
+        boolean fromUser = false;
+
+        try {
+            // Check the past 15 messages within 30 minutes
+            for (Message messages : new Utils().getMessages(channel, 15).get(30, TimeUnit.SECONDS))
+                if (messages.getTimeCreated().isAfter(thirtyMinsAgo) && messages.getAuthor().getIdLong() == userId) {
+                    fromUser = true;
+                    break;
+                }
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            e.printStackTrace();
+        }
+
+        // If message isn't from the past 30 minutes, see if it's at least the latest message within 3 days
+        if (!fromUser) try {
+            Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).get(0);
+            if (message.getTimeCreated().isAfter(threeDaysAgo) && message.getAuthor().getIdLong() == userId)
+                fromUser = true;
+        } catch (ExecutionException | InterruptedException | TimeoutException e) {
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            e.printStackTrace();
+        }
+
+        return fromUser;
+    }
+
+    private void sendRecentLeaveMessage(MessageChannel channel, User user) {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("Recent chatter " + user.getAsTag() + " has left the server");
         embed.setDescription(user.getAsMention());
