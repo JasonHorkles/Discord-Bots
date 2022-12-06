@@ -156,56 +156,56 @@ public class Alerts {
             if (nwsHeadline != null) embed.setAuthor(nwsHeadline, null, null);
 
             switch (event) {
-                case "911 Telephone Outage Emergency" ->
-                    embed.setThumbnail("http://surefirecpr.com/wp-content/uploads/call-911-1024x1024.jpg");
+                case "911 Telephone Outage Emergency" -> embed.setThumbnail(
+                    "https://cdn.discordapp.com/attachments/335445132520194058/1049516136171044864/call-911-1024x1024.png");
 
                 case "Administrative Message" -> embed.setThumbnail(
-                    "https://www.lifewire.com/thmb/IS4gxtmhvYTokbYCcm4ygOUBX50=/1920x1200/filters:fill(auto,1)/how-to-fix-the-unknown-message-not-found-on-iphone-error-849e332f4e9241db9cb80ef9ddb63e01.jpg");
+                    "https://cdn.discordapp.com/attachments/335445132520194058/1049516136594673694/how-to-fix-the-unknown-message-not-found-on-iphone-error-849e332f4e9241db9cb80ef9ddb63e01.png");
 
-                case "Air Quality Alert" ->
-                    embed.setThumbnail("https://breathepa.org/wp-content/uploads/2015/07/air-quality-alert-4x3-1.jpg");
+                case "Air Quality Alert" -> embed.setThumbnail(
+                    "https://cdn.discordapp.com/attachments/335445132520194058/1049516137085403176/Power-Plant-Clip-Art.png");
 
-                case "Blizzard Warning", "Blizzard Watch" ->
-                    embed.setThumbnail("https://thestarryeye.typepad.com/.a/6a00d8341cdd0d53ef022ad3c2a6f5200d-pi");
+                case "Blizzard Warning", "Blizzard Watch" -> embed.setThumbnail(
+                    "https://cdn.discordapp.com/attachments/335445132520194058/1049516137605501039/6a00d8341cdd0d53ef022ad3c2a6f5200d-pi.png");
 
                 case "Brisk Wind Advisory", "High Wind Warning", "High Wind Watch", "Wind Advisory", "Extreme Wind Warning" ->
                     embed.setThumbnail(
-                        "https://creazilla-store.fra1.digitaloceanspaces.com/cliparts/76394/wind-clipart-xl.png");
+                        "https://cdn.discordapp.com/attachments/335445132520194058/1049516138079453235/wind-clipart-xl.png");
 
                 case "Child Abduction Emergency" -> embed.setThumbnail(
-                    "https://bloximages.chicago2.vip.townnews.com/tctimes.com/content/tncms/assets/v3/editorial/6/4e/64e135b2-043a-11e7-b2d1-d378823102d0/58c063da3ce0c.image.jpg?resize=400%2C328");
+                    "https://cdn.discordapp.com/attachments/335445132520194058/1049517612880625714/58c063da3ce0c.png");
 
                 case "Dense Fog Advisory", "Dense Smoke Advisory" -> embed.setThumbnail(
-                    "https://www.seekpng.com/png/full/122-1220930_free-download-cloudy-weather-clipart-cloudy-day-clip.png");
+                    "https://cdn.discordapp.com/attachments/335445132520194058/1049516436789403658/122-1220930_free-download-cloudy-weather-clipart-cloudy-day-clip.png");
 
                 case "Earthquake Warning" -> embed.setThumbnail(
-                    "https://media.istockphoto.com/vectors/earthquake-metaphor-vector-icon-vector-id1091823174?k=6&m=1091823174&s=612x612&w=0&h=GgBuA6w0ISsUpMzqlOjI4mOvugx5SuiQPIkjyloVX1k=");
+                    "https://cdn.discordapp.com/attachments/335445132520194058/1049517612566073425/earthquake-metaphor-vector-icon-vec.png");
 
                 case "Excessive Heat Warning", "Excessive Heat Watch", "Heat Advisory" -> embed.setThumbnail(
-                    "https://www.kindpng.com/picc/m/63-636901_heat-clipart-thermometer-thermometer-clipart-transparent-hd-png.png");
+                    "https://cdn.discordapp.com/attachments/335445132520194058/1049516438030913616/kindpng_636901.png");
 
                 case "Extreme Cold Warning", "Extreme Cold Watch" -> embed.setThumbnail(
-                    "https://clipart.world/wp-content/uploads/2021/04/Cold-Thermometer-clipart-transparent.png");
+                    "https://cdn.discordapp.com/attachments/335445132520194058/1049516437619867668/Cold-Thermometer-clipart-transparent.png");
 
                 case "Extreme Fire Danger", "Fire Warning", "Fire Weather Watch", "Red Flag Warning" ->
                     embed.setThumbnail(
-                        "http://dnrc.mt.gov/divisions/water/operations/images/floodplain/Fire_Icon.png/image");
+                        "https://cdn.discordapp.com/attachments/335445132520194058/1049516774737059881/image.png");
 
                 case "Flash Flood Statement", "Flash Flood Warning", "Flash Flood Watch", "Flood Advisory", "Flood Statement", "Flood Warning", "Flood Watch" ->
                     embed.setThumbnail(
-                        "https://media.istockphoto.com/vectors/flood-disaster-home-vector-vector-id1038699624?k=6&m=1038699624&s=612x612&w=0&h=rUAO-3bCnkS67NhoBn_lKssFsfncWoSx0sTMJB6MbkE=");
+                        "https://cdn.discordapp.com/attachments/335445132520194058/1049516775118745640/flood-disaster-home-vector-vector-id1038699624.png");
 
                 case "Snow Squall Warning", "Winter Storm Warning", "Winter Storm Watch", "Winter Weather Advisory" ->
                     embed.setThumbnail(
-                        "https://cdn.discordapp.com/attachments/335445132520194058/918901071353614336/wintershovel.png");
+                        "https://cdn.discordapp.com/attachments/335445132520194058/1049516775492042794/wintershovel.png");
 
                 case "Freeze Warning", "Freeze Watch", "Frost Advisory", "Hard Freeze Warning", "Hard Freeze Watch" ->
                     embed.setThumbnail(
-                        "https://thumbs.dreamstime.com/b/frost-texture-frozen-glass-surfaces-blue-ice-sheet-white-marks-frosty-crystal-winter-pattern-transparent-water-crystals-196937681.jpg");
+                        "https://cdn.discordapp.com/attachments/335445132520194058/1049516775810801664/frost-texture-frozen-glass-surfaces-blue-ice-sheet-white-marks-frosty-crystal-winter-pattern-transparent-water-crystals-196937681.png");
 
                 case "Severe Thunderstorm Warning", "Storm Watch", "Storm Warning", "Special Weather Statement", "Severe Weather Statement", "Severe Thunderstorm Watch" ->
                     embed.setThumbnail(
-                        "https://cdn.discordapp.com/icons/843919716677582888/031643a212f5edbb8d153a5686796c0a.webp?size=128");
+                        "https://cdn.discordapp.com/attachments/335445132520194058/1049519190614228992/StormAlerts.png");
 
                 default -> embed.setThumbnail(
                     "https://media.discordapp.net/attachments/421827334534856705/871617342210203689/Warning.png?width=714&height=676");
