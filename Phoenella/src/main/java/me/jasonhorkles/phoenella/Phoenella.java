@@ -30,7 +30,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.*;
 
-@SuppressWarnings({"ConstantConditions"})
+@SuppressWarnings({"DataFlowIssue"})
 public class Phoenella {
     private static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
     public static final ArrayList<SelectOption> selectOptions = new ArrayList<>();

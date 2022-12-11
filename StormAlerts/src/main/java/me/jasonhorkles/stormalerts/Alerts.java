@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings("ConstantConditions")
+@SuppressWarnings("DataFlowIssue")
 public class Alerts {
     private static final ArrayList<Message> dontDeleteMe = new ArrayList<>();
     private final String fa = Secrets.Area.FA.getArea();

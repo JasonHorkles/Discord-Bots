@@ -43,7 +43,7 @@ public class Events extends ListenerAdapter {
     private static final Long[] channels = new Long[]{letsPlay, hire, showServer, youtube, shopping};
 
 
-    @SuppressWarnings("ConstantConditions")
+    @SuppressWarnings("DataFlowIssue")
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
@@ -86,7 +86,7 @@ public class Events extends ListenerAdapter {
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
+    @SuppressWarnings("DataFlowIssue")
     public void warn(Long id, MessageReceivedEvent event, int count) {
         if (warnings.containsKey(id)) {
             warnings.put(id, warnings.get(id) + count);
@@ -133,7 +133,7 @@ public class Events extends ListenerAdapter {
         int count = 0;
 
         for (Long channelId : forums)
-            //noinspection ConstantConditions
+            //noinspection DataFlowIssue
             for (ThreadChannel thread : event.getJDA().getChannelById(ForumChannel.class, channelId)
                 .getThreadChannels()) {
                 if (thread.isArchived()) continue;
@@ -160,7 +160,7 @@ public class Events extends ListenerAdapter {
         deleteMessages(event.getUser());
     }
 
-    @SuppressWarnings("ConstantConditions")
+    @SuppressWarnings("DataFlowIssue")
     public void deleteMessages(User author) {
         AtomicInteger count = new AtomicInteger();
 
@@ -189,7 +189,7 @@ public class Events extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (event.getName().equalsIgnoreCase("enginehub")) {
-            @SuppressWarnings("ConstantConditions") boolean ephemeral = !event.getMember().getRoles().toString()
+            @SuppressWarnings("DataFlowIssue") boolean ephemeral = !event.getMember().getRoles().toString()
                 .contains("646291178144399371");
 
             event.reply("Join the EngineHub Discord for WorldEdit/WorldGuard support at https://discord.gg/enginehub")

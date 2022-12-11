@@ -14,7 +14,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import java.util.HashMap;
 import java.util.Map;
 
-@SuppressWarnings("ConstantConditions")
+@SuppressWarnings("DataFlowIssue")
 public class PlayerManager {
     private static PlayerManager instance;
     private final Map<Long, GuildMusicManager> musicManagers;

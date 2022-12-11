@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledFuture;
 
-@SuppressWarnings("ConstantConditions")
+@SuppressWarnings("DataFlowIssue")
 public class Utils {
     public static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
 

@@ -133,7 +133,7 @@ public class Wordle extends ListenerAdapter {
 
         TextChannel channel = event.getChannel().asTextChannel();
 
-        //noinspection ConstantConditions
+        //noinspection DataFlowIssue
         if (event.getMember().getIdLong() != players.get(channel).getIdLong()) {
             event.getMessage().delete().queueAfter(150, TimeUnit.MILLISECONDS);
             return;
@@ -245,23 +245,23 @@ public class Wordle extends ListenerAdapter {
         if (input.equals(answer)) {
             // Is user-generated
             if (isNonReal.get(channel))
-                //noinspection ConstantConditions
+                //noinspection DataFlowIssue
                 event.getJDA().getTextChannelById(956267174727671869L).retrieveMessageById(originalMessage.get(channel))
                     .queue((original) -> {
                         MessageEmbed embed = original.getEmbeds().get(0);
                         // Add 1 to wins
                         if (!embed.isEmpty()) {
-                            //noinspection ConstantConditions
+                            //noinspection DataFlowIssue
                             int wins = Integer.parseInt(embed.getFields().get(1).getValue()) + 1;
 
                             EmbedBuilder newEmbed = new EmbedBuilder(embed);
                             newEmbed.clearFields();
-                            //noinspection ConstantConditions
+                            //noinspection DataFlowIssue
                             newEmbed.addField(embed.getFields().get(0).getName(), embed.getFields().get(0).getValue(),
                                 true);
-                            //noinspection ConstantConditions
+                            //noinspection DataFlowIssue
                             newEmbed.addField(embed.getFields().get(1).getName(), String.valueOf(wins), true);
-                            //noinspection ConstantConditions
+                            //noinspection DataFlowIssue
                             newEmbed.addField(embed.getFields().get(2).getName(), embed.getFields().get(2).getValue(),
                                 true);
 
@@ -322,24 +322,24 @@ public class Wordle extends ListenerAdapter {
         // Fail
         else if (attempt.get(channel).equals(maxTries.get(channel))) {
             if (isNonReal.get(channel))
-                //noinspection ConstantConditions
+                //noinspection DataFlowIssue
                 event.getJDA().getTextChannelById(956267174727671869L).retrieveMessageById(originalMessage.get(channel))
                     .queue((original) -> {
                         MessageEmbed embed = original.getEmbeds().get(0);
                         // Add 1 to fails
                         if (!embed.isEmpty()) {
-                            //noinspection ConstantConditions
+                            //noinspection DataFlowIssue
                             int fails = Integer.parseInt(embed.getFields().get(2).getValue()) + 1;
 
                             EmbedBuilder newEmbed = new EmbedBuilder(embed);
                             newEmbed.clearFields();
-                            //noinspection ConstantConditions
+                            //noinspection DataFlowIssue
                             newEmbed.addField(embed.getFields().get(0).getName(), embed.getFields().get(0).getValue(),
                                 true);
-                            //noinspection ConstantConditions
+                            //noinspection DataFlowIssue
                             newEmbed.addField(embed.getFields().get(1).getName(), embed.getFields().get(1).getValue(),
                                 true);
-                            //noinspection ConstantConditions
+                            //noinspection DataFlowIssue
                             newEmbed.addField(embed.getFields().get(2).getName(), String.valueOf(fails), true);
 
                             original.editMessageEmbeds(newEmbed.build()).queue();
@@ -383,7 +383,7 @@ public class Wordle extends ListenerAdapter {
             case "sharewordlescore" -> {
                 Thread thread = new Thread(() -> {
                     event.editButton(event.getButton().asDisabled()).complete();
-                    //noinspection ConstantConditions
+                    //noinspection DataFlowIssue
                     event.getGuild().getTextChannelById(956267174727671869L).sendMessage("**" + new Utils().getFullName(
                         event.getMember()) + "** just finished the daily Wordle in **" + attempt.get(
                         event.getChannel().asTextChannel()) + "** tries!").complete();
@@ -410,17 +410,17 @@ public class Wordle extends ListenerAdapter {
                     MessageEmbed message = event.getMessage().getEmbeds().get(0);
                     // Add 1 to plays
                     if (!message.isEmpty()) {
-                        //noinspection ConstantConditions
+                        //noinspection DataFlowIssue
                         int plays = Integer.parseInt(message.getFields().get(0).getValue()) + 1;
 
                         EmbedBuilder embed = new EmbedBuilder(message);
                         embed.clearFields();
-                        //noinspection ConstantConditions
+                        //noinspection DataFlowIssue
                         embed.addField(message.getFields().get(0).getName(), String.valueOf(plays), true);
-                        //noinspection ConstantConditions
+                        //noinspection DataFlowIssue
                         embed.addField(message.getFields().get(1).getName(), message.getFields().get(1).getValue(),
                             true);
-                        //noinspection ConstantConditions
+                        //noinspection DataFlowIssue
                         embed.addField(message.getFields().get(2).getName(), message.getFields().get(2).getValue(),
                             true);
 
@@ -443,7 +443,7 @@ public class Wordle extends ListenerAdapter {
 
             String word = event.getComponentId().replace("reportword:", "");
 
-            //noinspection ConstantConditions
+            //noinspection DataFlowIssue
             event.getJDA().getTextChannelById(960213547944661042L).sendMessage(
                     ":warning: Word report from " + new Utils().getFullName(event.getMember()) + ": **" + word + "**")
                 .setActionRow(Button.primary("defineword:" + word, "Define word").withEmoji(Emoji.fromUnicode("❔")))
@@ -512,7 +512,7 @@ public class Wordle extends ListenerAdapter {
         }
         if (words.contains(word.toUpperCase())) return;
 
-        //noinspection ConstantConditions
+        //noinspection DataFlowIssue
         Phoenella.jda.getTextChannelById(960213547944661042L).sendMessage(
                 ":inbox_tray: Auto word request from " + new Utils().getFullName(member) + ": **" + word + "**")
             .setActionRow(Button.primary("defineword:" + word, "Define word").withEmoji(Emoji.fromUnicode("❔"))).queue(

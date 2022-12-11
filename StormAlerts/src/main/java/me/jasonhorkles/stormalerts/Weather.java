@@ -28,7 +28,7 @@ import java.time.ZonedDateTime;
 import java.util.Scanner;
 import java.util.concurrent.*;
 
-@SuppressWarnings("ConstantConditions")
+@SuppressWarnings("DataFlowIssue")
 public class Weather extends ListenerAdapter {
     public static TextChannel previousTypeChannel;
 

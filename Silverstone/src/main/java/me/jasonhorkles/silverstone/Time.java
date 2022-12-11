@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import org.joda.time.LocalDate;
 import org.joda.time.Period;
 
-@SuppressWarnings("ConstantConditions")
+@SuppressWarnings("DataFlowIssue")
 public class Time {
     public void updateTime() {
         Period p = new Period(new LocalDate(1511420400000L), LocalDate.now());

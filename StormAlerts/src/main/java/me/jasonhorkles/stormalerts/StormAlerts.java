@@ -26,7 +26,7 @@ import java.util.Calendar;
 import java.util.Scanner;
 import java.util.concurrent.*;
 
-@SuppressWarnings({"ConstantConditions"})
+@SuppressWarnings({"DataFlowIssue"})
 public class StormAlerts extends ListenerAdapter {
     public static JDA jda;
     public static final boolean testing = false;
@@ -52,7 +52,7 @@ public class StormAlerts extends ListenerAdapter {
 
         jda.awaitReady();
 
-        //noinspection ConstantConditions
+        //noinspection DataFlowIssue
         jda.getGuildById(843919716677582888L).updateCommands()
             .addCommands(Commands.slash("checknow", "Force all checks")).queue();
 

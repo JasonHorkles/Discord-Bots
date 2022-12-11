@@ -41,7 +41,7 @@ public class Silverstone {
 
         jda.awaitReady();
 
-        //noinspection ConstantConditions
+        //noinspection DataFlowIssue
         jda.getGuildById(455919765999976461L).updateCommands()
             .addCommands(Commands.slash("ecdebug", "EntityClearer debug"),
                 Commands.slash("paste", "Get a link to paste text to")
@@ -56,7 +56,7 @@ public class Silverstone {
 
         // Cache last counting number and verify last 10 messages
         TextChannel counting = jda.getChannelById(TextChannel.class, 816885380577230906L);
-        //noinspection ConstantConditions
+        //noinspection DataFlowIssue
         LinkedList<Message> messages = new LinkedList<>(
             new Utils().getMessages(counting, 50).get(60, TimeUnit.SECONDS));
         // Sort messages oldest to newest

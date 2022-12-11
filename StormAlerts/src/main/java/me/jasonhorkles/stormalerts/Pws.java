@@ -25,7 +25,7 @@ public class Pws {
     private static boolean rateLimited = false;
     private static double lastAlertedWindGust = -1;
 
-    @SuppressWarnings("ConstantConditions")
+    @SuppressWarnings("DataFlowIssue")
     public void checkConditions() throws IOException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking PWS conditions...");
 

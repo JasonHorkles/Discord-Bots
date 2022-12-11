@@ -11,7 +11,7 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 
 import java.util.ArrayList;
 
-@SuppressWarnings("ConstantConditions")
+@SuppressWarnings("DataFlowIssue")
 public class GameManager extends ListenerAdapter {
     public TextChannel createChannel(Game game, ArrayList<Member> players, boolean isDailyWordle) {
         StringBuilder daily = new StringBuilder();

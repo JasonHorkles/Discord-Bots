@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings("ConstantConditions")
+@SuppressWarnings("DataFlowIssue")
 public class Events extends ListenerAdapter {
     private static final Map<TextChannel, Integer> channelCooldown = new HashMap<>();
     private static final ArrayList<String> messageCooldown = new ArrayList<>();
