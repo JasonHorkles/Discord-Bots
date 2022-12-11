@@ -114,7 +114,7 @@ public class Events extends ListenerAdapter {
         // Direct to plugin support (in thread)
         if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD && !event.getMember().getRoles()
             .toString().contains("667793980318154783"))
-            if (event.getGuildChannel().asThreadChannel().getParentChannel().getIdLong() == 1023735878075564042L)
+            if (event.getGuildChannel().asThreadChannel().getParentChannel().getIdLong() != 1023735878075564042L)
                 sendToPluginSupport(event);
 
         // Counting
