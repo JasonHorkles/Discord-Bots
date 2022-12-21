@@ -296,12 +296,13 @@ public class Events extends ListenerAdapter {
         }
 
         if (text.contains("thank") || text.contains("thx")) {
-            int number = r.nextInt(4);
+            int number = r.nextInt(5);
             switch (number) {
                 case 0 -> msg = "you're welcome!";
                 case 1 -> msg = "no problem!";
                 case 2 -> msg = "my pleasure";
-                case 3 -> msg = "yuh np dude";
+                case 3 -> msg = "np";
+                case 4 -> msg = "yw";
             }
 
             new Utils().sendMessage(channel, null, msg, allCaps);
