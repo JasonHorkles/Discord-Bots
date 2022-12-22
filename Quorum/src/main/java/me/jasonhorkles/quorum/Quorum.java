@@ -63,11 +63,9 @@ public class Quorum {
 
                 Commands.slash("activity", "Create/edit/cancel activities")
                     .addSubcommands(new SubcommandData("create", "Create a new activity list").addOptions(months),
-
                         new SubcommandData("edit", "Edit an existing activity list").addOptions(months,
                             new OptionData(OptionType.INTEGER, "line",
                                 "The activity line to edit (between 1-4, or sometimes 1-5)", true)),
-
                         new SubcommandData("cancel", "Cancel an activity").addOptions(months,
                             new OptionData(OptionType.INTEGER, "line",
                                 "The activity line to cancel (between 1-4, or sometimes 1-5)", true)))).queue();
