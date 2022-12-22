@@ -125,8 +125,8 @@ public class Weather extends ListenerAdapter {
         String doubleTrimmedWeatherName = null;
         boolean dontSendAlerts = false;
         if (weatherName != null) {
-            trimmedWeatherName = weatherName.substring(0, weatherName.length() - 2).trim();
-            doubleTrimmedWeatherName = trimmedWeatherName.substring(0, trimmedWeatherName.length() - 1).trim();
+            trimmedWeatherName = weatherName.substring(0, weatherName.length() - 2).strip();
+            doubleTrimmedWeatherName = trimmedWeatherName.substring(0, trimmedWeatherName.length() - 1).strip();
             if (weatherName.equals(previousWeatherName)) {
                 System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Weather hasn't changed!");
                 dontSendAlerts = true;

@@ -160,12 +160,12 @@ public class Utils {
 
     public String getFirstName(@Nullable Member member) {
         if (member == null) return "null";
-        return member.getEffectiveName().replaceAll(" .*", "").replaceAll("\\(.*", "").trim();
+        return member.getEffectiveName().replaceAll(" .*", "").replaceAll("\\(.*", "").strip();
     }
 
     public String getFullName(@Nullable Member member) {
         if (member == null) return "null";
-        return member.getEffectiveName().replaceAll("\\(.*", "").trim();
+        return member.getEffectiveName().replaceAll("\\(.*", "").strip();
     }
 
     public void sendMessage(@Nullable TextChannel channel, @Nullable Message replyTo, String message, Boolean allCaps) {

@@ -63,7 +63,7 @@ public class Events extends ListenerAdapter {
                 isReply = true;
 
         String text = message.getContentRaw().toLowerCase().replaceAll("\\bphoenella\\b", "PHOENELLA")
-            .replaceAll("\\bphoe\\b", "PHOENELLA").trim();
+            .replaceAll("\\bphoe\\b", "PHOENELLA").strip();
 
         if (!text.contains("PHOENELLA") && !isReply && channel.getIdLong() != 892802385301352548L) return;
 
@@ -359,7 +359,8 @@ public class Events extends ListenerAdapter {
 
         if (text.startsWith("search ")) {
             String search = text.replaceFirst("search ", "");
-            String page = "https://www.google.com/search?q=" + URLEncoder.encode(search, StandardCharsets.UTF_8).trim();
+            String page = "https://www.google.com/search?q=" + URLEncoder.encode(search, StandardCharsets.UTF_8)
+                .strip();
 
             try {
                 Connection conn = Jsoup.connect(page).timeout(15000);
