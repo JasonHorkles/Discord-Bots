@@ -1,7 +1,13 @@
 package me.jasonhorkles.aircheck;
 
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class Utils {
     public enum LogColor {
@@ -21,5 +27,9 @@ public class Utils {
     public String getTime(LogColor logColor) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm:ss a");
         return logColor.getLogColor() + "[" + dtf.format(LocalDateTime.now()) + "] ";
+    }
+
+    public CompletableFuture<List<Message>> getMessages(MessageChannel channel, int count) {
+        return channel.getIterableHistory().takeAsync(count).thenApply(ArrayList::new);
     }
 }

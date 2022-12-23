@@ -17,8 +17,7 @@ public class AirCheck {
     public static final boolean testing = false;
 
     private static ScheduledFuture<?> airTimer;
-    private static ScheduledFuture<?> pollenTimer;
-    private static ScheduledFuture<?> activityTimer;
+    private static ScheduledFuture<?> forecastTimer;
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
@@ -40,37 +39,25 @@ public class AirCheck {
             try {
                 new AQI().checkAir();
             } catch (Exception e) {
-                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the air quality!");
+                System.out.println(
+                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the air quality!");
                 e.printStackTrace();
                 jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
                 jda.getPresence().setActivity(Activity.playing("⚠ Error"));
             }
         }, 1, 1800, TimeUnit.SECONDS);
 
-
-        // Pollen
-        pollenTimer = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking pollen quality...");
+        // Forecasts
+        forecastTimer = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking forecasts...");
             try {
-                new Pollen().checkConditions();
+                new Forecasts().updateForecasts();
             } catch (Exception e) {
                 System.out.println(
-                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the pollen conditions!");
+                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the forecasts!");
                 e.printStackTrace();
             }
         }, 2, 10800, TimeUnit.SECONDS);
-
-        // Activities
-        activityTimer = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking activities...");
-            try {
-                new Activities().checkConditions();
-            } catch (Exception e) {
-                System.out.println(
-                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the activities!");
-                e.printStackTrace();
-            }
-        }, 5, 10800, TimeUnit.SECONDS);
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new AirCheck().shutdown(), "Shutdown Hook"));
@@ -89,8 +76,7 @@ public class AirCheck {
     public void shutdown() {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
         airTimer.cancel(true);
-        pollenTimer.cancel(true);
-        activityTimer.cancel(true);
+        forecastTimer.cancel(true);
         try {
             jda.shutdownNow();
         } catch (NoClassDefFoundError ignored) {

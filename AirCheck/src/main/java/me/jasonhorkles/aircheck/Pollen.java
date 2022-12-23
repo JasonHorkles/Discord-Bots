@@ -10,9 +10,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
-@SuppressWarnings("DataFlowIssue")
 public class Pollen {
-    public void checkConditions() throws IOException {
+    public String getPollen() throws IOException {
         JSONObject input;
 
         if (!AirCheck.testing) {
@@ -45,48 +44,52 @@ public class Pollen {
             }
         }
 
-        String treeIndexName = switch (treeIndex) {
-            case 1 -> "Low \uD83D\uDFE2";
-            case 2 -> "Moderate \uD83D\uDFE1";
-            case 3 -> "High \uD83D\uDFE0";
-            case 4 -> "Very high \uD83D\uDD34";
-            case 5 -> "Extreme ⚠";
-            default -> String.valueOf(treeIndex);
-        };
+        StringBuilder pollenForecasts = new StringBuilder(getColor(grassIndex)).append("**Grass**")
+            .append(getForecast(grassIndex)).append("\n");
 
-        String grassIndexName = switch (grassIndex) {
-            case 1 -> "Low \uD83D\uDFE2";
-            case 2 -> "Moderate \uD83D\uDFE1";
-            case 3 -> "High \uD83D\uDFE0";
-            case 4 -> "Very high \uD83D\uDD34";
-            case 5 -> "Extreme ⚠";
-            default -> String.valueOf(grassIndex);
-        };
+        pollenForecasts.append(getColor(weedIndex)).append("**Ragweed**").append(getForecast(weedIndex))
+            .append("\n");
 
-        String ragweedIndexName = switch (weedIndex) {
-            case 1 -> "Low \uD83D\uDFE2";
-            case 2 -> "Moderate \uD83D\uDFE1";
-            case 3 -> "High \uD83D\uDFE0";
-            case 4 -> "Very high \uD83D\uDD34";
-            case 5 -> "Extreme ⚠";
-            default -> String.valueOf(weedIndex);
-        };
-
-        long grassPollenChannel = 877269665578115092L;
-        if (!AirCheck.jda.getVoiceChannelById(grassPollenChannel).getName().equals("Grass | " + grassIndexName))
-            AirCheck.jda.getVoiceChannelById(grassPollenChannel).getManager().setName("Grass | " + grassIndexName)
-                .queue();
-
-        long ragweedPollenChannel = 877269703180054577L;
-        if (!AirCheck.jda.getVoiceChannelById(ragweedPollenChannel).getName().equals("Ragweed | " + ragweedIndexName))
-            AirCheck.jda.getVoiceChannelById(ragweedPollenChannel).getManager().setName("Ragweed | " + ragweedIndexName)
-                .queue();
-
-        long treePollenChannel = 877269444160815104L;
-        if (!AirCheck.jda.getVoiceChannelById(treePollenChannel).getName().equals("Tree | " + treeIndexName))
-            AirCheck.jda.getVoiceChannelById(treePollenChannel).getManager().setName("Tree | " + treeIndexName).queue();
+        pollenForecasts.append(getColor(treeIndex)).append("**Tree**").append(getForecast(treeIndex))
+            .append("\n");
 
         System.out.println(new Utils().getTime(
             Utils.LogColor.GREEN) + "Got the pollen! (G:" + grassIndex + " W:" + weedIndex + " T:" + treeIndex + ")");
+
+        return pollenForecasts.toString();
+    }
+
+    private String getColor(int value) {
+        return switch (value) {
+            // 🟢
+            case 1 -> "\uD83D\uDFE2 ";
+            // 🟡
+            case 2 -> "\uD83D\uDFE1 ";
+            // 🟠
+            case 3 -> "\uD83D\uDFE0 ";
+            // 🔴
+            case 4 -> "\uD83D\uDD34 ";
+            // ⚠️
+            case 5 -> "⚠️ ";
+
+            default -> String.valueOf(value);
+        };
+    }
+
+    private String getForecast(int value) {
+        return switch (value) {
+            // 🟢
+            case 1 -> " → Low";
+            // 🟡
+            case 2 -> " → Moderate";
+            // 🟠
+            case 3 -> " → High";
+            // 🔴
+            case 4 -> " → Very High";
+            // ⚠️
+            case 5 -> " → Extreme";
+
+            default -> String.valueOf(value);
+        };
     }
 }
