@@ -236,12 +236,12 @@ public class Forecasts {
             List<Message> latestMessages = new Utils().getMessages(channel, 6).get(30, TimeUnit.SECONDS);
 
             if (latestMessages.isEmpty()) {
-                channel.sendMessageEmbeds(health.build()).queue();
-                channel.sendMessageEmbeds(pollen.build()).queueAfter(1, TimeUnit.SECONDS);
-                channel.sendMessageEmbeds(transportation.build()).queueAfter(2, TimeUnit.SECONDS);
-                channel.sendMessageEmbeds(work.build()).queueAfter(3, TimeUnit.SECONDS);
-                channel.sendMessageEmbeds(sports.build()).queueAfter(4, TimeUnit.SECONDS);
-                channel.sendMessageEmbeds(activities.build()).queueAfter(5, TimeUnit.SECONDS);
+                channel.sendMessageEmbeds(activities.build()).queue();
+                channel.sendMessageEmbeds(sports.build()).queueAfter(1, TimeUnit.SECONDS);
+                channel.sendMessageEmbeds(work.build()).queueAfter(2, TimeUnit.SECONDS);
+                channel.sendMessageEmbeds(transportation.build()).queueAfter(3, TimeUnit.SECONDS);
+                channel.sendMessageEmbeds(pollen.build()).queueAfter(4, TimeUnit.SECONDS);
+                channel.sendMessageEmbeds(health.build()).queueAfter(5, TimeUnit.SECONDS);
 
             } else for (Message message : latestMessages)
                 switch (message.getEmbeds().get(0).getTitle()) {
