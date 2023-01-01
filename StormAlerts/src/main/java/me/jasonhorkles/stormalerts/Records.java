@@ -72,10 +72,9 @@ public class Records {
             resetValues();
         }
 
-        //        LocalDateTime future = LocalDateTime.now().withHour(23).withMinute(59);
-        LocalDateTime future = LocalDateTime.now().withHour(0).withMinute(0);
+        LocalDateTime future = LocalDateTime.now().withHour(23).withMinute(59);
         long delay = Duration.between(LocalDateTime.now(), future).getSeconds();
-        //        if (delay < 0) return;
+        if (delay < 0) return;
 
         StormAlerts.scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().schedule(() -> {
             String totalFilePath = "StormAlerts/records.json";
