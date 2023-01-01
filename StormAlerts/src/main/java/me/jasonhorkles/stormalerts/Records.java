@@ -72,11 +72,14 @@ public class Records {
             resetValues();
         }
 
-        LocalDateTime future = LocalDateTime.now().withHour(23).withMinute(59);
+        //        LocalDateTime future = LocalDateTime.now().withHour(23).withMinute(59).withSecond(0);
+        LocalDateTime future = LocalDateTime.now().withHour(16).withMinute(4).withSecond(0);
         long delay = Duration.between(LocalDateTime.now(), future).getSeconds();
         if (delay < 0) return;
 
         StormAlerts.scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking records...");
+
             String totalFilePath = "StormAlerts/records.json";
 
             try {
@@ -86,51 +89,56 @@ public class Records {
                 // Find new records
                 if (highestLightningRateToday > records.getInt("highLightningRate")) {
                     sendRecordMessage("High lightning rate", highestLightningRateToday + " strikes per hour",
-                        highestLightningRateTime);
+                        highestLightningRateTime, records.getInt("highLightningRate") + " strikes per hour");
                     records.put("highLightningRate", highestLightningRateToday);
                     records.put("highLightningRateTime", highestLightningRateTime);
                 }
 
                 if (highestTempToday > records.getDouble("highTemp")) {
-                    sendRecordMessage("High temperature", highestTempToday + "°", highestTempTime);
+                    sendRecordMessage("High temperature", highestTempToday + "°", highestTempTime,
+                        records.getDouble("highTemp") + "°");
                     records.put("highTemp", highestTempToday);
                     records.put("highTempTime", highestTempTime);
                 }
 
                 if (highestUvToday > records.getInt("highUv")) {
-                    sendRecordMessage("High UV index", String.valueOf(highestUvToday), highestUvTime);
+                    sendRecordMessage("High UV index", String.valueOf(highestUvToday), highestUvTime,
+                        String.valueOf(records.getInt("highUv")));
                     records.put("highUv", highestUvToday);
                     records.put("highUvTime", highestUvTime);
                 }
 
                 if (lowestTempToday < records.getDouble("lowTemp")) {
-                    sendRecordMessage("Low temperature", lowestTempToday + "°", lowestTempTime);
+                    sendRecordMessage("Low temperature", lowestTempToday + "°", lowestTempTime,
+                        records.getDouble("lowTemp") + "°");
                     records.put("lowTemp", lowestTempToday);
                     records.put("lowTempTime", lowestTempTime);
                 }
 
                 if (maxLightningToday > records.getInt("maxLightning")) {
                     sendRecordMessage("Daily lightning strikes", String.valueOf(maxLightningToday),
-                        maxLightningTime);
+                        maxLightningTime, records.getInt("maxLightning") + " strikes");
                     records.put("maxLightning", maxLightningToday);
                     records.put("maxLightningTime", maxLightningTime);
                 }
 
                 if (maxRainAmountToday > records.getDouble("maxRainAmount")) {
-                    sendRecordMessage("Daily rain amount", maxRainAmountToday + " inches", maxRainAmountTime);
+                    sendRecordMessage("Daily rain amount", maxRainAmountToday + " inches", maxRainAmountTime,
+                        records.getDouble("maxRainAmount") + " inches");
                     records.put("maxRainAmount", maxRainAmountToday);
                     records.put("maxRainAmountTime", maxRainAmountTime);
                 }
 
                 if (maxRainRateToday > records.getDouble("maxRainRate")) {
                     sendRecordMessage("High rain rate", maxRainRateToday + " inches per hour",
-                        maxRainRateTime);
+                        maxRainRateTime, records.getDouble("maxRainRate") + " inches per hour");
                     records.put("maxRainRate", maxRainRateToday);
                     records.put("maxRainRateTime", maxRainRateTime);
                 }
 
                 if (maxWindToday > records.getInt("maxWind")) {
-                    sendRecordMessage("High winds", maxWindToday + " mph", maxWindTime);
+                    sendRecordMessage("High winds", maxWindToday + " mph", maxWindTime,
+                        records.getInt("maxWind") + " mph");
                     records.put("maxWind", maxWindToday);
                     records.put("maxWindTime", maxWindTime);
                 }
@@ -140,7 +148,8 @@ public class Records {
                 recordsFile.write(records.toString());
                 recordsFile.close();
 
-                System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Updating record channels...");
+                System.out.println(
+                    new Utils().getTime(Utils.LogColor.YELLOW) + "Updating record channels...");
 
                 double lowTemp = records.getDouble("lowTemp");
                 VoiceChannel lowTempChannel = StormAlerts.jda.getVoiceChannelById(1059213663506006066L);
@@ -196,7 +205,7 @@ public class Records {
             Utils.LogColor.GREEN) + "Scheduled record check in " + delay / 3600 + " hours.");
     }
 
-    private void sendRecordMessage(String recordType, String record, long timeStamp) {
+    private void sendRecordMessage(String recordType, String newRecord, long timeStamp, String oldRecord) {
         TextChannel channel = StormAlerts.jda.getTextChannelById(1007060910050914304L);
         String ping = "";
         if (new Utils().shouldIPing(channel)) ping = "<@&1046149064519073813>\n";
@@ -204,7 +213,7 @@ public class Records {
         // 📊
         //noinspection DataFlowIssue
         channel.sendMessage(
-                ping + "\uD83D\uDCCA New record! **" + recordType + "** of **" + record + "** reported on <t:" + timeStamp + ":F>")
+                ping + "\uD83D\uDCCA New record! **" + recordType + "** of **" + newRecord + "** reported on <t:" + timeStamp + ":F>\n*Old record: " + oldRecord + "*")
             .complete();
     }
 
@@ -227,6 +236,6 @@ public class Records {
         maxRainRateTime = 0;
         maxWindTime = 0;
 
-        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Record values reset!");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Record values reset!");
     }
 }
