@@ -121,8 +121,8 @@ public class StormAlerts extends ListenerAdapter {
                 SelectOption.of("New NWS Alerts", "850471646191812700").withEmoji(Emoji.fromUnicode("⚠️")));
             selectOptions.add(
                 SelectOption.of("NWS Alert Updates", "850471690093854810").withEmoji(Emoji.fromUnicode("📝")));
-            selectOptions.add(SelectOption.of("BETA New Records (Coming Soon)", "1046149064519073813")
-                .withEmoji(Emoji.fromUnicode("📊")));
+            selectOptions.add(
+                SelectOption.of("BETA New Records", "1046149064519073813").withEmoji(Emoji.fromUnicode("📊")));
             selectOptions.add(
                 SelectOption.of("Snow", "845055624165064734").withEmoji(Emoji.fromUnicode("🌨️")));
             selectOptions.add(
