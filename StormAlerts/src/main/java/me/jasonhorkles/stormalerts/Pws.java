@@ -1,6 +1,7 @@
 package me.jasonhorkles.stormalerts;
 
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -73,104 +74,101 @@ public class Pws {
         int lightningToday = Integer.parseInt(new Utils().getJsonKey(input, "lightning_day", true));
 
         // Record checking
-        if (currentRainRate > Records.maxRainRateToday) Records.maxRainRateToday = currentRainRate;
-        if (lightningToday > Records.maxLightningToday) Records.maxLightningToday = lightningToday;
-        if (rainDaily > Records.maxRainAmountToday) Records.maxRainAmountToday = rainDaily;
-        if (strikesPerHour > Records.highestLightningRateToday)
+        if (currentRainRate > Records.maxRainRateToday) {
+            Records.maxRainRateToday = currentRainRate;
+            Records.maxRainRateTime = System.currentTimeMillis() / 1000;
+        }
+        if (lightningToday > Records.maxLightningToday) {
+            Records.maxLightningToday = lightningToday;
+            Records.maxLightningTime = System.currentTimeMillis() / 1000;
+        }
+        if (rainDaily > Records.maxRainAmountToday) {
+            Records.maxRainAmountToday = rainDaily;
+            Records.maxRainAmountTime = System.currentTimeMillis() / 1000;
+        }
+        if (strikesPerHour > Records.highestLightningRateToday) {
             Records.highestLightningRateToday = strikesPerHour;
-        if (temperature < Records.lowestTempToday) Records.lowestTempToday = temperature;
-        if (temperature > Records.highestTempToday) Records.highestTempToday = temperature;
-        if (uv > Records.highestUvToday) Records.highestUvToday = uv;
-        if (windMax > Records.maxWindToday) Records.maxWindToday = windMax;
+            Records.highestLightningRateTime = System.currentTimeMillis() / 1000;
+        }
+        if (temperature < Records.lowestTempToday) {
+            Records.lowestTempToday = temperature;
+            Records.lowestTempTime = System.currentTimeMillis() / 1000;
+        }
+        if (temperature > Records.highestTempToday) {
+            Records.highestTempToday = temperature;
+            Records.highestTempTime = System.currentTimeMillis() / 1000;
+        }
+        if (uv > Records.highestUvToday) {
+            Records.highestUvToday = uv;
+            Records.highestUvTime = System.currentTimeMillis() / 1000;
+        }
+        if (windMax > Records.maxWindToday) {
+            Records.maxWindToday = windMax;
+            Records.maxWindTime = System.currentTimeMillis() / 1000;
+        }
 
         if (!rateLimited) {
-            long humidityChannel = 879099159574089809L;
-            if (!StormAlerts.jda.getVoiceChannelById(humidityChannel).getName()
-                .equals("Humidity | " + humidity + "%"))
-                StormAlerts.jda.getVoiceChannelById(humidityChannel).getManager()
-                    .setName("Humidity | " + humidity + "%").queue();
+            VoiceChannel humidityChannel = StormAlerts.jda.getVoiceChannelById(879099159574089809L);
+            if (!humidityChannel.getName().equals("Humidity | " + humidity + "%"))
+                humidityChannel.getManager().setName("Humidity | " + humidity + "%").queue();
 
-            long temperatureChannel = 879099218302746694L;
-            if (!StormAlerts.jda.getVoiceChannelById(temperatureChannel).getName()
-                .equals("Temperature | " + temperature + "°"))
-                StormAlerts.jda.getVoiceChannelById(temperatureChannel).getManager()
-                    .setName("Temperature | " + temperature + "°").queue();
+            VoiceChannel temperatureChannel = StormAlerts.jda.getVoiceChannelById(879099218302746694L);
+            if (!temperatureChannel.getName().equals("Temperature | " + temperature + "°"))
+                temperatureChannel.getManager().setName("Temperature | " + temperature + "°").queue();
 
-            long feelsLikeChannel = 927585852396294164L;
-            if (!StormAlerts.jda.getVoiceChannelById(feelsLikeChannel).getName()
-                .equals("Feels Like | " + feelsLike + "°"))
-                StormAlerts.jda.getVoiceChannelById(feelsLikeChannel).getManager()
-                    .setName("Feels Like | " + feelsLike + "°").queue();
+            VoiceChannel feelsLikeChannel = StormAlerts.jda.getVoiceChannelById(927585852396294164L);
+            if (!feelsLikeChannel.getName().equals("Feels Like | " + feelsLike + "°"))
+                feelsLikeChannel.getManager().setName("Feels Like | " + feelsLike + "°").queue();
 
-            long uvChannel = 879099369587081226L;
-            if (!StormAlerts.jda.getVoiceChannelById(uvChannel).getName().equals("UV Index | " + uv))
-                StormAlerts.jda.getVoiceChannelById(uvChannel).getManager().setName("UV Index | " + uv)
-                    .queue();
+            VoiceChannel uvChannel = StormAlerts.jda.getVoiceChannelById(879099369587081226L);
+            if (!uvChannel.getName().equals("UV Index | " + uv))
+                uvChannel.getManager().setName("UV Index | " + uv).queue();
 
-            long windCurrentChannel = 879097601750884423L;
-            if (!StormAlerts.jda.getVoiceChannelById(windCurrentChannel).getName()
-                .equals("Current | " + wind + " mph"))
-                StormAlerts.jda.getVoiceChannelById(windCurrentChannel).getManager()
-                    .setName("Current | " + wind + " mph").queue();
+            VoiceChannel windCurrentChannel = StormAlerts.jda.getVoiceChannelById(879097601750884423L);
+            if (!windCurrentChannel.getName().equals("Current | " + wind + " mph"))
+                windCurrentChannel.getManager().setName("Current | " + wind + " mph").queue();
 
-            long windGustChannel = 889226727266594876L;
-            if (!StormAlerts.jda.getVoiceChannelById(windGustChannel).getName()
-                .equals("Gusts | " + windGust + " mph"))
-                StormAlerts.jda.getVoiceChannelById(windGustChannel).getManager()
-                    .setName("Gusts | " + windGust + " mph").queue();
+            VoiceChannel windGustChannel = StormAlerts.jda.getVoiceChannelById(889226727266594876L);
+            if (!windGustChannel.getName().equals("Gusts | " + windGust + " mph"))
+                windGustChannel.getManager().setName("Gusts | " + windGust + " mph").queue();
 
-            long windMaxChannel = 879097671070121995L;
-            if (!StormAlerts.jda.getVoiceChannelById(windMaxChannel).getName()
-                .equals("Max Today | " + windMax + " mph"))
-                StormAlerts.jda.getVoiceChannelById(windMaxChannel).getManager()
-                    .setName("Max Today | " + windMax + " mph").queue();
+            VoiceChannel windMaxChannel = StormAlerts.jda.getVoiceChannelById(879097671070121995L);
+            if (!windMaxChannel.getName().equals("Max Today | " + windMax + " mph"))
+                windMaxChannel.getManager().setName("Max Today | " + windMax + " mph").queue();
 
-            long rainDailyChannel = 879098793876934676L;
-            if (!StormAlerts.jda.getVoiceChannelById(rainDailyChannel).getName()
-                .equals("Daily | " + rainDaily + " in"))
-                StormAlerts.jda.getVoiceChannelById(rainDailyChannel).getManager()
-                    .setName("Daily | " + rainDaily + " in").queue();
+            VoiceChannel rainDailyChannel = StormAlerts.jda.getVoiceChannelById(879098793876934676L);
+            if (!rainDailyChannel.getName().equals("Daily | " + rainDaily + " in"))
+                rainDailyChannel.getManager().setName("Daily | " + rainDaily + " in").queue();
 
-            long rainWeeklyChannel = 879098898193449000L;
-            if (!StormAlerts.jda.getVoiceChannelById(rainWeeklyChannel).getName()
-                .equals("Weekly | " + rainWeekly + " in"))
-                StormAlerts.jda.getVoiceChannelById(rainWeeklyChannel).getManager()
-                    .setName("Weekly | " + rainWeekly + " in").queue();
+            VoiceChannel rainWeeklyChannel = StormAlerts.jda.getVoiceChannelById(879098898193449000L);
+            if (!rainWeeklyChannel.getName().equals("Weekly | " + rainWeekly + " in"))
+                rainWeeklyChannel.getManager().setName("Weekly | " + rainWeekly + " in").queue();
 
-            long rainMonthlyChannel = 879098953470205972L;
-            if (!StormAlerts.jda.getVoiceChannelById(rainMonthlyChannel).getName()
-                .equals("Monthly | " + rainMonthly + " in"))
-                StormAlerts.jda.getVoiceChannelById(rainMonthlyChannel).getManager()
-                    .setName("Monthly | " + rainMonthly + " in").queue();
+            VoiceChannel rainMonthlyChannel = StormAlerts.jda.getVoiceChannelById(879098953470205972L);
+            if (!rainMonthlyChannel.getName().equals("Monthly | " + rainMonthly + " in"))
+                rainMonthlyChannel.getManager().setName("Monthly | " + rainMonthly + " in").queue();
 
-            long rainYearlyChannel = 879099010420457482L;
-            if (!StormAlerts.jda.getVoiceChannelById(rainYearlyChannel).getName()
-                .equals("Yearly | " + rainYearly + " in"))
-                StormAlerts.jda.getVoiceChannelById(rainYearlyChannel).getManager()
-                    .setName("Yearly | " + rainYearly + " in").queue();
+            VoiceChannel rainYearlyChannel = StormAlerts.jda.getVoiceChannelById(879099010420457482L);
+            if (!rainYearlyChannel.getName().equals("Yearly | " + rainYearly + " in"))
+                rainYearlyChannel.getManager().setName("Yearly | " + rainYearly + " in").queue();
 
-            long strikesPerHourChannel = 923433184132210698L;
-            if (!StormAlerts.jda.getVoiceChannelById(strikesPerHourChannel).getName()
-                .equals("Strikes | " + strikesPerHour + "/hr"))
-                StormAlerts.jda.getVoiceChannelById(strikesPerHourChannel).getManager()
-                    .setName("Strikes | " + strikesPerHour + "/hr").queue();
+            VoiceChannel strikesPerHourChannel = StormAlerts.jda.getVoiceChannelById(923433184132210698L);
+            if (!strikesPerHourChannel.getName().equals("Strikes | " + strikesPerHour + "/hr"))
+                strikesPerHourChannel.getManager().setName("Strikes | " + strikesPerHour + "/hr").queue();
 
-            long lightningTodayChannel = 923432597789503568L;
-            if (!StormAlerts.jda.getVoiceChannelById(lightningTodayChannel).getName()
-                .equals("Nearby Today | " + lightningToday))
-                StormAlerts.jda.getVoiceChannelById(lightningTodayChannel).getManager()
-                    .setName("Nearby Today | " + lightningToday).queue();
+            VoiceChannel lightningTodayChannel = StormAlerts.jda.getVoiceChannelById(923432597789503568L);
+            if (!lightningTodayChannel.getName().equals("Nearby Today | " + lightningToday))
+                lightningTodayChannel.getManager().setName("Nearby Today | " + lightningToday).queue();
 
             DateTimeFormatter timeUpdatedFormat = DateTimeFormatter.ofPattern("h:mm a");
             Instant timeUpdatedRaw = Instant.ofEpochMilli(
                 Long.parseLong(new Utils().getJsonKey(input, "dateutc", true)));
             String timeUpdated = timeUpdatedFormat.format(
                 ZonedDateTime.ofInstant(timeUpdatedRaw, ZoneId.of("America/Denver")));
-            long timeUpdatedChannel = 941791190704062545L;
-            if (!StormAlerts.jda.getVoiceChannelById(timeUpdatedChannel).getName()
-                .equals("Stats Updated: " + timeUpdated))
-                StormAlerts.jda.getVoiceChannelById(timeUpdatedChannel).getManager()
-                    .setName("Stats Updated: " + timeUpdated).queue();
+
+            VoiceChannel timeUpdatedChannel = StormAlerts.jda.getVoiceChannelById(941791190704062545L);
+            if (!timeUpdatedChannel.getName().equals("Stats Updated: " + timeUpdated))
+                timeUpdatedChannel.getManager().setName("Stats Updated: " + timeUpdated).queue();
 
             rateLimited = true;
             Executors.newSingleThreadScheduledExecutor().schedule(() -> {
