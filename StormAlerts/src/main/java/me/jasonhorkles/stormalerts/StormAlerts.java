@@ -15,26 +15,22 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.json.JSONObject;
 
-import java.text.DateFormat;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.MessageFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Scanner;
 import java.util.concurrent.*;
 
 @SuppressWarnings({"DataFlowIssue"})
 public class StormAlerts extends ListenerAdapter {
-    public static JDA jda;
+    public static final ArrayList<ScheduledFuture<?>> scheduledTimers = new ArrayList<>();
     public static final boolean testing = false;
+    public static JDA jda;
 
-    private static ScheduledFuture<?> alertTimer;
-    private static ScheduledFuture<?> pwsTimer;
-    private static ScheduledFuture<?> weatherTimer;
-    private static final ArrayList<ScheduledFuture<?>> trafficTimers = new ArrayList<>();
 
     public static void main(String[] args) throws InterruptedException, ParseException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
@@ -58,18 +54,19 @@ public class StormAlerts extends ListenerAdapter {
 
 
         // Alerts
-        alertTimer = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
                 new Alerts().checkAlerts();
             } catch (Exception e) {
-                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!");
+                System.out.println(
+                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!");
                 e.printStackTrace();
             }
-        }, 1, 180, TimeUnit.SECONDS);
+        }, 1, 180, TimeUnit.SECONDS));
 
 
         // PWS / Rain / Lightning
-        pwsTimer = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
                 new Pws().checkConditions();
             } catch (Exception e) {
@@ -79,18 +76,18 @@ public class StormAlerts extends ListenerAdapter {
                 else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
                 else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
 
-                System.out.println(
-                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
+                System.out.println(new Utils().getTime(
+                    Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
                 if (reason.equals("")) {
                     System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
                 }
             }
-        }, 3, 90, TimeUnit.SECONDS);
+        }, 3, 90, TimeUnit.SECONDS));
 
 
         // Weather
-        weatherTimer = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
                 new Weather().checkConditions();
             } catch (Exception e) {
@@ -100,12 +97,20 @@ public class StormAlerts extends ListenerAdapter {
                 jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
                 jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
             }
-        }, 5, 90, TimeUnit.SECONDS);
+        }, 5, 90, TimeUnit.SECONDS));
+
+        // Schedule records announcement
+        try {
+            new Records().scheduleRecordCheck();
+        } catch (Exception e) {
+            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Error grabbing the records!");
+            e.printStackTrace();
+        }
 
         // Schedule traffic checks
-        new StormAlerts().scheduleTrafficCheck("2:40 PM", true);
-        new StormAlerts().scheduleTrafficCheck("5:50 PM", false);
-        new StormAlerts().scheduleTrafficCheck("6:00 PM", false);
+        new Traffic().scheduleTrafficCheck("2:40 PM", true);
+        new Traffic().scheduleTrafficCheck("5:50 PM", false);
+        new Traffic().scheduleTrafficCheck("6:00 PM", false);
 
         // Send select menu message if needed
         try {
@@ -116,24 +121,26 @@ public class StormAlerts extends ListenerAdapter {
                 SelectOption.of("New NWS Alerts", "850471646191812700").withEmoji(Emoji.fromUnicode("⚠️")));
             selectOptions.add(
                 SelectOption.of("NWS Alert Updates", "850471690093854810").withEmoji(Emoji.fromUnicode("📝")));
+            selectOptions.add(SelectOption.of("BETA New Records (Coming Soon)", "1046149064519073813")
+                .withEmoji(Emoji.fromUnicode("📊")));
             selectOptions.add(
-                SelectOption.of("BETA New Records (Coming Soon)", "1046149064519073813")
-                    .withEmoji(Emoji.fromUnicode("📊")));
-            selectOptions.add(SelectOption.of("Snow", "845055624165064734").withEmoji(Emoji.fromUnicode("🌨️")));
-            selectOptions.add(SelectOption.of("Hail", "845055784156397608").withEmoji(Emoji.fromUnicode("🧊")));
-            selectOptions.add(SelectOption.of("Rain", "843956362059841596").withEmoji(Emoji.fromUnicode("🌦️")));
-            selectOptions.add(SelectOption.of("Heavy Rain", "843956325690900503").withEmoji(Emoji.fromUnicode("🌧️")));
+                SelectOption.of("Snow", "845055624165064734").withEmoji(Emoji.fromUnicode("🌨️")));
             selectOptions.add(
-                SelectOption.of("BETA High Wind", "1046148944108978227")
-                    .withEmoji(Emoji.fromUnicode("🍃")));
+                SelectOption.of("Hail", "845055784156397608").withEmoji(Emoji.fromUnicode("🧊")));
+            selectOptions.add(
+                SelectOption.of("Rain", "843956362059841596").withEmoji(Emoji.fromUnicode("🌦️")));
+            selectOptions.add(
+                SelectOption.of("Heavy Rain", "843956325690900503").withEmoji(Emoji.fromUnicode("🌧️")));
+            selectOptions.add(
+                SelectOption.of("BETA High Wind", "1046148944108978227").withEmoji(Emoji.fromUnicode("🍃")));
             selectOptions.add(
                 SelectOption.of("Lightning Info", "896877424824954881").withEmoji(Emoji.fromUnicode("⚡")));
 
-            if (new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).isEmpty())
-                channel.sendMessage("**Select your desired notifications below:**\n*Each selection acts as a toggle*")
-                    .addActionRow(StringSelectMenu.create("role-select").addOptions(selectOptions).setMinValues(0)
-                        .setMaxValues(selectOptions.size()).build())
-                    .addActionRow(Button.secondary("viewroles", "Your Roles")).queue();
+            if (new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).isEmpty()) channel.sendMessage(
+                    "**Select your desired notifications below:**\n*Each selection acts as a toggle*")
+                .addActionRow(StringSelectMenu.create("role-select").addOptions(selectOptions).setMinValues(0)
+                    .setMaxValues(selectOptions.size()).build())
+                .addActionRow(Button.secondary("viewroles", "Your Roles")).queue();
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
@@ -155,45 +162,75 @@ public class StormAlerts extends ListenerAdapter {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }
 
-    private void scheduleTrafficCheck(String time, boolean toWork) throws ParseException {
-        DayOfWeek day = LocalDate.now().getDayOfWeek();
-        if (day != DayOfWeek.SATURDAY && day != DayOfWeek.SUNDAY) {
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd h:mm a");
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(format.parse(LocalDate.now() + " " + time));
-
-            long delay = calendar.getTimeInMillis() - System.currentTimeMillis();
-
-            if (delay >= 0) {
-                trafficTimers.add(Executors.newSingleThreadScheduledExecutor()
-                    .schedule(() -> new Traffic().checkTraffic(toWork), delay, TimeUnit.MILLISECONDS));
-                System.out.println(
-                    new Utils().getTime(Utils.LogColor.GREEN) + "Scheduled traffic check in " + Math.round(
-                        delay / 3600000.0) + " hours.");
-            }
-        }
-    }
-
     public void shutdown() {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
-        alertTimer.cancel(true);
-        pwsTimer.cancel(true);
-        weatherTimer.cancel(true);
-        if (!trafficTimers.isEmpty()) for (ScheduledFuture<?> task : trafficTimers) task.cancel(true);
+
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Dumping record data...");
+        try {
+            String filePath = "StormAlerts/records-today.json";
+
+            JSONObject allRecords = new JSONObject();
+            allRecords.put("highLightningRate", Records.highestLightningRateToday);
+            allRecords.put("highTemp", Records.highestTempToday);
+            allRecords.put("highUv", Records.highestUvToday);
+            allRecords.put("lowTemp", Records.lowestTempToday);
+            allRecords.put("maxLightning", Records.maxLightningToday);
+            allRecords.put("maxRainAmount", Records.maxRainAmountToday);
+            allRecords.put("maxRainRate", Records.maxRainRateToday);
+            allRecords.put("maxWind", Records.maxWindToday);
+
+            allRecords.put("highLightningRateTime", Records.highestLightningRateTime);
+            allRecords.put("highTempTime", Records.highestTempTime);
+            allRecords.put("highUvTime", Records.highestUvTime);
+            allRecords.put("lowTempTime", Records.lowestTempTime);
+            allRecords.put("maxLightningTime", Records.maxLightningTime);
+            allRecords.put("maxRainAmountTime", Records.maxRainAmountTime);
+            allRecords.put("maxRainRateTime", Records.maxRainRateTime);
+            allRecords.put("maxWindTime", Records.maxWindTime);
+
+            FileWriter recordsToday = new FileWriter(filePath, false);
+            recordsToday.write(allRecords.toString());
+            recordsToday.close();
+
+        } catch (IOException e) {
+            System.out.println(new Utils().getTime(
+                Utils.LogColor.RED) + "Unable to write to records file! Dumping to DMs...");
+
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            e.printStackTrace();
+
+            jda.openPrivateChannelById(277291758503723010L).flatMap(channel -> channel.sendMessage(
+                MessageFormat.format(
+                    "Error saving records file!\nLightning rate: {0}:{8}\nTemp high: {1}:{9}\nUV high: {2}:{10}\nTemp low: {3}:{11}\nLightning today: {4}:{12}\nRain today: {5}:{13}\nRain rate: {6}:{14}\nWind: {7}:{15}",
+                    Records.highestLightningRateToday, Records.highestTempToday, Records.highestUvToday,
+                    Records.lowestTempToday, Records.maxLightningToday, Records.maxRainAmountToday,
+                    Records.maxRainRateToday, Records.maxWindToday, Records.highestLightningRateTime,
+                    Records.highestTempTime, Records.highestUvTime, Records.lowestTempTime,
+                    Records.maxLightningTime, Records.maxRainAmountTime, Records.maxRainRateTime,
+                    Records.maxWindTime))).complete();
+        }
+
+        if (!scheduledTimers.isEmpty()) for (ScheduledFuture<?> task : scheduledTimers) task.cancel(true);
+
         if (Weather.previousTypeChannel != null) {
             Message message = null;
             try {
-                message = new Utils().getMessages(Weather.previousTypeChannel, 1).get(1, TimeUnit.SECONDS).get(0);
+                message = new Utils().getMessages(Weather.previousTypeChannel, 1).get(1, TimeUnit.SECONDS)
+                    .get(0);
                 Thread.sleep(500);
+
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
             }
+
             if (!message.getContentRaw().contains("Ended") && !message.getContentRaw().contains("restarted"))
                 message.editMessage(message.getContentRaw()
-                    .replace("!", "! (Bot restarted at <t:" + System.currentTimeMillis() / 1000 + ":t>)")).complete();
+                        .replace("!", "! (Bot restarted at <t:" + System.currentTimeMillis() / 1000 + ":t>)"))
+                    .complete();
             Weather.previousTypeChannel = null;
         }
+
         try {
             jda.shutdownNow();
         } catch (NoClassDefFoundError ignored) {

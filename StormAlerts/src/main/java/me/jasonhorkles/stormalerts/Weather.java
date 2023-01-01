@@ -151,7 +151,7 @@ public class Weather extends ListenerAdapter {
             if (weatherName.startsWith("hailing")) {
                 if (!dontSendAlerts) {
                     String ping = "";
-                    if (new Utils().shouldIPing(hailChannel)) ping = "<@&845055784156397608> ";
+                    if (new Utils().shouldIPing(hailChannel)) ping = "<@&845055784156397608>\n";
                     // 🧊
                     hailChannel.sendMessage(ping + "\uD83E\uDDCA It's " + trimmedWeatherName + "! (" + weather + ")")
                         .queue();
@@ -166,7 +166,7 @@ public class Weather extends ListenerAdapter {
                     // Send the snow message after 45 minutes IF it's still snowing by then
                     scheduledSnowMessage = Executors.newSingleThreadScheduledExecutor().schedule(() -> {
                         String ping = "";
-                        if (new Utils().shouldIPing(snowChannel)) ping = "<@&845055624165064734> ";
+                        if (new Utils().shouldIPing(snowChannel)) ping = "<@&845055624165064734>\n";
                         snowChannel.sendMessage(
                                 ping + "\uD83C\uDF28️ It's " + finalDoubleTrimmedWeatherName + "! (" + weather + ")")
                             .queue();
@@ -177,7 +177,7 @@ public class Weather extends ListenerAdapter {
 
             } else if (weather.equals("RAIN")) {
                 String ping = "";
-                if (new Utils().shouldIPing(rainChannel)) ping = "<@&843956362059841596> ";
+                if (new Utils().shouldIPing(rainChannel)) ping = "<@&843956362059841596>\n";
 
                 boolean mightBeSnow = false;
                 OffsetDateTime lastSnow = new Utils().getMessages(
@@ -188,7 +188,7 @@ public class Weather extends ListenerAdapter {
                 boolean isNight = false;
                 if (mightBeSnow) {
                     LocalTime now = LocalTime.now();
-                    if (now.isAfter(LocalTime.parse("21:00:00")) || now.isBefore(LocalTime.parse("08:00:00")))
+                    if (now.isAfter(LocalTime.parse("18:00:00")) || now.isBefore(LocalTime.parse("09:00:00")))
                         isNight = true;
                 }
 
@@ -213,6 +213,7 @@ public class Weather extends ListenerAdapter {
                     case 3 -> {
                         if (!acceptRainForDay) if (mightBeSnow && !isNight) {
                             // 🌦️
+                            //todo Change buttons to accept for day, unsure, and decline for 1 hour
                             if (!dontSendAlerts) rainConfirmationChannel.sendMessage(
                                     "[CONFIRMATION NEEDED] " + ping + "\uD83C\uDF26️ It's " + doubleTrimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
                                 .setActionRow(Button.success("acceptrain", "Accept").withEmoji(Emoji.fromUnicode("✅")),
@@ -224,6 +225,7 @@ public class Weather extends ListenerAdapter {
                                     new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
                             idle = true;
 
+                            //bug This doesn't send if rain is accepted for day
                         } else if (!dontSendAlerts) rainChannel.sendMessage(
                                 ping + "\uD83C\uDF26️ It's " + doubleTrimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
                             .queue();
