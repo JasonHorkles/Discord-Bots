@@ -142,12 +142,12 @@ public class Records {
 
                 System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Updating record channels...");
 
-                int lowTemp = records.getInt("lowTemp");
+                double lowTemp = records.getDouble("lowTemp");
                 VoiceChannel lowTempChannel = StormAlerts.jda.getVoiceChannelById(1059213663506006066L);
                 if (!lowTempChannel.getName().equals("Temp Low | " + lowTemp + "°"))
                     lowTempChannel.getManager().setName("Temp Low | " + lowTemp + "°").queue();
 
-                int highTemp = records.getInt("highTemp");
+                double highTemp = records.getDouble("highTemp");
                 VoiceChannel highTempChannel = StormAlerts.jda.getVoiceChannelById(1059213632531091548L);
                 if (!highTempChannel.getName().equals("Temp High | " + highTemp + "°"))
                     highTempChannel.getManager().setName("Temp High | " + highTemp + "°").queue();
@@ -157,12 +157,12 @@ public class Records {
                 if (!highUvChannel.getName().equals("UV Index | " + highUv))
                     highUvChannel.getManager().setName("UV Index | " + highUv).queue();
 
-                int rainRate = records.getInt("maxRainRate");
+                double rainRate = records.getDouble("maxRainRate");
                 VoiceChannel rainRateChannel = StormAlerts.jda.getVoiceChannelById(1059213828015013948L);
                 if (!rainRateChannel.getName().equals("Rain | " + rainRate + " in/hr"))
                     rainRateChannel.getManager().setName("Rain | " + rainRate + " in/hr").queue();
 
-                int rainAmount = records.getInt("maxRainAmount");
+                double rainAmount = records.getDouble("maxRainAmount");
                 VoiceChannel rainAmountChannel = StormAlerts.jda.getVoiceChannelById(1059213790333382796L);
                 if (!rainAmountChannel.getName().equals("Daily Rain | " + rainAmount + " in"))
                     rainAmountChannel.getManager().setName("Daily Rain | " + rainAmount + " in").queue();
