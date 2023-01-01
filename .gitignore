@@ -18,6 +18,9 @@ Quorum/src/main/java/me/jasonhorkles/quorum/Secrets.java
 Silverstone/src/main/java/me/jasonhorkles/silverstone/Secrets.java
 Silverstone/src/main/java/me/jasonhorkles/silverstone/Testing.java
 StartupTesting
+StormAlerts/lastlightningid.txt
+StormAlerts/records-today.json
+StormAlerts/records.json
 StormAlerts/src/main/java/me/jasonhorkles/stormalerts/Secrets.java
 StormAlerts/Tests
 Zoom
