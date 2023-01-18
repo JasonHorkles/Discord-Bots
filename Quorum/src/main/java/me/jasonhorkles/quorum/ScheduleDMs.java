@@ -82,7 +82,7 @@ public class ScheduleDMs {
         TextChannel messageChannel = Quorum.jda.getTextChannelById(869009573774761984L);
         if (usersLeft == 0) try {
             if (new Utils().getMessages(messageChannel, 1).get(30, TimeUnit.SECONDS).get(0).getTimeCreated()
-                .isBefore(OffsetDateTime.now().minus(23, ChronoUnit.HOURS))) messageChannel.sendMessage(
+                .isBefore(OffsetDateTime.now().minus(71, ChronoUnit.HOURS))) messageChannel.sendMessage(
                 "<@" + firstAssistantId + ">, there are no more lessons scheduled for the quorum").queue();
 
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
