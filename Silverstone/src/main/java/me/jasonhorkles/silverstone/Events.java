@@ -237,6 +237,6 @@ public class Events extends ListenerAdapter {
         embed.setColor(new Color(255, 100, 0));
 
         channel.sendMessageEmbeds(embed.build())
-            .queue((na) -> channel.getManager().setArchived(true).setLocked(true).queueAfter(1, TimeUnit.SECONDS));
+            .queue(na -> channel.getManager().setArchived(true).setLocked(true).queueAfter(1, TimeUnit.SECONDS));
     }
 }

@@ -230,7 +230,7 @@ public class Alerts {
                             "<@&850471690093854810>\n**[" + severity.toUpperCase() + "] " + event + "** for " + area)
                         .setEmbeds(embed.build()).complete());
                     alertsChannel.sendMessage("<@&850471690093854810>")
-                        .queue((del) -> del.delete().queueAfter(250, TimeUnit.MILLISECONDS));
+                        .queue(del -> del.delete().queueAfter(250, TimeUnit.MILLISECONDS));
                 }
             }
         }

@@ -183,7 +183,7 @@ public class Events extends ListenerAdapter {
                 TextChannel gameChannel = new RPS().startGame(players);
                 message.addReaction(Emoji.fromUnicode("👍")).queue();
                 message.reply("Game created in " + gameChannel.getAsMention())
-                    .queue((del) -> del.delete().queueAfter(15, TimeUnit.SECONDS));
+                    .queue(del -> del.delete().queueAfter(15, TimeUnit.SECONDS));
             }
             return;
         }
@@ -441,7 +441,7 @@ public class Events extends ListenerAdapter {
         if (event.getReaction().getEmoji().getName().equals("\uD83E\uDD2B")) {
             // Verify if mod or coach
             if (event.getMember().getRoles().toString().contains("751166721624375435") || event.getMember().getRoles()
-                .toString().contains("729108220479537202")) event.retrieveMessage().queue((message) -> {
+                .toString().contains("729108220479537202")) event.retrieveMessage().queue(message -> {
                 Member member = message.getMember();
 
                 if (member.isTimedOut()) {
@@ -454,10 +454,10 @@ public class Events extends ListenerAdapter {
 
                 member.timeoutFor(10, TimeUnit.MINUTES).queue(
                     (na) -> event.getChannel().sendMessage(new Utils().getFirstName(member) + " just got shushed!")
-                        .queue((del) -> {
+                        .queue(del -> {
                             del.delete().queueAfter(10, TimeUnit.MINUTES, null,
                                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
-                            event.getChannel().sendMessage("https://tenor.com/vfW7.gif").queue((del2) -> del2.delete()
+                            event.getChannel().sendMessage("https://tenor.com/vfW7.gif").queue(del2 -> del2.delete()
                                 .queueAfter(10, TimeUnit.MINUTES, null,
                                     new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
                         }), (na1) -> event.getChannel()
@@ -507,7 +507,7 @@ public class Events extends ListenerAdapter {
 
                 } catch (IOException e) {
                     message.reply("Failed to write word! See console for details.")
-                        .queue((msg) -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+                        .queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
                     System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
                 }
@@ -518,9 +518,9 @@ public class Events extends ListenerAdapter {
         // Delete message
         if (event.getReaction().getEmoji().getName().equals("❌") && event.getChannel().asTextChannel()
             .getParentCategoryIdLong() != 900747596245639238L) {
-            event.retrieveMessage().queue((message -> {
+            event.retrieveMessage().queue(message -> {
                 if (message.getAuthor().equals(Phoenella.jda.getSelfUser())) message.delete().queue();
-            }));
+            });
             return;
         }
 
@@ -545,7 +545,7 @@ public class Events extends ListenerAdapter {
 
             } catch (IOException e) {
                 message.reply("Failed to write word! See console for details.")
-                    .queue((msg) -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+                    .queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
                 System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
             }

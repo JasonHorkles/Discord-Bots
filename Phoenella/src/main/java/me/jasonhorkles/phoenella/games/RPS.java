@@ -36,7 +36,7 @@ public class RPS extends ListenerAdapter {
 
         channel.sendMessage(
                 "__**How to play:**__\nBeat your opponent, win 2/3 times\n\n*The game will start in 5 seconds...*")
-            .queue((del) -> del.delete().queueAfter(5, TimeUnit.SECONDS));
+            .queue(del -> del.delete().queueAfter(5, TimeUnit.SECONDS));
 
         channel.sendMessage("__**Round 0/3**__\n\n**" + new Utils().getFirstName(
                 playerList.get(0)) + ":** 0\n**" + new Utils().getFirstName(playerList.get(1)) + ":** 0")
@@ -46,7 +46,7 @@ public class RPS extends ListenerAdapter {
 
         StringBuilder mentions = new StringBuilder();
         for (Member player : playerList) mentions.append(player.getAsMention());
-        channel.sendMessage(mentions).queue((del) -> del.delete()
+        channel.sendMessage(mentions).queue(del -> del.delete()
             .queueAfter(100, TimeUnit.MILLISECONDS, null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
 
         return channel;
@@ -85,12 +85,12 @@ public class RPS extends ListenerAdapter {
                     points.put(player1Local, points.get(player1Local) + 1);
                     channel.sendMessage(player1Local.getAsMention() + " chose **" + player1Selection.get(
                             player1Local) + "**! They win this round!")
-                        .queue((del) -> del.delete().queueAfter(3, TimeUnit.SECONDS));
+                        .queue(del -> del.delete().queueAfter(3, TimeUnit.SECONDS));
                 } else {
                     points.put(player2Local, points.get(player2Local) + 1);
                     channel.sendMessage(player2Local.getAsMention() + " chose **" + player2Selection.get(
                             player2Local) + "**! They win this round!")
-                        .queue((del) -> del.delete().queueAfter(3, TimeUnit.SECONDS));
+                        .queue(del -> del.delete().queueAfter(3, TimeUnit.SECONDS));
                 }
 
                 round.put(channel, round.get(channel) + 1);
