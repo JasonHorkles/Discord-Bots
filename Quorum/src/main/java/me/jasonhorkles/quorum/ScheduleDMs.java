@@ -69,8 +69,9 @@ public class ScheduleDMs {
             futureReminder.add(Calendar.DAY_OF_YEAR, -1);
 
             long delay = future.getTimeInMillis() - System.currentTimeMillis();
-            if (delay > 0) scheduleInitial(name.get(index), date.get(index), title.get(index), scripture.get(index),
-                link.get(index), delay);
+            if (delay > 0)
+                scheduleInitial(name.get(index), date.get(index), title.get(index), scripture.get(index),
+                    link.get(index), delay);
 
             long delayReminder = futureReminder.getTimeInMillis() - System.currentTimeMillis();
             if (delayReminder > 0) {
@@ -94,14 +95,15 @@ public class ScheduleDMs {
     public void scheduleInitial(String name, String date, String title, String scripture, String link, long delay) {
         schedules.add(Executors.newSingleThreadScheduledExecutor().schedule(() -> {
             try {
-                Quorum.jda.getGuildById(853775450680590387L).getMembersByEffectiveName(name, true).get(0).getUser()
-                    .openPrivateChannel().flatMap(channel -> channel.sendMessage(
+                Quorum.jda.getGuildById(853775450680590387L).getMembersByEffectiveName(name, true).get(0)
+                    .getUser().openPrivateChannel().flatMap(channel -> channel.sendMessage(
                             "Hey there! You have a lesson to give in Priest Quorum next Sunday: <t:" + parseDateToUnix(
                                 date) + ">\n\nThe topic for the week is: **" + title + "**\n(" + scripture + ")\n\nIf you won't be able to give the lesson or have any questions, message us over in <#853775451708719125>")
                         .setActionRow(Button.link(link, "Open"))).queue();
 
                 Quorum.jda.getTextChannelById(869009573774761984L)
-                    .sendMessage("Messaged **" + name + "** to prepare his lesson for next Sunday: " + title).queue();
+                    .sendMessage("Messaged **" + name + "** to prepare his lesson for next Sunday: " + title)
+                    .queue();
                 System.out.println(new Utils().getTime(
                     Utils.LogColor.GREEN) + "Messaged " + name + " to prepare his lesson for next Sunday: " + title);
             } catch (NullPointerException e) {
@@ -113,16 +115,16 @@ public class ScheduleDMs {
             }
         }, delay, TimeUnit.MILLISECONDS));
 
-        System.out.println(
-            new Utils().getTime(Utils.LogColor.GREEN) + "Scheduled message to send to " + name + " in " + Math.round(
-                delay / 86400000.0) + " days.");
+        System.out.println(new Utils().getTime(
+            Utils.LogColor.GREEN) + "Scheduled message to send to " + name + " in " + Math.round(
+            delay / 86400000.0) + " days.");
     }
 
     public void scheduleReminder(String name, String date, long delay) {
         schedules.add(Executors.newSingleThreadScheduledExecutor().schedule(() -> {
             try {
-                Quorum.jda.getGuildById(853775450680590387L).getMembersByEffectiveName(name, true).get(0).getUser()
-                    .openPrivateChannel().flatMap(channel -> channel.sendMessage(
+                Quorum.jda.getGuildById(853775450680590387L).getMembersByEffectiveName(name, true).get(0)
+                    .getUser().openPrivateChannel().flatMap(channel -> channel.sendMessage(
                         "Don't forget to prepare your lesson for Priest Quorum this Sunday (<t:" + parseDateToUnix(
                             date) + ">) if you haven't already :arrow_up:")).queue();
 
@@ -139,9 +141,9 @@ public class ScheduleDMs {
             }
         }, delay, TimeUnit.MILLISECONDS));
 
-        System.out.println(
-            new Utils().getTime(Utils.LogColor.GREEN) + "Scheduled reminder for " + name + " in " + Math.round(
-                delay / 86400000.0) + " days.");
+        System.out.println(new Utils().getTime(
+            Utils.LogColor.GREEN) + "Scheduled reminder for " + name + " in " + Math.round(
+            delay / 86400000.0) + " days.");
     }
 
     public long parseDateToUnix(String date) {
