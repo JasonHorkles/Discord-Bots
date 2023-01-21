@@ -22,12 +22,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ScheduledFuture;
 
 @SuppressWarnings("DataFlowIssue")
 public class Utils {
-    public static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
-
     public enum LogColor {
         RED("\u001B[31m"), YELLOW("\u001B[33m"), GREEN("\u001B[32m");
 

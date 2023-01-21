@@ -227,7 +227,6 @@ public class Phoenella {
 
     public void shutdown() {
         for (ScheduledFuture<?> task : schedules) task.cancel(false);
-        for (ScheduledFuture<?> task : Utils.schedules) task.cancel(false);
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
         // Close game channels
         for (TextChannel channel : jda.getGuildById(729083627308056597L).getCategoryById(900747596245639238L)
