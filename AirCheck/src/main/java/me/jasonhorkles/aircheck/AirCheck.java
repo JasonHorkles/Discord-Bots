@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
@@ -16,8 +17,7 @@ public class AirCheck {
     public static JDA jda;
     public static final boolean testing = false;
 
-    private static ScheduledFuture<?> airTimer;
-    private static ScheduledFuture<?> forecastTimer;
+    private static final ArrayList<ScheduledFuture<?>> scheduledTimers = new ArrayList<>();
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
@@ -34,7 +34,7 @@ public class AirCheck {
         jda.awaitReady();
 
         // Air Quality
-        airTimer = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking air quality...");
             try {
                 new AQI().checkAir();
@@ -45,10 +45,10 @@ public class AirCheck {
                 jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
                 jda.getPresence().setActivity(Activity.playing("⚠ Error"));
             }
-        }, 1, 1800, TimeUnit.SECONDS);
+        }, 1, 1800, TimeUnit.SECONDS));
 
         // Forecasts
-        forecastTimer = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking forecasts...");
             try {
                 new Forecasts().updateForecasts();
@@ -57,7 +57,7 @@ public class AirCheck {
                     new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the forecasts!");
                 e.printStackTrace();
             }
-        }, 2, 10800, TimeUnit.SECONDS);
+        }, 2, 10800, TimeUnit.SECONDS));
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new AirCheck().shutdown(), "Shutdown Hook"));
@@ -75,8 +75,7 @@ public class AirCheck {
 
     public void shutdown() {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
-        airTimer.cancel(true);
-        forecastTimer.cancel(true);
+        if (!scheduledTimers.isEmpty()) for (ScheduledFuture<?> task : scheduledTimers) task.cancel(true);
         try {
             jda.shutdownNow();
         } catch (NoClassDefFoundError ignored) {
