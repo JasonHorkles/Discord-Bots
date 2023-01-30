@@ -184,7 +184,7 @@ public class Alerts {
                 case "Excessive Heat Warning", "Excessive Heat Watch", "Heat Advisory" -> embed.setThumbnail(
                     "https://cdn.discordapp.com/attachments/335445132520194058/1049516438030913616/kindpng_636901.png");
 
-                case "Extreme Cold Warning", "Extreme Cold Watch" -> embed.setThumbnail(
+                case "Extreme Cold Warning", "Extreme Cold Watch", "Wind Chill Watch", "Wind Chill Warning" -> embed.setThumbnail(
                     "https://cdn.discordapp.com/attachments/335445132520194058/1049516437619867668/Cold-Thermometer-clipart-transparent.png");
 
                 case "Extreme Fire Danger", "Fire Warning", "Fire Weather Watch", "Red Flag Warning" ->
