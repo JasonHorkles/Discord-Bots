@@ -13,7 +13,7 @@ public class ScheduleAnnouncements {
     public static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
 
     public void scheduleAnnouncements() throws ExecutionException, InterruptedException, TimeoutException {
-        for (Message message : new Utils().getMessages(Quorum.jda.getTextChannelById(Events.activitiesID), 3)
+        for (Message message : new Utils().getMessages(Quorum.jda.getTextChannelById(Events.activitiesID), 10)
             .get(30, TimeUnit.SECONDS)) {
             // Check if it has embeds
             if (message.getEmbeds().isEmpty()) continue;
