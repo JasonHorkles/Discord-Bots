@@ -82,12 +82,14 @@ public class Events extends ListenerAdapter {
             return;
         }
 
-        if (text.contains("stop") || text.contains("shut down")) if (member.getIdLong() == 277291758503723010L) {
-            message.reply("Shutting down...").mentionRepliedUser(false).queue();
-            PteroClient ptero = PteroBuilder.createClient(new Secrets().getPteroUrl(), new Secrets().getPteroApiKey());
-            ptero.retrieveServerByIdentifier("5243694c").flatMap(ClientServer::stop).executeAsync();
-            return;
-        }
+        if (text.contains("stop") || text.contains("shut down"))
+            if (member.getIdLong() == 277291758503723010L) {
+                message.reply("Shutting down...").mentionRepliedUser(false).queue();
+                PteroClient ptero = PteroBuilder.createClient(new Secrets().getPteroUrl(),
+                    new Secrets().getPteroApiKey());
+                ptero.retrieveServerByIdentifier("5243694c").flatMap(ClientServer::stop).executeAsync();
+                return;
+            }
 
         if (text.contains("restart")) if (member.getIdLong() == 277291758503723010L) {
             message.reply("Restarting...").mentionRepliedUser(false).complete();
@@ -96,7 +98,8 @@ public class Events extends ListenerAdapter {
         }
 
         // Don't say anything if in a game channel
-        if (channel.getParentCategory() != null) if (channel.getParentCategoryIdLong() == 900747596245639238L) return;
+        if (channel.getParentCategory() != null)
+            if (channel.getParentCategoryIdLong() == 900747596245639238L) return;
 
         ArrayList<String> disabledChannels = new ArrayList<>();
         try {
@@ -121,8 +124,8 @@ public class Events extends ListenerAdapter {
             } catch (IOException e) {
                 System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
-                message.reply(":see_no_evil: Uh oh! There's an error! <@277291758503723010>").mentionRepliedUser(false)
-                    .queue();
+                message.reply(":see_no_evil: Uh oh! There's an error! <@277291758503723010>")
+                    .mentionRepliedUser(false).queue();
             }
 
             message.addReaction(Emoji.fromUnicode("\uD83D\uDE2E")).queue();
@@ -142,8 +145,8 @@ public class Events extends ListenerAdapter {
             } catch (IOException e) {
                 System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
-                message.reply(":see_no_evil: Uh oh! There's an error! <@277291758503723010>").mentionRepliedUser(false)
-                    .queue();
+                message.reply(":see_no_evil: Uh oh! There's an error! <@277291758503723010>")
+                    .mentionRepliedUser(false).queue();
             }
 
             message.addReaction(Emoji.fromUnicode("🙊")).queue();
@@ -359,8 +362,8 @@ public class Events extends ListenerAdapter {
 
         if (text.startsWith("search ")) {
             String search = text.replaceFirst("search ", "");
-            String page = "https://www.google.com/search?q=" + URLEncoder.encode(search, StandardCharsets.UTF_8)
-                .strip();
+            String page = "https://www.google.com/search?q=" + URLEncoder.encode(search,
+                StandardCharsets.UTF_8).strip();
 
             try {
                 Connection conn = Jsoup.connect(page).timeout(15000);
@@ -380,7 +383,8 @@ public class Events extends ListenerAdapter {
                 e.printStackTrace();
 
             } catch (IndexOutOfBoundsException ignored) {
-                message.reply("I couldn't find a result for that!\n<" + page + ">").mentionRepliedUser(false).queue();
+                message.reply("I couldn't find a result for that!\n<" + page + ">").mentionRepliedUser(false)
+                    .queue();
             }
             return;
         }
@@ -433,38 +437,39 @@ public class Events extends ListenerAdapter {
 
         // kek
         if (event.getReaction().getEmoji().getName().equalsIgnoreCase("kek")) {
-            event.retrieveMessage().complete().addReaction(event.getGuild().getEmojiById("841681203278774322")).queue();
+            event.retrieveMessage().complete()
+                .addReaction(event.getGuild().getEmojiById("841681203278774322")).queue();
             return;
         }
 
         // Shush users
         if (event.getReaction().getEmoji().getName().equals("\uD83E\uDD2B")) {
             // Verify if mod or coach
-            if (event.getMember().getRoles().toString().contains("751166721624375435") || event.getMember().getRoles()
-                .toString().contains("729108220479537202")) event.retrieveMessage().queue(message -> {
-                Member member = message.getMember();
+            if (event.getMember().getRoles().toString().contains("751166721624375435") || event.getMember()
+                .getRoles().toString().contains("729108220479537202"))
+                event.retrieveMessage().queue(message -> {
+                    Member member = message.getMember();
 
-                if (member.isTimedOut()) {
-                    event.getChannel()
-                        .sendMessage(event.getMember().getAsMention() + ", that person is already shushed!").queue(
+                    if (member.isTimedOut()) {
+                        event.getChannel().sendMessage(
+                            event.getMember().getAsMention() + ", that person is already shushed!").queue(
                             (m) -> m.delete().queueAfter(5, TimeUnit.SECONDS, null,
                                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
-                    return;
-                }
+                        return;
+                    }
 
-                member.timeoutFor(10, TimeUnit.MINUTES).queue(
-                    (na) -> event.getChannel().sendMessage(new Utils().getFirstName(member) + " just got shushed!")
-                        .queue(del -> {
+                    member.timeoutFor(10, TimeUnit.MINUTES).queue((na) -> event.getChannel()
+                        .sendMessage(new Utils().getFirstName(member) + " just got shushed!").queue(del -> {
                             del.delete().queueAfter(10, TimeUnit.MINUTES, null,
                                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
-                            event.getChannel().sendMessage("https://tenor.com/vfW7.gif").queue(del2 -> del2.delete()
-                                .queueAfter(10, TimeUnit.MINUTES, null,
+                            event.getChannel().sendMessage("https://tenor.com/vfW7.gif").queue(
+                                del2 -> del2.delete().queueAfter(10, TimeUnit.MINUTES, null,
                                     new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
                         }), (na1) -> event.getChannel()
                         .sendMessage(event.getMember().getAsMention() + ", I can't shush that person!").queue(
                             (del) -> del.delete().queueAfter(5, TimeUnit.SECONDS, null,
                                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE))));
-            });
+                });
             return;
         }
 
@@ -525,31 +530,33 @@ public class Events extends ListenerAdapter {
         }
 
         // Prevent future requests for that word
-        if (event.getEmoji().getName().equals("⛔")) if (event.getChannel().getIdLong() == 960213547944661042L) {
-            if (event.getUserIdLong() != 277291758503723010L) {
-                System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser()
-                    .getAsTag() + " just tried to decline a Wordle word!");
-                return;
-            }
-
-            Message message = event.retrieveMessage().complete();
-            File file = new File("Phoenella/Wordle/banned-requests.txt");
-
-            try {
-                if (message.getContentStripped().contains("Auto word request")) {
-                    FileWriter fileWriter = new FileWriter(file, true);
-                    fileWriter.write(message.getContentStripped().replaceAll(".*: ", "").toUpperCase() + "\n");
-                    fileWriter.close();
+        if (event.getEmoji().getName().equals("⛔"))
+            if (event.getChannel().getIdLong() == 960213547944661042L) {
+                if (event.getUserIdLong() != 277291758503723010L) {
+                    System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser()
+                        .getAsTag() + " just tried to decline a Wordle word!");
+                    return;
                 }
-                message.delete().queue();
 
-            } catch (IOException e) {
-                message.reply("Failed to write word! See console for details.")
-                    .queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
-                System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                e.printStackTrace();
+                Message message = event.retrieveMessage().complete();
+                File file = new File("Phoenella/Wordle/banned-requests.txt");
+
+                try {
+                    if (message.getContentStripped().contains("Auto word request")) {
+                        FileWriter fileWriter = new FileWriter(file, true);
+                        fileWriter.write(
+                            message.getContentStripped().replaceAll(".*: ", "").toUpperCase() + "\n");
+                        fileWriter.close();
+                    }
+                    message.delete().queue();
+
+                } catch (IOException e) {
+                    message.reply("Failed to write word! See console for details.")
+                        .queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                    e.printStackTrace();
+                }
             }
-        }
     }
 
     @Override
@@ -579,13 +586,14 @@ public class Events extends ListenerAdapter {
                 switch (event.getSubcommandName()) {
                     case "create" -> {
                         TextInput word = TextInput.create("word", "Word", TextInputStyle.SHORT)
-                            .setPlaceholder("Standard words are 5 characters").setMinLength(4).setMaxLength(8).build();
+                            .setPlaceholder("Standard words are 5 characters").setMinLength(4).setMaxLength(8)
+                            .build();
                         TextInput tries = TextInput.create("tries", "Tries", TextInputStyle.SHORT)
                             .setPlaceholder("Must be between 4-8").setMinLength(1).setMaxLength(1)
                             .setValue(String.valueOf(6)).build();
 
-                        Modal modal = Modal.create("customwordle", "Create Custom Wordle")
-                            .addActionRows(ActionRow.of(word), ActionRow.of(tries)).build();
+                        Modal modal = Modal.create("customwordle", "Create Custom Wordle").addActionRow(word)
+                            .addActionRow(tries).build();
 
                         event.replyModal(modal).queue();
                     }
@@ -593,14 +601,16 @@ public class Events extends ListenerAdapter {
                     case "play" -> {
                         event.reply("Creating a game...").setEphemeral(true).queue();
                         try {
-                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, false, false,
-                                null);
+                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, false,
+                                false, null);
                             if (gameChannel == null) event.getHook().editOriginal(
                                     "Either you already have an ongoing game with that word or you have too many games active at once!")
                                 .queue();
-                            else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
+                            else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention())
+                                .queue();
                         } catch (IOException e) {
-                            event.getHook().editOriginal("Couldn't generate a random word! Please try again later.")
+                            event.getHook()
+                                .editOriginal("Couldn't generate a random word! Please try again later.")
                                 .queue();
                             System.out.print(new Utils().getTime(Utils.LogColor.RED));
                             e.printStackTrace();
@@ -615,7 +625,8 @@ public class Events extends ListenerAdapter {
                             while (dailyPlays.hasNextLine()) plays.add(dailyPlays.nextLine());
 
                             if (plays.toString().contains(event.getMember().getId())) {
-                                event.reply("You've already played today's Wordle!").setEphemeral(true).queue();
+                                event.reply("You've already played today's Wordle!").setEphemeral(true)
+                                    .queue();
                                 return;
                             }
                         } catch (FileNotFoundException e) {
@@ -632,14 +643,16 @@ public class Events extends ListenerAdapter {
                             fw.write(event.getMember().getId() + "\n");
                             fw.close();
 
-                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), word, false, true,
-                                null);
+                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), word, false,
+                                true, null);
                             if (gameChannel == null) event.getHook().editOriginal(
                                     "Either you already have an ongoing game with that word or you have too many games active at once!")
                                 .queue();
-                            else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
+                            else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention())
+                                .queue();
                         } catch (IOException e) {
-                            event.getHook().editOriginal("Couldn't generate a random word! Please try again later.")
+                            event.getHook()
+                                .editOriginal("Couldn't generate a random word! Please try again later.")
                                 .queue();
                             System.out.print(new Utils().getTime(Utils.LogColor.RED));
                             e.printStackTrace();
@@ -651,7 +664,8 @@ public class Events extends ListenerAdapter {
                             event.reply("The leaderboard is currently disabled!").setEphemeral(true).queue();
                         else {
                             boolean ephemeral = true;
-                            if (event.getChannel().asTextChannel().getParentCategoryIdLong() != 900747596245639238L)
+                            if (event.getChannel().asTextChannel()
+                                .getParentCategoryIdLong() != 900747596245639238L)
                                 if (event.getOption("show") != null)
                                     ephemeral = !event.getOption("show").getAsBoolean();
 
@@ -676,15 +690,17 @@ public class Events extends ListenerAdapter {
                             }
 
                             LinkedHashMap<Member, Integer> sortedLeaderboard = new LinkedHashMap<>();
-                            lines.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                            lines.entrySet().stream()
+                                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                                 .forEachOrdered(x -> sortedLeaderboard.put(x.getKey(), x.getValue()));
 
                             StringBuilder finalLeaderboard = new StringBuilder("```\n");
                             int index = 1;
                             for (Member member : sortedLeaderboard.keySet()) {
                                 if (index > 10) break;
-                                finalLeaderboard.append(index).append(". ").append(new Utils().getFullName(member))
-                                    .append(" | ").append(sortedLeaderboard.get(member)).append("\n");
+                                finalLeaderboard.append(index).append(". ")
+                                    .append(new Utils().getFullName(member)).append(" | ")
+                                    .append(sortedLeaderboard.get(member)).append("\n");
                                 index++;
                             }
                             finalLeaderboard.append("```");
@@ -725,8 +741,8 @@ public class Events extends ListenerAdapter {
                 return;
             }
 
-            event.reply("Creating challenge for word **" + word + "** in <#956267174727671869>").setEphemeral(true)
-                .queue();
+            event.reply("Creating challenge for word **" + word + "** in <#956267174727671869>")
+                .setEphemeral(true).queue();
 
             EmbedBuilder embed = new EmbedBuilder();
             embed.setAuthor(new Utils().getFullName(event.getMember()) + " has created a Wordle!", null,
@@ -745,15 +761,18 @@ public class Events extends ListenerAdapter {
     public void onButtonInteraction(ButtonInteractionEvent event) {
         switch (event.getComponentId()) {
             case "definitionreport" -> {
-                Phoenella.jda.openPrivateChannelById(277291758503723010L).flatMap(channel -> channel.sendMessage(
-                        ":warning: Definition report from **" + new Utils().getFullName(event.getMember()) + ":**")
-                    .setEmbeds(event.getMessage().getEmbeds().get(0))).queue();
+                Phoenella.jda.openPrivateChannelById(277291758503723010L).flatMap(
+                        channel -> channel.sendMessage(
+                            ":warning: Definition report from **" + new Utils().getFullName(
+                                event.getMember()) + ":**").setEmbeds(event.getMessage().getEmbeds().get(0)))
+                    .queue();
 
                 event.deferEdit().queue();
 
                 Message message = event.getMessage();
                 if (!message.isEphemeral()) message.delete().queue();
-                else event.getHook().editOriginalComponents(ActionRow.of(event.getButton().asDisabled())).queue();
+                else event.getHook().editOriginalComponents(ActionRow.of(event.getButton().asDisabled()))
+                    .queue();
             }
 
             case "viewroles" -> {
@@ -761,11 +780,12 @@ public class Events extends ListenerAdapter {
 
                 StringBuilder roleList = new StringBuilder();
                 StringBuilder notRoleList = new StringBuilder();
-                for (SelectOption option : ((StringSelectMenu) event.getMessage().getActionRows().get(0).getComponents()
-                    .get(0)).getOptions()) {
+                for (SelectOption option : ((StringSelectMenu) event.getMessage().getActionRows().get(0)
+                    .getComponents().get(0)).getOptions()) {
                     Role role = event.getGuild().getRoleById(option.getValue());
 
-                    if (event.getMember().getRoles().contains(role)) roleList.append(role.getAsMention()).append("\n");
+                    if (event.getMember().getRoles().contains(role))
+                        roleList.append(role.getAsMention()).append("\n");
                     else notRoleList.append(role.getAsMention()).append("\n");
                 }
 
@@ -801,13 +821,15 @@ public class Events extends ListenerAdapter {
                     for (SelectOption option : event.getSelectedOptions()) {
                         Role role = guild.getRoleById(option.getValue());
                         if (member.getRoles().contains(role)) {
-                            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Removing " + role.getName()
-                                .toLowerCase() + " role from '" + member.getEffectiveName() + "'");
+                            System.out.println(
+                                new Utils().getTime(Utils.LogColor.YELLOW) + "Removing " + role.getName()
+                                    .toLowerCase() + " role from '" + member.getEffectiveName() + "'");
                             guild.removeRoleFromMember(member, role).complete();
 
                         } else {
-                            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Adding " + role.getName()
-                                .toLowerCase() + " role to '" + member.getEffectiveName() + "'");
+                            System.out.println(
+                                new Utils().getTime(Utils.LogColor.YELLOW) + "Adding " + role.getName()
+                                    .toLowerCase() + " role to '" + member.getEffectiveName() + "'");
                             guild.addRoleToMember(member, role).complete();
                         }
                     }
@@ -819,7 +841,8 @@ public class Events extends ListenerAdapter {
                     roles.remove(guild.getRoleById(892453842241859664L));
 
                     // If the person has no other roles
-                    if (roles.isEmpty()) new Utils().removeRoleFromMember(member, guild, Utils.RoleType.BUTTON);
+                    if (roles.isEmpty())
+                        new Utils().removeRoleFromMember(member, guild, Utils.RoleType.BUTTON);
                         // If the person does have other roles
                     else new Utils().addRoleToMember(member, guild, Utils.RoleType.BUTTON);
 
