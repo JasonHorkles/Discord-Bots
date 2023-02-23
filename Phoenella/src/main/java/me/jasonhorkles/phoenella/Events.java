@@ -62,8 +62,8 @@ public class Events extends ListenerAdapter {
             if (message.getMessageReference().getMessage().getAuthor().equals(Phoenella.jda.getSelfUser()))
                 isReply = true;
 
-        String text = message.getContentRaw().toLowerCase().replaceAll("\\bphoenella\\b", "PHOENELLA")
-            .replaceAll("\\bphoe\\b", "PHOENELLA").strip();
+        String text = message.getContentRaw().replaceAll("(?i)\\bphoenella\\b", "PHOENELLA")
+            .replaceAll("(?i)\\bphoe\\b", "PHOENELLA").strip();
 
         if (!text.contains("PHOENELLA") && !isReply && channel.getIdLong() != 892802385301352548L) return;
 
