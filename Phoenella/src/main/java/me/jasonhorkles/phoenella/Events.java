@@ -425,7 +425,8 @@ public class Events extends ListenerAdapter {
                 case 16 -> msg = "sure";
                 case 17 -> msg = "https://media.tenor.com/2yowPi7b_K0AAAAC/despicbable-me-minions.gif";
                 case 18 -> msg = "https://media.tenor.com/YnWX1mX4ujAAAAAC/hmm-dr-iggy-frome.gif";
-                case 19 -> msg = "https://media.tenor.com/zXlmaqK4nDYAAAAC/ok-oh-yes-yes-o-yeah-yes-no-yes-go-on-yea-yes.gif";
+                case 19 ->
+                    msg = "https://media.tenor.com/zXlmaqK4nDYAAAAC/ok-oh-yes-yes-o-yeah-yes-no-yes-go-on-yea-yes.gif";
             }
         }
         new Utils().sendMessage(null, message, msg, allCaps);
