@@ -115,8 +115,14 @@ public class Silverstone {
     public void shutdown() {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
         try {
-            jda.shutdownNow();
-        } catch (NoClassDefFoundError ignored) {
+            // Initating the shutdown, this closes the gateway connection and subsequently closes the requester queue
+            jda.shutdown();
+            // Allow at most 10 seconds for remaining requests to finish
+            if (!jda.awaitShutdown(10, TimeUnit.SECONDS)) { // returns true if shutdown is graceful, false if timeout exceeded
+                jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
+                jda.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
+            }
+        } catch (NoClassDefFoundError | InterruptedException ignored) {
         }
     }
 }

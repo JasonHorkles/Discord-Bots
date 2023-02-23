@@ -3,7 +3,6 @@ package me.jasonhorkles.quorum;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
@@ -50,29 +49,32 @@ public class Utils {
 
         if (activityCount == 5) {
             date = TextInput.create("date", "Date", TextInputStyle.SHORT)
-                .setPlaceholder("Leave blank if there is no 5th Tuesday").setRequired(false).setMaxLength(2).build();
+                .setPlaceholder("Leave blank if there is no 5th Tuesday").setRequired(false).setMaxLength(2)
+                .build();
 
             time = TextInput.create("time", "Time", TextInputStyle.SHORT)
-                .setPlaceholder("Leave blank if there is no 5th Tuesday").setRequired(false).setMaxLength(5).build();
+                .setPlaceholder("Leave blank if there is no 5th Tuesday").setRequired(false).setMaxLength(5)
+                .build();
 
         } else {
             date = TextInput.create("date", "Date", TextInputStyle.SHORT)
                 .setPlaceholder("The number day of the month, e.g. 17").setMaxLength(2).build();
 
             time = TextInput.create("time", "Time", TextInputStyle.SHORT).setValue("7:00")
-                .setPlaceholder("The time, will always be PM").setMinLength(4).setMaxLength(5).build();
+                .setPlaceholder("The time, defaults to PM if not specified").setMinLength(4).setMaxLength(5).build();
         }
 
         return Modal.create("create-activity" + activityCount, "Create Activity " + activityCount + "/5")
-            .addActionRows(ActionRow.of(activity), ActionRow.of(date), ActionRow.of(time)).build();
+            .addActionRow(activity).addActionRow(date).addActionRow(time).build();
     }
 
     public Modal createEditActivityModal(Message message, int index) {
         try {
             MessageEmbed embed = message.getEmbeds().get(0);
             TextInput activity = TextInput.create("activity", "Activity", TextInputStyle.SHORT)
-                .setPlaceholder("Leave blank if no activity").setValue(embed.getFields().get(index).getValue())
-                .setMaxLength(300).setRequired(false).build();
+                .setPlaceholder("Leave blank if no activity")
+                .setValue(embed.getFields().get(index).getValue()).setMaxLength(300).setRequired(false)
+                .build();
 
             //noinspection ConstantConditions
             ZonedDateTime dateTime = Instant.ofEpochSecond(
@@ -84,12 +86,13 @@ public class Utils {
                 .setValue(String.valueOf(dateTime.getDayOfMonth())).setMaxLength(2).build();
 
             TextInput time = TextInput.create("time", "Time", TextInputStyle.SHORT)
-                .setPlaceholder("The time, will always be PM")
-                .setValue(dateTime.format(DateTimeFormatter.ofPattern("h:mm"))).setMinLength(4).setMaxLength(5).build();
+                .setPlaceholder("The time, defaults to PM if not specified")
+                .setValue(dateTime.format(DateTimeFormatter.ofPattern("h:mm a"))).setMinLength(4)
+                .setMaxLength(5).build();
 
             return Modal.create("edit-activity:" + message.getId() + ":" + index,
-                    "Edit " + embed.getTitle() + " Activity " + (index + 1))
-                .addActionRows(ActionRow.of(activity), ActionRow.of(date), ActionRow.of(time)).build();
+                    "Edit " + embed.getTitle() + " Activity " + (index + 1)).addActionRow(activity)
+                .addActionRow(date).addActionRow(time).build();
 
         } catch (IndexOutOfBoundsException ignored) {
             return null;
