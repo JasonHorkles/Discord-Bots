@@ -60,8 +60,8 @@ public class Utils {
             date = TextInput.create("date", "Date", TextInputStyle.SHORT)
                 .setPlaceholder("The number day of the month, e.g. 17").setMaxLength(2).build();
 
-            time = TextInput.create("time", "Time", TextInputStyle.SHORT).setValue("7:00")
-                .setPlaceholder("The time, defaults to PM if not specified").setMinLength(4).setMaxLength(5).build();
+            time = TextInput.create("time", "Time", TextInputStyle.SHORT).setValue("7:00 PM")
+                .setPlaceholder("The time, defaults to PM if not specified").setMinLength(4).setMaxLength(8).build();
         }
 
         return Modal.create("create-activity" + activityCount, "Create Activity " + activityCount + "/5")
@@ -88,7 +88,7 @@ public class Utils {
             TextInput time = TextInput.create("time", "Time", TextInputStyle.SHORT)
                 .setPlaceholder("The time, defaults to PM if not specified")
                 .setValue(dateTime.format(DateTimeFormatter.ofPattern("h:mm a"))).setMinLength(4)
-                .setMaxLength(5).build();
+                .setMaxLength(8).build();
 
             return Modal.create("edit-activity:" + message.getId() + ":" + index,
                     "Edit " + embed.getTitle() + " Activity " + (index + 1)).addActionRow(activity)
