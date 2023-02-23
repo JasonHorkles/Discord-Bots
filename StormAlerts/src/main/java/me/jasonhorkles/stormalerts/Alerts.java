@@ -74,9 +74,10 @@ public class Alerts {
             String id = new Utils().getJsonKey(alert, "id", true).replaceFirst("urn:oid:", "");
             String event = new Utils().getJsonKey(alert, "event", true);
 
-            if (!description.toLowerCase().contains(fa.toLowerCase()) && !description.toLowerCase()
-                .contains(ce.toLowerCase()) && !description.toLowerCase()
-                .contains(ka.toLowerCase()) && !description.toLowerCase().contains(nwf.toLowerCase())) continue;
+            String trimmedDescription = description.replace("\n", " ").replace("  ", " ");
+            if (!trimmedDescription.toLowerCase().contains(fa.toLowerCase()) && !trimmedDescription.toLowerCase()
+                .contains(ce.toLowerCase()) && !trimmedDescription.toLowerCase()
+                .contains(ka.toLowerCase()) && !trimmedDescription.toLowerCase().contains(nwf.toLowerCase())) continue;
 
             Message alertMessage = null;
             boolean sameAlert = false;
