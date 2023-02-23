@@ -61,7 +61,8 @@ public class Utils {
                 .setPlaceholder("The number day of the month, e.g. 17").setMaxLength(2).build();
 
             time = TextInput.create("time", "Time", TextInputStyle.SHORT).setValue("7:00 PM")
-                .setPlaceholder("The time, defaults to PM if not specified").setMinLength(4).setMaxLength(8).build();
+                .setPlaceholder("The time, defaults to PM if not specified").setMinLength(4).setMaxLength(8)
+                .build();
         }
 
         return Modal.create("create-activity" + activityCount, "Create Activity " + activityCount + "/5")
@@ -76,7 +77,7 @@ public class Utils {
                 .setValue(embed.getFields().get(index).getValue()).setMaxLength(300).setRequired(false)
                 .build();
 
-            //noinspection ConstantConditions
+            //noinspection DataFlowIssue
             ZonedDateTime dateTime = Instant.ofEpochSecond(
                     Long.parseLong(embed.getFields().get(index).getName().replace("<t:", "").replace(":F>", "")))
                 .atZone(ZoneId.of("America/Denver"));

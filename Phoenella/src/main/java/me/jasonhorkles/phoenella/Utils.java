@@ -245,7 +245,8 @@ public class Utils {
                 }
 
                 if (!definitionList.isEmpty()) {
-                    definitions.append("**").append(info.getString("partOfSpeech").toUpperCase()).append(":**");
+                    definitions.append("**").append(info.getString("partOfSpeech").toUpperCase())
+                        .append(":**");
                     for (String definition : definitionList)
                         definitions.append("\n• ").append(definition);
                 }
@@ -261,7 +262,8 @@ public class Utils {
             e.printStackTrace();
 
             embed.setColor(new Color(212, 43, 65));
-            embed.setDescription("Failed to search dictionary for word **" + word + "**! Please try again later.");
+            embed.setDescription(
+                "Failed to search dictionary for word **" + word + "**! Please try again later.");
         }
 
         return embed.build();

@@ -60,30 +60,37 @@ public class Phoenella {
         jda.getGuildById(729083627308056597L).updateCommands().addCommands(Commands.slash("wordle", "Wordle!")
             .addSubcommands(new SubcommandData("play", "Play with a random word"),
                 new SubcommandData("create", "Create a Wordle for others to play"),
-                new SubcommandData("leaderboard", "View the Wordle leaderboard").addOption(OptionType.BOOLEAN, "show",
-                    "Show the leaderboard message publicly?", false),
+                new SubcommandData("leaderboard", "View the Wordle leaderboard").addOption(OptionType.BOOLEAN,
+                    "show", "Show the leaderboard message publicly?", false),
                 new SubcommandData("daily", "Play the daily Wordle"))).queue();
 
         // Send select menu message if needed
         try {
             TextChannel channel = jda.getTextChannelById(892104640567578674L);
-            selectOptions.add(SelectOption.of("Casting", "778445820693184514").withEmoji(Emoji.fromUnicode("📢")));
+            selectOptions.add(
+                SelectOption.of("Casting", "778445820693184514").withEmoji(Emoji.fromUnicode("📢")));
             selectOptions.add(SelectOption.of("Chess", "1019287692690853958")
                 .withEmoji(Emoji.fromCustom("chess", 1019285706159440033L, false)));
-            selectOptions.add(SelectOption.of("Dota 2", "759142712334352407").withEmoji(Emoji.fromUnicode("🗡️")));
-            selectOptions.add(SelectOption.of("iTeam", "784070450346852382").withEmoji(Emoji.fromUnicode("🖥️")));
             selectOptions.add(
-                SelectOption.of("League of Legends", "729105903181365371").withEmoji(Emoji.fromUnicode("⚔️")));
+                SelectOption.of("Dota 2", "759142712334352407").withEmoji(Emoji.fromUnicode("🗡️")));
+            selectOptions.add(
+                SelectOption.of("iTeam", "784070450346852382").withEmoji(Emoji.fromUnicode("🖥️")));
+            selectOptions.add(SelectOption.of("League of Legends", "729105903181365371")
+                .withEmoji(Emoji.fromUnicode("⚔️")));
             selectOptions.add(SelectOption.of("Mario Kart", "1022329350160392202")
                 .withEmoji(Emoji.fromCustom("mariokart", 1022329065799163974L, false)));
-            selectOptions.add(SelectOption.of("Overwatch", "809151427632562267").withEmoji(Emoji.fromUnicode("🔫")));
+            selectOptions.add(
+                SelectOption.of("Overwatch", "809151427632562267").withEmoji(Emoji.fromUnicode("🔫")));
             selectOptions.add(SelectOption.of("Pokémon", "843983225562595338")
                 .withEmoji(Emoji.fromCustom("pokeball", 1022328739868180540L, false)));
-            selectOptions.add(SelectOption.of("Rocket League", "729105671643070555").withEmoji(Emoji.fromUnicode("🚙")));
-            selectOptions.add(SelectOption.of("Smash", "729105800538095688").withEmoji(Emoji.fromUnicode("👊")));
+            selectOptions.add(
+                SelectOption.of("Rocket League", "729105671643070555").withEmoji(Emoji.fromUnicode("🚙")));
+            selectOptions.add(
+                SelectOption.of("Smash", "729105800538095688").withEmoji(Emoji.fromUnicode("👊")));
 
             if (new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).isEmpty())
-                channel.sendMessage("**Select applicable roles:**\n*Each selection acts as a toggle*").addActionRow(
+                channel.sendMessage("**Select applicable roles:**\n*Each selection acts as a toggle*")
+                    .addActionRow(
                         StringSelectMenu.create("role-select").addOptions(selectOptions).setMinValues(0)
                             .setMaxValues(selectOptions.size()).build())
                     .addActionRow(Button.secondary("viewroles", "Your Roles")).queue();
@@ -124,8 +131,8 @@ public class Phoenella {
                     lastCleared.write(String.valueOf(LocalDate.now().getMonthValue()));
                     lastCleared.close();
 
-                    System.out.println(
-                        new Utils().getTime(Utils.LogColor.YELLOW) + "Clearing the leaderboard for the new month!");
+                    System.out.println(new Utils().getTime(
+                        Utils.LogColor.YELLOW) + "Clearing the leaderboard for the new month!");
                     lbWriter.close();
 
                     dontDoCheck = true;
@@ -137,7 +144,8 @@ public class Phoenella {
                     long id = Long.parseLong(line.replaceFirst(":.*", ""));
                     Member member = jda.getGuildById(729083627308056597L).getMemberById(id);
                     if (member == null) {
-                        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Removing user with ID " + id);
+                        System.out.println(
+                            new Utils().getTime(Utils.LogColor.YELLOW) + "Removing user with ID " + id);
                         continue;
                     }
 
@@ -151,16 +159,19 @@ public class Phoenella {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Leaderboard check complete!");
 
         // Remove duplicate words from Wordle list
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Removing duplicate Wordle entries...");
+        System.out.println(
+            new Utils().getTime(Utils.LogColor.GREEN) + "Removing duplicate Wordle entries...");
         File wordsFile = new File("Phoenella/Wordle/words.txt");
         Scanner wordScanner = new Scanner(wordsFile);
 
         ArrayList<String> originalWordList = new ArrayList<>();
-        while (wordScanner.hasNextLine()) if (wordScanner.hasNextLine()) originalWordList.add(wordScanner.nextLine());
+        while (wordScanner.hasNextLine())
+            if (wordScanner.hasNextLine()) originalWordList.add(wordScanner.nextLine());
         HashSet<String> wordList = new HashSet<>(originalWordList);
 
         int duplicates = originalWordList.size() - wordList.size();
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Removed " + duplicates + " duplicate words!");
+        System.out.println(
+            new Utils().getTime(Utils.LogColor.GREEN) + "Removed " + duplicates + " duplicate words!");
         originalWordList.clear();
 
         FileWriter wordWriter = new FileWriter(wordsFile, false);
@@ -193,20 +204,23 @@ public class Phoenella {
         TextChannel soundboardChannel = jda.getTextChannelById(903324139195084820L);
         if (new Utils().getMessages(soundboardChannel, 1).get(30, TimeUnit.SECONDS).isEmpty())
             soundboardChannel.sendMessage("**Select a sound!**").setComponents(
-                ActionRow.of(Button.primary("sound:benny", "Benny Hill"), Button.primary("sound:bfg", "BFG Division"),
-                    Button.primary("sound:careless", "Careless Whisper"), Button.primary("sound:crickets", "Crickets"),
-                    Button.primary("sound:discord", "Discord")),
-                ActionRow.of(Button.secondary("sound:dramatic", "Dramatic"),
-                    Button.secondary("sound:drumroll", "Drumroll"), Button.secondary("sound:honk", "Honk"),
-                    Button.secondary("sound:laugh", "Laughing"), Button.secondary("sound:maya", "Maya Hee")),
-                ActionRow.of(Button.primary("sound:metalgear", "Metal Gear Alert"), Button.primary("sound:oof", "Oof"),
-                    Button.primary("sound:party", "Party Horn"), Button.primary("sound:phasmophobia", "Phasmophobia"),
-                    Button.primary("sound:skibidi", "SKIBIDI")),
-                ActionRow.of(Button.secondary("sound:suspense1", "Suspense 1"),
-                    Button.secondary("sound:suspense2", "Suspense 2"),
-                    Button.secondary("sound:tech", "Technical Difficulties"),
-                    Button.secondary("sound:flysave", "What a Save"), Button.secondary("sound:yeet", "Yeet")),
-                ActionRow.of(Button.danger("sound:stop", "Stop Sounds").withEmoji(Emoji.fromUnicode("🛑")))).queue();
+                    ActionRow.of(Button.primary("sound:benny", "Benny Hill"),
+                        Button.primary("sound:bfg", "BFG Division"),
+                        Button.primary("sound:careless", "Careless Whisper"),
+                        Button.primary("sound:crickets", "Crickets"), Button.primary("sound:discord", "Discord")),
+                    ActionRow.of(Button.secondary("sound:dramatic", "Dramatic"),
+                        Button.secondary("sound:drumroll", "Drumroll"), Button.secondary("sound:honk", "Honk"),
+                        Button.secondary("sound:laugh", "Laughing"), Button.secondary("sound:maya", "Maya Hee")),
+                    ActionRow.of(Button.primary("sound:metalgear", "Metal Gear Alert"),
+                        Button.primary("sound:oof", "Oof"), Button.primary("sound:party", "Party Horn"),
+                        Button.primary("sound:phasmophobia", "Phasmophobia"),
+                        Button.primary("sound:skibidi", "SKIBIDI")),
+                    ActionRow.of(Button.secondary("sound:suspense1", "Suspense 1"),
+                        Button.secondary("sound:suspense2", "Suspense 2"),
+                        Button.secondary("sound:tech", "Technical Difficulties"),
+                        Button.secondary("sound:flysave", "What a Save"), Button.secondary("sound:yeet", "Yeet")),
+                    ActionRow.of(Button.danger("sound:stop", "Stop Sounds").withEmoji(Emoji.fromUnicode("🛑"))))
+                .queue();
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new Phoenella().shutdown(), "Shutdown Hook"));
@@ -231,13 +245,15 @@ public class Phoenella {
         // Close game channels
         for (TextChannel channel : jda.getGuildById(729083627308056597L).getCategoryById(900747596245639238L)
             .getTextChannels())
-            channel.sendMessage("Sorry, but I'm now shutting down. This channel will be deleted when I start back up.")
+            channel.sendMessage(
+                    "Sorry, but I'm now shutting down. This channel will be deleted when I start back up.")
                 .complete();
         try {
             // Initating the shutdown, this closes the gateway connection and subsequently closes the requester queue
             jda.shutdown();
             // Allow at most 10 seconds for remaining requests to finish
-            if (!jda.awaitShutdown(10, TimeUnit.SECONDS)) { // returns true if shutdown is graceful, false if timeout exceeded
+            if (!jda.awaitShutdown(10,
+                TimeUnit.SECONDS)) { // returns true if shutdown is graceful, false if timeout exceeded
                 jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
                 jda.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
             }

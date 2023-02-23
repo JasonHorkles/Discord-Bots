@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.concurrent.*;
 
-@SuppressWarnings("ConstantConditions")
+@SuppressWarnings("DataFlowIssue")
 public class ScheduleAnnouncements {
     public static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
 

@@ -28,8 +28,8 @@ public class Silverstone {
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
         builder.disableCache(CacheFlag.ACTIVITY);
-        builder.enableIntents(GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES,
-            GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.MESSAGE_CONTENT);
+        builder.enableIntents(GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MEMBERS,
+            GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.MESSAGE_CONTENT);
         builder.enableCache(CacheFlag.ONLINE_STATUS, CacheFlag.VOICE_STATE);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setBulkDeleteSplittingEnabled(false);
@@ -49,8 +49,8 @@ public class Silverstone {
                 Commands.slash("plgh", "Links to the plugins on GitHub"),
                 Commands.slash("plugins", "Get a list of Jason's plugins"),
                 Commands.slash("tutorials", "Link to the tutorial channel"),
-                Commands.slash("moss", "M.O.S.S. Discord invite"), Commands.slash("lp", "LuckPerms Discord invite"))
-            .queue();
+                Commands.slash("moss", "M.O.S.S. Discord invite"),
+                Commands.slash("lp", "LuckPerms Discord invite")).queue();
 
         new Time().updateTime();
 
@@ -118,7 +118,8 @@ public class Silverstone {
             // Initating the shutdown, this closes the gateway connection and subsequently closes the requester queue
             jda.shutdown();
             // Allow at most 10 seconds for remaining requests to finish
-            if (!jda.awaitShutdown(10, TimeUnit.SECONDS)) { // returns true if shutdown is graceful, false if timeout exceeded
+            if (!jda.awaitShutdown(10,
+                TimeUnit.SECONDS)) { // returns true if shutdown is graceful, false if timeout exceeded
                 jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
                 jda.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
             }

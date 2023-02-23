@@ -21,7 +21,8 @@ public class MCB {
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
         builder.disableCache(CacheFlag.ACTIVITY, CacheFlag.VOICE_STATE);
-        builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT);
+        builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS,
+            GatewayIntent.MESSAGE_CONTENT);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setBulkDeleteSplittingEnabled(true);
         builder.setStatus(OnlineStatus.ONLINE);
@@ -35,8 +36,8 @@ public class MCB {
         // Cache members
         jda.getGuildById(603190205393928193L).loadMembers().get();
 
-        jda.getGuildById(603190205393928193L).updateCommands()
-            .addCommands(Commands.slash("enginehub", "Link to the EngineHub Discord for WorldEdit, WorldGuard, etc"))
+        jda.getGuildById(603190205393928193L).updateCommands().addCommands(
+                Commands.slash("enginehub", "Link to the EngineHub Discord for WorldEdit, WorldGuard, etc"))
             .queue();
 
         // Add shutdown hooks
@@ -59,7 +60,8 @@ public class MCB {
             // Initating the shutdown, this closes the gateway connection and subsequently closes the requester queue
             jda.shutdown();
             // Allow at most 10 seconds for remaining requests to finish
-            if (!jda.awaitShutdown(10, TimeUnit.SECONDS)) { // returns true if shutdown is graceful, false if timeout exceeded
+            if (!jda.awaitShutdown(10,
+                TimeUnit.SECONDS)) { // returns true if shutdown is graceful, false if timeout exceeded
                 jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
                 jda.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
             }

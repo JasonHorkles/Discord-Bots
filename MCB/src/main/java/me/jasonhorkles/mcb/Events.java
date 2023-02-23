@@ -50,9 +50,10 @@ public class Events extends ListenerAdapter {
 
         // Give starter builder role
         if (event.getMessage().getChannel().getIdLong() == 1023721665332523098L)
-            if (!event.getMessage().getAttachments().isEmpty() || event.getMessage().getContentStripped().toLowerCase()
-                .contains("http")) if (!event.getMember().getRoles().toString().contains("646293661729947658"))
-                event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRoleById(646293661729947658L))
+            if (!event.getMessage().getAttachments().isEmpty() || event.getMessage().getContentStripped()
+                .toLowerCase().contains("http"))
+                if (!event.getMember().getRoles().toString().contains("646293661729947658")) event.getGuild()
+                    .addRoleToMember(event.getMember(), event.getGuild().getRoleById(646293661729947658L))
                     .queue();
 
         // Ping check
@@ -80,9 +81,10 @@ public class Events extends ListenerAdapter {
 
             if (warnings.get(id) > 1) message.append("\n\n*Warning ").append(warnings.get(id)).append("/3*");
 
-            event.getMessage().reply(message).queue(message1 -> message1.delete().queueAfter(15, TimeUnit.MINUTES, null,
-                new ErrorHandler().handle(ErrorResponse.UNKNOWN_MESSAGE, (e) -> System.out.println(
-                    new Utils().getTime(Utils.LogColor.RED) + "Unable to delete warning message."))));
+            event.getMessage().reply(message).queue(message1 -> message1.delete()
+                .queueAfter(15, TimeUnit.MINUTES, null,
+                    new ErrorHandler().handle(ErrorResponse.UNKNOWN_MESSAGE, (e) -> System.out.println(
+                        new Utils().getTime(Utils.LogColor.RED) + "Unable to delete warning message."))));
         }
     }
 
@@ -92,7 +94,8 @@ public class Events extends ListenerAdapter {
             warnings.put(id, warnings.get(id) + count);
             if (warnings.get(id) >= 3) event.getMember().timeoutFor(12, TimeUnit.HOURS).queue(null,
                 (na) -> event.getChannel().sendMessage("<@277291758503723010>").queue(del -> del.delete()
-                    .queueAfter(15, TimeUnit.SECONDS, null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE))));
+                    .queueAfter(15, TimeUnit.SECONDS, null,
+                        new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE))));
         } else warnings.put(id, count);
 
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Warned " + event.getMember()
@@ -110,25 +113,28 @@ public class Events extends ListenerAdapter {
     }
 
     public void scheduleWarningRemoval(Long id, String name) {
-        Executors.newSingleThreadScheduledExecutor().schedule(() -> takeWarning(id, name), 15, TimeUnit.MINUTES);
+        Executors.newSingleThreadScheduledExecutor()
+            .schedule(() -> takeWarning(id, name), 15, TimeUnit.MINUTES);
     }
 
     private void takeWarning(Long id, String name) {
         if (warnings.get(id) <= 1) {
             warnings.remove(id);
-            System.out.println(
-                new Utils().getTime(Utils.LogColor.GREEN) + "Removed ping spam warning from " + name + " - 0/3");
+            System.out.println(new Utils().getTime(
+                Utils.LogColor.GREEN) + "Removed ping spam warning from " + name + " - 0/3");
         } else {
             warnings.put(id, warnings.get(id) - 1);
             System.out.println(new Utils().getTime(
-                Utils.LogColor.GREEN) + "Removed ping spam warning from " + name + " - " + warnings.get(id) + "/3");
+                Utils.LogColor.GREEN) + "Removed ping spam warning from " + name + " - " + warnings.get(
+                id) + "/3");
         }
     }
 
     // When recent chatter leaves
     @Override
     public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
-        System.out.println("\n" + new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser().getName() + " left!");
+        System.out.println(
+            "\n" + new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser().getName() + " left!");
 
         int count = 0;
 
@@ -150,12 +156,14 @@ public class Events extends ListenerAdapter {
                     embed.setColor(new Color(255, 100, 0));
 
                     thread.sendMessageEmbeds(embed.build()).queue(
-                        (na) -> thread.getManager().setArchived(true).setLocked(true).queueAfter(1, TimeUnit.SECONDS));
+                        (na) -> thread.getManager().setArchived(true).setLocked(true)
+                            .queueAfter(1, TimeUnit.SECONDS));
                     count++;
                 }
             }
 
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Closed and locked " + count + " posts!");
+        System.out.println(
+            new Utils().getTime(Utils.LogColor.GREEN) + "Closed and locked " + count + " posts!");
 
         deleteMessages(event.getUser());
     }
@@ -166,7 +174,8 @@ public class Events extends ListenerAdapter {
 
         for (Long channelId : channels) {
             TextChannel channel = MCB.jda.getTextChannelById(channelId);
-            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking #" + channel.getName() + "...");
+            System.out.println(
+                new Utils().getTime(Utils.LogColor.YELLOW) + "Checking #" + channel.getName() + "...");
 
             try {
                 for (Message message : new Utils().getMessages(channel, 25).get(45, TimeUnit.SECONDS)) {
@@ -192,7 +201,8 @@ public class Events extends ListenerAdapter {
             @SuppressWarnings("DataFlowIssue") boolean ephemeral = !event.getMember().getRoles().toString()
                 .contains("646291178144399371");
 
-            event.reply("Join the EngineHub Discord for WorldEdit/WorldGuard support at https://discord.gg/enginehub")
+            event.reply(
+                    "Join the EngineHub Discord for WorldEdit/WorldGuard support at https://discord.gg/enginehub")
                 .setEphemeral(ephemeral).queue();
         }
     }

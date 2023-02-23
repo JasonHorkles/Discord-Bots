@@ -75,9 +75,11 @@ public class Alerts {
             String event = new Utils().getJsonKey(alert, "event", true);
 
             String trimmedDescription = description.replace("\n", " ").replace("  ", " ");
-            if (!trimmedDescription.toLowerCase().contains(fa.toLowerCase()) && !trimmedDescription.toLowerCase()
+            if (!trimmedDescription.toLowerCase()
+                .contains(fa.toLowerCase()) && !trimmedDescription.toLowerCase()
                 .contains(ce.toLowerCase()) && !trimmedDescription.toLowerCase()
-                .contains(ka.toLowerCase()) && !trimmedDescription.toLowerCase().contains(nwf.toLowerCase())) continue;
+                .contains(ka.toLowerCase()) && !trimmedDescription.toLowerCase().contains(nwf.toLowerCase()))
+                continue;
 
             Message alertMessage = null;
             boolean sameAlert = false;
@@ -115,8 +117,8 @@ public class Alerts {
                     if (idFound) break;
                     // Get the old ID(s)
                     for (Object references : alert.getJSONArray("references")) {
-                        String identifier = new Utils().getJsonKey(new JSONObject(references.toString()), "identifier",
-                            true).replaceFirst("urn:oid:", "");
+                        String identifier = new Utils().getJsonKey(new JSONObject(references.toString()),
+                            "identifier", true).replaceFirst("urn:oid:", "");
 
                         // Compare if the footer has that ID
                         if (message.getEmbeds().get(0).getFields().get(3).getValue().equals(identifier)) {
@@ -139,7 +141,8 @@ public class Alerts {
             String instruction = new Utils().getJsonKey(alert, "instruction", true);
             String nwsHeadline = null;
             if (alert.toString().contains("NWSheadline")) {
-                nwsHeadline = alert.toString().replaceFirst(".*\"NWSheadline\":\\[\"", "").replaceFirst("\"],\".*", "");
+                nwsHeadline = alert.toString().replaceFirst(".*\"NWSheadline\":\\[\"", "")
+                    .replaceFirst("\"],\".*", "");
                 if (nwsHeadline.length() >= 253)
                     nwsHeadline = nwsHeadline.substring(0, Math.min(nwsHeadline.length(), 253)) + "...";
             }
@@ -153,7 +156,8 @@ public class Alerts {
             embed.setTitle(headline).setDescription(description)
                 .setFooter(sender, "https://pbs.twimg.com/profile_images/1076936762377814016/AOf7ktiH.jpg")
                 .addField("Instruction", instruction.replace("\\n", " ").replace("  ", "\n\n"), false)
-                .addField("Certainty", certainty, true).addField("Urgency", urgency, true).addField("ID", id, false);
+                .addField("Certainty", certainty, true).addField("Urgency", urgency, true)
+                .addField("ID", id, false);
             if (nwsHeadline != null) embed.setAuthor(nwsHeadline, null, null);
 
             switch (event) {
@@ -185,8 +189,9 @@ public class Alerts {
                 case "Excessive Heat Warning", "Excessive Heat Watch", "Heat Advisory" -> embed.setThumbnail(
                     "https://cdn.discordapp.com/attachments/335445132520194058/1049516438030913616/kindpng_636901.png");
 
-                case "Extreme Cold Warning", "Extreme Cold Watch", "Wind Chill Watch", "Wind Chill Warning" -> embed.setThumbnail(
-                    "https://cdn.discordapp.com/attachments/335445132520194058/1049516437619867668/Cold-Thermometer-clipart-transparent.png");
+                case "Extreme Cold Warning", "Extreme Cold Watch", "Wind Chill Watch", "Wind Chill Warning" ->
+                    embed.setThumbnail(
+                        "https://cdn.discordapp.com/attachments/335445132520194058/1049516437619867668/Cold-Thermometer-clipart-transparent.png");
 
                 case "Extreme Fire Danger", "Fire Warning", "Fire Weather Watch", "Red Flag Warning" ->
                     embed.setThumbnail(
@@ -238,14 +243,16 @@ public class Alerts {
 
         // Delete inactive alerts
         // Add all messages to the arraylist
-        ArrayList<Message> deleteTheseMessages = new ArrayList<>(alertsChannel.getIterableHistory().complete());
+        ArrayList<Message> deleteTheseMessages = new ArrayList<>(
+            alertsChannel.getIterableHistory().complete());
         // For every message in the channel
         // Remove all the saved messages from the to-delete arraylist
         for (Message message : dontDeleteMe) deleteTheseMessages.remove(message);
         // For all the remaining to-delete messages
         for (Message message : deleteTheseMessages) {
-            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Deleted \"" + message.getContentStripped()
-                .replaceFirst(".*\n.*] ", "") + "\" alert as it no longer exists.");
+            System.out.println(
+                new Utils().getTime(Utils.LogColor.GREEN) + "Deleted \"" + message.getContentStripped()
+                    .replaceFirst(".*\n.*] ", "") + "\" alert as it no longer exists.");
             // Delete them
             message.delete().queue();
         }

@@ -19,6 +19,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+@SuppressWarnings("DataFlowIssue")
 public class Quorum {
     public static JDA jda;
 
@@ -27,8 +28,8 @@ public class Quorum {
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
         builder.disableCache(CacheFlag.ACTIVITY, CacheFlag.VOICE_STATE);
-        builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS, GatewayIntent.DIRECT_MESSAGES,
-            GatewayIntent.MESSAGE_CONTENT);
+        builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS,
+            GatewayIntent.DIRECT_MESSAGES, GatewayIntent.MESSAGE_CONTENT);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setEnableShutdownHook(false);
@@ -37,39 +38,41 @@ public class Quorum {
 
         jda.awaitReady();
 
-        //noinspection ConstantConditions
         jda.getGuildById(853775450680590387L).loadMembers().get();
 
-        OptionData months = new OptionData(OptionType.STRING, "month", "The month of the activities", true).addChoices(
-            new Command.Choice("January", "January"), new Command.Choice("February", "February"),
-            new Command.Choice("March", "March"), new Command.Choice("April", "April"),
-            new Command.Choice("May", "May"), new Command.Choice("June", "June"), new Command.Choice("July", "July"),
+        OptionData months = new OptionData(OptionType.STRING, "month", "The month of the activities",
+            true).addChoices(new Command.Choice("January", "January"),
+            new Command.Choice("February", "February"), new Command.Choice("March", "March"),
+            new Command.Choice("April", "April"), new Command.Choice("May", "May"),
+            new Command.Choice("June", "June"), new Command.Choice("July", "July"),
             new Command.Choice("August", "August"), new Command.Choice("September", "September"),
             new Command.Choice("October", "October"), new Command.Choice("November", "November"),
             new Command.Choice("December", "December"));
 
-        //noinspection ConstantConditions
         jda.getGuildById(853775450680590387L).updateCommands()
             .addCommands(Commands.slash("suggest", "Create a suggestion"),
 
                 Commands.slash("suggestion-accept", "Accept a suggestion")
-                    .addOption(OptionType.STRING, "message-id", "The message ID of the suggestion to accept", true),
+                    .addOption(OptionType.STRING, "message-id", "The message ID of the suggestion to accept",
+                        true),
 
                 Commands.slash("suggestion-decline", "Decline a suggestion")
-                    .addOption(OptionType.STRING, "message-id", "The message ID of the suggestion to decline", true)
+                    .addOption(OptionType.STRING, "message-id", "The message ID of the suggestion to decline",
+                        true)
                     .addOption(OptionType.STRING, "decline-reason", "Why the suggestion was declined", false),
 
                 Commands.slash("suggestion-edit", "Edit your previous suggestion")
-                    .addOption(OptionType.STRING, "message-id", "The message ID of the suggestion to edit", true),
+                    .addOption(OptionType.STRING, "message-id", "The message ID of the suggestion to edit",
+                        true),
 
-                Commands.slash("activity", "Create/edit/cancel activities")
-                    .addSubcommands(new SubcommandData("create", "Create a new activity list").addOptions(months),
-                        new SubcommandData("edit", "Edit an existing activity list").addOptions(months,
-                            new OptionData(OptionType.INTEGER, "line",
-                                "The activity line to edit (between 1-4, or sometimes 1-5)", true)),
-                        new SubcommandData("cancel", "Cancel an activity").addOptions(months,
-                            new OptionData(OptionType.INTEGER, "line",
-                                "The activity line to cancel (between 1-4, or sometimes 1-5)", true)))).queue();
+                Commands.slash("activity", "Create/edit/cancel activities").addSubcommands(
+                    new SubcommandData("create", "Create a new activity list").addOptions(months),
+                    new SubcommandData("edit", "Edit an existing activity list").addOptions(months,
+                        new OptionData(OptionType.INTEGER, "line",
+                            "The activity line to edit (between 1-4, or sometimes 1-5)", true)),
+                    new SubcommandData("cancel", "Cancel an activity").addOptions(months,
+                        new OptionData(OptionType.INTEGER, "line",
+                            "The activity line to cancel (between 1-4, or sometimes 1-5)", true)))).queue();
 
         new ScheduleDMs().scheduleDMs();
         new ScheduleAnnouncements().scheduleAnnouncements();
@@ -91,14 +94,16 @@ public class Quorum {
     public void shutdown() {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Cancelling scheduled DMs...");
         for (ScheduledFuture<?> task : ScheduleDMs.schedules) task.cancel(false);
-        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Cancelling scheduled announcements...");
+        System.out.println(
+            new Utils().getTime(Utils.LogColor.YELLOW) + "Cancelling scheduled announcements...");
         for (ScheduledFuture<?> task : ScheduleAnnouncements.schedules) task.cancel(false);
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
         try {
             // Initating the shutdown, this closes the gateway connection and subsequently closes the requester queue
             jda.shutdown();
             // Allow at most 10 seconds for remaining requests to finish
-            if (!jda.awaitShutdown(10, TimeUnit.SECONDS)) { // returns true if shutdown is graceful, false if timeout exceeded
+            if (!jda.awaitShutdown(10,
+                TimeUnit.SECONDS)) { // returns true if shutdown is graceful, false if timeout exceeded
                 jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
                 jda.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
             }

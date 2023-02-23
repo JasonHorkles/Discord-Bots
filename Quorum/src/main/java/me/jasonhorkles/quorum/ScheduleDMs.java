@@ -17,7 +17,7 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.concurrent.*;
 
-@SuppressWarnings("ConstantConditions")
+@SuppressWarnings("DataFlowIssue")
 public class ScheduleDMs {
     public static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
     private final String firstAssistantId = "858844650580475954";

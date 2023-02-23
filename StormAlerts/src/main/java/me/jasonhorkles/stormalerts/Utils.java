@@ -56,7 +56,8 @@ public class Utils {
             while (keys.hasNext()) {
                 nextKeys = (String) keys.next();
                 try {
-                    if (json.get(nextKeys) instanceof JSONObject) getJsonKey(json.getJSONObject(nextKeys), key, false);
+                    if (json.get(nextKeys) instanceof JSONObject)
+                        getJsonKey(json.getJSONObject(nextKeys), key, false);
                     else if (json.get(nextKeys) instanceof JSONArray) {
                         JSONArray jsonArray = json.getJSONArray(nextKeys);
 
@@ -123,13 +124,15 @@ public class Utils {
         try {
             new Pws().checkConditions();
         } catch (Exception e) {
-            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!");
+            System.out.println(
+                new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!");
             e.printStackTrace();
             error = "Couldn't get the PWS conditions!";
         }
 
         // Weather
-        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Force checking weather conditions...");
+        System.out.println(
+            new Utils().getTime(Utils.LogColor.YELLOW) + "Force checking weather conditions...");
         if (isSlash) event.getHook().editOriginal("Checking weather conditions...").complete();
         try {
             new Weather().checkConditions();

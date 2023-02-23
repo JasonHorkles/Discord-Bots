@@ -46,8 +46,8 @@ public class RPS extends ListenerAdapter {
 
         StringBuilder mentions = new StringBuilder();
         for (Member player : playerList) mentions.append(player.getAsMention());
-        channel.sendMessage(mentions).queue(del -> del.delete()
-            .queueAfter(100, TimeUnit.MILLISECONDS, null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
+        channel.sendMessage(mentions).queue(del -> del.delete().queueAfter(100, TimeUnit.MILLISECONDS, null,
+            new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
 
         return channel;
     }
@@ -75,12 +75,13 @@ public class RPS extends ListenerAdapter {
                         Button.primary("rps:scissors", Emoji.fromUnicode("✂️")).asDisabled())).complete();
 
                 if (player1Selection.get(player1Local).equals(player2Selection.get(player2Local)))
-                    channel.sendMessage("You both chose **" + player1Selection.get(player1Local) + "**!").complete()
-                        .delete().queueAfter(3, TimeUnit.SECONDS);
-                else if ((player1Selection.get(player1Local).equals("rock") && player2Selection.get(player2Local)
-                    .equals("scissors")) || (player1Selection.get(player1Local)
-                    .equals("scissors") && player2Selection.get(player2Local).equals("paper")) || (player1Selection.get(
-                    player1Local).equals("paper") && player2Selection.get(player2Local).equals("rock"))) {
+                    channel.sendMessage("You both chose **" + player1Selection.get(player1Local) + "**!")
+                        .complete().delete().queueAfter(3, TimeUnit.SECONDS);
+                else if ((player1Selection.get(player1Local).equals("rock") && player2Selection.get(
+                    player2Local).equals("scissors")) || (player1Selection.get(player1Local)
+                    .equals("scissors") && player2Selection.get(player2Local)
+                    .equals("paper")) || (player1Selection.get(player1Local)
+                    .equals("paper") && player2Selection.get(player2Local).equals("rock"))) {
 
                     points.put(player1Local, points.get(player1Local) + 1);
                     channel.sendMessage(player1Local.getAsMention() + " chose **" + player1Selection.get(
@@ -119,9 +120,10 @@ public class RPS extends ListenerAdapter {
                     }
 
                 event.getMessage().editMessageComponents(
-                    ActionRow.of(Button.primary("rps:rock", Emoji.fromUnicode("\uD83E\uDEA8")),
-                        Button.primary("rps:paper", Emoji.fromUnicode("\uD83D\uDCDD")),
-                        Button.primary("rps:scissors", Emoji.fromUnicode("✂️")))).queueAfter(1, TimeUnit.SECONDS);
+                        ActionRow.of(Button.primary("rps:rock", Emoji.fromUnicode("\uD83E\uDEA8")),
+                            Button.primary("rps:paper", Emoji.fromUnicode("\uD83D\uDCDD")),
+                            Button.primary("rps:scissors", Emoji.fromUnicode("✂️"))))
+                    .queueAfter(1, TimeUnit.SECONDS);
             }
         }
 

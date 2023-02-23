@@ -35,11 +35,12 @@ public class Events extends ListenerAdapter {
 
                 StringBuilder roleList = new StringBuilder();
                 StringBuilder notRoleList = new StringBuilder();
-                for (SelectOption option : ((StringSelectMenu) event.getMessage().getActionRows().get(0).getComponents()
-                    .get(0)).getOptions()) {
+                for (SelectOption option : ((StringSelectMenu) event.getMessage().getActionRows().get(0)
+                    .getComponents().get(0)).getOptions()) {
                     Role role = event.getGuild().getRoleById(option.getValue());
 
-                    if (event.getMember().getRoles().contains(role)) roleList.append(role.getAsMention()).append("\n");
+                    if (event.getMember().getRoles().contains(role))
+                        roleList.append(role.getAsMention()).append("\n");
                     else notRoleList.append(role.getAsMention()).append("\n");
                 }
 
@@ -75,13 +76,15 @@ public class Events extends ListenerAdapter {
                     for (SelectOption option : event.getSelectedOptions()) {
                         Role role = guild.getRoleById(option.getValue());
                         if (member.getRoles().contains(role)) {
-                            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Removing " + role.getName()
-                                .toLowerCase() + " role from '" + member.getEffectiveName() + "'");
+                            System.out.println(
+                                new Utils().getTime(Utils.LogColor.YELLOW) + "Removing " + role.getName()
+                                    .toLowerCase() + " role from '" + member.getEffectiveName() + "'");
                             guild.removeRoleFromMember(member, role).complete();
 
                         } else {
-                            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Adding " + role.getName()
-                                .toLowerCase() + " role to '" + member.getEffectiveName() + "'");
+                            System.out.println(
+                                new Utils().getTime(Utils.LogColor.YELLOW) + "Adding " + role.getName()
+                                    .toLowerCase() + " role to '" + member.getEffectiveName() + "'");
                             guild.addRoleToMember(member, role).complete();
                         }
                     }

@@ -121,8 +121,8 @@ public class StormAlerts extends ListenerAdapter {
                 SelectOption.of("New NWS Alerts", "850471646191812700").withEmoji(Emoji.fromUnicode("⚠️")));
             selectOptions.add(
                 SelectOption.of("NWS Alert Updates", "850471690093854810").withEmoji(Emoji.fromUnicode("📝")));
-            selectOptions.add(
-                SelectOption.of("(BETA) New Records", "1046149064519073813").withEmoji(Emoji.fromUnicode("📊")));
+            selectOptions.add(SelectOption.of("(BETA) New Records", "1046149064519073813")
+                .withEmoji(Emoji.fromUnicode("📊")));
             selectOptions.add(
                 SelectOption.of("Snow", "845055624165064734").withEmoji(Emoji.fromUnicode("🌨️")));
             selectOptions.add(
@@ -235,7 +235,8 @@ public class StormAlerts extends ListenerAdapter {
             // Initating the shutdown, this closes the gateway connection and subsequently closes the requester queue
             jda.shutdown();
             // Allow at most 10 seconds for remaining requests to finish
-            if (!jda.awaitShutdown(10, TimeUnit.SECONDS)) { // returns true if shutdown is graceful, false if timeout exceeded
+            if (!jda.awaitShutdown(10,
+                TimeUnit.SECONDS)) { // returns true if shutdown is graceful, false if timeout exceeded
                 jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
                 jda.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
             }

@@ -31,20 +31,22 @@ public class Soundboard extends ListenerAdapter {
             if (currentVoiceChannel == null) return;
 
             int membersInChannel = currentVoiceChannel.getMembers().size();
-            for (Member member : currentVoiceChannel.getMembers()) if (member.getUser().isBot()) membersInChannel--;
+            for (Member member : currentVoiceChannel.getMembers())
+                if (member.getUser().isBot()) membersInChannel--;
 
             if (membersInChannel == 0) {
-                GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
+                GuildMusicManager musicManager = PlayerManager.getInstance()
+                    .getMusicManager(event.getGuild());
                 musicManager.scheduler.player.stopTrack();
                 musicManager.scheduler.queue.clear();
                 musicManager.player.destroy();
 
                 for (VoiceChannel voiceChannels : event.getGuild().getVoiceChannels())
-                    if (!voiceChannels.getMembers().isEmpty())
-                        if (!voiceChannels.getMembers().contains(event.getGuild().getMemberById(892263254825500692L))) {
-                            joinVC(event.getGuild(), voiceChannels);
-                            return;
-                        }
+                    if (!voiceChannels.getMembers().isEmpty()) if (!voiceChannels.getMembers()
+                        .contains(event.getGuild().getMemberById(892263254825500692L))) {
+                        joinVC(event.getGuild(), voiceChannels);
+                        return;
+                    }
                 AudioManager audioManager = event.getGuild().getAudioManager();
                 audioManager.closeAudioConnection();
                 currentVoiceChannel = null;
@@ -59,7 +61,8 @@ public class Soundboard extends ListenerAdapter {
                 if (member.getUser().isBot()) membersInChannel--;
 
             if (membersInChannel == 0) {
-                GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
+                GuildMusicManager musicManager = PlayerManager.getInstance()
+                    .getMusicManager(event.getGuild());
                 musicManager.scheduler.player.stopTrack();
                 musicManager.scheduler.queue.clear();
                 musicManager.player.destroy();
@@ -85,8 +88,8 @@ public class Soundboard extends ListenerAdapter {
 
             if (event.getMember().getVoiceState().inAudioChannel()) {
                 if (event.getMember().getVoiceState().getChannel() != currentVoiceChannel) {
-                    event.reply("You must be in the same voice channel as me!")
-                        .addActionRow(Button.danger("sound:forceswitch", "Move Phoenella to current voice channel"))
+                    event.reply("You must be in the same voice channel as me!").addActionRow(
+                            Button.danger("sound:forceswitch", "Move Phoenella to current voice channel"))
                         .setEphemeral(true).queue();
                     return;
                 }
@@ -172,7 +175,8 @@ public class Soundboard extends ListenerAdapter {
                     volume = 20;
                 }
                 case "stop" -> {
-                    GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
+                    GuildMusicManager musicManager = PlayerManager.getInstance()
+                        .getMusicManager(event.getGuild());
                     musicManager.scheduler.player.stopTrack();
                     musicManager.scheduler.queue.clear();
                     musicManager.player.destroy();

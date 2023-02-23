@@ -17,14 +17,13 @@ public class GameManager extends ListenerAdapter {
         StringBuilder daily = new StringBuilder();
         if (isDailyWordle) daily.append("daily-");
 
-        TextChannel channel = Phoenella.jda.getCategoryById(900747596245639238L)
-            .createTextChannel(new Utils().getFirstName(players.get(0)) + "-" + daily + game.toString().toLowerCase())
+        TextChannel channel = Phoenella.jda.getCategoryById(900747596245639238L).createTextChannel(
+                new Utils().getFirstName(players.get(0)) + "-" + daily + game.toString().toLowerCase())
             .complete();
 
         for (Member player : players)
             channel.upsertPermissionOverride(player).setAllowed(Permission.VIEW_CHANNEL)
-                .setDenied(Permission.MESSAGE_SEND)
-                .queue();
+                .setDenied(Permission.MESSAGE_SEND).queue();
 
         sendEndGameMessage(channel, game);
 
@@ -37,8 +36,8 @@ public class GameManager extends ListenerAdapter {
 
     public void sendEndGameMessage(TextChannel channel, Game game) {
         channel.sendMessage("**Click the button below to end the game.**").setActionRow(
-                Button.danger("endgame:" + game.toString().toLowerCase(), "End game").withEmoji(Emoji.fromUnicode("🗑️")))
-            .complete();
+            Button.danger("endgame:" + game.toString().toLowerCase(), "End game")
+                .withEmoji(Emoji.fromUnicode("🗑️"))).complete();
     }
 
     public void deleteGame(TextChannel channel) {

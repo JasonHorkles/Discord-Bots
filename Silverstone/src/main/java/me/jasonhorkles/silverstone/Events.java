@@ -54,20 +54,20 @@ public class Events extends ListenerAdapter {
                 **FileCleaner:** <https://github.com/SilverstoneMC/FileCleaner>
                 """).setEphemeral(ephemeral).queue();
 
-            case "plugins" ->
-                event.reply("See Jason's plugins at: <https://www.spigotmc.org/resources/authors/jasonhorkles.339646/>")
-                    .setEphemeral(ephemeral).queue();
+            case "plugins" -> event.reply(
+                    "See Jason's plugins at: <https://www.spigotmc.org/resources/authors/jasonhorkles.339646/>")
+                .setEphemeral(ephemeral).queue();
 
-            case "tutorials" ->
-                event.reply("JasonHorkles Tutorials: <https://www.youtube.com/channel/UCIyJ0zf3moNSRN1wIetpbmA>")
-                    .setEphemeral(ephemeral).queue();
+            case "tutorials" -> event.reply(
+                    "JasonHorkles Tutorials: <https://www.youtube.com/channel/UCIyJ0zf3moNSRN1wIetpbmA>")
+                .setEphemeral(ephemeral).queue();
 
-            case "moss" ->
-                event.reply("Get EssentialsX help and more here: https://discord.gg/PHpuzZS").setEphemeral(ephemeral)
-                    .queue();
+            case "moss" -> event.reply("Get EssentialsX help and more here: https://discord.gg/PHpuzZS")
+                .setEphemeral(ephemeral).queue();
 
             case "lp" ->
-                event.reply("Get LuckPerms help here: https://discord.gg/luckperms").setEphemeral(ephemeral).queue();
+                event.reply("Get LuckPerms help here: https://discord.gg/luckperms").setEphemeral(ephemeral)
+                    .queue();
         }
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember()
@@ -82,9 +82,9 @@ public class Events extends ListenerAdapter {
         if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD)
             if (event.getChannel().getIdLong() == 1024004210511057046L)
                 if (event.getAuthor().getIdLong() != 277291758503723010L) {
-                    System.out.println(
-                        new Utils().getTime(Utils.LogColor.YELLOW) + "Deleting message from " + event.getAuthor()
-                            .getAsTag() + " in FAQs post!");
+                    System.out.println(new Utils().getTime(
+                        Utils.LogColor.YELLOW) + "Deleting message from " + event.getAuthor()
+                        .getAsTag() + " in FAQs post!");
                     event.getMessage().delete().queue();
                     return;
                 }
@@ -108,14 +108,14 @@ public class Events extends ListenerAdapter {
             }
 
         // Direct to plugin support (not in thread)
-        if (event.getMessage().getChannelType() != ChannelType.GUILD_PUBLIC_THREAD && !event.getMember().getRoles()
-            .toString().contains("667793980318154783")) sendToPluginSupport(event);
+        if (event.getMessage().getChannelType() != ChannelType.GUILD_PUBLIC_THREAD && !event.getMember()
+            .getRoles().toString().contains("667793980318154783")) sendToPluginSupport(event);
 
         // Direct to plugin support (in thread)
-        if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD && !event.getMember().getRoles()
-            .toString().contains("667793980318154783"))
-            if (event.getGuildChannel().asThreadChannel().getParentChannel().getIdLong() != 1023735878075564042L)
-                sendToPluginSupport(event);
+        if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD && !event.getMember()
+            .getRoles().toString().contains("667793980318154783"))
+            if (event.getGuildChannel().asThreadChannel().getParentChannel()
+                .getIdLong() != 1023735878075564042L) sendToPluginSupport(event);
 
         // Counting
         if (event.getChannel().getIdLong() == 816885380577230906L) {
@@ -130,8 +130,8 @@ public class Events extends ListenerAdapter {
                 // If value is 1 less than the last number, update the last number value
                 if (value + 1 == lastNumber) lastNumber = value;
                 else {
-                    System.out.println(
-                        new Utils().getTime(Utils.LogColor.YELLOW) + "Deleting invalid number from counting: " + value);
+                    System.out.println(new Utils().getTime(
+                        Utils.LogColor.YELLOW) + "Deleting invalid number from counting: " + value);
                     m.delete().queue();
                 }
 
@@ -150,15 +150,17 @@ public class Events extends ListenerAdapter {
 
     private void sendToPluginSupport(MessageReceivedEvent event) {
         String message = event.getMessage().getContentStripped().toLowerCase().replace(" ", "");
-        if (message.contains("entityclearer") || message.contains("expensivedeaths") || message.contains("filecleaner"))
-            event.getMessage().reply("Please go to <#1023735878075564042> if you need help with Jason's plugins.")
-                .mentionRepliedUser(true).queue();
+        if (message.contains("entityclearer") || message.contains("expensivedeaths") || message.contains(
+            "filecleaner")) event.getMessage()
+            .reply("Please go to <#1023735878075564042> if you need help with Jason's plugins.")
+            .mentionRepliedUser(true).queue();
     }
 
     // When recent chatter leaves
     @Override
     public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
-        System.out.println("\n" + new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser().getName() + " left!");
+        System.out.println(
+            "\n" + new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser().getName() + " left!");
 
         OffsetDateTime thirtyMinsAgo = OffsetDateTime.now().minus(30, ChronoUnit.MINUTES);
         OffsetDateTime threeDaysAgo = OffsetDateTime.now().minus(3, ChronoUnit.DAYS);
@@ -167,7 +169,8 @@ public class Events extends ListenerAdapter {
             .getThreadChannels()) {
             if (thread.isArchived()) continue;
 
-            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking post '" + thread.getName() + "'");
+            System.out.println(
+                new Utils().getTime(Utils.LogColor.YELLOW) + "Checking post '" + thread.getName() + "'");
 
             if (thread.getOwnerIdLong() == event.getUser().getIdLong()) {
                 sendOPLeaveMessage(thread, event.getUser());
@@ -196,7 +199,8 @@ public class Events extends ListenerAdapter {
         try {
             // Check the past 15 messages within 30 minutes
             for (Message messages : new Utils().getMessages(channel, 15).get(30, TimeUnit.SECONDS))
-                if (messages.getTimeCreated().isAfter(thirtyMinsAgo) && messages.getAuthor().getIdLong() == userId) {
+                if (messages.getTimeCreated().isAfter(thirtyMinsAgo) && messages.getAuthor()
+                    .getIdLong() == userId) {
                     fromUser = true;
                     break;
                 }
@@ -236,7 +240,7 @@ public class Events extends ListenerAdapter {
         embed.setThumbnail(user.getAvatarUrl());
         embed.setColor(new Color(255, 100, 0));
 
-        channel.sendMessageEmbeds(embed.build())
-            .queue(na -> channel.getManager().setArchived(true).setLocked(true).queueAfter(1, TimeUnit.SECONDS));
+        channel.sendMessageEmbeds(embed.build()).queue(
+            na -> channel.getManager().setArchived(true).setLocked(true).queueAfter(1, TimeUnit.SECONDS));
     }
 }
