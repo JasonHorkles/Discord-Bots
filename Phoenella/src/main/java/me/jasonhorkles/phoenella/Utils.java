@@ -166,7 +166,7 @@ public class Utils {
     }
 
     public void sendMessage(@Nullable TextChannel channel, @Nullable Message replyTo, String message, Boolean allCaps) {
-        if (allCaps) message = message.toUpperCase();
+        if (!message.startsWith("http")) if (allCaps) message = message.toUpperCase();
         else {
             Random r = new Random();
             if (r.nextBoolean()) message = message.toLowerCase();
