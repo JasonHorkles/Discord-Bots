@@ -15,9 +15,8 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
-        if (event.getMember().getUser() == TheDawg.jda.getSelfUser()) return;
+        if (event.getMember().getIdLong() != 840025878947692554L) return;
         if (event.getChannelJoined() == null) return;
-        if (event.getMember().getIdLong() == 277291758503723010L) return;
         if (!event.getChannelJoined().getMembers()
             .contains(event.getGuild().getMemberById(277291758503723010L))) return;
         if (!isLive()) return;
@@ -33,18 +32,15 @@ public class Events extends ListenerAdapter {
         }
 
         String file = null;
-        switch (new Random().nextInt(11)) {
+        switch (new Random().nextInt(8)) {
             case 0 -> file = "TheDawg/Sounds/N1.mp3";
-            case 1 -> file = "TheDawg/Sounds/N2.mp3";
-            case 2 -> file = "TheDawg/Sounds/N3.mp3";
-            case 3 -> file = "TheDawg/Sounds/N4.mp3";
-            case 4 -> file = "TheDawg/Sounds/N5.mp3";
-            case 5 -> file = "TheDawg/Sounds/N6.mp3";
-            case 6 -> file = "TheDawg/Sounds/N7.mp3";
-            case 7 -> file = "TheDawg/Sounds/SD1.mp3";
-            case 8 -> file = "TheDawg/Sounds/SD2.mp3";
-            case 9 -> file = "TheDawg/Sounds/SD3.mp3";
-            case 10 -> file = "TheDawg/Sounds/SD4.mp3";
+            case 1 -> file = "TheDawg/Sounds/SD1.mp3";
+            case 2 -> file = "TheDawg/Sounds/SD2.mp3";
+            case 3 -> file = "TheDawg/Sounds/SD3.mp3";
+            case 4 -> file = "TheDawg/Sounds/SD4.mp3";
+            case 5 -> file = "TheDawg/Sounds/SD5.mp3";
+            case 6 -> file = "TheDawg/Sounds/SD6.mp3";
+            case 7 -> file = "TheDawg/Sounds/SD7.mp3";
         }
 
         currentVoiceChannel = event.getGuild();
