@@ -16,6 +16,8 @@ public class Events extends ListenerAdapter {
     @Override
     public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
         if (event.getChannelJoined() == null) return;
+        if (event.getMember().getIdLong() != 840025878947692554L && event.getMember()
+            .getIdLong() != 277291758503723010L) return;
         if (!event.getChannelJoined().getMembers()
             .contains(event.getGuild().getMemberById(840025878947692554L)) || !event.getChannelJoined()
             .getMembers().contains(event.getGuild().getMemberById(277291758503723010L))) return;
