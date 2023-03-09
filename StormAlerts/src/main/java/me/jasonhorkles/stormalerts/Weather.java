@@ -167,13 +167,16 @@ public class Weather extends ListenerAdapter {
 
                     // Send the snow message after 45 minutes IF it's still snowing by then
                     scheduledSnowMessage = Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+                        // It should already be cancelled if it stopped snowing, but this is a failsafe
+                        if (!weatherName.startsWith("snowing")) return;
+
                         String ping = "";
                         if (new Utils().shouldIPing(snowChannel)) ping = "<@&845055624165064734>\n";
                         snowChannel.sendMessage(
                                 ping + "\uD83C\uDF28️ It's " + finalDoubleTrimmedWeatherName + "! (" + weather + ")")
                             .queue();
                         scheduledSnowMessage = null;
-                    }, 45, TimeUnit.MINUTES);
+                    }, 2705, TimeUnit.SECONDS);
                     previousTypeChannel = snowChannel;
                 }
 
