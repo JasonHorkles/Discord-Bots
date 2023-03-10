@@ -121,8 +121,8 @@ public class StormAlerts extends ListenerAdapter {
                 SelectOption.of("New NWS Alerts", "850471646191812700").withEmoji(Emoji.fromUnicode("⚠️")));
             selectOptions.add(
                 SelectOption.of("NWS Alert Updates", "850471690093854810").withEmoji(Emoji.fromUnicode("📝")));
-            selectOptions.add(SelectOption.of("(BETA) New Records", "1046149064519073813")
-                .withEmoji(Emoji.fromUnicode("📊")));
+            selectOptions.add(
+                SelectOption.of("New Records", "1046149064519073813").withEmoji(Emoji.fromUnicode("📊")));
             selectOptions.add(
                 SelectOption.of("Snow", "845055624165064734").withEmoji(Emoji.fromUnicode("🌨️")));
             selectOptions.add(
@@ -132,7 +132,7 @@ public class StormAlerts extends ListenerAdapter {
             selectOptions.add(
                 SelectOption.of("Heavy Rain", "843956325690900503").withEmoji(Emoji.fromUnicode("🌧️")));
             selectOptions.add(
-                SelectOption.of("(BETA) High Wind", "1046148944108978227").withEmoji(Emoji.fromUnicode("🍃")));
+                SelectOption.of("High Wind", "1046148944108978227").withEmoji(Emoji.fromUnicode("🍃")));
             selectOptions.add(
                 SelectOption.of("Lightning Info", "896877424824954881").withEmoji(Emoji.fromUnicode("⚡")));
 
