@@ -185,7 +185,7 @@ public class Weather extends ListenerAdapter {
                 if (scheduleMessage) scheduledSnowMessage = Executors.newSingleThreadScheduledExecutor()
                     .schedule(() -> sendSnowMessage(snowChannel, false), 2705, TimeUnit.SECONDS);
 
-            } else if (weather.equals("RAIN")) {
+            } else if (weather.equals("RAIN") && Pws.temperature >= 30) {
                 String ping = "";
                 if (new Utils().shouldIPing(rainChannel)) ping = "<@&843956362059841596>\n";
 
