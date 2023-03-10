@@ -196,7 +196,7 @@ public class Weather extends ListenerAdapter {
                                 heavyPing + "\uD83C\uDF27️ It's " + trimmedWeatherName + "! (" + rainRate + " in/hr)")
                             .queue();
 
-                        message = ping + "\uD83C\uDF27️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)";
+                        message = ping + "\uD83C\uDF27️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr) <a:weewoo:1083615022455992382>";
                     }
 
                     case 3 -> // 🌦️
@@ -213,7 +213,8 @@ public class Weather extends ListenerAdapter {
                 }
 
                 if (message != null) if (acceptRainForDay || !mightBeSnowMelt)
-                    rainChannel.sendMessage(message).setSuppressedNotifications(new Utils().shouldIBeSilent(rainChannel)).queue();
+                    rainChannel.sendMessage(message)
+                        .setSuppressedNotifications(new Utils().shouldIBeSilent(rainChannel)).queue();
                 else {
                     sendConfirmationMessage("[CONFIRMATION NEEDED] " + message);
                     idle = true;
