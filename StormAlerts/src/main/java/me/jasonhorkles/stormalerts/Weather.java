@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.*;
@@ -159,22 +160,32 @@ public class Weather extends ListenerAdapter {
                     .setSuppressedNotifications(new Utils().shouldIBeSilent(hailChannel)).queue();
                 previousTypeChannel = hailChannel;
 
-            } else if (weatherName.startsWith("snowing"))
+            } else if (weatherName.startsWith("snowing")) {
+                boolean scheduleMessage = true;
+
+                // If the bot had just restarted, send snow message instantly and silently
+                try {
+                    Message message = new Utils().getMessages(snowChannel, 1).get(30, TimeUnit.SECONDS)
+                        .get(0);
+
+                    // If the message was edited within the last 3 minutes and it contains the restart message
+                    if (message.isEdited()) if (message.getTimeEdited()
+                        .isAfter(OffsetDateTime.now().minus(3, ChronoUnit.MINUTES)) && message.getContentRaw()
+                        .contains("(Bot restarted at")) {
+                        scheduleMessage = false;
+                        sendSnowMessage(snowChannel, true);
+                    }
+
+                } catch (Exception e) {
+                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                    e.printStackTrace();
+                }
+
                 // Send the snow message after 45 minutes IF it's still snowing by then
-                scheduledSnowMessage = Executors.newSingleThreadScheduledExecutor().schedule(() -> {
-                    // It should already be cancelled if it stopped snowing, but this is a failsafe
-                    if (!weatherName.startsWith("snowing")) return;
+                if (scheduleMessage) scheduledSnowMessage = Executors.newSingleThreadScheduledExecutor()
+                    .schedule(() -> sendSnowMessage(snowChannel, false), 15, TimeUnit.SECONDS);
 
-                    String ping = "";
-                    if (new Utils().shouldIPing(snowChannel)) ping = "<@&845055624165064734>\n";
-                    // 🌨️
-                    snowChannel.sendMessage(
-                        ping + "\uD83C\uDF28️ It's " + trimmedWeatherName() + "! (" + weather + ")").queue();
-                    scheduledSnowMessage = null;
-                    previousTypeChannel = snowChannel;
-                }, 2705, TimeUnit.SECONDS);
-
-            else if (weather.equals("RAIN")) {
+            } else if (weather.equals("RAIN")) {
                 String ping = "";
                 if (new Utils().shouldIPing(rainChannel)) ping = "<@&843956362059841596>\n";
 
@@ -254,11 +265,11 @@ public class Weather extends ListenerAdapter {
                 new Utils().getTime(Utils.LogColor.GREEN) + "Raining @ " + rainRate + " in/hr");
 
         } else StormAlerts.jda.getPresence()
-            .setActivity(Activity.playing("it's " + weatherName + " (" + weather.toLowerCase() + ")"));
+            .setActivity(Activity.playing("it's " + weatherName + " (" + weather + ")"));
 
         previousWeatherName = weatherName;
 
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Weather: " + weather.toLowerCase());
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Weather: " + weather);
     }
 
     // Rain confirmation stuff
@@ -341,5 +352,18 @@ public class Weather extends ListenerAdapter {
             Button.danger("denyrain", "Deny for 1 hour").withEmoji(Emoji.fromUnicode("✖️"))).queue(
             del -> del.delete().queueAfter(30, TimeUnit.MINUTES, null,
                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
+    }
+
+    private void sendSnowMessage(TextChannel snowChannel, boolean silent) {
+        // It should already be cancelled if it stopped snowing, but this is a failsafe
+        if (!weatherName.startsWith("snowing")) return;
+
+        String ping = "";
+        if (new Utils().shouldIPing(snowChannel)) ping = "<@&845055624165064734>\n";
+        // 🌨️
+        snowChannel.sendMessage(ping + "\uD83C\uDF28️ It's " + trimmedWeatherName() + "! (" + weather + ")")
+            .setSuppressedNotifications(silent).queue();
+        scheduledSnowMessage = null;
+        previousTypeChannel = snowChannel;
     }
 }
