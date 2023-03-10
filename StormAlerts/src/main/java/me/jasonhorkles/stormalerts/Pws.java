@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class Pws {
     public static double currentRainRate = 0.00;
     public static double temperature = -1;
+    public static double wm2 = -1;
 
     private static boolean rateLimited = false;
     private static double lastAlertedWindGust = -1;
@@ -54,6 +55,12 @@ public class Pws {
             currentRainRate = Double.parseDouble(new Utils().getJsonKey(input, "hourlyrainin", true));
         } catch (NumberFormatException ignored) {
             currentRainRate = -1;
+        }
+
+        try {
+            wm2 = Double.parseDouble(new Utils().getJsonKey(input, "solarradiation", true));
+        } catch (NumberFormatException ignored) {
+            wm2 = -1;
         }
 
         // Set the values
@@ -184,7 +191,11 @@ public class Pws {
             String ping = "";
             if (new Utils().shouldIPing(windChannel)) ping = "<@&1046148944108978227>\n";
 
-            windChannel.sendMessage(ping + "🍃 Wind gust of **" + windGust + " mph** detected!").queue();
+            String message = ping + "🍃 Wind gust of **" + windGust + " mph** detected!";
+            if (windGust >= 60) message += " <a:weewoo:1083615022455992382>";
+
+            windChannel.sendMessage(message)
+                .setSuppressedNotifications(new Utils().shouldIBeSilent(windChannel)).queue();
             lastAlertedWindGust = windGust;
         }
 
@@ -212,9 +223,11 @@ public class Pws {
         String ping = "";
         if (new Utils().shouldIPing(lightningChannel)) ping = "<@&896877424824954881>\n";
 
-        lightningChannel.sendMessage(
-                ping + "🌩️ Lightning detected **~" + lightningDistance + " mile" + s + "** from Eastern Farmington <t:" + (lightningTimeLong / 1000) + ":R>!")
-            .queue();
+        String message = ping + "🌩️ Lightning detected **~" + lightningDistance + " mile" + s + "** from Eastern Farmington <t:" + (lightningTimeLong / 1000) + ":R>!";
+        if (lightningDistance <= 2) message += " <a:weewoo:1083615022455992382>";
+
+        lightningChannel.sendMessage(message)
+            .setSuppressedNotifications(new Utils().shouldIBeSilent(lightningChannel)).queue();
 
         FileWriter fw = new FileWriter(file, false);
         fw.write(lightningTime);

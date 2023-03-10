@@ -226,15 +226,24 @@ public class Alerts {
             }
 
             switch (alertType) {
-                case "Alert" -> dontDeleteMe.add(alertsChannel.sendMessage(
-                        "<@&850471646191812700>\n**[" + severity.toUpperCase() + "] " + event + "** for " + area)
-                    .setEmbeds(embed.build()).complete());
+                case "Alert" -> {
+                    String message = "<@&850471646191812700>\n**[" + severity.toUpperCase() + "] " + event + "** for " + area;
+                    if (severity.equalsIgnoreCase("Extreme"))
+                        message = message.replaceFirst("<@&850471646191812700>\n",
+                            "<@&850471646191812700>\n<a:weewoo:1083615022455992382> ");
+
+                    dontDeleteMe.add(alertsChannel.sendMessage(message).setEmbeds(embed.build()).complete());
+                }
 
                 case "Update" -> {
                     dontDeleteMe.remove(alertMessage);
-                    dontDeleteMe.add(alertMessage.editMessage(
-                            "<@&850471690093854810>\n**[" + severity.toUpperCase() + "] " + event + "** for " + area)
-                        .setEmbeds(embed.build()).complete());
+
+                    String message = "<@&850471690093854810>\n**[" + severity.toUpperCase() + "] " + event + "** for " + area;
+                    if (severity.equalsIgnoreCase("Extreme"))
+                        message = message.replaceFirst("<@&850471690093854810>\n",
+                            "<@&850471690093854810>\n<a:weewoo:1083615022455992382> ");
+
+                    dontDeleteMe.add(alertMessage.editMessage(message).setEmbeds(embed.build()).complete());
                     alertsChannel.sendMessage("<@&850471690093854810>")
                         .queue(del -> del.delete().queueAfter(250, TimeUnit.MILLISECONDS));
                 }

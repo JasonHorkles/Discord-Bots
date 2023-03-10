@@ -89,13 +89,36 @@ public class Utils {
     public boolean shouldIPing(TextChannel channel) {
         try {
             Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).get(0);
+            
             if (message.isEdited()) //noinspection DataFlowIssue
                 return message.getTimeEdited().isBefore(OffsetDateTime.now().minus(2, ChronoUnit.HOURS));
             else return message.getTimeCreated().isBefore(OffsetDateTime.now().minus(2, ChronoUnit.HOURS));
+            
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             System.out.print(new Utils().getTime(LogColor.RED));
             e.printStackTrace();
             return true;
+            
+        } catch (IndexOutOfBoundsException ignored) {
+            return true;
+        }
+    }
+
+    public boolean shouldIBeSilent(TextChannel channel) {
+        // Set whether or not the message should be silent (e.g. right after a restart)
+        try {
+            Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).get(0);
+
+            // If edited or sent within the last 5 minutes, send silently
+            if (message.isEdited()) //noinspection DataFlowIssue
+                return message.getTimeEdited().isAfter(OffsetDateTime.now().minus(5, ChronoUnit.MINUTES));
+            else return message.getTimeCreated().isAfter(OffsetDateTime.now().minus(5, ChronoUnit.MINUTES));
+
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            System.out.print(new Utils().getTime(LogColor.RED));
+            e.printStackTrace();
+            return true;
+            
         } catch (IndexOutOfBoundsException ignored) {
             return true;
         }
