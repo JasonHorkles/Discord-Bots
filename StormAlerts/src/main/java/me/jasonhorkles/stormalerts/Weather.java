@@ -22,9 +22,9 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.*;
 
@@ -33,6 +33,7 @@ public class Weather extends ListenerAdapter {
     public static TextChannel previousTypeChannel;
 
     private static boolean acceptRainForDay = false;
+    private static boolean rainDenied = false;
     private static double rainRate;
     private static ScheduledFuture<?> scheduledSnowMessage;
     private static String previousWeatherName;
@@ -123,167 +124,107 @@ public class Weather extends ListenerAdapter {
         }
 
         String trimmedWeatherName = null;
-        String doubleTrimmedWeatherName = null;
         boolean dontSendAlerts = false;
         if (weatherName != null) {
-            trimmedWeatherName = weatherName.substring(0, weatherName.length() - 2).strip();
-            doubleTrimmedWeatherName = trimmedWeatherName.substring(0, trimmedWeatherName.length() - 1)
-                .strip();
+            trimmedWeatherName = trimmedWeatherName();
+
             if (weatherName.equals(previousWeatherName)) {
-                System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Weather hasn't changed!");
+                System.out.println(
+                    new Utils().getTime(Utils.LogColor.YELLOW) + "The weather hasn't changed!");
                 dontSendAlerts = true;
             }
         }
 
         TextChannel heavyRainChannel = StormAlerts.jda.getTextChannelById(843955756596461578L);
         TextChannel rainChannel = StormAlerts.jda.getTextChannelById(900248256515285002L);
-        TextChannel rainConfirmationChannel = StormAlerts.jda.getTextChannelById(921113488464695386L);
         TextChannel snowChannel = StormAlerts.jda.getTextChannelById(845010495865618503L);
         TextChannel hailChannel = StormAlerts.jda.getTextChannelById(845010798367473736L);
 
         boolean idle = false;
 
-        // Send messages and change status if a certain weather type
-        if (weatherName != null) {
+        // If the weather is something we care about, it won't be null
+        if (weatherName != null && !dontSendAlerts) {
+            // If not snowing, cancel any pending snow messages
             if (!weatherName.startsWith("snowing")) if (scheduledSnowMessage != null) {
                 scheduledSnowMessage.cancel(true);
                 scheduledSnowMessage = null;
             }
 
             if (weatherName.startsWith("hailing")) {
-                if (!dontSendAlerts) {
+                String ping = "";
+                if (new Utils().shouldIPing(hailChannel)) ping = "<@&845055784156397608>\n";
+                // 🧊
+                hailChannel.sendMessage(
+                        ping + "\uD83E\uDDCA It's " + trimmedWeatherName + "! (" + weather + ")")
+                    .setSuppressedNotifications(new Utils().shouldIBeSilent(hailChannel)).queue();
+                previousTypeChannel = hailChannel;
+
+            } else if (weatherName.startsWith("snowing"))
+                // Send the snow message after 45 minutes IF it's still snowing by then
+                scheduledSnowMessage = Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+                    // It should already be cancelled if it stopped snowing, but this is a failsafe
+                    if (!weatherName.startsWith("snowing")) return;
+
                     String ping = "";
-                    if (new Utils().shouldIPing(hailChannel)) ping = "<@&845055784156397608>\n";
-                    // 🧊
-                    hailChannel.sendMessage(
-                        ping + "\uD83E\uDDCA It's " + trimmedWeatherName + "! (" + weather + ")").queue();
-                    previousTypeChannel = hailChannel;
-                }
-
-            } else if (weatherName.startsWith("snowing")) {
-                if (!dontSendAlerts) {
+                    if (new Utils().shouldIPing(snowChannel)) ping = "<@&845055624165064734>\n";
                     // 🌨️
-                    String finalDoubleTrimmedWeatherName = doubleTrimmedWeatherName;
-
-                    // Send the snow message after 45 minutes IF it's still snowing by then
-                    scheduledSnowMessage = Executors.newSingleThreadScheduledExecutor().schedule(() -> {
-                        // It should already be cancelled if it stopped snowing, but this is a failsafe
-                        if (!weatherName.startsWith("snowing")) return;
-
-                        String ping = "";
-                        if (new Utils().shouldIPing(snowChannel)) ping = "<@&845055624165064734>\n";
-                        snowChannel.sendMessage(
-                                ping + "\uD83C\uDF28️ It's " + finalDoubleTrimmedWeatherName + "! (" + weather + ")")
-                            .queue();
-                        scheduledSnowMessage = null;
-                    }, 2705, TimeUnit.SECONDS);
+                    snowChannel.sendMessage(
+                        ping + "\uD83C\uDF28️ It's " + trimmedWeatherName() + "! (" + weather + ")").queue();
+                    scheduledSnowMessage = null;
                     previousTypeChannel = snowChannel;
-                }
+                }, 2705, TimeUnit.SECONDS);
 
-            } else if (weather.equals("RAIN")) {
+            else if (weather.equals("RAIN")) {
                 String ping = "";
                 if (new Utils().shouldIPing(rainChannel)) ping = "<@&843956362059841596>\n";
 
-                boolean mightBeSnow = false;
-                OffsetDateTime lastSnow = new Utils().getMessages(
-                        StormAlerts.jda.getTextChannelById(845010495865618503L), 1).get(30, TimeUnit.SECONDS)
-                    .get(0).getTimeCreated();
-                if (lastSnow.isAfter(OffsetDateTime.now().minusDays(3))) mightBeSnow = true;
+                boolean mightBeSnowMelt = false;
 
-                boolean isNight = false;
-                if (mightBeSnow) {
-                    LocalTime now = LocalTime.now();
-                    if (now.isAfter(LocalTime.parse("18:00:00")) || now.isBefore(LocalTime.parse("09:00:00")))
-                        isNight = true;
-                }
+                // If it has snowed in the last 3 days
+                if (new Utils().getMessages(snowChannel, 1).get(30, TimeUnit.SECONDS).get(0).getTimeCreated()
+                    .isAfter(OffsetDateTime.now().minusDays(3)))
+                    // And if it's bright enough outside (AKA not cloudy/raining)
+                    if ((int) Pws.wm2 >= 75) mightBeSnowMelt = true;
 
-                if (!mightBeSnow || isNight) previousTypeChannel = rainChannel;
-
+                String message = null;
                 switch (rainIntensity) {
                     case 4 -> {
-                        if (!dontSendAlerts) {
-                            String heavyPing = "";
-                            if (new Utils().shouldIPing(heavyRainChannel))
-                                heavyPing = "<@&843956325690900503> ";
-                            // 🌧️
-                            heavyRainChannel.sendMessage(
-                                    heavyPing + "\uD83C\uDF27️ It's " + doubleTrimmedWeatherName + "! (" + rainRate + " in/hr)")
-                                .queue();
-
-                            rainChannel.sendMessage(
-                                    ping + "\uD83C\uDF27️ It's " + doubleTrimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
-                                .queue();
-                        }
-                    }
-
-                    case 3 -> {
-                        if (!acceptRainForDay) if (mightBeSnow && !isNight) {
-                            // 🌦️
-                            //todo Change buttons to accept for day, unsure, and decline for 1 hour
-                            if (!dontSendAlerts) rainConfirmationChannel.sendMessage(
-                                    "[CONFIRMATION NEEDED] " + ping + "\uD83C\uDF26️ It's " + doubleTrimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
-                                .setActionRow(
-                                    Button.success("acceptrain", "Accept").withEmoji(Emoji.fromUnicode("✅")),
-                                    Button.primary("acceptrainforday", "Accept future rain for the day")
-                                        .withEmoji(Emoji.fromUnicode("☑️")),
-                                    Button.secondary("unsurerain", "Unsure")
-                                        .withEmoji(Emoji.fromUnicode("❔")),
-                                    Button.danger("denyrain", "Deny").withEmoji(Emoji.fromUnicode("✖️")))
-                                .complete().delete().queueAfter(2, TimeUnit.HOURS, null,
-                                    new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
-                            idle = true;
-
-                            //bug This doesn't send if rain is accepted for day
-                        } else if (!dontSendAlerts) rainChannel.sendMessage(
-                                ping + "\uD83C\uDF26️ It's " + doubleTrimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
+                        String heavyPing = "";
+                        if (new Utils().shouldIPing(heavyRainChannel)) heavyPing = "<@&843956325690900503>\n";
+                        // 🌧️
+                        heavyRainChannel.sendMessage(
+                                heavyPing + "\uD83C\uDF27️ It's " + trimmedWeatherName + "! (" + rainRate + " in/hr)")
                             .queue();
+
+                        message = ping + "\uD83C\uDF27️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)";
                     }
 
-                    case 2 -> {
-                        if (!acceptRainForDay) if (mightBeSnow && !isNight) {
-                            if (!dontSendAlerts) rainConfirmationChannel.sendMessage(
-                                    "[CONFIRMATION NEEDED] " + ping + "☔ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
-                                .setActionRow(
-                                    Button.success("acceptrain", "Accept").withEmoji(Emoji.fromUnicode("✅")),
-                                    Button.primary("acceptrainforday", "Accept future rain for the day")
-                                        .withEmoji(Emoji.fromUnicode("☑️")),
-                                    Button.secondary("unsurerain", "Unsure")
-                                        .withEmoji(Emoji.fromUnicode("❔")),
-                                    Button.danger("denyrain", "Deny").withEmoji(Emoji.fromUnicode("✖️")))
-                                .complete().delete().queueAfter(2, TimeUnit.HOURS, null,
-                                    new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
-                            idle = true;
+                    case 3 -> // 🌦️
+                        message = ping + "\uD83C\uDF26️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)";
 
-                        } else if (!dontSendAlerts) rainChannel.sendMessage(
-                                ping + "☔ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
-                            .queue();
-                    }
+                    case 2 ->
+                        message = ping + "☔ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)";
 
-                    case 1 -> {
-                        if (!acceptRainForDay) if (mightBeSnow && !isNight) {
-                            if (!dontSendAlerts) rainConfirmationChannel.sendMessage(
-                                    "[CONFIRMATION NEEDED] " + ping + "☂️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
-                                .setActionRow(
-                                    Button.success("acceptrain", "Accept").withEmoji(Emoji.fromUnicode("✅")),
-                                    Button.primary("acceptrainforday", "Accept future rain for the day")
-                                        .withEmoji(Emoji.fromUnicode("☑️")),
-                                    Button.secondary("unsurerain", "Unsure")
-                                        .withEmoji(Emoji.fromUnicode("❔")),
-                                    Button.danger("denyrain", "Deny").withEmoji(Emoji.fromUnicode("✖️")))
-                                .complete().delete().queueAfter(2, TimeUnit.HOURS, null,
-                                    new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
-                            idle = true;
-
-                        } else if (!dontSendAlerts) rainChannel.sendMessage(
-                                ping + "☂️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)")
-                            .queue();
-                    }
+                    case 1 ->
+                        message = ping + "☂️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)";
 
                     default -> System.out.println(new Utils().getTime(
-                        Utils.LogColor.RED) + "[ERROR] It's raining, but there's no intensity!");
+                        Utils.LogColor.RED) + "[ERROR] It's raining, but there's no valid intensity! (" + rainIntensity + ")");
                 }
+
+                if (message != null) if (acceptRainForDay || !mightBeSnowMelt)
+                    rainChannel.sendMessage(message).setSuppressedNotifications(new Utils().shouldIBeSilent(rainChannel)).queue();
+                else {
+                    sendConfirmationMessage("[CONFIRMATION NEEDED] " + message);
+                    idle = true;
+                }
+
+                if (!mightBeSnowMelt) previousTypeChannel = rainChannel;
             }
-        } else {
+        }
+
+        // Weather is no longer exciting, so cancel any existing scheduled snow
+        if (weatherName == null) {
             if (scheduledSnowMessage != null) {
                 scheduledSnowMessage.cancel(true);
                 scheduledSnowMessage = null;
@@ -323,12 +264,21 @@ public class Weather extends ListenerAdapter {
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         switch (event.getComponentId()) {
-            case "acceptrain" -> acceptRain(event);
-
-            case "acceptrainforday" -> {
+            case "acceptrain" -> {
                 acceptRainForDay = true;
-                acceptRain(event);
 
+                TextChannel rainChannel = StormAlerts.jda.getTextChannelById(900248256515285002L);
+                rainChannel.sendMessage(
+                    event.getMessage().getContentRaw().replaceFirst("\\[CONFIRMATION NEEDED] ", "")).queue();
+                event.getMessage().delete().queue();
+
+                StormAlerts.jda.getPresence().setStatus(OnlineStatus.ONLINE);
+                StormAlerts.jda.getPresence()
+                    .setActivity(Activity.watching("the rain @ " + rainRate + " in/hr"));
+                previousWeatherName = weatherName;
+                previousTypeChannel = rainChannel;
+
+                // Schedule a task to reset the acceptRainForDay variable at midnight
                 ZonedDateTime now = ZonedDateTime.now();
                 ZonedDateTime nextRun = now.withHour(0).withMinute(0).withSecond(0);
                 if (now.compareTo(nextRun) > 0) nextRun = nextRun.plusDays(1);
@@ -342,10 +292,10 @@ public class Weather extends ListenerAdapter {
             }
 
             case "unsurerain" -> {
-                event.deferEdit().queue();
                 TextChannel rainChannel = StormAlerts.jda.getTextChannelById(900248256515285002L);
                 rainChannel.sendMessage(
                     event.getMessage().getContentRaw().replaceFirst("\\[CONFIRMATION NEEDED] ", "")
+                        .replaceFirst("<@&843956362059841596>\n", "")
                         .replace("!", "! (May be snow melting in the rain gauge)")).queue();
                 event.getMessage().delete().queue();
 
@@ -357,22 +307,38 @@ public class Weather extends ListenerAdapter {
             }
 
             case "denyrain" -> {
-                event.deferEdit().queue();
+                rainDenied = true;
+                Executors.newSingleThreadScheduledExecutor()
+                    .schedule(() -> rainDenied = false, 1, TimeUnit.HOURS);
                 event.getMessage().delete().queue();
             }
         }
     }
 
-    public void acceptRain(ButtonInteractionEvent event) {
-        event.deferEdit().queue();
-        TextChannel rainChannel = StormAlerts.jda.getTextChannelById(900248256515285002L);
-        rainChannel.sendMessage(
-            event.getMessage().getContentRaw().replaceFirst("\\[CONFIRMATION NEEDED] ", "")).queue();
-        event.getMessage().delete().queue();
+    private String trimmedWeatherName() {
+        return weatherName.strip().replaceAll("\\s+\\S*$", "");
+    }
 
-        StormAlerts.jda.getPresence().setStatus(OnlineStatus.ONLINE);
-        StormAlerts.jda.getPresence().setActivity(Activity.watching("the rain @ " + rainRate + " in/hr"));
-        previousWeatherName = weatherName;
-        previousTypeChannel = rainChannel;
+    private void sendConfirmationMessage(String message) {
+        if (rainDenied) return;
+
+        TextChannel channel = StormAlerts.jda.getTextChannelById(921113488464695386L);
+
+        // Delete any old messages
+        try {
+            List<Message> latestMessages = new Utils().getMessages(channel, 6).get(30, TimeUnit.SECONDS);
+            if (!latestMessages.isEmpty())
+                for (Message messageToDelete : latestMessages) messageToDelete.delete().queue();
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            e.printStackTrace();
+        }
+
+        channel.sendMessage(message).setActionRow(
+            Button.success("acceptrain", "Accept for the day").withEmoji(Emoji.fromUnicode("✅")),
+            Button.secondary("unsurerain", "Unsure").withEmoji(Emoji.fromUnicode("❔")),
+            Button.danger("denyrain", "Deny for 1 hour").withEmoji(Emoji.fromUnicode("✖️"))).queue(
+            del -> del.delete().queueAfter(30, TimeUnit.MINUTES, null,
+                new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
     }
 }
