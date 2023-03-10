@@ -183,7 +183,7 @@ public class Weather extends ListenerAdapter {
 
                 // Send the snow message after 45 minutes IF it's still snowing by then
                 if (scheduleMessage) scheduledSnowMessage = Executors.newSingleThreadScheduledExecutor()
-                    .schedule(() -> sendSnowMessage(snowChannel, false), 15, TimeUnit.SECONDS);
+                    .schedule(() -> sendSnowMessage(snowChannel, false), 2705, TimeUnit.SECONDS);
 
             } else if (weather.equals("RAIN")) {
                 String ping = "";
