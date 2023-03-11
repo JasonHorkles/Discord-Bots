@@ -20,9 +20,12 @@ public class Events extends ListenerAdapter {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember()
             .getEffectiveName() + " used the /" + event.getName() + " command");
 
-        //noinspection SwitchStatementWithTooFewBranches
         switch (event.getName().toLowerCase()) {
             case "checknow" -> new Utils().updateNow(event);
+            case "updaterecords" -> {
+                event.reply("Updating records...").setEphemeral(true).queue();
+                new Records().checkRecords();
+            }
         }
     }
 

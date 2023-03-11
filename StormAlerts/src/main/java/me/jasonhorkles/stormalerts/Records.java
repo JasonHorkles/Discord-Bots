@@ -83,7 +83,7 @@ public class Records {
     }
 
     @SuppressWarnings("DataFlowIssue")
-    private void checkRecords() {
+    public void checkRecords() {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking records...");
 
         String totalFilePath = "StormAlerts/records.json";

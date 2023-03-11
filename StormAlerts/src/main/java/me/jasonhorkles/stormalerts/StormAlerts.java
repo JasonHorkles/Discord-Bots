@@ -38,7 +38,7 @@ public class StormAlerts extends ListenerAdapter {
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
         builder.disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS,
             CacheFlag.VOICE_STATE);
-        builder.enableIntents(GatewayIntent.GUILD_MESSAGES);
+        builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT);
         builder.setMemberCachePolicy(MemberCachePolicy.NONE);
         builder.setBulkDeleteSplittingEnabled(false);
         builder.setStatus(OnlineStatus.DO_NOT_DISTURB);
@@ -50,7 +50,8 @@ public class StormAlerts extends ListenerAdapter {
 
         //noinspection DataFlowIssue
         jda.getGuildById(843919716677582888L).updateCommands()
-            .addCommands(Commands.slash("checknow", "Force all checks")).queue();
+            .addCommands(Commands.slash("checknow", "Force all checks (except records)"),
+                Commands.slash("updaterecords", "Force the record checks")).queue();
 
 
         // Alerts
