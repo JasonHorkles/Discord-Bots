@@ -113,14 +113,13 @@ public class Utils {
             if (message.isEdited()) //noinspection DataFlowIssue
                 return message.getTimeEdited().isAfter(OffsetDateTime.now().minus(5, ChronoUnit.MINUTES));
             else return message.getTimeCreated().isAfter(OffsetDateTime.now().minus(5, ChronoUnit.MINUTES));
-
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             System.out.print(new Utils().getTime(LogColor.RED));
             e.printStackTrace();
-            return true;
+            return false;
 
         } catch (IndexOutOfBoundsException ignored) {
-            return true;
+            return false;
         }
     }
 
