@@ -21,11 +21,11 @@ import java.util.concurrent.TimeUnit;
 
 public class Pws {
     public static double currentRainRate = 0.00;
+    public static double lastAlertedWindGust = -1;
     public static double temperature = -1;
     public static double wm2 = -1;
 
     private static boolean rateLimited = false;
-    private static double lastAlertedWindGust = -1;
 
     @SuppressWarnings("DataFlowIssue")
     public void checkConditions() throws IOException {
@@ -185,14 +185,14 @@ public class Pws {
 
 
         // Wind alerts
-        if (windGust >= 30 && lastAlertedWindGust < windGust) {
+        if (windGust >= 20 && lastAlertedWindGust < windGust) {
             TextChannel windChannel = StormAlerts.jda.getTextChannelById(1028358818050080768L);
 
             String ping = "";
             if (new Utils().shouldIPing(windChannel)) ping = "<@&1046148944108978227>\n";
 
             String message = ping + "🍃 Wind gust of **" + windGust + " mph** detected!";
-            if (windGust >= 60) message += " <a:weewoo:1083615022455992382>";
+            if (windGust >= 50) message += " <a:weewoo:1083615022455992382>";
 
             windChannel.sendMessage(message)
                 .setSuppressedNotifications(new Utils().shouldIBeSilent(windChannel)).queue();
