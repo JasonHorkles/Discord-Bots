@@ -129,7 +129,7 @@ public class Weather extends ListenerAdapter {
         if (weatherName != null) {
             trimmedWeatherName = trimmedWeatherName();
 
-            if (weatherName.equals(previousWeatherName)) {
+            if (trimmedWeatherName.equals(previousWeatherName)) {
                 System.out.println(
                     new Utils().getTime(Utils.LogColor.YELLOW) + "The weather hasn't changed!");
                 dontSendAlerts = true;
@@ -267,7 +267,7 @@ public class Weather extends ListenerAdapter {
         } else StormAlerts.jda.getPresence()
             .setActivity(Activity.playing("it's " + weatherName + " (" + weather + ")"));
 
-        previousWeatherName = weatherName;
+        previousWeatherName = trimmedWeatherName;
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Weather: " + weather);
     }
@@ -287,7 +287,7 @@ public class Weather extends ListenerAdapter {
                 StormAlerts.jda.getPresence().setStatus(OnlineStatus.ONLINE);
                 StormAlerts.jda.getPresence()
                     .setActivity(Activity.watching("the rain @ " + rainRate + " in/hr"));
-                previousWeatherName = weatherName;
+                previousWeatherName = trimmedWeatherName();
                 previousTypeChannel = rainChannel;
 
                 // Schedule a task to reset the acceptRainForDay variable at midnight
