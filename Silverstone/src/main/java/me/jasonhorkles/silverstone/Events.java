@@ -69,9 +69,6 @@ public class Events extends ListenerAdapter {
                 event.reply("Get LuckPerms help here: https://discord.gg/luckperms").setEphemeral(ephemeral)
                     .queue();
         }
-
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember()
-            .getEffectiveName() + " used the /" + event.getName() + " command");
     }
 
     @Override
