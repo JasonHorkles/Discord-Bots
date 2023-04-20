@@ -4,6 +4,7 @@ import me.jasonhorkles.thedawg.lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -50,6 +51,52 @@ public class Events extends ListenerAdapter {
         currentVoiceChannel = event.getGuild();
         PlayerManager.getInstance().getMusicManager(event.getGuild()).player.setVolume(100);
         PlayerManager.getInstance().loadAndPlay(file);
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    @Override
+    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember()
+            .getEffectiveName() + " used the /" + event.getName() + " command");
+
+        //noinspection SwitchStatementWithTooFewBranches
+        switch (event.getName().toLowerCase()) {
+            case "zebra" -> {
+                if (event.getMember().getIdLong() != 277291758503723010L) {
+                    String image = "You broke it!";
+                    switch (new Random().nextInt(9)) {
+                        case 0 ->
+                            image = "https://media.discordapp.net/attachments/335445132520194058/1098675297873838161/Plains_Zebra_Equus_quagga.png?width=447&height=671";
+                        case 1 ->
+                            image = "https://media.discordapp.net/attachments/335445132520194058/1098675298469412875/hero_zebra_animals.png?width=1193&height=671";
+                        case 2 ->
+                            image = "https://media.discordapp.net/attachments/335445132520194058/1098675299090178048/HjFE8NKWuCmgfHCcndJ3rK-1200-80.png";
+                        case 3 ->
+                            image = "https://media.discordapp.net/attachments/335445132520194058/1098675299383787602/GettyImages-520064858-79cc024.png";
+                        case 4 ->
+                            image = "https://media.discordapp.net/attachments/335445132520194058/1098675299681566812/maxresdefault.png?width=1193&height=671";
+                        case 5 ->
+                            image = "https://media.discordapp.net/attachments/335445132520194058/1098675299954204854/zebra-laugh.png";
+                        case 6 ->
+                            image = "https://media.discordapp.net/attachments/335445132520194058/1098675300289757245/zebra-portrait-adorable-animal-face-looking-to-the-camera.png";
+                        case 7 ->
+                            image = "https://media.discordapp.net/attachments/335445132520194058/1098675300549787708/360_F_216467464_75xb1uxe025pyWMAkMxlUPRHzS8zETDB.png";
+                        case 8 ->
+                            image = "https://media.discordapp.net/attachments/335445132520194058/1098675300801454190/zebraclimb.png";
+                    }
+                    event.reply(image).setEphemeral(true).queue();
+
+                } else {
+                    if (event.getOption("zebra") == null) {
+                        event.reply("You didn't provide anything to say!").setEphemeral(true).queue();
+                        return;
+                    }
+
+                    event.getChannel().sendMessage(event.getOption("zebra").getAsString()).queue();
+                    event.reply("Tada!").setEphemeral(true).queue();
+                }
+            }
+        }
     }
 
     private boolean isLive() {

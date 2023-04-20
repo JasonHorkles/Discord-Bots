@@ -4,6 +4,8 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -30,6 +32,11 @@ public class TheDawg {
         jda = builder.build();
 
         jda.awaitReady();
+
+        //noinspection DataFlowIssue
+        jda.getGuildById(605786572519899206L).updateCommands().addCommands(
+                Commands.slash("zebra", "Free zebras").addOption(OptionType.STRING, "zebra", "The zebra", false))
+            .queue();
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new TheDawg().shutdown(), "Shutdown Hook"));
