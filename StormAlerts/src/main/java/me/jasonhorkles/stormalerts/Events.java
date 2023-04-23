@@ -4,6 +4,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
@@ -117,5 +119,18 @@ public class Events extends ListenerAdapter {
                 }, "Add Roles - " + member.getEffectiveName()).start();
             }
         }
+    }
+
+    @Override
+    public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
+        User user = event.getUser();
+
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setTitle(user.getAsTag() + " has left the server");
+        embed.setDescription(user.getAsMention());
+        embed.setThumbnail(user.getAvatarUrl());
+        embed.setColor(new Color(255, 200, 0));
+
+        event.getJDA().getTextChannelById(1093060038265950238L).sendMessageEmbeds(embed.build()).queue();
     }
 }
