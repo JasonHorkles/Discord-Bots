@@ -189,14 +189,9 @@ public class Weather extends ListenerAdapter {
                 String ping = "";
                 if (new Utils().shouldIPing(rainChannel)) ping = "<@&843956362059841596>\n";
 
-                boolean mightBeSnowMelt = false;
-
-                // If it has snowed in the last 3 days
-                if (new Utils().getMessages(snowChannel, 1).get(30, TimeUnit.SECONDS).get(0).getTimeCreated()
-                    .isAfter(OffsetDateTime.now().minusDays(3)))
-                    // And if it's bright enough outside (AKA not cloudy/raining)
-                    if ((int) Pws.wm2 >= 75) mightBeSnowMelt = true;
-
+                // If it's bright enough outside (AKA not cloudy/raining), set to true
+                boolean mightBeSnowMelt = (int) Pws.wm2 >= 75;
+                
                 String message = null;
                 switch (rainIntensity) {
                     case 4 -> {
