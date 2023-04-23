@@ -213,21 +213,26 @@ public class Pws {
         if (previousLightningTime.equals(lightningTimeLong)) return;
         if (lightningTimeLong < System.currentTimeMillis() - 600000) return;
 
-        int lightningDistance = Math.toIntExact(
-            Math.round(Double.parseDouble(new Utils().getJsonKey(input, "lightning_distance", true))));
-        String s = "s";
-        if (lightningDistance == 1) s = "";
+        if (lightningToday > 1) {
+            int lightningDistance = Math.toIntExact(
+                Math.round(Double.parseDouble(new Utils().getJsonKey(input, "lightning_distance", true))));
+            String s = "s";
+            if (lightningDistance == 1) s = "";
 
-        TextChannel lightningChannel = StormAlerts.jda.getTextChannelById(899876734999089192L);
+            TextChannel lightningChannel = StormAlerts.jda.getTextChannelById(899876734999089192L);
 
-        String ping = "";
-        if (new Utils().shouldIPing(lightningChannel)) ping = "<@&896877424824954881>\n";
+            String ping = "";
+            if (new Utils().shouldIPing(lightningChannel)) ping = "<@&896877424824954881>\n";
 
-        String message = ping + "🌩️ Lightning detected **~" + lightningDistance + " mile" + s + "** from Eastern Farmington <t:" + (lightningTimeLong / 1000) + ":R>!";
-        if (lightningDistance <= 2) message += " <a:weewoo:1083615022455992382>";
+            String message = ping + "🌩️ Lightning detected **~" + lightningDistance + " mile" + s + "** from Eastern Farmington <t:" + (lightningTimeLong / 1000) + ":R>!";
+            if (lightningDistance <= 2) message += " <a:weewoo:1083615022455992382>";
 
-        lightningChannel.sendMessage(message)
-            .setSuppressedNotifications(new Utils().shouldIBeSilent(lightningChannel)).queue();
+            // Always send silent if lightning is more than 15 miles away
+            if (lightningDistance > 15)
+                lightningChannel.sendMessage(message).setSuppressedNotifications(true).queue();
+            else lightningChannel.sendMessage(message)
+                .setSuppressedNotifications(new Utils().shouldIBeSilent(lightningChannel)).queue();
+        }
 
         FileWriter fw = new FileWriter(file, false);
         fw.write(lightningTime);
