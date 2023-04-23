@@ -67,7 +67,7 @@ public class Events extends ListenerAdapter {
 
         if (!text.contains("PHOENELLA") && !isReply && channel.getIdLong() != 892802385301352548L) return;
 
-        text = text.replace("  ", " ").replaceAll(" ?PHOENELLA ?", "");
+        text = text.replace("  ", " ").replaceAll(" ?PHOENELLA ?", "").toLowerCase();
 
         // Utility
 
