@@ -2,6 +2,7 @@ package me.jasonhorkles.aircheck;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -24,12 +25,21 @@ public class Utils {
         }
     }
 
-    public String getTime(LogColor logColor) {
+    public String getTime(@Nullable LogColor logColor) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm:ss a");
-        return logColor.getLogColor() + "[" + dtf.format(LocalDateTime.now()) + "] ";
+        String time = "[" + dtf.format(LocalDateTime.now()) + "] ";
+
+        if (logColor == null) return time;
+        return logColor.getLogColor() + time;
     }
 
     public CompletableFuture<List<Message>> getMessages(MessageChannel channel, int count) {
         return channel.getIterableHistory().takeAsync(count).thenApply(ArrayList::new);
+    }
+
+    public void logError(Exception e) {
+        //noinspection DataFlowIssue
+        AirCheck.jda.getTextChannelById(1093060038265950238L).sendMessage(
+            "```accesslog\n" + getTime(null) + e + "\n" + e.fillInStackTrace() + "```").queue();
     }
 }

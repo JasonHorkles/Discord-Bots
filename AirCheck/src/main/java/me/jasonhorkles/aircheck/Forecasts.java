@@ -284,6 +284,7 @@ public class Forecasts {
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
+            new Utils().logError(e);
         }
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got the forecasts!");

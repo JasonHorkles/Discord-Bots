@@ -38,7 +38,8 @@ public class StormAlerts extends ListenerAdapter {
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
         builder.disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS,
             CacheFlag.VOICE_STATE);
-        builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS);
+        builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT,
+            GatewayIntent.GUILD_MEMBERS);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setBulkDeleteSplittingEnabled(false);
         builder.setStatus(OnlineStatus.DO_NOT_DISTURB);
@@ -62,6 +63,7 @@ public class StormAlerts extends ListenerAdapter {
                 System.out.println(
                     new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!");
                 e.printStackTrace();
+                new Utils().logError(e);
             }
         }, 1, 180, TimeUnit.SECONDS));
 
@@ -82,6 +84,7 @@ public class StormAlerts extends ListenerAdapter {
                 if (reason.equals("")) {
                     System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
+                    new Utils().logError(e);
                 }
             }
         }, 3, 90, TimeUnit.SECONDS));
@@ -97,6 +100,7 @@ public class StormAlerts extends ListenerAdapter {
                 e.printStackTrace();
                 jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
                 jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
+                new Utils().logError(e);
             }
         }, 5, 90, TimeUnit.SECONDS));
 
@@ -106,6 +110,7 @@ public class StormAlerts extends ListenerAdapter {
         } catch (Exception e) {
             System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Error grabbing the records!");
             e.printStackTrace();
+            new Utils().logError(e);
         }
 
         // Schedule traffic checks
@@ -145,6 +150,7 @@ public class StormAlerts extends ListenerAdapter {
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
+            new Utils().logError(e);
         }
 
         // Add shutdown hooks
@@ -199,6 +205,7 @@ public class StormAlerts extends ListenerAdapter {
 
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
+            new Utils().logError(e);
 
             jda.openPrivateChannelById(277291758503723010L).flatMap(channel -> channel.sendMessage(
                 MessageFormat.format(
@@ -223,6 +230,7 @@ public class StormAlerts extends ListenerAdapter {
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
+                new Utils().logError(e);
             }
 
             if (!message.getContentRaw().contains("Ended") && !message.getContentRaw().contains("restarted"))

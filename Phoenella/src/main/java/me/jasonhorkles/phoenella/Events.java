@@ -378,7 +378,7 @@ public class Events extends ListenerAdapter {
                 message.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
 
             } catch (IOException e) {
-                message.reply(e.getMessage()).mentionRepliedUser(false).queue();
+                message.reply(e.toString()).mentionRepliedUser(false).queue();
                 System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
 

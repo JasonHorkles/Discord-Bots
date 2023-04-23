@@ -37,9 +37,12 @@ public class Utils {
         }
     }
 
-    public String getTime(LogColor logColor) {
+    public String getTime(@Nullable LogColor logColor) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm:ss a");
-        return logColor.getLogColor() + "[" + dtf.format(LocalDateTime.now()) + "] ";
+        String time = "[" + dtf.format(LocalDateTime.now()) + "] ";
+
+        if (logColor == null) return time;
+        return logColor.getLogColor() + time;
     }
 
     String value;
@@ -72,6 +75,7 @@ public class Utils {
                 } catch (Exception e) {
                     System.out.print(new Utils().getTime(LogColor.RED));
                     e.printStackTrace();
+                    new Utils().logError(e);
                 }
             }
         } else {
@@ -97,6 +101,7 @@ public class Utils {
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             System.out.print(new Utils().getTime(LogColor.RED));
             e.printStackTrace();
+            new Utils().logError(e);
             return true;
 
         } catch (IndexOutOfBoundsException ignored) {
@@ -116,6 +121,7 @@ public class Utils {
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             System.out.print(new Utils().getTime(LogColor.RED));
             e.printStackTrace();
+            new Utils().logError(e);
             return false;
 
         } catch (IndexOutOfBoundsException ignored) {
@@ -137,6 +143,7 @@ public class Utils {
         } catch (Exception e) {
             System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!");
             e.printStackTrace();
+            new Utils().logError(e);
             error = "Couldn't get the alerts!";
         }
 
@@ -149,6 +156,7 @@ public class Utils {
             System.out.println(
                 new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!");
             e.printStackTrace();
+            new Utils().logError(e);
             error = "Couldn't get the PWS conditions!";
         }
 
@@ -162,11 +170,18 @@ public class Utils {
             System.out.println(
                 new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
             e.printStackTrace();
+            new Utils().logError(e);
             error = "Couldn't get the weather conditions!";
             StormAlerts.jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
             StormAlerts.jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
         }
 
         if (isSlash) event.getHook().editOriginal(error).complete();
+    }
+
+    public void logError(Exception e) {
+        //noinspection DataFlowIssue
+        StormAlerts.jda.getTextChannelById(1093060038265950238L).sendMessage(
+            "```accesslog\n" + getTime(null) + e + "\n" + e.fillInStackTrace() + "```").queue();
     }
 }

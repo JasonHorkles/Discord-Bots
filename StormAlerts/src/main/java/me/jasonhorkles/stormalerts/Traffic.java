@@ -60,12 +60,14 @@ public class Traffic {
                     } catch (InterruptedException e) {
                         System.out.print(new Utils().getTime(Utils.LogColor.RED));
                         e.printStackTrace();
+                        new Utils().logError(e);
                     }
                 }
 
             } catch (Exception e) {
                 System.out.print(new Utils().getTime(Utils.LogColor.RED));
                 e.printStackTrace();
+                new Utils().logError(e);
 
                 StormAlerts.jda.openPrivateChannelById(277291758503723010L)
                     .flatMap(channel -> channel.sendMessage("**Failed to check traffic!** :warning:"))

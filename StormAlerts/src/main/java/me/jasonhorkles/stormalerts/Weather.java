@@ -179,6 +179,7 @@ public class Weather extends ListenerAdapter {
                 } catch (Exception e) {
                     System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
+                    new Utils().logError(e);
                 }
 
                 // Send the snow message after 45 minutes IF it's still snowing by then
@@ -339,6 +340,7 @@ public class Weather extends ListenerAdapter {
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
+            new Utils().logError(e);
         }
 
         channel.sendMessage(message).setActionRow(

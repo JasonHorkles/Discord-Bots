@@ -151,7 +151,7 @@ public class Utils {
             return message;
         } catch (IOException e) {
             if (e.getMessage().contains("Status=501")) return "501";
-            else return "`ERROR: " + e.getMessage() + "`";
+            else return "`ERROR: " + e + "`";
         }
     }
 

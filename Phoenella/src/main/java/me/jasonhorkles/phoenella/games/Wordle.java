@@ -174,7 +174,7 @@ public class Wordle extends ListenerAdapter {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
 
-            message.reply("<@277291758503723010> `" + e.getMessage() + "`").queue();
+            message.reply("<@277291758503723010> `" + e + "`").queue();
             message.delete().queueAfter(150, TimeUnit.MILLISECONDS);
             return;
         }

@@ -42,6 +42,8 @@ public class AirCheck {
                 System.out.println(
                     new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the air quality!");
                 e.printStackTrace();
+                new Utils().logError(e);
+
                 jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
                 jda.getPresence().setActivity(Activity.playing("⚠ Error"));
             }
@@ -56,6 +58,7 @@ public class AirCheck {
                 System.out.println(
                     new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the forecasts!");
                 e.printStackTrace();
+                new Utils().logError(e);
             }
         }, 2, 10800, TimeUnit.SECONDS));
 

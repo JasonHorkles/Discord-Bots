@@ -202,6 +202,7 @@ public class Records {
         } catch (Exception e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
+            new Utils().logError(e);
         }
 
         // Reset the values for new day
