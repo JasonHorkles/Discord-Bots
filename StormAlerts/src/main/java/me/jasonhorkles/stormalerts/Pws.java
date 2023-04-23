@@ -185,18 +185,18 @@ public class Pws {
 
 
         // Wind alerts
-        if (windGust >= 20 && lastAlertedWindGust < windGust) {
+        if (windMax >= 20 && lastAlertedWindGust < windMax) {
             TextChannel windChannel = StormAlerts.jda.getTextChannelById(1028358818050080768L);
 
             String ping = "";
             if (new Utils().shouldIPing(windChannel)) ping = "<@&1046148944108978227>\n";
 
-            String message = ping + "🍃 Wind gust of **" + windGust + " mph** detected!";
-            if (windGust >= 50) message += " <a:weewoo:1083615022455992382>";
+            String message = ping + "🍃 Wind gust of **" + windMax + " mph** detected!";
+            if (windMax >= 50) message += " <a:weewoo:1083615022455992382>";
 
             windChannel.sendMessage(message)
                 .setSuppressedNotifications(new Utils().shouldIBeSilent(windChannel)).queue();
-            lastAlertedWindGust = windGust;
+            lastAlertedWindGust = windMax;
         }
 
 
