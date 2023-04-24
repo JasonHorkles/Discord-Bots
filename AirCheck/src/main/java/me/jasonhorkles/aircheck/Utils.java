@@ -38,8 +38,13 @@ public class Utils {
     }
 
     public void logError(Exception e) {
+        StringBuilder error = new StringBuilder("```accesslog\n");
+        error.append(getTime(null)).append(e);
+        for (StackTraceElement element : e.getStackTrace())
+            if (element.toString().contains("jasonhorkles")) error.append("\n").append(element);
+        error.append("```");
+
         //noinspection DataFlowIssue
-        AirCheck.jda.getTextChannelById(1093060038265950238L).sendMessage(
-            "```accesslog\n" + getTime(null) + e + "\n" + e.fillInStackTrace() + "```").queue();
+        AirCheck.jda.getTextChannelById(1093060038265950238L).sendMessage(error).queue();
     }
 }
