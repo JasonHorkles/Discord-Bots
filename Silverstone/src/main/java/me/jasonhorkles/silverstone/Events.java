@@ -55,7 +55,7 @@ public class Events extends ListenerAdapter {
                 """).setEphemeral(ephemeral).queue();
 
             case "plugins" -> event.reply(
-                    "See Jason's plugins at: <https://www.spigotmc.org/resources/authors/jasonhorkles.339646/>")
+                    "See Jason's plugins at: <https://hangar.papermc.io/JasonHorkles>")
                 .setEphemeral(ephemeral).queue();
 
             case "tutorials" -> event.reply(
@@ -87,6 +87,7 @@ public class Events extends ListenerAdapter {
                 }
 
         // Thanks for coming :)
+//todo add hangar links too
         if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD)
             if (event.getGuildChannel().asThreadChannel().getParentChannel()
                 .getIdLong() == 1023735878075564042L && event.getAuthor()
