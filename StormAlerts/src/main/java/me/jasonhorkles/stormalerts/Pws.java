@@ -105,10 +105,6 @@ public class Pws {
             Records.highestTempToday = temperature;
             Records.highestTempTime = System.currentTimeMillis() / 1000;
         }
-        if (uv > Records.highestUvToday) {
-            Records.highestUvToday = uv;
-            Records.highestUvTime = System.currentTimeMillis() / 1000;
-        }
         if (windMax > Records.maxWindToday) {
             Records.maxWindToday = windMax;
             Records.maxWindTime = System.currentTimeMillis() / 1000;

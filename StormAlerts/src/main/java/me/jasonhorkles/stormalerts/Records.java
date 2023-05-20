@@ -20,14 +20,12 @@ public class Records {
     public static double maxRainAmountToday;
     public static double maxRainRateToday;
     public static int highestLightningRateToday;
-    public static int highestUvToday;
     public static int maxLightningToday;
     public static int maxWindToday;
 
     // Time of stats, in epoch seconds
     public static long highestLightningRateTime;
     public static long highestTempTime;
-    public static long highestUvTime;
     public static long lowestTempTime;
     public static long maxLightningTime;
     public static long maxRainAmountTime;
@@ -48,7 +46,6 @@ public class Records {
             // Stats
             highestLightningRateToday = recordsToday.getInt("highLightningRate");
             highestTempToday = recordsToday.getDouble("highTemp");
-            highestUvToday = recordsToday.getInt("highUv");
             lowestTempToday = recordsToday.getDouble("lowTemp");
             maxLightningToday = recordsToday.getInt("maxLightning");
             maxRainAmountToday = recordsToday.getDouble("maxRainAmount");
@@ -58,7 +55,6 @@ public class Records {
             // Times
             highestLightningRateTime = recordsToday.getLong("highLightningRateTime");
             highestTempTime = recordsToday.getLong("highTempTime");
-            highestUvTime = recordsToday.getLong("highUvTime");
             lowestTempTime = recordsToday.getLong("lowTempTime");
             maxLightningTime = recordsToday.getLong("maxLightningTime");
             maxRainAmountTime = recordsToday.getLong("maxRainAmountTime");
@@ -106,13 +102,6 @@ public class Records {
                     records.getDouble("highTemp") + "°", records.getLong("highTempTime"));
                 records.put("highTemp", highestTempToday);
                 records.put("highTempTime", highestTempTime);
-            }
-
-            if (highestUvToday > records.getInt("highUv")) {
-                sendRecordMessage("High UV index", String.valueOf(highestUvToday), highestUvTime,
-                    String.valueOf(records.getInt("highUv")), records.getLong("highUvTime"));
-                records.put("highUv", highestUvToday);
-                records.put("highUvTime", highestUvTime);
             }
 
             if (lowestTempToday < records.getDouble("lowTemp")) {
@@ -169,11 +158,6 @@ public class Records {
             if (!highTempChannel.getName().equals("Temp High | " + highTemp + "°"))
                 highTempChannel.getManager().setName("Temp High | " + highTemp + "°").queue();
 
-            int highUv = records.getInt("highUv");
-            VoiceChannel highUvChannel = StormAlerts.jda.getVoiceChannelById(1059213701250560032L);
-            if (!highUvChannel.getName().equals("UV Index | " + highUv))
-                highUvChannel.getManager().setName("UV Index | " + highUv).queue();
-
             double rainRate = records.getDouble("maxRainRate");
             VoiceChannel rainRateChannel = StormAlerts.jda.getVoiceChannelById(1059213828015013948L);
             if (!rainRateChannel.getName().equals("Rain | " + rainRate + " in/hr"))
@@ -224,7 +208,6 @@ public class Records {
     private void resetValues() {
         highestLightningRateToday = -1;
         highestTempToday = -1;
-        highestUvToday = -1;
         lowestTempToday = Integer.MAX_VALUE;
         maxLightningToday = -1;
         maxRainAmountToday = -1;
@@ -233,7 +216,6 @@ public class Records {
 
         highestLightningRateTime = 0;
         highestTempTime = 0;
-        highestUvTime = 0;
         lowestTempTime = 0;
         maxLightningTime = 0;
         maxRainAmountTime = 0;

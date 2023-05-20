@@ -179,7 +179,6 @@ public class StormAlerts extends ListenerAdapter {
             JSONObject allRecords = new JSONObject();
             allRecords.put("highLightningRate", Records.highestLightningRateToday);
             allRecords.put("highTemp", Records.highestTempToday);
-            allRecords.put("highUv", Records.highestUvToday);
             allRecords.put("lowTemp", Records.lowestTempToday);
             allRecords.put("maxLightning", Records.maxLightningToday);
             allRecords.put("maxRainAmount", Records.maxRainAmountToday);
@@ -188,7 +187,6 @@ public class StormAlerts extends ListenerAdapter {
 
             allRecords.put("highLightningRateTime", Records.highestLightningRateTime);
             allRecords.put("highTempTime", Records.highestTempTime);
-            allRecords.put("highUvTime", Records.highestUvTime);
             allRecords.put("lowTempTime", Records.lowestTempTime);
             allRecords.put("maxLightningTime", Records.maxLightningTime);
             allRecords.put("maxRainAmountTime", Records.maxRainAmountTime);
@@ -210,12 +208,11 @@ public class StormAlerts extends ListenerAdapter {
             jda.openPrivateChannelById(277291758503723010L).flatMap(channel -> channel.sendMessage(
                 MessageFormat.format(
                     "Error saving records file!\nLightning rate: {0}:{8}\nTemp high: {1}:{9}\nUV high: {2}:{10}\nTemp low: {3}:{11}\nLightning today: {4}:{12}\nRain today: {5}:{13}\nRain rate: {6}:{14}\nWind: {7}:{15}",
-                    Records.highestLightningRateToday, Records.highestTempToday, Records.highestUvToday,
-                    Records.lowestTempToday, Records.maxLightningToday, Records.maxRainAmountToday,
-                    Records.maxRainRateToday, Records.maxWindToday, Records.highestLightningRateTime,
-                    Records.highestTempTime, Records.highestUvTime, Records.lowestTempTime,
-                    Records.maxLightningTime, Records.maxRainAmountTime, Records.maxRainRateTime,
-                    Records.maxWindTime))).complete();
+                    Records.highestLightningRateToday, Records.highestTempToday, Records.lowestTempToday,
+                    Records.maxLightningToday, Records.maxRainAmountToday, Records.maxRainRateToday,
+                    Records.maxWindToday, Records.highestLightningRateTime, Records.highestTempTime,
+                    Records.lowestTempTime, Records.maxLightningTime, Records.maxRainAmountTime,
+                    Records.maxRainRateTime, Records.maxWindTime))).complete();
         }
 
         if (!scheduledTimers.isEmpty()) for (ScheduledFuture<?> task : scheduledTimers) task.cancel(true);
