@@ -21,6 +21,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.ParseException;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.*;
@@ -28,7 +29,7 @@ import java.util.concurrent.*;
 @SuppressWarnings({"DataFlowIssue"})
 public class StormAlerts extends ListenerAdapter {
     public static final ArrayList<ScheduledFuture<?>> scheduledTimers = new ArrayList<>();
-    public static final boolean testing = false;
+    public static final boolean testing = true;
     public static JDA jda;
 
 
@@ -54,6 +55,20 @@ public class StormAlerts extends ListenerAdapter {
             .addCommands(Commands.slash("checknow", "Force all checks (except records)"),
                 Commands.slash("updaterecords", "Force the record checks")).queue();
 
+        // Cache wind speed
+        try {
+            Message windMessage = new Utils().getMessages(jda.getTextChannelById(1028358818050080768L), 1).get(30, TimeUnit.SECONDS)
+                .get(0);
+            if (windMessage != null) {
+                OffsetDateTime fiveHoursAgo = OffsetDateTime.now().minusHours(5);
+                if (windMessage.getTimeCreated().isAfter(fiveHoursAgo))
+                    Pws.lastAlertedWindGust = Integer.parseInt(windMessage.getContentRaw().split(" ")[0]);
+            }
+        } catch (ExecutionException | TimeoutException e) {
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            e.printStackTrace();
+            new Utils().logError(e);
+        }
 
         // Alerts
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
