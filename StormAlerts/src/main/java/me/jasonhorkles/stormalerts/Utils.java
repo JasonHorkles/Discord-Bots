@@ -91,6 +91,8 @@ public class Utils {
     }
 
     public boolean shouldIPing(TextChannel channel) {
+        if (StormAlerts.testing) return true;
+        
         try {
             Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).get(0);
 
@@ -110,6 +112,8 @@ public class Utils {
     }
 
     public boolean shouldIBeSilent(TextChannel channel) {
+        if (StormAlerts.testing) return true;
+        
         // Set whether or not the message should be silent (e.g. right after a restart)
         try {
             Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).get(0);
