@@ -91,7 +91,7 @@ public class Utils {
     }
 
     public boolean shouldIPing(TextChannel channel) {
-        if (StormAlerts.testing) return true;
+        if (StormAlerts.testing) return false;
         
         try {
             Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).get(0);
