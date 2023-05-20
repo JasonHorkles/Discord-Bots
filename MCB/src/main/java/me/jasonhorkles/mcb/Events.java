@@ -77,7 +77,7 @@ public class Events extends ListenerAdapter {
                 if (event.getMessage().getCategory().getIdLong() == 720690619822899231L) appendTicket = false;
 
             if (appendTicket) message.append(
-                "\nIf there's a problem, make a ticket by typing `/tickets open <subject>` in any channel.");
+                "\nIf there's a problem, make a ticket by running </tickets open:839848848003825673>");
 
             if (warnings.get(id) > 1) message.append("\n\n*Warning ").append(warnings.get(id)).append("/3*");
 
