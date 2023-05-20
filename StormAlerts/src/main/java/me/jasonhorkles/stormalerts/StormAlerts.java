@@ -57,12 +57,14 @@ public class StormAlerts extends ListenerAdapter {
 
         // Cache wind speed
         try {
-            Message windMessage = new Utils().getMessages(jda.getTextChannelById(1028358818050080768L), 1).get(30, TimeUnit.SECONDS)
-                .get(0);
+            Message windMessage = new Utils().getMessages(jda.getTextChannelById(1028358818050080768L), 1)
+                .get(30, TimeUnit.SECONDS).get(0);
             if (windMessage != null) {
                 OffsetDateTime fiveHoursAgo = OffsetDateTime.now().minusHours(5);
                 if (windMessage.getTimeCreated().isAfter(fiveHoursAgo))
-                    Pws.lastAlertedWindGust = Integer.parseInt(windMessage.getContentRaw().split(" ")[0]);
+                    Pws.lastAlertedWindGust = Integer.parseInt(
+                        windMessage.getContentStripped().replace("\n", " ").replaceFirst(".*of ", "")
+                            .replaceFirst(" mph.*", ""));
             }
         } catch (ExecutionException | TimeoutException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
