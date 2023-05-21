@@ -49,24 +49,27 @@ public class Weather extends ListenerAdapter {
         boolean weatherOffline = false;
 
         if (!StormAlerts.testing) try {
-            String page = "https://www.google.com/search?q=" + new Secrets().getWeatherSearch();
-            Connection conn = Jsoup.connect(page).timeout(15000);
+            Connection conn = Jsoup.connect(
+                "https://www.google.com/search?q=" + new Secrets().getWeatherSearch()).timeout(15000);
             Document doc = conn.get();
             weather = doc.body().getElementsByClass("wob_dcp").get(0).text();
 
-            String apiUrl = "https://api.weather.gov/stations/" + new Secrets().getNwsStation() + "/observations/latest";
-            InputStream stream = new URL(apiUrl).openStream();
-            Scanner scanner = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A");
+            InputStream url = new URL(
+                "https://api.weather.gov/stations/" + new Secrets().getNwsStation() + "/observations/latest").openStream();
+            Scanner scanner = new Scanner(url, StandardCharsets.UTF_8).useDelimiter("\\A");
             while (scanner.hasNextLine()) visibilityInput.append(scanner.nextLine());
-            stream.close();
+            url.close();
+            
         } catch (SocketTimeoutException ignored) {
             System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Timed out checking the weather!");
             weatherOffline = true;
+
         } catch (IndexOutOfBoundsException ignored) {
             System.out.println(
                 new Utils().getTime(Utils.LogColor.RED) + "Couldn't get the weather! (No Results)");
             weatherOffline = true;
         }
+
         else {
             Scanner weatherScanner = new Scanner(new File("StormAlerts/Tests/weather.txt"));
             Scanner visibilityScanner = new Scanner(new File("StormAlerts/Tests/visibility.json"));
@@ -192,7 +195,7 @@ public class Weather extends ListenerAdapter {
 
                 // If it's bright enough outside (AKA not cloudy/raining), set to true
                 boolean mightBeSnowMelt = (int) Pws.wm2 >= 75;
-                
+
                 String message = null;
                 switch (rainIntensity) {
                     case 4 -> {

@@ -33,11 +33,11 @@ public class Alerts {
         StringBuilder input = new StringBuilder();
 
         if (!StormAlerts.testing) {
-            String apiUrl = "https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&zone=" + new Secrets().getAlertZone();
-            InputStream stream = new URL(apiUrl).openStream();
-            Scanner scanner = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A");
+            InputStream url = new URL(
+                "https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&zone=" + new Secrets().getAlertZone()).openStream();
+            Scanner scanner = new Scanner(url, StandardCharsets.UTF_8).useDelimiter("\\A");
             while (scanner.hasNextLine()) input.append(scanner.nextLine());
-            stream.close();
+            url.close();
 
         } else {
             File file = new File("StormAlerts/Tests/alerts-empty.json");
