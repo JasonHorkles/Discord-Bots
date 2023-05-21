@@ -72,12 +72,12 @@ public class Traffic {
             if (currentSpeed <= 55 && currentSpeed >= 40)
                 StormAlerts.jda.openPrivateChannelById(277291758503723010L).flatMap(
                         channel -> channel.sendMessage("**" + new Secrets().getRoadName(
-                            north) + "** has a slowdown @ **" + currentSpeed + " mph**! Jam factor: **" + jamFactor + "/10.0** :yellow_circle:"))
+                            north) + "** has a slowdown @ **" + currentSpeed + " mph**!\nJam factor: **" + jamFactor + "/10.0** :yellow_circle:"))
                     .queue();
 
             else if (currentSpeed < 40) StormAlerts.jda.openPrivateChannelById(277291758503723010L).flatMap(
                     channel -> channel.sendMessage("**" + new Secrets().getRoadName(
-                        north) + "** has a slowdown @ **" + currentSpeed + " mph**! Jam factor: **" + jamFactor + "/10.0** :red_circle:"))
+                        north) + "** has a slowdown @ **" + currentSpeed + " mph**!\nJam factor: **" + jamFactor + "/10.0** :red_circle:"))
                 .queue();
 
         } catch (Exception e) {
