@@ -36,12 +36,12 @@ public class Traffic {
             JSONArray input;
             if (!StormAlerts.testing) {
                 InputStream url = new URL(
-                    "https://data.traffic.hereapi.com/v7/flow?in=circle:" + new Secrets().getTrafficCoords() + ";r=10&locationReferencing=tmc&apiKey=" + new Secrets().getTrafficApiKey()).openStream();
+                    "https://data.traffic.hereapi.com/v7/flow?in=circle:" + new Secrets().getTrafficCoords() + ";r=10&locationReferencing=none&apiKey=" + new Secrets().getTrafficApiKey()).openStream();
                 JSONObject obj = new JSONObject(
                     new Scanner(url, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine());
                 url.close();
 
-                input = new JSONObject(obj).getJSONArray("results");
+                input = obj.getJSONArray("results");
             } else {
                 File file = new File("StormAlerts/Tests/traffic.json");
                 Scanner fileScanner = new Scanner(file);
