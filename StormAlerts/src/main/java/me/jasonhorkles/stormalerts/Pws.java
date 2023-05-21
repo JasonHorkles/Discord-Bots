@@ -32,7 +32,6 @@ public class Pws {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking PWS conditions...");
 
         JSONObject input;
-
         if (!StormAlerts.testing) {
             InputStream url = new URL(
                 "https://api.ambientweather.net/v1/devices/?apiKey=" + new Secrets().getAwApiKey() + "&applicationKey=" + new Secrets().getAwAppKey()).openStream();
