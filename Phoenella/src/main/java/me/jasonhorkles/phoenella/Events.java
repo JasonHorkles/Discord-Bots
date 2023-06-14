@@ -567,7 +567,7 @@ public class Events extends ListenerAdapter {
         Guild guild = event.getGuild();
         String newNickname = event.getNewNickname();
 
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember().getUser()
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + member.getUser()
             .getAsTag() + " changed their nickname from '" + event.getOldNickname() + "' to '" + newNickname + "'");
 
         // If not sushed
