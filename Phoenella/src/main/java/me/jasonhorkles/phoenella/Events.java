@@ -14,7 +14,6 @@ import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameE
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
@@ -71,7 +70,7 @@ public class Events extends ListenerAdapter {
 
         // Utility
 
-        if (text.contains("update members")) {
+        /*if (text.contains("update members")) {
             if (member.getIdLong() != 277291758503723010L) {
                 message.reply("no").queue();
                 return;
@@ -80,7 +79,7 @@ public class Events extends ListenerAdapter {
             new Utils().sendMessage(null, message, "Updating members... See console for details.", false);
             new Utils().runNameCheckForGuild(event.getGuild());
             return;
-        }
+        }*/
 
         if (text.contains("stop") || text.contains("shut down"))
             if (member.getIdLong() == 277291758503723010L) {
@@ -572,8 +571,8 @@ public class Events extends ListenerAdapter {
             .getAsTag() + " changed their nickname from '" + event.getOldNickname() + "' to '" + newNickname + "'");
 
         // If not sushed
-        if (!member.getRoles().toString().contains("842490529744945192"))
-            new Utils().runNameCheckForUser(newNickname, member, guild);
+        /*if (!member.getRoles().toString().contains("842490529744945192"))
+            new Utils().runNameCheckForUser(newNickname, member, guild);*/
     }
 
     @Override
@@ -800,76 +799,6 @@ public class Events extends ListenerAdapter {
                 embed.setColor(new Color(47, 49, 54));
 
                 event.getHook().editOriginalEmbeds(embed.build()).queue();
-            }
-        }
-    }
-
-    @Override
-    public void onStringSelectInteraction(StringSelectInteractionEvent event) {
-        //noinspection SwitchStatementWithTooFewBranches
-        switch (event.getComponentId()) {
-            case "role-select" -> {
-                if (event.getSelectedOptions().isEmpty()) {
-                    event.deferEdit().queue();
-                    return;
-                }
-
-                event.deferReply(true).queue();
-                Guild guild = event.getGuild();
-                Member member = event.getMember();
-
-                new Thread(() -> {
-                    for (SelectOption option : event.getSelectedOptions()) {
-                        Role role = guild.getRoleById(option.getValue());
-                        if (member.getRoles().contains(role)) {
-                            System.out.println(
-                                new Utils().getTime(Utils.LogColor.YELLOW) + "Removing " + role.getName()
-                                    .toLowerCase() + " role from '" + member.getEffectiveName() + "'");
-                            guild.removeRoleFromMember(member, role).complete();
-
-                        } else {
-                            System.out.println(
-                                new Utils().getTime(Utils.LogColor.YELLOW) + "Adding " + role.getName()
-                                    .toLowerCase() + " role to '" + member.getEffectiveName() + "'");
-                            guild.addRoleToMember(member, role).complete();
-                        }
-                    }
-
-                    ArrayList<Role> roles = new ArrayList<>(member.getRoles().stream().toList());
-                    // Student
-                    roles.remove(guild.getRoleById(892267754730709002L));
-                    // Button
-                    roles.remove(guild.getRoleById(892453842241859664L));
-
-                    // If the person has no other roles
-                    if (roles.isEmpty())
-                        new Utils().removeRoleFromMember(member, guild, Utils.RoleType.BUTTON);
-                        // If the person does have other roles
-                    else new Utils().addRoleToMember(member, guild, Utils.RoleType.BUTTON);
-
-                    // Show user's roles
-                    StringBuilder roleList = new StringBuilder();
-                    StringBuilder notRoleList = new StringBuilder();
-                    for (SelectOption option : ((StringSelectMenu) event.getMessage().getActionRows().get(0)
-                        .getComponents().get(0)).getOptions()) {
-                        Role role = event.getGuild().getRoleById(option.getValue());
-
-                        if (event.getMember().getRoles().contains(role))
-                            roleList.append(role.getAsMention()).append("\n");
-                        else notRoleList.append(role.getAsMention()).append("\n");
-                    }
-
-                    if (roleList.isEmpty()) roleList.append("None");
-                    if (notRoleList.isEmpty()) notRoleList.append("None");
-
-                    EmbedBuilder embed = new EmbedBuilder();
-                    embed.addField("You have", roleList.toString(), true);
-                    embed.addBlankField(true);
-                    embed.addField("You don't have", notRoleList.toString(), true);
-                    embed.setColor(new Color(47, 49, 54));
-
-                    event.getHook().editOriginalEmbeds(embed.build()).queue();
-                }, "Add Roles - " + new Utils().getFirstName(member)).start();
             }
         }
     }

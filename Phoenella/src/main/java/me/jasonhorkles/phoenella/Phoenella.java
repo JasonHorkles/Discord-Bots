@@ -14,8 +14,6 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -33,7 +31,7 @@ import java.util.concurrent.*;
 @SuppressWarnings({"DataFlowIssue"})
 public class Phoenella {
     private static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
-    public static final ArrayList<SelectOption> selectOptions = new ArrayList<>();
+//    public static final ArrayList<SelectOption> selectOptions = new ArrayList<>();
     public static boolean localWordleBoard = false;
     public static JDA jda;
 
@@ -65,7 +63,7 @@ public class Phoenella {
                 new SubcommandData("daily", "Play the daily Wordle"))).queue();
 
         // Send select menu message if needed
-        try {
+        /*try {
             TextChannel channel = jda.getTextChannelById(892104640567578674L);
             selectOptions.add(
                 SelectOption.of("Casting", "778445820693184514").withEmoji(Emoji.fromUnicode("📢")));
@@ -97,11 +95,11 @@ public class Phoenella {
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
-        }
+        }*/
 
         // Guild nickname check
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Starting nickname check...");
-        new Utils().runNameCheckForGuild(jda.getGuildById(729083627308056597L));
+        /*System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Starting nickname check...");
+        new Utils().runNameCheckForGuild(jda.getGuildById(729083627308056597L));*/
 
         // Scan Wordle leaderboard for nonexistent players
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Starting leaderboard check...");

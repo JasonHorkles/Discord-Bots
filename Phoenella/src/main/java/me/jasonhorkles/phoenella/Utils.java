@@ -1,10 +1,11 @@
 package me.jasonhorkles.phoenella;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -23,7 +24,7 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-@SuppressWarnings("DataFlowIssue")
+//@SuppressWarnings("DataFlowIssue")
 public class Utils {
     public enum LogColor {
         RED("\u001B[31m"), YELLOW("\u001B[33m"), GREEN("\u001B[32m");
@@ -48,7 +49,7 @@ public class Utils {
         return channel.getIterableHistory().takeAsync(count).thenApply(ArrayList::new);
     }
 
-    public void runNameCheckForUser(String newNickname, Member member, Guild guild) {
+    /*public void runNameCheckForUser(String newNickname, Member member, Guild guild) {
         if (hasGoodNickname(newNickname)) if (newNickname.toLowerCase().contains("(parent)")) {
             addRoleToMember(member, guild, RoleType.PARENT);
             nonStudentNick(member, guild);
@@ -137,7 +138,7 @@ public class Utils {
     private boolean hasGoodNickname(String nickname) {
         if (nickname == null) return false;
         return nickname.contains("(") && nickname.contains(")") && nickname.contains(" ");
-    }
+    }*/
 
     public String lookUp(String message, String name) {
         try {
