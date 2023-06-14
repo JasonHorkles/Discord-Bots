@@ -47,7 +47,7 @@ public class Phoenella {
         builder.setEnableShutdownHook(false);
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.playing("Wordle"));
-        builder.addEventListeners(new Events(), new Soundboard(), new GameManager(), new RPS(), new Wordle());
+        builder.addEventListeners(new Events(), new GameManager(), new RPS(), new Wordle());
         jda = builder.build();
 
         jda.awaitReady();
