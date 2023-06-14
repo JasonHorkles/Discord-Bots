@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,9 +19,10 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
+import java.util.Random;
+import java.util.Scanner;
 
 //@SuppressWarnings("DataFlowIssue")
 public class Utils {
@@ -43,10 +43,6 @@ public class Utils {
     public String getTime(LogColor logColor) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm:ss a");
         return logColor.getLogColor() + "[" + dtf.format(LocalDateTime.now()) + "] ";
-    }
-
-    public CompletableFuture<List<Message>> getMessages(MessageChannel channel, int count) {
-        return channel.getIterableHistory().takeAsync(count).thenApply(ArrayList::new);
     }
 
     /*public void runNameCheckForUser(String newNickname, Member member, Guild guild) {

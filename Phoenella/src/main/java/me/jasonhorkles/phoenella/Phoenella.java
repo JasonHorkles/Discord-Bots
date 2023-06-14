@@ -8,12 +8,9 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -26,7 +23,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings({"DataFlowIssue"})
 public class Phoenella {
@@ -35,7 +34,7 @@ public class Phoenella {
     public static boolean localWordleBoard = false;
     public static JDA jda;
 
-    public static void main(String[] args) throws InterruptedException, IOException, ExecutionException, TimeoutException, ParseException {
+    public static void main(String[] args) throws InterruptedException, IOException, ParseException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
@@ -198,27 +197,6 @@ public class Phoenella {
         // Delete game channels
         for (TextChannel channel : jda.getCategoryById(900747596245639238L).getTextChannels())
             channel.delete().queue();
-
-        TextChannel soundboardChannel = jda.getTextChannelById(903324139195084820L);
-        if (new Utils().getMessages(soundboardChannel, 1).get(30, TimeUnit.SECONDS).isEmpty())
-            soundboardChannel.sendMessage("**Select a sound!**").setComponents(
-                    ActionRow.of(Button.primary("sound:benny", "Benny Hill"),
-                        Button.primary("sound:bfg", "BFG Division"),
-                        Button.primary("sound:careless", "Careless Whisper"),
-                        Button.primary("sound:crickets", "Crickets"), Button.primary("sound:discord", "Discord")),
-                    ActionRow.of(Button.secondary("sound:dramatic", "Dramatic"),
-                        Button.secondary("sound:drumroll", "Drumroll"), Button.secondary("sound:honk", "Honk"),
-                        Button.secondary("sound:laugh", "Laughing"), Button.secondary("sound:maya", "Maya Hee")),
-                    ActionRow.of(Button.primary("sound:metalgear", "Metal Gear Alert"),
-                        Button.primary("sound:oof", "Oof"), Button.primary("sound:party", "Party Horn"),
-                        Button.primary("sound:phasmophobia", "Phasmophobia"),
-                        Button.primary("sound:skibidi", "SKIBIDI")),
-                    ActionRow.of(Button.secondary("sound:suspense1", "Suspense 1"),
-                        Button.secondary("sound:suspense2", "Suspense 2"),
-                        Button.secondary("sound:tech", "Technical Difficulties"),
-                        Button.secondary("sound:flysave", "What a Save"), Button.secondary("sound:yeet", "Yeet")),
-                    ActionRow.of(Button.danger("sound:stop", "Stop Sounds").withEmoji(Emoji.fromUnicode("🛑"))))
-                .queue();
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new Phoenella().shutdown(), "Shutdown Hook"));
