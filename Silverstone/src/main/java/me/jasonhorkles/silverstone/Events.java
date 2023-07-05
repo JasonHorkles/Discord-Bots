@@ -52,10 +52,10 @@ public class Events extends ListenerAdapter {
                 **EntityClearer:** <https://github.com/SilverstoneMC/EntityClearer>
                 **ExpensiveDeaths:** <https://github.com/SilverstoneMC/ExpensiveDeaths>
                 **FileCleaner:** <https://github.com/SilverstoneMC/FileCleaner>
+                **BungeeNicks:** <https://github.com/SilverstoneMC/BungeeNicks>
                 """).setEphemeral(ephemeral).queue();
 
-            case "plugins" -> event.reply(
-                    "See Jason's plugins at: <https://hangar.papermc.io/JasonHorkles>")
+            case "plugins" -> event.reply("See Jason's plugins at: <https://hangar.papermc.io/JasonHorkles>")
                 .setEphemeral(ephemeral).queue();
 
             case "tutorials" -> event.reply(
@@ -76,7 +76,7 @@ public class Events extends ListenerAdapter {
         if (event.getAuthor().isBot()) return;
 
         // Thanks for coming :)
-//todo add hangar links too
+        //todo add hangar links too
         if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD)
             if (event.getGuildChannel().asThreadChannel().getParentChannel()
                 .getIdLong() == 1023735878075564042L && event.getAuthor()
@@ -88,7 +88,7 @@ public class Events extends ListenerAdapter {
                 embed.setTitle(
                     "Thank you for coming. If you enjoy the plugin and are happy with the support you received, please consider leaving a review on Spigot \\:)");
                 embed.setDescription(
-                    "[EntityClearer](https://www.spigotmc.org/resources/entityclearer.90802/)\n[ExpensiveDeaths](https://www.spigotmc.org/resources/expensivedeaths.96065/)\n[FileCleaner](https://www.spigotmc.org/resources/filecleaner.93372/)");
+                    "[EntityClearer](https://www.spigotmc.org/resources/entityclearer.90802/)\n[ExpensiveDeaths](https://www.spigotmc.org/resources/expensivedeaths.96065/)\n[FileCleaner](https://www.spigotmc.org/resources/filecleaner.93372/)\n[BungeeNicks](https://www.spigotmc.org/resources/bungeenicks.110948/)");
                 embed.setColor(new Color(19, 196, 88));
 
                 event.getChannel().sendMessageEmbeds(embed.build()).queue();
@@ -138,7 +138,7 @@ public class Events extends ListenerAdapter {
     private void sendToPluginSupport(MessageReceivedEvent event) {
         String message = event.getMessage().getContentStripped().toLowerCase().replace(" ", "");
         if (message.contains("entityclearer") || message.contains("expensivedeaths") || message.contains(
-            "filecleaner")) event.getMessage()
+            "filecleaner") || message.contains("bungeenicks")) event.getMessage()
             .reply("Please go to <#1023735878075564042> if you need help with Jason's plugins.")
             .mentionRepliedUser(true).queue();
     }
