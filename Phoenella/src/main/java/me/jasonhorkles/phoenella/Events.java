@@ -7,7 +7,10 @@ import me.jasonhorkles.phoenella.games.RPS;
 import me.jasonhorkles.phoenella.games.Wordle;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
@@ -478,7 +481,7 @@ public class Events extends ListenerAdapter {
             if (event.getChannel().getIdLong() == 960213547944661042L) {
                 if (event.getUserIdLong() != 277291758503723010L) {
                     System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser()
-                        .getAsTag() + " just tried to accept a Wordle word!");
+                        .getName() + " just tried to accept a Wordle word!");
                     return;
                 }
 
@@ -534,7 +537,7 @@ public class Events extends ListenerAdapter {
             if (event.getChannel().getIdLong() == 960213547944661042L) {
                 if (event.getUserIdLong() != 277291758503723010L) {
                     System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser()
-                        .getAsTag() + " just tried to decline a Wordle word!");
+                        .getName() + " just tried to decline a Wordle word!");
                     return;
                 }
 
@@ -564,11 +567,11 @@ public class Events extends ListenerAdapter {
         if (event.getUser().isBot()) return;
 
         Member member = event.getMember();
-        Guild guild = event.getGuild();
+//        Guild guild = event.getGuild();
         String newNickname = event.getNewNickname();
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + member.getUser()
-            .getAsTag() + " changed their nickname from '" + event.getOldNickname() + "' to '" + newNickname + "'");
+            .getName() + " changed their nickname from '" + event.getOldNickname() + "' to '" + newNickname + "'");
 
         // If not sushed
         /*if (!member.getRoles().toString().contains("842490529744945192"))

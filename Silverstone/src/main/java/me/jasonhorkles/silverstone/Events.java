@@ -211,7 +211,7 @@ public class Events extends ListenerAdapter {
 
     private void sendRecentLeaveMessage(MessageChannel channel, User user) {
         EmbedBuilder embed = new EmbedBuilder();
-        embed.setTitle("Recent chatter " + user.getAsTag() + " has left the server");
+        embed.setTitle("Recent chatter " + user.getName() + " has left the server");
         embed.setDescription(user.getAsMention());
         embed.setThumbnail(user.getAvatarUrl());
         embed.setColor(new Color(255, 200, 0));
@@ -221,7 +221,7 @@ public class Events extends ListenerAdapter {
 
     private void sendOPLeaveMessage(ThreadChannel channel, User user) {
         EmbedBuilder embed = new EmbedBuilder();
-        embed.setTitle("Original poster " + user.getAsTag() + " has left the server");
+        embed.setTitle("Original poster " + user.getName() + " has left the server");
         embed.setDescription(user.getAsMention());
         embed.setFooter("This post will now be closed and locked");
         embed.setThumbnail(user.getAvatarUrl());

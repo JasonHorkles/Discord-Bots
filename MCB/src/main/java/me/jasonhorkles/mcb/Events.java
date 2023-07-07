@@ -149,7 +149,7 @@ public class Events extends ListenerAdapter {
 
                 if (thread.getOwnerIdLong() == event.getUser().getIdLong()) {
                     EmbedBuilder embed = new EmbedBuilder();
-                    embed.setTitle("Original poster " + event.getUser().getAsTag() + " has left the server");
+                    embed.setTitle("Original poster " + event.getUser().getName() + " has left the server");
                     embed.setDescription(event.getUser().getAsMention());
                     embed.setFooter("This post will now be closed and locked");
                     embed.setThumbnail(event.getUser().getAvatarUrl());
@@ -192,7 +192,7 @@ public class Events extends ListenerAdapter {
         }
 
         System.out.println(new Utils().getTime(
-            Utils.LogColor.GREEN) + "Deleted " + count + " messages from " + author.getAsTag() + "!\n");
+            Utils.LogColor.GREEN) + "Deleted " + count + " messages from " + author.getName() + "!\n");
     }
 
     @Override

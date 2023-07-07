@@ -126,7 +126,7 @@ public class Events extends ListenerAdapter {
         User user = event.getUser();
 
         EmbedBuilder embed = new EmbedBuilder();
-        embed.setTitle(user.getAsTag() + " has left the server");
+        embed.setTitle(user.getName() + " has left the server");
         embed.setDescription(user.getAsMention());
         embed.setThumbnail(user.getAvatarUrl());
         embed.setColor(new Color(255, 200, 0));
