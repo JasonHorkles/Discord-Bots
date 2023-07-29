@@ -74,53 +74,56 @@ public class StormAlerts extends ListenerAdapter {
         }
 
         // Alerts
-        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            try {
-                new Alerts().checkAlerts();
-            } catch (Exception e) {
-                System.out.println(
-                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!");
-                e.printStackTrace();
-                new Utils().logError(e);
-            }
-        }, 1, 180, TimeUnit.SECONDS));
-
-
-        // PWS / Rain / Lightning
-        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            try {
-                new Pws().checkConditions();
-            } catch (Exception e) {
-                String reason = "";
-                if (e.getMessage().contains("401")) reason = " (Unauthorized)";
-                else if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
-                else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
-                else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
-
-                System.out.println(new Utils().getTime(
-                    Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
-                if (reason.isEmpty()) {
-                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
+        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+            scheduledTimers.add(executor.scheduleAtFixedRate(() -> {
+                try {
+                    new Alerts().checkAlerts();
+                } catch (Exception e) {
+                    System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!");
                     e.printStackTrace();
                     new Utils().logError(e);
                 }
-            }
-        }, 3, 90, TimeUnit.SECONDS));
+            }, 1, 180, TimeUnit.SECONDS));
+        }
+
+
+        // PWS / Rain / Lightning
+        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+            scheduledTimers.add(executor.scheduleAtFixedRate(() -> {
+                try {
+                    new Pws().checkConditions();
+                } catch (Exception e) {
+                    String reason = "";
+                    if (e.getMessage().contains("401")) reason = " (Unauthorized)";
+                    else if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
+                    else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
+                    else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
+
+                    System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
+                    if (reason.isEmpty()) {
+                        System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                        e.printStackTrace();
+                        new Utils().logError(e);
+                    }
+                }
+            }, 3, 90, TimeUnit.SECONDS));
+        }
 
 
         // Weather
-        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            try {
-                new Weather().checkConditions();
-            } catch (Exception e) {
-                System.out.println(
-                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
-                e.printStackTrace();
-                jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-                jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
-                new Utils().logError(e);
-            }
-        }, 5, 90, TimeUnit.SECONDS));
+        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+            scheduledTimers.add(executor.scheduleAtFixedRate(() -> {
+                try {
+                    new Weather().checkConditions();
+                } catch (Exception e) {
+                    System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
+                    e.printStackTrace();
+                    jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
+                    jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
+                    new Utils().logError(e);
+                }
+            }, 5, 90, TimeUnit.SECONDS));
+        }
 
         // Schedule records announcement
         try {

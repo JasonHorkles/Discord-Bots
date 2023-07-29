@@ -21,13 +21,11 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -160,16 +158,15 @@ public class Wordle extends ListenerAdapter {
         }
 
         if (!isNonReal.get(channel)) if (!wordList.toString().contains(input)) try {
-            try {
-                new URL(
-                    "https://api.dictionaryapi.dev/api/v2/entries/en/" + input.toLowerCase()).openStream();
+            URL url = new URL("https://api.dictionaryapi.dev/api/v2/entries/en/" + input.toLowerCase());
+            try (InputStream ignored1 = url.openStream()) {
+                wordRequest(input.toUpperCase(), event.getMember());
             } catch (FileNotFoundException ignored) {
                 message.reply("**" + input + "** isn't in the dictionary!")
                     .queue(del -> del.delete().queueAfter(4, TimeUnit.SECONDS));
                 message.delete().queueAfter(150, TimeUnit.MILLISECONDS);
                 return;
             }
-            wordRequest(input.toUpperCase(), event.getMember());
 
         } catch (IOException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
@@ -261,9 +258,8 @@ public class Wordle extends ListenerAdapter {
                             //noinspection DataFlowIssue
                             int wins = Integer.parseInt(embed.getFields().get(1).getValue()) + 1;
 
-                            EmbedBuilder newEmbed = getEmbedBuilder(embed,
-                                embed.getFields().get(0).getValue(), String.valueOf(wins),
-                                embed.getFields().get(2).getValue());
+                            EmbedBuilder newEmbed = getEmbedBuilder(embed, embed.getFields().get(0).getValue(),
+                                String.valueOf(wins), embed.getFields().get(2).getValue());
 
                             original.editMessageEmbeds(newEmbed.build()).queue();
                         }
@@ -332,9 +328,8 @@ public class Wordle extends ListenerAdapter {
                             //noinspection DataFlowIssue
                             int fails = Integer.parseInt(embed.getFields().get(2).getValue()) + 1;
 
-                            EmbedBuilder newEmbed = getEmbedBuilder(embed,
-                                embed.getFields().get(0).getValue(), embed.getFields().get(1).getValue(),
-                                String.valueOf(fails));
+                            EmbedBuilder newEmbed = getEmbedBuilder(embed, embed.getFields().get(0).getValue(),
+                                embed.getFields().get(1).getValue(), String.valueOf(fails));
 
                             original.editMessageEmbeds(newEmbed.build()).queue();
                         }
@@ -384,8 +379,10 @@ public class Wordle extends ListenerAdapter {
                     e.printStackTrace();
                 }
 
-                Executors.newSingleThreadScheduledExecutor()
-                    .schedule(() -> endGame(event.getChannel().asTextChannel()), 10, TimeUnit.SECONDS);
+                try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                    executor.schedule(() -> endGame(event.getChannel().asTextChannel()), 10,
+                        TimeUnit.SECONDS);
+                }
             }
 
             case "sharewordlescore" -> {
@@ -502,8 +499,10 @@ public class Wordle extends ListenerAdapter {
 
         int delay = 45;
         if (daily.get(channel)) delay = 15;
-        deleteChannel.put(channel, Executors.newSingleThreadScheduledExecutor()
-            .schedule(() -> new Wordle().endGame(channel), delay, TimeUnit.SECONDS));
+        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+            deleteChannel.put(channel,
+                executor.schedule(() -> new Wordle().endGame(channel), delay, TimeUnit.SECONDS));
+        }
     }
 
     private void wordRequest(String word, Member member) {

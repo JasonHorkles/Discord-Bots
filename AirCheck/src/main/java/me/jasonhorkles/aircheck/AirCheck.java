@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -34,33 +35,37 @@ public class AirCheck {
         jda.awaitReady();
 
         // Air Quality
-        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking air quality...");
-            try {
-                new AQI().checkAir();
-            } catch (Exception e) {
-                System.out.println(
-                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the air quality!");
-                e.printStackTrace();
-                new Utils().logError(e);
+        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+            scheduledTimers.add(executor.scheduleAtFixedRate(() -> {
+                System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking air quality...");
+                try {
+                    new AQI().checkAir();
+                } catch (Exception e) {
+                    System.out.println(
+                        new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the air quality!");
+                    e.printStackTrace();
+                    new Utils().logError(e);
 
-                jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-                jda.getPresence().setActivity(Activity.playing("⚠ Error"));
-            }
-        }, 1, 1800, TimeUnit.SECONDS));
+                    jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
+                    jda.getPresence().setActivity(Activity.playing("⚠ Error"));
+                }
+            }, 1, 1800, TimeUnit.SECONDS));
+        }
 
         // Forecasts
-        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking forecasts...");
-            try {
-                new Forecasts().updateForecasts();
-            } catch (Exception e) {
-                System.out.println(
-                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the forecasts!");
-                e.printStackTrace();
-                new Utils().logError(e);
-            }
-        }, 2, 10800, TimeUnit.SECONDS));
+        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+            scheduledTimers.add(executor.scheduleAtFixedRate(() -> {
+                System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking forecasts...");
+                try {
+                    new Forecasts().updateForecasts();
+                } catch (Exception e) {
+                    System.out.println(
+                        new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the forecasts!");
+                    e.printStackTrace();
+                    new Utils().logError(e);
+                }
+            }, 2, 10800, TimeUnit.SECONDS));
+        }
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new AirCheck().shutdown(), "Shutdown Hook"));

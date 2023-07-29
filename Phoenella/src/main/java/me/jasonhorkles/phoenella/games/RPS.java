@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class RPS extends ListenerAdapter {
@@ -113,8 +114,9 @@ public class RPS extends ListenerAdapter {
                             channel.sendMessage(player1Local.getAsMention() + " wins!").queue();
                         else channel.sendMessage(player2Local.getAsMention() + " wins!").queue();
 
-                        Executors.newSingleThreadScheduledExecutor()
-                            .schedule(() -> endGame(channel), 15, TimeUnit.SECONDS);
+                        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                            executor.schedule(() -> endGame(channel), 15, TimeUnit.SECONDS);
+                        }
 
                         return;
                     }

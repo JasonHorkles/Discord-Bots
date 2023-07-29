@@ -18,10 +18,7 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Events extends ListenerAdapter {
@@ -113,8 +110,9 @@ public class Events extends ListenerAdapter {
     }
 
     public void scheduleWarningRemoval(Long id, String name) {
-        Executors.newSingleThreadScheduledExecutor()
-            .schedule(() -> takeWarning(id, name), 15, TimeUnit.MINUTES);
+        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+            executor.schedule(() -> takeWarning(id, name), 15, TimeUnit.MINUTES);
+        }
     }
 
     private void takeWarning(Long id, String name) {

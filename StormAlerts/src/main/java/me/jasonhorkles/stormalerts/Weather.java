@@ -58,7 +58,7 @@ public class Weather extends ListenerAdapter {
             Scanner scanner = new Scanner(url, StandardCharsets.UTF_8).useDelimiter("\\A");
             while (scanner.hasNextLine()) visibilityInput.append(scanner.nextLine());
             url.close();
-            
+
         } catch (SocketTimeoutException ignored) {
             System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Timed out checking the weather!");
             weatherOffline = true;
@@ -185,8 +185,11 @@ public class Weather extends ListenerAdapter {
                 }
 
                 // Send the snow message after 45 minutes IF it's still snowing by then
-                if (scheduleMessage) scheduledSnowMessage = Executors.newSingleThreadScheduledExecutor()
-                    .schedule(() -> sendSnowMessage(snowChannel, false), 2705, TimeUnit.SECONDS);
+                if (scheduleMessage)
+                    try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                        scheduledSnowMessage = executor.schedule(() -> sendSnowMessage(snowChannel, false),
+                            2705, TimeUnit.SECONDS);
+                    }
 
             } else if (weather.equals("RAIN") && Pws.temperature >= 30) {
                 String ping = "";
@@ -296,9 +299,10 @@ public class Weather extends ListenerAdapter {
                 Duration duration = Duration.between(now, nextRun);
                 long initalDelay = duration.getSeconds();
 
-                ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-                scheduler.scheduleAtFixedRate(() -> acceptRainForDay = false, initalDelay,
-                    TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
+                try (ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1)) {
+                    scheduler.scheduleAtFixedRate(() -> acceptRainForDay = false, initalDelay,
+                        TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
+                }
             }
 
             case "unsurerain" -> {
@@ -318,8 +322,9 @@ public class Weather extends ListenerAdapter {
 
             case "denyrain" -> {
                 rainDenied = true;
-                Executors.newSingleThreadScheduledExecutor()
-                    .schedule(() -> rainDenied = false, 1, TimeUnit.HOURS);
+                try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                    executor.schedule(() -> rainDenied = false, 1, TimeUnit.HOURS);
+                }
                 event.getMessage().delete().queue();
             }
         }

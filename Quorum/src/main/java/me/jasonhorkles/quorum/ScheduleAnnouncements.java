@@ -35,10 +35,12 @@ public class ScheduleAnnouncements {
 
                 long delay = future.getTimeInMillis() - System.currentTimeMillis();
                 if (delay > 0) {
-                    schedules.add(Executors.newSingleThreadScheduledExecutor().schedule(
-                        () -> Quorum.jda.getTextChannelById(Events.announcementsID).sendMessage(
-                            "<@&858784990107140118>\nReminder: **" + activity + "** starts " + activities.getName()
-                                .replace(":F", ":R") + "!").queue(), delay, TimeUnit.MILLISECONDS));
+                    try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                        schedules.add(executor.schedule(
+                            () -> Quorum.jda.getTextChannelById(Events.announcementsID).sendMessage(
+                                "<@&858784990107140118>\nReminder: **" + activity + "** starts " + activities.getName()
+                                    .replace(":F", ":R") + "!").queue(), delay, TimeUnit.MILLISECONDS));
+                    }
 
                     System.out.println(new Utils().getTime(
                         Utils.LogColor.GREEN) + "Scheduled an announcement for \"" + activity + "\" in " + Math.round(

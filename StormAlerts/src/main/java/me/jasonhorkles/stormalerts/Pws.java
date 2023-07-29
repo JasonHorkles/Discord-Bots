@@ -17,6 +17,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Pws {
@@ -173,9 +174,11 @@ public class Pws {
                 timeUpdatedChannel.getManager().setName("Stats Updated: " + timeUpdated).queue();
 
             rateLimited = true;
-            Executors.newSingleThreadScheduledExecutor().schedule(() -> {
-                rateLimited = false;
-            }, 6, TimeUnit.MINUTES);
+            try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                executor.schedule(() -> {
+                    rateLimited = false;
+                }, 6, TimeUnit.MINUTES);
+            }
         }
 
 
