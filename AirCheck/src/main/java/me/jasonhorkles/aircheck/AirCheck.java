@@ -19,7 +19,6 @@ public class AirCheck {
 
     private static final ArrayList<ScheduledFuture<?>> scheduledTimers = new ArrayList<>();
 
-    @SuppressWarnings("resource")
     public static void main(String[] args) throws InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
@@ -35,6 +34,7 @@ public class AirCheck {
         jda.awaitReady();
 
         // Air Quality
+        //noinspection resource
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking air quality...");
             try {
@@ -51,6 +51,7 @@ public class AirCheck {
         }, 1, 1800, TimeUnit.SECONDS));
 
         // Forecasts
+        //noinspection resource
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking forecasts...");
             try {

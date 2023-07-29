@@ -74,6 +74,7 @@ public class StormAlerts extends ListenerAdapter {
         }
 
         // Alerts
+        //noinspection resource
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
                 new Alerts().checkAlerts();
@@ -87,6 +88,7 @@ public class StormAlerts extends ListenerAdapter {
 
 
         // PWS / Rain / Lightning
+        //noinspection resource
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
                 new Pws().checkConditions();
@@ -109,6 +111,7 @@ public class StormAlerts extends ListenerAdapter {
 
 
         // Weather
+        //noinspection resource
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
                 new Weather().checkConditions();

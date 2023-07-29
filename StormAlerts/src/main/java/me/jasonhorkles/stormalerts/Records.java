@@ -11,6 +11,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Records {
@@ -71,11 +72,15 @@ public class Records {
         long delay = Duration.between(LocalDateTime.now(), future).getSeconds();
         if (delay < 0) return;
 
-        StormAlerts.scheduledTimers.add(Executors.newSingleThreadScheduledExecutor()
-            .schedule(this::checkRecords, delay, TimeUnit.SECONDS));
+        new Thread(() -> {
+            try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                StormAlerts.scheduledTimers.add(
+                    executor.schedule(this::checkRecords, delay, TimeUnit.SECONDS));
 
-        System.out.println(new Utils().getTime(
-            Utils.LogColor.GREEN) + "Scheduled record check in " + delay / 3600 + " hours.");
+                System.out.println(new Utils().getTime(
+                    Utils.LogColor.GREEN) + "Scheduled record check in " + delay / 3600 + " hours.");
+            }
+        }, "Record Check").start();
     }
 
     @SuppressWarnings("DataFlowIssue")

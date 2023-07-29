@@ -18,10 +18,7 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Events extends ListenerAdapter {
@@ -113,8 +110,11 @@ public class Events extends ListenerAdapter {
     }
 
     public void scheduleWarningRemoval(Long id, String name) {
-        Executors.newSingleThreadScheduledExecutor()
-            .schedule(() -> takeWarning(id, name), 15, TimeUnit.MINUTES);
+        new Thread(() -> {
+            try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                executor.schedule(() -> takeWarning(id, name), 15, TimeUnit.MINUTES);
+            }
+        }, "Warning Removal").start();
     }
 
     private void takeWarning(Long id, String name) {
@@ -198,8 +198,8 @@ public class Events extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (event.getName().equalsIgnoreCase("enginehub")) {
-            @SuppressWarnings("DataFlowIssue") boolean ephemeral = !event.getMember().getRoles().toString()
-                .contains("646291178144399371");
+            //noinspection DataFlowIssue
+            boolean ephemeral = !event.getMember().getRoles().toString().contains("646291178144399371");
 
             event.reply(
                     "Join the EngineHub Discord for WorldEdit/WorldGuard support at https://discord.gg/enginehub")

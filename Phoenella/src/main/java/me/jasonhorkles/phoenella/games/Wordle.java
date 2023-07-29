@@ -25,6 +25,7 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -378,8 +379,12 @@ public class Wordle extends ListenerAdapter {
                     e.printStackTrace();
                 }
 
-                Executors.newSingleThreadScheduledExecutor()
-                    .schedule(() -> endGame(event.getChannel().asTextChannel()), 10, TimeUnit.SECONDS);
+                new Thread(() -> {
+                    try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                        executor.schedule(() -> endGame(event.getChannel().asTextChannel()), 10,
+                            TimeUnit.SECONDS);
+                    }
+                }, "End Game-Wordle").start();
             }
 
             case "sharewordlescore" -> {
@@ -494,10 +499,15 @@ public class Wordle extends ListenerAdapter {
 
         channel.sendMessage(message).setActionRow(buttons).queue();
 
-        int delay = 45;
+        int delay;
         if (daily.get(channel)) delay = 15;
-        deleteChannel.put(channel, Executors.newSingleThreadScheduledExecutor()
-            .schedule(() -> new Wordle().endGame(channel), delay, TimeUnit.SECONDS));
+        else delay = 45;
+        new Thread(() -> {
+            try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                deleteChannel.put(channel,
+                    executor.schedule(() -> new Wordle().endGame(channel), delay, TimeUnit.SECONDS));
+            }
+        }, "Delete Channel").start();
     }
 
     private void wordRequest(String word, Member member) {

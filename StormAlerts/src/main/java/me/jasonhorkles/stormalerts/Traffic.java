@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Traffic {
@@ -32,7 +33,7 @@ public class Traffic {
                 System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "There are no incidents on "
                     + new Secrets().getRoadName(north) + "!");
             }*/
-            
+
             JSONArray input;
             if (!StormAlerts.testing) {
                 InputStream url = new URL(
@@ -110,13 +111,16 @@ public class Traffic {
 
             long delay = calendar.getTimeInMillis() - System.currentTimeMillis();
 
-            if (delay >= 0) {
-                StormAlerts.scheduledTimers.add(Executors.newSingleThreadScheduledExecutor()
-                    .schedule(() -> new Traffic().checkTraffic(toWork), delay, TimeUnit.MILLISECONDS));
-                System.out.println(
-                    new Utils().getTime(Utils.LogColor.GREEN) + "Scheduled traffic check in " + Math.round(
+            if (delay >= 0) new Thread(() -> {
+                try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                    StormAlerts.scheduledTimers.add(
+                        executor.schedule(() -> new Traffic().checkTraffic(toWork), delay,
+                            TimeUnit.MILLISECONDS));
+                    System.out.println(new Utils().getTime(
+                        Utils.LogColor.GREEN) + "Scheduled traffic check in " + Math.round(
                         delay / 3600000.0) + " hours.");
-            }
+                }
+            }, "Traffic Check").start();
         }
     }
 }

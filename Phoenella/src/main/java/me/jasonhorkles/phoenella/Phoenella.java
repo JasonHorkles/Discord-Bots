@@ -24,13 +24,14 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings({"DataFlowIssue"})
 public class Phoenella {
     private static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
-//    public static final ArrayList<SelectOption> selectOptions = new ArrayList<>();
+    //    public static final ArrayList<SelectOption> selectOptions = new ArrayList<>();
     public static boolean localWordleBoard = false;
     public static JDA jda;
 
@@ -186,13 +187,15 @@ public class Phoenella {
 
         long delay = future.getTimeInMillis() - System.currentTimeMillis();
 
-        if (delay >= 0) {
-            schedules.add(Executors.newSingleThreadScheduledExecutor()
-                .schedule(() -> new Utils().updateDailyWordle(), delay, TimeUnit.MILLISECONDS));
-            System.out.println(
-                new Utils().getTime(Utils.LogColor.GREEN) + "Scheduled new daily Wordle in " + Math.round(
-                    delay / 3600000.0) + " hours.");
-        }
+        if (delay >= 0) new Thread(() -> {
+            try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                schedules.add(
+                    executor.schedule(() -> new Utils().updateDailyWordle(), delay, TimeUnit.MILLISECONDS));
+                System.out.println(
+                    new Utils().getTime(Utils.LogColor.GREEN) + "Scheduled new daily Wordle in " + Math.round(
+                        delay / 3600000.0) + " hours.");
+            }
+        }, "Daily Wordle").start();
 
         // Delete game channels
         for (TextChannel channel : jda.getCategoryById(900747596245639238L).getTextChannels())
@@ -200,15 +203,14 @@ public class Phoenella {
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new Phoenella().shutdown(), "Shutdown Hook"));
-        Thread input = new Thread(() -> {
+        new Thread(() -> {
             while (true) {
                 Scanner in = new Scanner(System.in);
                 String text = in.nextLine();
                 if (text.equalsIgnoreCase("stop")) System.exit(0);
                 if (text.equalsIgnoreCase("dailywordle")) new Utils().updateDailyWordle();
             }
-        }, "Console Input");
-        input.start();
+        }, "Console Input").start();
 
         Runtime.getRuntime().gc();
 
