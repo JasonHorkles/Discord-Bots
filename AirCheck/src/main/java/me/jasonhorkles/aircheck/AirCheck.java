@@ -20,6 +20,7 @@ public class AirCheck {
 
     private static final ArrayList<ScheduledFuture<?>> scheduledTimers = new ArrayList<>();
 
+    @SuppressWarnings("resource")
     public static void main(String[] args) throws InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
