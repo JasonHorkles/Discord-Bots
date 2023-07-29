@@ -24,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.*;
@@ -173,7 +172,7 @@ public class Weather extends ListenerAdapter {
 
                     // If the message was edited within the last 3 minutes and it contains the restart message
                     if (message.isEdited()) if (message.getTimeEdited()
-                        .isAfter(OffsetDateTime.now().minus(3, ChronoUnit.MINUTES)) && message.getContentRaw()
+                        .isAfter(OffsetDateTime.now().minusMinutes(3)) && message.getContentRaw()
                         .contains("(Bot restarted at")) {
                         scheduleMessage = false;
                         sendSnowMessage(snowChannel, true);

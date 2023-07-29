@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -246,7 +247,7 @@ public class Events extends ListenerAdapter {
 
         Random r = new Random();
 
-        if (text.equals("")) {
+        if (text.isEmpty()) {
             msg = new Utils().getFirstName(member);
 
             new Utils().sendMessage(channel, null, msg, allCaps);
@@ -267,7 +268,7 @@ public class Events extends ListenerAdapter {
             return;
         }
 
-        if (text.length() <= 1) {
+        if (text.length() == 1) {
             msg = "can you speak english please";
 
             new Utils().sendMessage(channel, null, msg, allCaps);
@@ -496,18 +497,7 @@ public class Events extends ListenerAdapter {
                         fileWriter.close();
 
                     } else if (message.getContentStripped().contains("Word report")) {
-                        Scanner words = new Scanner(file);
-                        ArrayList<String> wordList = new ArrayList<>();
-
-                        while (words.hasNext()) try {
-                            String next = words.next();
-                            if (!next.equalsIgnoreCase(message.getContentStripped().replaceAll(".*: ", "")))
-                                wordList.add(next.toUpperCase());
-                        } catch (NoSuchElementException ignored) {
-                        }
-
-                        FileWriter fileWriter = new FileWriter(file, false);
-                        for (String word : wordList) fileWriter.write(word + "\n");
+                        FileWriter fileWriter = fileWriter(file, message);
                         fileWriter.close();
                     }
 
@@ -560,6 +550,23 @@ public class Events extends ListenerAdapter {
                     e.printStackTrace();
                 }
             }
+    }
+
+    @NotNull
+    private static FileWriter fileWriter(File file, Message message) throws IOException {
+        Scanner words = new Scanner(file);
+        ArrayList<String> wordList = new ArrayList<>();
+
+        while (words.hasNext()) try {
+            String next = words.next();
+            if (!next.equalsIgnoreCase(message.getContentStripped().replaceAll(".*: ", "")))
+                wordList.add(next.toUpperCase());
+        } catch (NoSuchElementException ignored) {
+        }
+
+        FileWriter fileWriter = new FileWriter(file, false);
+        for (String word : wordList) fileWriter.write(word + "\n");
+        return fileWriter;
     }
 
     @Override

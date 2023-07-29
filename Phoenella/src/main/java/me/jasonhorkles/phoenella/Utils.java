@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -176,18 +177,7 @@ public class Utils {
 
     public void updateDailyWordle() {
         try {
-            Scanner words = new Scanner(new File("Phoenella/Wordle/words.txt"));
-            ArrayList<String> wordList = new ArrayList<>();
-            while (words.hasNext()) try {
-                wordList.add(words.next());
-            } catch (NoSuchElementException ignored) {
-            }
-
-            Random r = new Random();
-            String word = wordList.get(r.nextInt(wordList.size()));
-
-            FileWriter daily = new FileWriter("Phoenella/Wordle/daily.txt", false);
-            daily.write(word);
+            FileWriter daily = fileWriter();
             daily.close();
 
             FileWriter plays = new FileWriter("Phoenella/Wordle/played-daily.txt", false);
@@ -199,6 +189,23 @@ public class Utils {
             System.out.print(getTime(LogColor.RED));
             e.printStackTrace();
         }
+    }
+
+    @NotNull
+    private static FileWriter fileWriter() throws IOException {
+        Scanner words = new Scanner(new File("Phoenella/Wordle/words.txt"));
+        ArrayList<String> wordList = new ArrayList<>();
+        while (words.hasNext()) try {
+            wordList.add(words.next());
+        } catch (NoSuchElementException ignored) {
+        }
+
+        Random r = new Random();
+        String word = wordList.get(r.nextInt(wordList.size()));
+
+        FileWriter daily = new FileWriter("Phoenella/Wordle/daily.txt", false);
+        daily.write(word);
+        return daily;
     }
 
     public MessageEmbed defineWord(String word) {

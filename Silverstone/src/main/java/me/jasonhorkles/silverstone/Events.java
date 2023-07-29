@@ -17,7 +17,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.awt.*;
 import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -149,8 +148,8 @@ public class Events extends ListenerAdapter {
         System.out.println(
             "\n" + new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser().getName() + " left!");
 
-        OffsetDateTime thirtyMinsAgo = OffsetDateTime.now().minus(30, ChronoUnit.MINUTES);
-        OffsetDateTime threeDaysAgo = OffsetDateTime.now().minus(3, ChronoUnit.DAYS);
+        OffsetDateTime thirtyMinsAgo = OffsetDateTime.now().minusMinutes(30);
+        OffsetDateTime threeDaysAgo = OffsetDateTime.now().minusDays(3);
 
         for (ThreadChannel thread : event.getGuild().getChannelById(ForumChannel.class, 1023735878075564042L)
             .getThreadChannels()) {

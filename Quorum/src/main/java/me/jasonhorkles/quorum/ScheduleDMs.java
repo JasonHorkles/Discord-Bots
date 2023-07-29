@@ -10,7 +10,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.NoSuchElementException;
@@ -83,7 +82,7 @@ public class ScheduleDMs {
         TextChannel messageChannel = Quorum.jda.getTextChannelById(869009573774761984L);
         if (usersLeft == 0) try {
             if (new Utils().getMessages(messageChannel, 1).get(30, TimeUnit.SECONDS).get(0).getTimeCreated()
-                .isBefore(OffsetDateTime.now().minus(71, ChronoUnit.HOURS))) messageChannel.sendMessage(
+                .isBefore(OffsetDateTime.now().minusHours(71))) messageChannel.sendMessage(
                 "<@" + firstAssistantId + ">, there are no more lessons scheduled for the quorum").queue();
 
         } catch (InterruptedException | ExecutionException | TimeoutException e) {

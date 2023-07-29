@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.io.FileWriter;
@@ -98,7 +99,7 @@ public class StormAlerts extends ListenerAdapter {
 
                 System.out.println(new Utils().getTime(
                     Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
-                if (reason.equals("")) {
+                if (reason.isEmpty()) {
                     System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
                     new Utils().logError(e);
@@ -191,27 +192,7 @@ public class StormAlerts extends ListenerAdapter {
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Dumping record data...");
         try {
-            String filePath = "StormAlerts/records-today.json";
-
-            JSONObject allRecords = new JSONObject();
-            allRecords.put("highLightningRate", Records.highestLightningRateToday);
-            allRecords.put("highTemp", Records.highestTempToday);
-            allRecords.put("lowTemp", Records.lowestTempToday);
-            allRecords.put("maxLightning", Records.maxLightningToday);
-            allRecords.put("maxRainAmount", Records.maxRainAmountToday);
-            allRecords.put("maxRainRate", Records.maxRainRateToday);
-            allRecords.put("maxWind", Records.maxWindToday);
-
-            allRecords.put("highLightningRateTime", Records.highestLightningRateTime);
-            allRecords.put("highTempTime", Records.highestTempTime);
-            allRecords.put("lowTempTime", Records.lowestTempTime);
-            allRecords.put("maxLightningTime", Records.maxLightningTime);
-            allRecords.put("maxRainAmountTime", Records.maxRainAmountTime);
-            allRecords.put("maxRainRateTime", Records.maxRainRateTime);
-            allRecords.put("maxWindTime", Records.maxWindTime);
-
-            FileWriter recordsToday = new FileWriter(filePath, false);
-            recordsToday.write(allRecords.toString());
+            FileWriter recordsToday = saveRecords();
             recordsToday.close();
 
         } catch (IOException e) {
@@ -224,7 +205,7 @@ public class StormAlerts extends ListenerAdapter {
 
             jda.openPrivateChannelById(277291758503723010L).flatMap(channel -> channel.sendMessage(
                 MessageFormat.format(
-                    "Error saving records file!\nLightning rate: {0}:{8}\nTemp high: {1}:{9}\nUV high: {2}:{10}\nTemp low: {3}:{11}\nLightning today: {4}:{12}\nRain today: {5}:{13}\nRain rate: {6}:{14}\nWind: {7}:{15}",
+                    "Error saving records file!\nLightning rate: {0}:{7}\nTemp high: {1}:{8}\nTemp low: {2}:{9}\nLightning today: {3}:{10}\nRain today: {4}:{11}\nRain rate: {5}:{12}\nWind: {6}:{13}",
                     Records.highestLightningRateToday, Records.highestTempToday, Records.lowestTempToday,
                     Records.maxLightningToday, Records.maxRainAmountToday, Records.maxRainRateToday,
                     Records.maxWindToday, Records.highestLightningRateTime, Records.highestTempTime,
@@ -265,5 +246,31 @@ public class StormAlerts extends ListenerAdapter {
             }
         } catch (NoClassDefFoundError | InterruptedException ignored) {
         }
+    }
+
+    @NotNull
+    private static FileWriter saveRecords() throws IOException {
+        String filePath = "StormAlerts/records-today.json";
+
+        JSONObject allRecords = new JSONObject();
+        allRecords.put("highLightningRate", Records.highestLightningRateToday);
+        allRecords.put("highTemp", Records.highestTempToday);
+        allRecords.put("lowTemp", Records.lowestTempToday);
+        allRecords.put("maxLightning", Records.maxLightningToday);
+        allRecords.put("maxRainAmount", Records.maxRainAmountToday);
+        allRecords.put("maxRainRate", Records.maxRainRateToday);
+        allRecords.put("maxWind", Records.maxWindToday);
+
+        allRecords.put("highLightningRateTime", Records.highestLightningRateTime);
+        allRecords.put("highTempTime", Records.highestTempTime);
+        allRecords.put("lowTempTime", Records.lowestTempTime);
+        allRecords.put("maxLightningTime", Records.maxLightningTime);
+        allRecords.put("maxRainAmountTime", Records.maxRainAmountTime);
+        allRecords.put("maxRainRateTime", Records.maxRainRateTime);
+        allRecords.put("maxWindTime", Records.maxWindTime);
+
+        FileWriter recordsToday = new FileWriter(filePath, false);
+        recordsToday.write(allRecords.toString());
+        return recordsToday;
     }
 }
