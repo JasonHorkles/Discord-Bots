@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -260,16 +261,9 @@ public class Wordle extends ListenerAdapter {
                             //noinspection DataFlowIssue
                             int wins = Integer.parseInt(embed.getFields().get(1).getValue()) + 1;
 
-                            EmbedBuilder newEmbed = new EmbedBuilder(embed);
-                            newEmbed.clearFields();
-                            //noinspection DataFlowIssue
-                            newEmbed.addField(embed.getFields().get(0).getName(),
-                                embed.getFields().get(0).getValue(), true);
-                            //noinspection DataFlowIssue
-                            newEmbed.addField(embed.getFields().get(1).getName(), String.valueOf(wins), true);
-                            //noinspection DataFlowIssue
-                            newEmbed.addField(embed.getFields().get(2).getName(),
-                                embed.getFields().get(2).getValue(), true);
+                            EmbedBuilder newEmbed = getEmbedBuilder(embed,
+                                embed.getFields().get(0).getValue(), String.valueOf(wins),
+                                embed.getFields().get(2).getValue());
 
                             original.editMessageEmbeds(newEmbed.build()).queue();
                         }
@@ -338,16 +332,9 @@ public class Wordle extends ListenerAdapter {
                             //noinspection DataFlowIssue
                             int fails = Integer.parseInt(embed.getFields().get(2).getValue()) + 1;
 
-                            EmbedBuilder newEmbed = new EmbedBuilder(embed);
-                            newEmbed.clearFields();
-                            //noinspection DataFlowIssue
-                            newEmbed.addField(embed.getFields().get(0).getName(),
-                                embed.getFields().get(0).getValue(), true);
-                            //noinspection DataFlowIssue
-                            newEmbed.addField(embed.getFields().get(1).getName(),
-                                embed.getFields().get(1).getValue(), true);
-                            //noinspection DataFlowIssue
-                            newEmbed.addField(embed.getFields().get(2).getName(), String.valueOf(fails), true);
+                            EmbedBuilder newEmbed = getEmbedBuilder(embed,
+                                embed.getFields().get(0).getValue(), embed.getFields().get(1).getValue(),
+                                String.valueOf(fails));
 
                             original.editMessageEmbeds(newEmbed.build()).queue();
                         }
@@ -355,6 +342,17 @@ public class Wordle extends ListenerAdapter {
 
             sendRetryMsg(channel, "The word was **" + answer.toLowerCase() + "**!", answer);
         }
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    @NotNull
+    private static EmbedBuilder getEmbedBuilder(MessageEmbed embed, String embed1, String embed2, String fails) {
+        EmbedBuilder newEmbed = new EmbedBuilder(embed);
+        newEmbed.clearFields();
+        newEmbed.addField(embed.getFields().get(0).getName(), embed1, true);
+        newEmbed.addField(embed.getFields().get(1).getName(), embed2, true);
+        newEmbed.addField(embed.getFields().get(2).getName(), fails, true);
+        return newEmbed;
     }
 
     @Override
@@ -424,16 +422,8 @@ public class Wordle extends ListenerAdapter {
                         //noinspection DataFlowIssue
                         int plays = Integer.parseInt(message.getFields().get(0).getValue()) + 1;
 
-                        EmbedBuilder embed = new EmbedBuilder(message);
-                        embed.clearFields();
-                        //noinspection DataFlowIssue
-                        embed.addField(message.getFields().get(0).getName(), String.valueOf(plays), true);
-                        //noinspection DataFlowIssue
-                        embed.addField(message.getFields().get(1).getName(),
-                            message.getFields().get(1).getValue(), true);
-                        //noinspection DataFlowIssue
-                        embed.addField(message.getFields().get(2).getName(),
-                            message.getFields().get(2).getValue(), true);
+                        EmbedBuilder embed = getEmbedBuilder(message, String.valueOf(plays),
+                            message.getFields().get(1).getValue(), message.getFields().get(2).getValue());
 
                         event.getMessage().editMessageEmbeds(embed.build()).queue();
 
