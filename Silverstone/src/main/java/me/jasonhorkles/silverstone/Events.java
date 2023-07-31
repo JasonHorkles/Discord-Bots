@@ -75,7 +75,6 @@ public class Events extends ListenerAdapter {
         if (event.getAuthor().isBot()) return;
 
         // Thanks for coming :)
-        //todo add hangar links too
         if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD)
             if (event.getGuildChannel().asThreadChannel().getParentChannel()
                 .getIdLong() == 1023735878075564042L && event.getAuthor()
@@ -84,13 +83,17 @@ public class Events extends ListenerAdapter {
 
                 EmbedBuilder embed = new EmbedBuilder();
 
-                embed.setTitle(
-                    "Thank you for coming. If you enjoy the plugin and are happy with the support you received, please consider leaving a review on Spigot \\:)");
-                embed.setDescription(
-                    "[EntityClearer](https://www.spigotmc.org/resources/entityclearer.90802/)\n[ExpensiveDeaths](https://www.spigotmc.org/resources/expensivedeaths.96065/)\n[FileCleaner](https://www.spigotmc.org/resources/filecleaner.93372/)\n[BungeeNicks](https://www.spigotmc.org/resources/bungeenicks.110948/)");
-                embed.setColor(new Color(19, 196, 88));
+                embed.addField("Spigot",
+                    "[EntityClearer](https://www.spigotmc.org/resources/entityclearer.90802/)\n[ExpensiveDeaths](https://www.spigotmc.org/resources/expensivedeaths.96065/)\n[FileCleaner](https://www.spigotmc.org/resources/filecleaner.93372/)\n[BungeeNicks](https://www.spigotmc.org/resources/bungeenicks.110948/)",
+                    true);
+                embed.addField("Hangar",
+                    "[EntityClearer](https://hangar.papermc.io/JasonHorkles/EntityClearer)\n[ExpensiveDeaths](https://hangar.papermc.io/JasonHorkles/ExpensiveDeaths)\n[FileCleaner](https://hangar.papermc.io/JasonHorkles/FileCleaner)\n[BungeeNicks](https://hangar.papermc.io/JasonHorkles/BungeeNicks)",
+                    true);
+                embed.setColor(new Color(43, 45, 49));
 
-                event.getChannel().sendMessageEmbeds(embed.build()).queue();
+                event.getChannel().sendMessage(
+                        "Thank you for coming. If you enjoy the plugin and are happy with the support you received, please consider leaving a review on Spigot, or a star on Hangar \\:)")
+                    .addEmbeds(embed.build()).queue();
             }
 
         // Direct to plugin support (not in thread)
