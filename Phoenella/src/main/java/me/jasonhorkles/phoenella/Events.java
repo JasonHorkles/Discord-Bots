@@ -716,7 +716,7 @@ public class Events extends ListenerAdapter {
                             finalLeaderboard.append("```");
 
                             EmbedBuilder embed = new EmbedBuilder();
-                            embed.setColor(new Color(47, 49, 54));
+                            embed.setColor(new Color(43, 45, 49));
                             embed.setTitle("Wordle Leaderboard");
                             embed.setFooter("User-generated words are not counted");
                             embed.setDescription(finalLeaderboard);
@@ -757,7 +757,7 @@ public class Events extends ListenerAdapter {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setAuthor(new Utils().getFullName(event.getMember()) + " has created a Wordle!", null,
                 event.getMember().getEffectiveAvatarUrl());
-            embed.setColor(new Color(47, 49, 54));
+            embed.setColor(new Color(43, 45, 49));
             embed.addField("Plays", "0", true);
             embed.addField("Passes", "0", true);
             embed.addField("Fails", "0", true);
@@ -806,7 +806,7 @@ public class Events extends ListenerAdapter {
                 embed.addField("You have", roleList.toString(), true);
                 embed.addBlankField(true);
                 embed.addField("You don't have", notRoleList.toString(), true);
-                embed.setColor(new Color(47, 49, 54));
+                embed.setColor(new Color(43, 45, 49));
 
                 event.getHook().editOriginalEmbeds(embed.build()).queue();
             }

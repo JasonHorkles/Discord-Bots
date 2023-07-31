@@ -201,32 +201,32 @@ public class Forecasts {
         }
 
         EmbedBuilder health = new EmbedBuilder();
-        health.setColor(new Color(47, 49, 54));
+        health.setColor(new Color(43, 45, 49));
         health.setTitle("Health");
         health.setDescription(healthForecasts.toString().strip());
 
         EmbedBuilder pollen = new EmbedBuilder();
-        pollen.setColor(new Color(47, 49, 54));
+        pollen.setColor(new Color(43, 45, 49));
         pollen.setTitle("Pollen");
         pollen.setDescription(pollenForecasts.strip());
 
         EmbedBuilder transportation = new EmbedBuilder();
-        transportation.setColor(new Color(47, 49, 54));
+        transportation.setColor(new Color(43, 45, 49));
         transportation.setTitle("Transportation");
         transportation.setDescription(transportationForecasts.toString().strip());
 
         EmbedBuilder work = new EmbedBuilder();
-        work.setColor(new Color(47, 49, 54));
+        work.setColor(new Color(43, 45, 49));
         work.setTitle("Work");
         work.setDescription(workForecasts.toString().strip());
 
         EmbedBuilder sports = new EmbedBuilder();
-        sports.setColor(new Color(47, 49, 54));
+        sports.setColor(new Color(43, 45, 49));
         sports.setTitle("Sports");
         sports.setDescription(sportsForecasts.toString().strip());
 
         EmbedBuilder activities = new EmbedBuilder();
-        activities.setColor(new Color(47, 49, 54));
+        activities.setColor(new Color(43, 45, 49));
         activities.setTitle("Activities");
         activities.setDescription(activityForecasts.toString().strip());
 

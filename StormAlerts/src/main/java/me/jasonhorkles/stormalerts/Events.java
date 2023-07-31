@@ -56,7 +56,7 @@ public class Events extends ListenerAdapter {
                 embed.addField("You have", roleList.toString(), true);
                 embed.addBlankField(true);
                 embed.addField("You don't have", notRoleList.toString(), true);
-                embed.setColor(new Color(47, 49, 54));
+                embed.setColor(new Color(43, 45, 49));
 
                 event.getHook().editOriginalEmbeds(embed.build()).queue();
             }
@@ -113,7 +113,7 @@ public class Events extends ListenerAdapter {
                     embed.addField("You have", roleList.toString(), true);
                     embed.addBlankField(true);
                     embed.addField("You don't have", notRoleList.toString(), true);
-                    embed.setColor(new Color(47, 49, 54));
+                    embed.setColor(new Color(43, 45, 49));
 
                     event.getHook().editOriginalEmbeds(embed.build()).queue();
                 }, "Add Roles - " + member.getEffectiveName()).start();
