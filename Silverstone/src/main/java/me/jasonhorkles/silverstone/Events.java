@@ -14,7 +14,9 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -29,6 +31,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -176,33 +179,55 @@ public class Events extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
 
-        // Thanks for coming :)
+        // Plugin support thread
         if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD)
             if (event.getGuildChannel().asThreadChannel().getParentChannel()
                 .getIdLong() == 1023735878075564042L && event.getAuthor()
-                .getIdLong() == 277291758503723010L && event.getMessage().getContentStripped().toLowerCase()
-                .startsWith("np")) {
+                .getIdLong() == 277291758503723010L) {
+                Message message = event.getMessage();
 
-                EmbedBuilder embed = new EmbedBuilder();
+                // Thanks for coming :)
+                if (message.getContentStripped().toLowerCase().startsWith("np")) {
 
-                embed.addField("Spigot", """
-                    [BungeeNicks](https://www.spigotmc.org/resources/bungeenicks.110948/)
-                    [EntityClearer](https://www.spigotmc.org/resources/entityclearer.90802/)
-                    [ExpensiveDeaths](https://www.spigotmc.org/resources/expensivedeaths.96065/)
-                    [FileCleaner](https://www.spigotmc.org/resources/filecleaner.93372/)""", true);
-                embed.addField("Hangar", """
-                    [BungeeNicks](https://hangar.papermc.io/JasonHorkles/BungeeNicks)
-                    [EntityClearer](https://hangar.papermc.io/JasonHorkles/EntityClearer)
-                    [ExpensiveDeaths](https://hangar.papermc.io/JasonHorkles/ExpensiveDeaths)
-                    [FileCleaner](https://hangar.papermc.io/JasonHorkles/FileCleaner)""", true);
-                embed.setColor(new Color(43, 45, 49));
-                embed.setFooter("This post will now be closed. Send a message to re-open it.");
+                    EmbedBuilder embed = new EmbedBuilder();
 
-                event.getChannel().sendMessage(
-                        "Thank you for coming. If you enjoy the plugin and are happy with the support you received, please consider leaving a review on Spigot, or a star on Hangar \\:)")
-                    .addEmbeds(embed.build()).queue(
-                        na -> event.getChannel().asThreadChannel().getManager().setArchived(true)
-                            .queueAfter(1, TimeUnit.SECONDS));
+                    embed.addField("Spigot", """
+                        [BungeeNicks](https://www.spigotmc.org/resources/bungeenicks.110948/)
+                        [EntityClearer](https://www.spigotmc.org/resources/entityclearer.90802/)
+                        [ExpensiveDeaths](https://www.spigotmc.org/resources/expensivedeaths.96065/)
+                        [FileCleaner](https://www.spigotmc.org/resources/filecleaner.93372/)""", true);
+                    embed.addField("Hangar", """
+                        [BungeeNicks](https://hangar.papermc.io/JasonHorkles/BungeeNicks)
+                        [EntityClearer](https://hangar.papermc.io/JasonHorkles/EntityClearer)
+                        [ExpensiveDeaths](https://hangar.papermc.io/JasonHorkles/ExpensiveDeaths)
+                        [FileCleaner](https://hangar.papermc.io/JasonHorkles/FileCleaner)""", true);
+                    embed.setColor(new Color(43, 45, 49));
+                    embed.setFooter("This post will now be closed. Send a message to re-open it.");
+
+                    event.getChannel().sendMessage(
+                            "Thank you for coming. If you enjoy the plugin and are happy with the support you received, please consider leaving a review on Spigot, or a star on Hangar \\:)")
+                        .addEmbeds(embed.build()).queue(
+                            na -> event.getChannel().asThreadChannel().getManager().setArchived(true)
+                                .queueAfter(1, TimeUnit.SECONDS));
+                    return;
+                }
+
+                // Ping OP
+                if (message.getMessageReference() == null) try {
+                    List<Message> messages = new Utils().getMessages(event.getChannel(), 2)
+                        .get(30, TimeUnit.SECONDS);
+                    if (messages.size() < 2) return;
+                    if (messages.get(1).getAuthor().getIdLong() != 277291758503723010L) {
+                        String opPing = event.getChannel().asThreadChannel().getOwner().getAsMention();
+                        event.getChannel().sendMessage(opPing).queue(del -> del.delete()
+                            .queueAfter(100, TimeUnit.MILLISECONDS, null,
+                                new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
+                    }
+
+                } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                    e.printStackTrace();
+                }
             }
 
         // Direct to plugin support (not in thread)
