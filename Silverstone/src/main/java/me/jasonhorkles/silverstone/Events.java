@@ -43,7 +43,7 @@ public class Events extends ListenerAdapter {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember()
             .getEffectiveName() + " used the /" + event.getName() + " command");
 
-        // If in discord server and not a staff member or admin and in the wrong channel, make it private
+        // If in discord server, not a staff member or admin, and in the wrong channel, make it private
         boolean ephemeral = event.isFromGuild() && event.getGuild()
             .getIdLong() == 455919765999976461L && !(event.getMember().getRoles()
             .contains("667793980318154783") || event.getMember()
@@ -79,6 +79,13 @@ public class Events extends ListenerAdapter {
             case "lp" ->
                 event.reply("Get LuckPerms help here: https://discord.gg/luckperms").setEphemeral(ephemeral)
                     .queue();
+
+            case "config" -> {
+                String plugin = event.getOption("plugin").getAsString();
+                event.reply(
+                        "See the " + plugin + " config at: <https://github.com/SilverstoneMC/" + plugin + "/blob/main/src/main/resources/config.yml>")
+                    .setEphemeral(ephemeral).queue();
+            }
         }
     }
 
@@ -178,17 +185,24 @@ public class Events extends ListenerAdapter {
 
                 EmbedBuilder embed = new EmbedBuilder();
 
-                embed.addField("Spigot",
-                    "[EntityClearer](https://www.spigotmc.org/resources/entityclearer.90802/)\n[ExpensiveDeaths](https://www.spigotmc.org/resources/expensivedeaths.96065/)\n[FileCleaner](https://www.spigotmc.org/resources/filecleaner.93372/)\n[BungeeNicks](https://www.spigotmc.org/resources/bungeenicks.110948/)",
-                    true);
-                embed.addField("Hangar",
-                    "[EntityClearer](https://hangar.papermc.io/JasonHorkles/EntityClearer)\n[ExpensiveDeaths](https://hangar.papermc.io/JasonHorkles/ExpensiveDeaths)\n[FileCleaner](https://hangar.papermc.io/JasonHorkles/FileCleaner)\n[BungeeNicks](https://hangar.papermc.io/JasonHorkles/BungeeNicks)",
-                    true);
+                embed.addField("Spigot", """
+                    [BungeeNicks](https://www.spigotmc.org/resources/bungeenicks.110948/)
+                    [EntityClearer](https://www.spigotmc.org/resources/entityclearer.90802/)
+                    [ExpensiveDeaths](https://www.spigotmc.org/resources/expensivedeaths.96065/)
+                    [FileCleaner](https://www.spigotmc.org/resources/filecleaner.93372/)""", true);
+                embed.addField("Hangar", """
+                    [BungeeNicks](https://hangar.papermc.io/JasonHorkles/BungeeNicks)
+                    [EntityClearer](https://hangar.papermc.io/JasonHorkles/EntityClearer)
+                    [ExpensiveDeaths](https://hangar.papermc.io/JasonHorkles/ExpensiveDeaths)
+                    [FileCleaner](https://hangar.papermc.io/JasonHorkles/FileCleaner)""", true);
                 embed.setColor(new Color(43, 45, 49));
+                embed.setFooter("This post will now be closed. Send a message to re-open it.");
 
                 event.getChannel().sendMessage(
                         "Thank you for coming. If you enjoy the plugin and are happy with the support you received, please consider leaving a review on Spigot, or a star on Hangar \\:)")
-                    .addEmbeds(embed.build()).queue();
+                    .addEmbeds(embed.build()).queue(
+                        na -> event.getChannel().asThreadChannel().getManager().setArchived(true)
+                            .queueAfter(1, TimeUnit.SECONDS));
             }
 
         // Direct to plugin support (not in thread)

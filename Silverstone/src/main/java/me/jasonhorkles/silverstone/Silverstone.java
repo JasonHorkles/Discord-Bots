@@ -7,8 +7,10 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -41,6 +43,12 @@ public class Silverstone {
 
         jda.awaitReady();
 
+        OptionData plugins = new OptionData(OptionType.STRING, "plugin", "The plugin", true).addChoices(
+            new Command.Choice("BungeeNicks", "BungeeNicks"),
+            new Command.Choice("EntityClearer", "EntityClearer"),
+            new Command.Choice("ExpensiveDeaths", "ExpensiveDeaths"),
+            new Command.Choice("FileCleaner", "FileCleaner"));
+
         //noinspection DataFlowIssue
         jda.getGuildById(455919765999976461L).updateCommands()
             .addCommands(Commands.slash("ecdebug", "EntityClearer debug"),
@@ -51,7 +59,8 @@ public class Silverstone {
                 Commands.slash("tutorials", "Link to the tutorial channel"),
                 Commands.slash("moss", "M.O.S.S. Discord invite"),
                 Commands.slash("lp", "LuckPerms Discord invite"),
-                Commands.message("Upload file(s) to paste.gg")).queue();
+                Commands.slash("config", "Get a link to the latest config file of a plugin")
+                    .addOptions(plugins), Commands.message("Upload file(s) to paste.gg")).queue();
 
         new Time().updateTime();
 
