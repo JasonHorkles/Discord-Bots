@@ -11,12 +11,24 @@ import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
+import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.awt.*;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -68,6 +80,89 @@ public class Events extends ListenerAdapter {
                 event.reply("Get LuckPerms help here: https://discord.gg/luckperms").setEphemeral(ephemeral)
                     .queue();
         }
+    }
+
+    @Override
+    public void onMessageContextInteraction(MessageContextInteractionEvent event) {
+        if (event.getName().equals("Upload file(s) to paste.gg")) new Thread(() -> {
+            ArrayList<Message.Attachment> attachments = new ArrayList<>();
+
+            for (Message.Attachment attachment : event.getTarget().getAttachments())
+                if (attachment.getFileExtension().equalsIgnoreCase("yml") || attachment.getFileExtension()
+                    .equalsIgnoreCase("log")) attachments.add(attachment);
+
+            if (attachments.isEmpty()) {
+                event.reply("That message has no valid files!").setEphemeral(true).queue();
+                return;
+            }
+
+            event.deferReply(false).queue();
+
+            // Build the json
+            try {
+                JSONObject json = new JSONObject();
+                json.put("name", "Silverstone");
+                json.put("visibility", "unlisted");
+                json.put("expires", Instant.now().plus(7, ChronoUnit.DAYS));
+
+                JSONArray files = new JSONArray();
+                for (Message.Attachment attachment : attachments) {
+                    JSONObject file = new JSONObject();
+                    file.put("name", attachment.getFileName());
+
+                    JSONObject content = new JSONObject();
+                    content.put("format", "text");
+                    if (attachment.getFileExtension().equalsIgnoreCase("log"))
+                        content.put("highlight_language", "accesslog");
+                    try (InputStream bytes = attachment.getProxy().download().join()) {
+                        content.put("value", new String(bytes.readAllBytes(), StandardCharsets.UTF_8));
+                    }
+                    file.put("content", content);
+
+                    files.put(file);
+                }
+                json.put("files", files);
+                System.out.println(json);
+
+                // Send the request
+                URL url = new URL("https://api.paste.gg/v1/pastes");
+                URLConnection con = url.openConnection();
+                HttpURLConnection http = (HttpURLConnection) con;
+                http.setRequestMethod("POST");
+                http.setDoOutput(true);
+
+                byte[] out = json.toString().getBytes(StandardCharsets.UTF_8);
+                int length = out.length;
+
+                http.setFixedLengthStreamingMode(length);
+                http.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                http.setRequestProperty("Authorization", "Key " + new Secrets().getPasteKey());
+                http.connect();
+                try (OutputStream os = http.getOutputStream()) {
+                    os.write(out);
+                }
+
+                // Read the response
+                InputStream input = http.getInputStream();
+                JSONObject returnedText = new JSONObject(
+                    new String(input.readAllBytes(), StandardCharsets.UTF_8));
+
+                if (returnedText.getString("status").equals("success")) {
+                    String id = returnedText.getJSONObject("result").getString("id");
+                    event.getHook().editOriginal("<https://paste.gg/p/JasonHorkles/" + id + ">").queue();
+
+                } else if (returnedText.getString("status").equals("error")) event.getHook().editOriginal(
+                        "## Error: " + returnedText.getString("error") + "\n" + returnedText.getString("message"))
+                    .queue();
+
+            } catch (Exception e) {
+                System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                e.printStackTrace();
+                event.getHook()
+                    .editOriginal("An error occurred while uploading the file(s)! (" + e.getMessage() + ")")
+                    .queue();
+            }
+        }, "Upload Files to Paste.gg").start();
     }
 
     @Override

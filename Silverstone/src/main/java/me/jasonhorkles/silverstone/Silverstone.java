@@ -50,7 +50,8 @@ public class Silverstone {
                 Commands.slash("plugins", "Get a list of Jason's plugins"),
                 Commands.slash("tutorials", "Link to the tutorial channel"),
                 Commands.slash("moss", "M.O.S.S. Discord invite"),
-                Commands.slash("lp", "LuckPerms Discord invite")).queue();
+                Commands.slash("lp", "LuckPerms Discord invite"),
+                Commands.message("Upload file(s) to paste.gg")).queue();
 
         new Time().updateTime();
 
