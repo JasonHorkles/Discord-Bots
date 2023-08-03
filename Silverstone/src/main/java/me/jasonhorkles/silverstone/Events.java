@@ -99,8 +99,7 @@ public class Events extends ListenerAdapter {
             ArrayList<Message.Attachment> attachments = new ArrayList<>();
 
             for (Message.Attachment attachment : event.getTarget().getAttachments())
-                if (attachment.getFileExtension().equalsIgnoreCase("yml") || attachment.getFileExtension()
-                    .equalsIgnoreCase("log")) attachments.add(attachment);
+                if (!attachment.isImage() && !attachment.isVideo()) attachments.add(attachment);
 
             if (attachments.isEmpty()) {
                 event.reply("That message has no valid files!").setEphemeral(true).queue();
@@ -119,12 +118,13 @@ public class Events extends ListenerAdapter {
                 JSONArray files = new JSONArray();
                 for (Message.Attachment attachment : attachments) {
                     JSONObject file = new JSONObject();
-                    file.put("name", attachment.getFileName());
+
+                    boolean isLog = attachment.getFileExtension().equalsIgnoreCase("log");
+                    if (isLog) file.put("name", attachment.getFileName().replace(".log", ".accesslog"));
+                    else file.put("name", attachment.getFileName());
 
                     JSONObject content = new JSONObject();
                     content.put("format", "text");
-                    if (attachment.getFileExtension().equalsIgnoreCase("log"))
-                        content.put("highlight_language", "accesslog");
                     try (InputStream bytes = attachment.getProxy().download().join()) {
                         content.put("value", new String(bytes.readAllBytes(), StandardCharsets.UTF_8));
                     }
@@ -133,7 +133,6 @@ public class Events extends ListenerAdapter {
                     files.put(file);
                 }
                 json.put("files", files);
-                System.out.println(json);
 
                 // Send the request
                 URL url = new URL("https://api.paste.gg/v1/pastes");
