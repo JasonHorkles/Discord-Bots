@@ -2,6 +2,7 @@ package me.jasonhorkles.silverstone;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -217,12 +218,19 @@ public class Events extends ListenerAdapter {
                     List<Message> messages = new Utils().getMessages(event.getChannel(), 2)
                         .get(30, TimeUnit.SECONDS);
                     if (messages.size() < 2) return;
-                    if (messages.get(1).getAuthor().getIdLong() != 277291758503723010L) {
-                        String opPing = event.getChannel().asThreadChannel().getOwner().getAsMention();
-                        event.getChannel().sendMessage(opPing).queue(del -> del.delete()
-                            .queueAfter(100, TimeUnit.MILLISECONDS, null,
-                                new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
-                    }
+
+                    OffsetDateTime fiveMinsAgo = OffsetDateTime.now().minusMinutes(5);
+                    if (messages.get(1).getTimeCreated().isAfter(fiveMinsAgo)) return;
+
+                    Member op = event.getChannel().asThreadChannel().getOwner();
+                    if (op == null) return;
+
+                    User author = messages.get(1).getAuthor();
+                    if (author != op.getUser()) return;
+
+                    event.getChannel().sendMessage(op.getAsMention()).queue(del -> del.delete()
+                        .queueAfter(100, TimeUnit.MILLISECONDS, null,
+                            new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
 
                 } catch (InterruptedException | ExecutionException | TimeoutException e) {
                     System.out.print(new Utils().getTime(Utils.LogColor.RED));
