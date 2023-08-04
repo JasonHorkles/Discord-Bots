@@ -30,7 +30,7 @@ import java.util.concurrent.*;
 @SuppressWarnings({"DataFlowIssue"})
 public class StormAlerts extends ListenerAdapter {
     public static final ArrayList<ScheduledFuture<?>> scheduledTimers = new ArrayList<>();
-    public static final boolean testing = false;
+    public static final boolean testing = true;
     public static JDA jda;
 
 

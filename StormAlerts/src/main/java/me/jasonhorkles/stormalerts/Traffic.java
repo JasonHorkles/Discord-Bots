@@ -21,19 +21,6 @@ import java.util.concurrent.TimeUnit;
 public class Traffic {
     public void checkTraffic(boolean north) {
         try {
-            //todo Traffic incidents
-            /*ArrayList<String> incidents = getIncidents(north);
-            if (incidents.size() > 0) {
-                System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "There are " + incidents.size()
-                    + " incidents on " + new Secrets().getRoadName(north) + "!");
-                for (String incident : incidents) {
-                    System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + incident);
-                }
-            } else {
-                System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "There are no incidents on "
-                    + new Secrets().getRoadName(north) + "!");
-            }*/
-
             JSONArray input;
             if (!StormAlerts.testing) {
                 InputStream url = new URL(
@@ -91,17 +78,6 @@ public class Traffic {
         }
     }
     
-    /*private ArrayList<String> getIncidents(boolean north) {
-        if (input.getBoolean("roadClosure")) {
-            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + new Secrets().getRoadName(
-                north) + " Traffic section " + section + "/" + max + " is closed!");
-            StormAlerts.jda.openPrivateChannelById(277291758503723010L).flatMap(
-                channel -> channel.sendMessage(
-                    "**" + new Secrets().getRoadName(north) + "** is closed! :no_entry:")).queue();
-            continue;
-        }
-    }*/
-
     public void scheduleTrafficCheck(String time, boolean toWork) throws ParseException {
         DayOfWeek day = LocalDate.now().getDayOfWeek();
         if (day != DayOfWeek.SATURDAY && day != DayOfWeek.SUNDAY) {

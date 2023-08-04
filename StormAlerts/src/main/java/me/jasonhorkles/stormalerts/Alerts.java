@@ -7,14 +7,16 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("DataFlowIssue")
@@ -30,31 +32,23 @@ public class Alerts {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking alerts...");
 
         dontDeleteMe.clear();
-        StringBuilder input = new StringBuilder();
 
+        String input;
         if (!StormAlerts.testing) {
             InputStream url = new URL(
                 "https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&zone=" + new Secrets().getAlertZone()).openStream();
-            Scanner scanner = new Scanner(url, StandardCharsets.UTF_8).useDelimiter("\\A");
-            while (scanner.hasNextLine()) input.append(scanner.nextLine());
+            input = new String(url.readAllBytes(), StandardCharsets.UTF_8);
             url.close();
 
-        } else {
-            File file = new File("StormAlerts/Tests/alerts-empty.json");
-            Scanner fileScanner = new Scanner(file);
-            input.append(fileScanner.nextLine());
-        }
+        } else input = Files.readString(Path.of("StormAlerts/Tests/alerts-update.json"));
 
-        // Used to scan through every alert
-        JSONArray alerts = new JSONArray();
-        // Convert the input string to an object
-        JSONObject inputObject = new JSONObject(input.toString());
-        // Get what type the input is
+        JSONObject inputObject = new JSONObject(input);
         String type = inputObject.getString("type");
 
-        // For each feature
+        JSONArray alerts = new JSONArray();
+        // Feature (1 alert)
         if (type.equals("Feature")) alerts.put(inputObject.get("properties"));
-            // FeatureCollection
+            // FeatureCollection (2+ alerts)
         else for (Object feature : inputObject.getJSONArray("features"))
             alerts.put(new JSONObject(feature.toString()).getJSONObject("properties"));
 
@@ -65,31 +59,28 @@ public class Alerts {
             return;
         }
 
+        boolean hasUpdated = false;
         // For each alert
-        for (Object objects : alerts) {
-            JSONObject alert = new JSONObject(objects.toString());
+        for (Object object : alerts) {
+            JSONObject alert = new JSONObject(object.toString());
 
             String description = boldAreas(
-                new Utils().getJsonKey(alert, "description", true).replace("\\n", " ").replace("  ", "\n\n"));
-            String id = new Utils().getJsonKey(alert, "id", true).replaceFirst("urn:oid:", "");
-            String event = new Utils().getJsonKey(alert, "event", true);
+                alert.getString("description").replace("\n", " ").replace("  ", "\n")
+                    .replaceAll("(?m)^\\* ", "### ").replaceAll("\\b\\.\\.\\.\\b", "\n"));
+            String id = alert.getString("id").replaceFirst("urn:oid:", "");
 
-            String trimmedDescription = description.replace("\n", " ").replace("  ", " ");
-            if (!trimmedDescription.toLowerCase()
-                .contains(fa.toLowerCase()) && !trimmedDescription.toLowerCase()
-                .contains(ce.toLowerCase()) && !trimmedDescription.toLowerCase()
-                .contains(ka.toLowerCase()) && !trimmedDescription.toLowerCase().contains(nwf.toLowerCase()))
+
+            if (!description.toLowerCase().contains(fa.toLowerCase()) && !description.toLowerCase()
+                .contains(ce.toLowerCase()) && !description.toLowerCase()
+                .contains(ka.toLowerCase()) && !description.toLowerCase().contains(nwf.toLowerCase()))
                 continue;
 
-            Message alertMessage = null;
-            boolean sameAlert = false;
-
-            String alertType = new Utils().getJsonKey(alert, "messageType", true);
+            String alertType = alert.getString("messageType");
             if (!alertType.equals("Alert") && !alertType.equals("Update")) continue;
 
-            List<Message> messages = alertsChannel.getIterableHistory().complete();
-
             // For each message in the channel
+            List<Message> messages = alertsChannel.getIterableHistory().complete();
+            boolean sameAlert = false;
             for (Message message : messages) {
                 // If the message has no embeds, delete it and continue
                 if (message.getEmbeds().isEmpty()) {
@@ -97,19 +88,17 @@ public class Alerts {
                     continue;
                 }
 
-                // If the ID is the same
-                // And the description is the same, don't send an update
-                if (message.getEmbeds().get(0).getFields().get(3).getValue().equals(id))
-                    if (message.getEmbeds().get(0).getDescription().equals(description)) {
-                        sameAlert = true;
-                        dontDeleteMe.add(message);
-                        break;
-                    }
+                // If the ID is the same, don't send an update
+                if (message.getEmbeds().get(0).getFields().get(3).getValue().equals(id)) {
+                    sameAlert = true;
+                    dontDeleteMe.add(message);
+                    break;
+                }
             }
-
             if (sameAlert) continue;
 
             // If the alert is an update
+            Message alertMessage = null;
             if (alertType.equals("Update")) {
                 boolean idFound = false;
                 // Scan messages for the old ID(s)
@@ -117,8 +106,8 @@ public class Alerts {
                     if (idFound) break;
                     // Get the old ID(s)
                     for (Object references : alert.getJSONArray("references")) {
-                        String identifier = new Utils().getJsonKey(new JSONObject(references.toString()),
-                            "identifier", true).replaceFirst("urn:oid:", "");
+                        String identifier = new JSONObject(references.toString()).getString("identifier")
+                            .replaceFirst("urn:oid:", "");
 
                         // Compare if the footer has that ID
                         if (message.getEmbeds().get(0).getFields().get(3).getValue().equals(identifier)) {
@@ -132,20 +121,17 @@ public class Alerts {
                 if (!idFound) alertType = "Alert";
             }
 
-            String area = boldAreas(new Utils().getJsonKey(alert, "areaDesc", true));
-            String severity = new Utils().getJsonKey(alert, "severity", true);
-            String certainty = new Utils().getJsonKey(alert, "certainty", true);
-            String urgency = new Utils().getJsonKey(alert, "urgency", true);
-            String sender = new Utils().getJsonKey(alert, "senderName", true);
-            String headline = new Utils().getJsonKey(alert, "headline", true);
-            String instruction = new Utils().getJsonKey(alert, "instruction", true);
-            String nwsHeadline = null;
-            if (alert.toString().contains("NWSheadline")) {
-                nwsHeadline = alert.toString().replaceFirst(".*\"NWSheadline\":\\[\"", "")
-                    .replaceFirst("\"],\".*", "");
-                if (nwsHeadline.length() >= 253)
-                    nwsHeadline = nwsHeadline.substring(0, Math.min(nwsHeadline.length(), 253)) + "...";
-            }
+            long ends = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString("ends")))
+                .toEpochMilli() / 1000;
+            long sent = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString("sent")))
+                .toEpochMilli() / 1000;
+            String area = boldAreas(alert.getString("areaDesc"));
+            String certainty = alert.getString("certainty");
+            String event = alert.getString("event");
+            String instruction = alert.getString("instruction");
+            String sender = alert.getString("senderName");
+            String severity = alert.getString("severity");
+            String urgency = alert.getString("urgency");
 
             if (alertMessage == null)
                 System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got an alert! " + event);
@@ -153,69 +139,14 @@ public class Alerts {
                 new Utils().getTime(Utils.LogColor.GREEN) + "Got an update for the \"" + event + "\" alert!");
 
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle(headline).setDescription(description)
-                .setFooter(sender, "https://pbs.twimg.com/profile_images/1076936762377814016/AOf7ktiH.jpg")
-                .addField("Instruction", instruction.replace("\\n", " ").replace("  ", "\n\n"), false)
-                .addField("Certainty", certainty, true).addField("Urgency", urgency, true)
-                .addField("ID", id, false);
-            if (nwsHeadline != null) embed.setAuthor(nwsHeadline, null, null);
-
-            switch (event) {
-                case "911 Telephone Outage Emergency" -> embed.setThumbnail(
-                    "https://cdn.discordapp.com/attachments/335445132520194058/1049516136171044864/call-911-1024x1024.png");
-
-                case "Administrative Message" -> embed.setThumbnail(
-                    "https://cdn.discordapp.com/attachments/335445132520194058/1049516136594673694/how-to-fix-the-unknown-message-not-found-on-iphone-error-849e332f4e9241db9cb80ef9ddb63e01.png");
-
-                case "Air Quality Alert" -> embed.setThumbnail(
-                    "https://cdn.discordapp.com/attachments/335445132520194058/1049516137085403176/Power-Plant-Clip-Art.png");
-
-                case "Blizzard Warning", "Blizzard Watch" -> embed.setThumbnail(
-                    "https://cdn.discordapp.com/attachments/335445132520194058/1049516137605501039/6a00d8341cdd0d53ef022ad3c2a6f5200d-pi.png");
-
-                case "Brisk Wind Advisory", "High Wind Warning", "High Wind Watch", "Wind Advisory", "Extreme Wind Warning" ->
-                    embed.setThumbnail(
-                        "https://cdn.discordapp.com/attachments/335445132520194058/1049516138079453235/wind-clipart-xl.png");
-
-                case "Child Abduction Emergency" -> embed.setThumbnail(
-                    "https://cdn.discordapp.com/attachments/335445132520194058/1049517612880625714/58c063da3ce0c.png");
-
-                case "Dense Fog Advisory", "Dense Smoke Advisory" -> embed.setThumbnail(
-                    "https://cdn.discordapp.com/attachments/335445132520194058/1049516436789403658/122-1220930_free-download-cloudy-weather-clipart-cloudy-day-clip.png");
-
-                case "Earthquake Warning" -> embed.setThumbnail(
-                    "https://cdn.discordapp.com/attachments/335445132520194058/1049517612566073425/earthquake-metaphor-vector-icon-vec.png");
-
-                case "Excessive Heat Warning", "Excessive Heat Watch", "Heat Advisory" -> embed.setThumbnail(
-                    "https://cdn.discordapp.com/attachments/335445132520194058/1049516438030913616/kindpng_636901.png");
-
-                case "Extreme Cold Warning", "Extreme Cold Watch", "Wind Chill Watch", "Wind Chill Warning" ->
-                    embed.setThumbnail(
-                        "https://cdn.discordapp.com/attachments/335445132520194058/1049516437619867668/Cold-Thermometer-clipart-transparent.png");
-
-                case "Extreme Fire Danger", "Fire Warning", "Fire Weather Watch", "Red Flag Warning" ->
-                    embed.setThumbnail(
-                        "https://cdn.discordapp.com/attachments/335445132520194058/1049516774737059881/image.png");
-
-                case "Flash Flood Statement", "Flash Flood Warning", "Flash Flood Watch", "Flood Advisory", "Flood Statement", "Flood Warning", "Flood Watch" ->
-                    embed.setThumbnail(
-                        "https://cdn.discordapp.com/attachments/335445132520194058/1049516775118745640/flood-disaster-home-vector-vector-id1038699624.png");
-
-                case "Snow Squall Warning", "Winter Storm Warning", "Winter Storm Watch", "Winter Weather Advisory" ->
-                    embed.setThumbnail(
-                        "https://cdn.discordapp.com/attachments/335445132520194058/1049516775492042794/wintershovel.png");
-
-                case "Freeze Warning", "Freeze Watch", "Frost Advisory", "Hard Freeze Warning", "Hard Freeze Watch" ->
-                    embed.setThumbnail(
-                        "https://cdn.discordapp.com/attachments/335445132520194058/1049516775810801664/frost-texture-frozen-glass-surfaces-blue-ice-sheet-white-marks-frosty-crystal-winter-pattern-transparent-water-crystals-196937681.png");
-
-                case "Severe Thunderstorm Warning", "Storm Watch", "Storm Warning", "Special Weather Statement", "Severe Weather Statement", "Severe Thunderstorm Watch" ->
-                    embed.setThumbnail(
-                        "https://cdn.discordapp.com/attachments/335445132520194058/1049519190614228992/StormAlerts.png");
-
-                default -> embed.setThumbnail(
-                    "https://media.discordapp.net/attachments/421827334534856705/871617342210203689/Warning.png?width=714&height=676");
-            }
+            embed.setAuthor(sender, null,
+                "https://pbs.twimg.com/profile_images/1076936762377814016/AOf7ktiH.jpg");
+            embed.setThumbnail(getThumbnailImage(event));
+            embed.setDescription(description);
+            embed.addField("Instruction", "- " + instruction.replace("\n", " ").replace("  ", "\n- "), false);
+            embed.addField("Certainty", certainty, true);
+            embed.addField("Urgency", urgency, true);
+            embed.addField("UID", id, false);
 
             switch (severity) {
                 case "Extreme" -> embed.setColor(new Color(212, 43, 65));
@@ -231,21 +162,22 @@ public class Alerts {
                     if (severity.equalsIgnoreCase("Extreme"))
                         message = message.replaceFirst("<@&850471646191812700>\n",
                             "<@&850471646191812700>\n<a:weewoo:1083615022455992382> ");
+                    embed.setTitle("Issued <t:" + sent + ":F>\nEnds <t:" + ends + ":F>");
 
                     dontDeleteMe.add(alertsChannel.sendMessage(message).setEmbeds(embed.build()).complete());
                 }
 
                 case "Update" -> {
                     dontDeleteMe.remove(alertMessage);
-
                     String message = "<@&850471690093854810>\n**[" + severity.toUpperCase() + "] " + event + "** for " + area;
                     if (severity.equalsIgnoreCase("Extreme"))
                         message = message.replaceFirst("<@&850471690093854810>\n",
                             "<@&850471690093854810>\n<a:weewoo:1083615022455992382> ");
+                    embed.setTitle(
+                        "Updated <t:" + System.currentTimeMillis() / 1000 + ":F>\nEnds <t:" + ends + ":F>");
 
                     dontDeleteMe.add(alertMessage.editMessage(message).setEmbeds(embed.build()).complete());
-                    alertsChannel.sendMessage("<@&850471690093854810>")
-                        .queue(del -> del.delete().queueAfter(250, TimeUnit.MILLISECONDS));
+                    hasUpdated = true;
                 }
             }
         }
@@ -265,6 +197,9 @@ public class Alerts {
             // Delete them
             message.delete().queue();
         }
+
+        if (hasUpdated) alertsChannel.sendMessage("<@&850471690093854810>")
+            .queue(del -> del.delete().queueAfter(250, TimeUnit.MILLISECONDS));
     }
 
     private String boldAreas(String input) {
@@ -276,5 +211,73 @@ public class Alerts {
             .replace(ka.toUpperCase(), "**" + ka.toUpperCase() + "**")
             .replace(nwf.toUpperCase(), "**" + nwf.toUpperCase() + "**")
             .replace(da.toUpperCase(), "**" + da.toUpperCase() + "**");
+    }
+
+    private String getThumbnailImage(String event) {
+        switch (event) {
+            case "911 Telephone Outage Emergency" -> {
+                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516136171044864/call-911-1024x1024.png";
+            }
+
+            case "Administrative Message" -> {
+                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516136594673694/how-to-fix-the-unknown-message-not-found-on-iphone-error-849e332f4e9241db9cb80ef9ddb63e01.png";
+            }
+
+            case "Air Quality Alert" -> {
+                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516137085403176/Power-Plant-Clip-Art.png";
+            }
+
+            case "Blizzard Warning", "Blizzard Watch" -> {
+                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516137605501039/6a00d8341cdd0d53ef022ad3c2a6f5200d-pi.png";
+            }
+
+            case "Brisk Wind Advisory", "High Wind Warning", "High Wind Watch", "Wind Advisory", "Extreme Wind Warning" -> {
+                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516138079453235/wind-clipart-xl.png";
+            }
+
+            case "Child Abduction Emergency" -> {
+                return "https://cdn.discordapp.com/attachments/335445132520194058/1049517612880625714/58c063da3ce0c.png";
+            }
+
+            case "Dense Fog Advisory", "Dense Smoke Advisory" -> {
+                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516436789403658/122-1220930_free-download-cloudy-weather-clipart-cloudy-day-clip.png";
+            }
+
+            case "Earthquake Warning" -> {
+                return "https://cdn.discordapp.com/attachments/335445132520194058/1049517612566073425/earthquake-metaphor-vector-icon-vec.png";
+            }
+
+            case "Excessive Heat Warning", "Excessive Heat Watch", "Heat Advisory" -> {
+                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516438030913616/kindpng_636901.png";
+            }
+
+            case "Extreme Cold Warning", "Extreme Cold Watch", "Wind Chill Watch", "Wind Chill Warning" -> {
+                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516437619867668/Cold-Thermometer-clipart-transparent.png";
+            }
+
+            case "Extreme Fire Danger", "Fire Warning", "Fire Weather Watch", "Red Flag Warning" -> {
+                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516774737059881/image.png";
+            }
+
+            case "Flash Flood Statement", "Flash Flood Warning", "Flash Flood Watch", "Flood Advisory", "Flood Statement", "Flood Warning", "Flood Watch" -> {
+                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516775118745640/flood-disaster-home-vector-vector-id1038699624.png";
+            }
+
+            case "Snow Squall Warning", "Winter Storm Warning", "Winter Storm Watch", "Winter Weather Advisory" -> {
+                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516775492042794/wintershovel.png";
+            }
+
+            case "Freeze Warning", "Freeze Watch", "Frost Advisory", "Hard Freeze Warning", "Hard Freeze Watch" -> {
+                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516775810801664/frost-texture-frozen-glass-surfaces-blue-ice-sheet-white-marks-frosty-crystal-winter-pattern-transparent-water-crystals-196937681.png";
+            }
+
+            case "Severe Thunderstorm Warning", "Storm Watch", "Storm Warning", "Special Weather Statement", "Severe Weather Statement", "Severe Thunderstorm Watch" -> {
+                return "https://cdn.discordapp.com/attachments/335445132520194058/1049519190614228992/StormAlerts.png";
+            }
+
+            default -> {
+                return "https://media.discordapp.net/attachments/421827334534856705/871617342210203689/Warning.png?width=714&height=676";
+            }
+        }
     }
 }
