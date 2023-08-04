@@ -1,5 +1,7 @@
 package me.jasonhorkles.stormalerts;
 
+import com.github.difflib.text.DiffRow;
+import com.github.difflib.text.DiffRowGenerator;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -18,10 +20,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("DataFlowIssue")
 public class Alerts {
-    private static final ArrayList<Message> dontDeleteMe = new ArrayList<>();
+    private static final ArrayList<Long> dontDeleteMe = new ArrayList<>();
     private final String fa = Secrets.Area.FA.getArea();
     private final String ce = Secrets.Area.CE.getArea();
     private final String ka = Secrets.Area.KA.getArea();
@@ -91,7 +94,7 @@ public class Alerts {
                 // If the ID is the same, don't send an update
                 if (message.getEmbeds().get(0).getFields().get(3).getValue().equals(id)) {
                     sameAlert = true;
-                    dontDeleteMe.add(message);
+                    dontDeleteMe.add(message.getIdLong());
                     break;
                 }
             }
@@ -141,8 +144,8 @@ public class Alerts {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setAuthor(sender, null,
                 "https://pbs.twimg.com/profile_images/1076936762377814016/AOf7ktiH.jpg");
+            embed.setTitle("Issued <t:" + sent + ":F>\nEnds <t:" + ends + ":F>");
             embed.setThumbnail(getThumbnailImage(event));
-            embed.setDescription(description);
             embed.addField("Instruction", "- " + instruction.replace("\n", " ").replace("  ", "\n- "), false);
             embed.addField("Certainty", certainty, true);
             embed.addField("Urgency", urgency, true);
@@ -162,41 +165,55 @@ public class Alerts {
                     if (severity.equalsIgnoreCase("Extreme"))
                         message = message.replaceFirst("<@&850471646191812700>\n",
                             "<@&850471646191812700>\n<a:weewoo:1083615022455992382> ");
-                    embed.setTitle("Issued <t:" + sent + ":F>\nEnds <t:" + ends + ":F>");
+                    embed.setDescription(description);
 
-                    dontDeleteMe.add(alertsChannel.sendMessage(message).setEmbeds(embed.build()).complete());
+                    dontDeleteMe.add(
+                        alertsChannel.sendMessage(message).setEmbeds(embed.build()).complete().getIdLong());
                 }
 
                 case "Update" -> {
-                    dontDeleteMe.remove(alertMessage);
+                    // Calculate diffs
+                    DiffRowGenerator generator = DiffRowGenerator.create().showInlineDiffs(true)
+                        .mergeOriginalRevised(true).inlineDiffByWord(true).oldTag(f -> "||").newTag(f -> "__")
+                        .build();
+
+                    List<DiffRow> rows = generator.generateDiffRows(List.of(
+                            alertMessage.getEmbeds().get(0).getDescription().replace("||", "").replace("__", "")),
+                        List.of(description));
+
+                    System.out.println(
+                        rows.stream().map(DiffRow::getOldLine).collect(Collectors.joining("\n")));
+                    embed.setDescription(
+                        rows.stream().map(DiffRow::getOldLine).collect(Collectors.joining("\n")));
+
                     String message = "<@&850471690093854810>\n**[" + severity.toUpperCase() + "] " + event + "** for " + area;
                     if (severity.equalsIgnoreCase("Extreme"))
                         message = message.replaceFirst("<@&850471690093854810>\n",
                             "<@&850471690093854810>\n<a:weewoo:1083615022455992382> ");
-                    embed.setTitle(
-                        "Updated <t:" + System.currentTimeMillis() / 1000 + ":F>\nEnds <t:" + ends + ":F>");
+                    embed.setFooter("Updated");
+                    embed.setTimestamp(Instant.now());
 
-                    dontDeleteMe.add(alertMessage.editMessage(message).setEmbeds(embed.build()).complete());
+                    dontDeleteMe.add(
+                        alertMessage.editMessage(message).setEmbeds(embed.build()).complete().getIdLong());
                     hasUpdated = true;
                 }
             }
         }
 
         // Delete inactive alerts
-        // Add all messages to the arraylist
-        ArrayList<Message> deleteTheseMessages = new ArrayList<>(
-            alertsChannel.getIterableHistory().complete());
-        // For every message in the channel
-        // Remove all the saved messages from the to-delete arraylist
-        for (Message message : dontDeleteMe) deleteTheseMessages.remove(message);
-        // For all the remaining to-delete messages
-        for (Message message : deleteTheseMessages) {
-            System.out.println(
-                new Utils().getTime(Utils.LogColor.GREEN) + "Deleted \"" + message.getContentStripped()
-                    .replaceFirst(".*\n.*] ", "") + "\" alert as it no longer exists.");
-            // Delete them
-            message.delete().queue();
-        }
+        ArrayList<Long> deleteTheseMessages = alertsChannel.getIterableHistory().complete().stream()
+            .map(Message::getIdLong).collect(Collectors.toCollection(ArrayList::new));
+        // Remove all the saved messages from the to-delete list
+        deleteTheseMessages.removeAll(dontDeleteMe);
+
+        // Delete the remaining to-delete messages
+        for (Long id : deleteTheseMessages)
+            alertsChannel.retrieveMessageById(id).queue(msg -> {
+                System.out.println(
+                    new Utils().getTime(Utils.LogColor.GREEN) + "Deleted \"" + msg.getContentStripped()
+                        .replaceFirst(".*\n.*] ", "") + "\" alert as it no longer exists.");
+                msg.delete().queue();
+            });
 
         if (hasUpdated) alertsChannel.sendMessage("<@&850471690093854810>")
             .queue(del -> del.delete().queueAfter(250, TimeUnit.MILLISECONDS));
