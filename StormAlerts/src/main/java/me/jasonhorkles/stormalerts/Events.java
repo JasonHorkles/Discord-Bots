@@ -1,10 +1,7 @@
 package me.jasonhorkles.stormalerts;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -14,6 +11,7 @@ import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 @SuppressWarnings("DataFlowIssue")
 public class Events extends ListenerAdapter {
@@ -33,7 +31,6 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        //noinspection SwitchStatementWithTooFewBranches
         switch (event.getComponentId()) {
             case "viewroles" -> {
                 event.deferReply(true).queue();
@@ -57,6 +54,29 @@ public class Events extends ListenerAdapter {
                 embed.addBlankField(true);
                 embed.addField("You don't have", notRoleList.toString(), true);
                 embed.setColor(new Color(43, 45, 49));
+
+                event.getHook().editOriginalEmbeds(embed.build()).queue();
+            }
+
+            case "viewchanges" -> {
+                event.deferReply(true).queue();
+
+                Message message = event.getMessage();
+                if (message.getEmbeds().isEmpty()) {
+                    event.getHook().editOriginal("There are no changes to view!").queue();
+                    return;
+                }
+
+                MessageEmbed oldEmbed = message.getEmbeds().get(0);
+                EmbedBuilder embed = new EmbedBuilder(message.getEmbeds().get(0));
+                embed.setDescription(oldEmbed.getDescription().replace("||", "~~"));
+
+                ArrayList<MessageEmbed.Field> fields = new ArrayList<>(oldEmbed.getFields());
+                fields.set(0, new MessageEmbed.Field(oldEmbed.getFields().get(0).getName(),
+                    oldEmbed.getFields().get(0).getValue().replace("||", "~~"), false));
+
+                embed.clearFields();
+                for (MessageEmbed.Field field : fields) embed.addField(field);
 
                 event.getHook().editOriginalEmbeds(embed.build()).queue();
             }

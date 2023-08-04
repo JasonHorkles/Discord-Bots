@@ -4,7 +4,9 @@ import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -131,7 +133,8 @@ public class Alerts {
             String area = boldAreas(alert.getString("areaDesc"));
             String certainty = alert.getString("certainty");
             String event = alert.getString("event");
-            String instruction = alert.getString("instruction");
+            String instruction = "- " + alert.getString("instruction").replace("\n", " ")
+                .replace("  ", "\n- ");
             String sender = alert.getString("senderName");
             String severity = alert.getString("severity");
             String urgency = alert.getString("urgency");
@@ -146,10 +149,12 @@ public class Alerts {
                 "https://pbs.twimg.com/profile_images/1076936762377814016/AOf7ktiH.jpg");
             embed.setTitle("Issued <t:" + sent + ":F>\nEnds <t:" + ends + ":F>");
             embed.setThumbnail(getThumbnailImage(event));
-            embed.addField("Instruction", "- " + instruction.replace("\n", " ").replace("  ", "\n- "), false);
-            embed.addField("Certainty", certainty, true);
-            embed.addField("Urgency", urgency, true);
-            embed.addField("UID", id, false);
+
+            ArrayList<MessageEmbed.Field> fields = new ArrayList<>();
+            fields.add(new MessageEmbed.Field("Instruction", instruction, false));
+            fields.add(new MessageEmbed.Field("Certainty", certainty, true));
+            fields.add(new MessageEmbed.Field("Urgency", urgency, true));
+            fields.add(new MessageEmbed.Field("UID", id, false));
 
             switch (severity) {
                 case "Extreme" -> embed.setColor(new Color(212, 43, 65));
@@ -165,26 +170,31 @@ public class Alerts {
                     if (severity.equalsIgnoreCase("Extreme"))
                         message = message.replaceFirst("<@&850471646191812700>\n",
                             "<@&850471646191812700>\n<a:weewoo:1083615022455992382> ");
+
                     embed.setDescription(description);
+                    for (MessageEmbed.Field field : fields) embed.addField(field);
 
                     dontDeleteMe.add(
                         alertsChannel.sendMessage(message).setEmbeds(embed.build()).complete().getIdLong());
                 }
 
                 case "Update" -> {
-                    // Calculate diffs
+                    // Create a diff checker
                     DiffRowGenerator generator = DiffRowGenerator.create().showInlineDiffs(true)
-                        .mergeOriginalRevised(true).inlineDiffByWord(true).oldTag(f -> "||").newTag(f -> "__")
+                        .mergeOriginalRevised(true).inlineDiffByWord(true)
+                        .replaceOriginalLinefeedInChangesWithSpaces(true).oldTag(f -> "||").newTag(f -> "__")
                         .build();
 
-                    List<DiffRow> rows = generator.generateDiffRows(List.of(
-                            alertMessage.getEmbeds().get(0).getDescription().replace("||", "").replace("__", "")),
-                        List.of(description));
+                    // Calculate diffs for description
+                    String newDescription = applyDiffs(generator,
+                        alertMessage.getEmbeds().get(0).getDescription(), description);
+                    embed.setDescription(newDescription);
 
-                    System.out.println(
-                        rows.stream().map(DiffRow::getOldLine).collect(Collectors.joining("\n")));
-                    embed.setDescription(
-                        rows.stream().map(DiffRow::getOldLine).collect(Collectors.joining("\n")));
+                    // Calculate diffs for instruction field
+                    String newInstruction = applyDiffs(generator,
+                        alertMessage.getEmbeds().get(0).getFields().get(0).getValue(), instruction);
+                    fields.set(0, new MessageEmbed.Field("Instruction", newInstruction, false));
+                    for (MessageEmbed.Field field : fields) embed.addField(field);
 
                     String message = "<@&850471690093854810>\n**[" + severity.toUpperCase() + "] " + event + "** for " + area;
                     if (severity.equalsIgnoreCase("Extreme"))
@@ -193,8 +203,9 @@ public class Alerts {
                     embed.setFooter("Updated");
                     embed.setTimestamp(Instant.now());
 
-                    dontDeleteMe.add(
-                        alertMessage.editMessage(message).setEmbeds(embed.build()).complete().getIdLong());
+                    dontDeleteMe.add(alertMessage.editMessage(message).setEmbeds(embed.build())
+                        .setActionRow(Button.secondary("viewchanges", "View all changes")).complete()
+                        .getIdLong());
                     hasUpdated = true;
                 }
             }
@@ -228,6 +239,17 @@ public class Alerts {
             .replace(ka.toUpperCase(), "**" + ka.toUpperCase() + "**")
             .replace(nwf.toUpperCase(), "**" + nwf.toUpperCase() + "**")
             .replace(da.toUpperCase(), "**" + da.toUpperCase() + "**");
+    }
+
+    private String applyDiffs(DiffRowGenerator generator, String originalText, String newText) {
+        // Remove previous text and strip updated text formatting, then generate diffs
+        List<DiffRow> diff = generator.generateDiffRows(
+            List.of(originalText.replaceAll("\\|\\|\\s*(.*?)\\s*\\|\\| ?", "").replace("__", "")),
+            List.of(newText));
+
+        // Return the updated text with the diff formatting applied
+        return diff.stream().map(DiffRow::getOldLine).collect(Collectors.joining("\n"))
+            .replaceAll("\\|\\|_", "|| _");
     }
 
     private String getThumbnailImage(String event) {
