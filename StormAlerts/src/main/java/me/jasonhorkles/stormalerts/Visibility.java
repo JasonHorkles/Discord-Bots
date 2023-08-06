@@ -22,16 +22,8 @@ public class Visibility {
 
         } else input = new JSONObject(Files.readString(Path.of("StormAlerts/Tests/visibility.json")));
 
-        updateVisibility(String.valueOf((int) Math.round(
-            input.getJSONObject("properties").getJSONObject("visibility").getInt("value") / 1609d)));
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    public void updateVisibility(String visibility) {
-        final long visibilityChannel = 899872710233051178L;
-        if (!StormAlerts.jda.getVoiceChannelById(visibilityChannel).getName()
-            .equals("Visibility | " + visibility + " mi"))
-            StormAlerts.jda.getVoiceChannelById(visibilityChannel).getManager()
-                .setName("Visibility | " + visibility + " mi").queue();
+        String visibility = String.valueOf((int) Math.round(
+            input.getJSONObject("properties").getJSONObject("visibility").getInt("value") / 1609d));
+        new Utils().updateVoiceChannel(899872710233051178L, "Visibility | " + visibility + " mi");
     }
 }

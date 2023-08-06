@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.jetbrains.annotations.Nullable;
@@ -88,7 +89,12 @@ public class Utils {
         }
     }
     
-    //todo make update vc method
+    @SuppressWarnings("DataFlowIssue")
+    public void updateVoiceChannel(long id, String name) {
+        VoiceChannel voiceChannel = StormAlerts.jda.getVoiceChannelById(id);
+        if (!voiceChannel.getName().equals(name))
+            voiceChannel.getManager().setName(name).queue();
+    }
 
     public void updateNow(@Nullable SlashCommandInteractionEvent event) {
         String error = "Done!";

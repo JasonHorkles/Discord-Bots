@@ -164,7 +164,7 @@ public class StormAlerts extends ListenerAdapter {
                     e.printStackTrace();
                     new Utils().logError(e);
                 }
-                new Visibility().updateVisibility("ERROR");
+                new Utils().updateVoiceChannel(899872710233051178L, "Visibility | ERROR");
             }
         }, 5, 360, TimeUnit.SECONDS));
 

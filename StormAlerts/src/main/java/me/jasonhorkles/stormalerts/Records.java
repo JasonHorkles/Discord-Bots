@@ -1,7 +1,6 @@
 package me.jasonhorkles.stormalerts;
 
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import org.json.JSONObject;
 
 import java.io.FileWriter;
@@ -77,7 +76,6 @@ public class Records {
         }, "Record Check").start();
     }
 
-    @SuppressWarnings("DataFlowIssue")
     public void checkRecords() {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking records...");
 
@@ -145,40 +143,20 @@ public class Records {
 
             System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Updating record channels...");
 
-            double lowTemp = records.getDouble("lowTemp");
-            VoiceChannel lowTempChannel = StormAlerts.jda.getVoiceChannelById(1059213663506006066L);
-            if (!lowTempChannel.getName().equals("Temp Low | " + lowTemp + "°"))
-                lowTempChannel.getManager().setName("Temp Low | " + lowTemp + "°").queue();
-
-            double highTemp = records.getDouble("highTemp");
-            VoiceChannel highTempChannel = StormAlerts.jda.getVoiceChannelById(1059213632531091548L);
-            if (!highTempChannel.getName().equals("Temp High | " + highTemp + "°"))
-                highTempChannel.getManager().setName("Temp High | " + highTemp + "°").queue();
-
-            double rainRate = records.getDouble("maxRainRate");
-            VoiceChannel rainRateChannel = StormAlerts.jda.getVoiceChannelById(1059213828015013948L);
-            if (!rainRateChannel.getName().equals("Rain | " + rainRate + " in/hr"))
-                rainRateChannel.getManager().setName("Rain | " + rainRate + " in/hr").queue();
-
-            double rainAmount = records.getDouble("maxRainAmount");
-            VoiceChannel rainAmountChannel = StormAlerts.jda.getVoiceChannelById(1059213790333382796L);
-            if (!rainAmountChannel.getName().equals("Daily Rain | " + rainAmount + " in"))
-                rainAmountChannel.getManager().setName("Daily Rain | " + rainAmount + " in").queue();
-
-            int highWind = records.getInt("maxWind");
-            VoiceChannel highWindChannel = StormAlerts.jda.getVoiceChannelById(1059213855164747796L);
-            if (!highWindChannel.getName().equals("Wind | " + highWind + " mph"))
-                highWindChannel.getManager().setName("Wind | " + highWind + " mph").queue();
-
-            int lightningRate = records.getInt("highLightningRate");
-            VoiceChannel lightningRateChannel = StormAlerts.jda.getVoiceChannelById(1059213581675155507L);
-            if (!lightningRateChannel.getName().equals("Lightning | " + lightningRate + "/hr"))
-                lightningRateChannel.getManager().setName("Lightning | " + lightningRate + "/hr").queue();
-
-            int dailyLightning = records.getInt("maxLightning");
-            VoiceChannel dailyLightningChannel = StormAlerts.jda.getVoiceChannelById(1059213753494798396L);
-            if (!dailyLightningChannel.getName().equals("Daily Lightning | " + dailyLightning))
-                dailyLightningChannel.getManager().setName("Daily Lightning | " + dailyLightning).queue();
+            new Utils().updateVoiceChannel(1059213663506006066L,
+                "Temp Low | " + records.getDouble("lowTemp") + "°");
+            new Utils().updateVoiceChannel(1059213632531091548L,
+                "Temp High | " + records.getDouble("highTemp") + "°");
+            new Utils().updateVoiceChannel(1059213828015013948L,
+                "Rain | " + records.getDouble("maxRainRate") + " in/hr");
+            new Utils().updateVoiceChannel(1059213790333382796L,
+                "Daily Rain | " + records.getDouble("maxRainAmount") + " in");
+            new Utils().updateVoiceChannel(1059213855164747796L,
+                "Wind | " + records.getInt("maxWind") + " mph");
+            new Utils().updateVoiceChannel(1059213581675155507L,
+                "Lightning | " + records.getInt("highLightningRate") + "/hr");
+            new Utils().updateVoiceChannel(1059213753494798396L,
+                "Daily Lightning | " + records.getInt("maxLightning"));
 
         } catch (Exception e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
