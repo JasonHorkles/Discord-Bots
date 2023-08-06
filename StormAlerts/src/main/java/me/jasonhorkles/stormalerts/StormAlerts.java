@@ -91,10 +91,18 @@ public class StormAlerts extends ListenerAdapter {
             try {
                 new Alerts().checkAlerts();
             } catch (Exception e) {
+                String reason = "";
+                if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
+                else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
+                else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
+
                 System.out.println(
-                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!");
-                e.printStackTrace();
-                new Utils().logError(e);
+                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!" + reason);
+                if (reason.isBlank()) {
+                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                    e.printStackTrace();
+                    new Utils().logError(e);
+                }
             }
 
             try {
@@ -144,10 +152,18 @@ public class StormAlerts extends ListenerAdapter {
             try {
                 new Visibility().checkConditions();
             } catch (Exception e) {
-                System.out.println(
-                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the visibility!");
-                e.printStackTrace();
-                new Utils().logError(e);
+                String reason = "";
+                if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
+                else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
+                else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
+
+                System.out.println(new Utils().getTime(
+                    Utils.LogColor.RED) + "[ERROR] Couldn't get the visibility!" + reason);
+                if (reason.isBlank()) {
+                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                    e.printStackTrace();
+                    new Utils().logError(e);
+                }
                 new Visibility().updateVisibility("ERROR");
             }
         }, 5, 360, TimeUnit.SECONDS));
