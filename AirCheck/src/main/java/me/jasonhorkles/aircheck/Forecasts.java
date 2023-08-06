@@ -247,31 +247,31 @@ public class Forecasts {
 
                     case "Pollen" -> {
                         if (!message.getEmbeds().get(0).getDescription().equals(pollenForecasts.strip()))
-                            message.editMessageEmbeds(pollen.build()).queueAfter(1, TimeUnit.SECONDS);
+                            message.editMessageEmbeds(pollen.build()).queueAfter(2, TimeUnit.SECONDS);
                     }
 
                     case "Transportation" -> {
                         if (!message.getEmbeds().get(0).getDescription()
                             .equals(transportationForecasts.toString().strip()))
-                            message.editMessageEmbeds(transportation.build()).queueAfter(2, TimeUnit.SECONDS);
+                            message.editMessageEmbeds(transportation.build()).queueAfter(4, TimeUnit.SECONDS);
                     }
 
                     case "Work" -> {
                         if (!message.getEmbeds().get(0).getDescription()
                             .equals(workForecasts.toString().strip()))
-                            message.editMessageEmbeds(work.build()).queueAfter(3, TimeUnit.SECONDS);
+                            message.editMessageEmbeds(work.build()).queueAfter(6, TimeUnit.SECONDS);
                     }
 
                     case "Sports" -> {
                         if (!message.getEmbeds().get(0).getDescription()
                             .equals(sportsForecasts.toString().strip()))
-                            message.editMessageEmbeds(sports.build()).queueAfter(4, TimeUnit.SECONDS);
+                            message.editMessageEmbeds(sports.build()).queueAfter(8, TimeUnit.SECONDS);
                     }
 
                     case "Activities" -> {
                         if (!message.getEmbeds().get(0).getDescription()
                             .equals(activityForecasts.toString().strip()))
-                            message.editMessageEmbeds(activities.build()).queueAfter(5, TimeUnit.SECONDS);
+                            message.editMessageEmbeds(activities.build()).queueAfter(10, TimeUnit.SECONDS);
                     }
                 }
 

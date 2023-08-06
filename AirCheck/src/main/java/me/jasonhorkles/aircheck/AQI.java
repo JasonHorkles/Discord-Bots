@@ -25,21 +25,20 @@ public class AQI {
 
         } else input = new JSONArray(Files.readString(Path.of("AirCheck/air.json")));
 
-        JSONObject pm25 = null;
+        int highestAqiIndex = -1;
+        int highestAqi = -1;
         for (int x = 0; x < input.length(); x++) {
-            if (!input.getJSONObject(x).getString("ParameterName").equals("PM2.5")) continue;
-            pm25 = input.getJSONObject(x);
+            int aqi = input.getJSONObject(x).getInt("AQI");
+            if (aqi > highestAqi) {
+                highestAqiIndex = x;
+                highestAqi = aqi;
+            }
         }
 
-        if (pm25 == null) {
-            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't find the PM2.5!");
-            AirCheck.jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-            AirCheck.jda.getPresence().setActivity(Activity.playing("⚠ Error"));
-            return;
-        }
-
-        int catNumber = pm25.getJSONObject("Category").getInt("Number");
-        int aqi = pm25.getInt("AQI");
+        JSONObject topPollutantInfo = input.getJSONObject(highestAqiIndex);
+        int catNumber = topPollutantInfo.getJSONObject("Category").getInt("Number");
+        String topPollutant = topPollutantInfo.getString("ParameterName");
+        if (topPollutant.equals("O3")) topPollutant = "Ozone";
 
         String airQualityName = switch (catNumber) {
             case 1 -> "Good \uD83D\uDFE2";
@@ -53,8 +52,10 @@ public class AQI {
         };
 
         AirCheck.jda.getPresence().setStatus(OnlineStatus.ONLINE);
-        AirCheck.jda.getPresence().setActivity(Activity.playing(airQualityName + " (" + aqi + ")"));
+        AirCheck.jda.getPresence()
+            .setActivity(Activity.playing(airQualityName + " (" + highestAqi + ", " + topPollutant + ")"));
 
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got the air! (" + aqi + ")");
+        System.out.println(new Utils().getTime(
+            Utils.LogColor.GREEN) + "Got the air! (" + highestAqi + ", " + topPollutant + ")");
     }
 }
