@@ -82,7 +82,6 @@ public class Records {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking records...");
 
         String totalFilePath = "StormAlerts/records.json";
-
         try {
             JSONObject records = new JSONObject(Files.readString(Path.of(totalFilePath)));
 

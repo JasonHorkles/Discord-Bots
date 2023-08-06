@@ -3,31 +3,26 @@ package me.jasonhorkles.aircheck;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Scanner;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class Pollen {
     public String getPollen() throws IOException {
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking pollen...");
+
         JSONObject input;
-
         if (!AirCheck.testing) {
-            String apiUrl = "http://dataservice.accuweather.com/forecasts/v1/daily/1day/" + new Secrets().getAccuLocationCode() + "?apikey=" + new Secrets().getAccuApiKey() + "&details=true";
+            //todo switch to a better api
+            InputStream url = new URL(
+                "http://dataservice.accuweather.com/forecasts/v1/daily/1day/" + new Secrets().getAccuLocationCode() + "?apikey=" + new Secrets().getAccuApiKey() + "&details=true").openStream();
+            input = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
+            url.close();
 
-            InputStream stream = new URL(apiUrl).openStream();
-            String out = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine();
-            stream.close();
-
-            input = new JSONObject(out);
-        } else {
-            File pollenFile = new File("AirCheck/pollen.json");
-            Scanner fileScanner = new Scanner(pollenFile);
-
-            input = new JSONObject(fileScanner.nextLine());
-        }
+        } else input = new JSONObject(Files.readString(Path.of("AirCheck/pollen.json")));
 
         JSONArray pollen = input.getJSONArray("DailyForecasts").getJSONObject(0).getJSONArray("AirAndPollen");
         int grassIndex = -1;

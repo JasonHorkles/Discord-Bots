@@ -36,7 +36,6 @@ public class AirCheck {
         // Air Quality
         //noinspection resource
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking air quality...");
             try {
                 new AQI().checkAir();
             } catch (Exception e) {
@@ -61,7 +60,6 @@ public class AirCheck {
         // Forecasts
         //noinspection resource
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking forecasts...");
             try {
                 new Forecasts().updateForecasts();
             } catch (Exception e) {

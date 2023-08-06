@@ -6,13 +6,13 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.json.JSONArray;
 
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -20,22 +20,16 @@ import java.util.concurrent.TimeoutException;
 @SuppressWarnings("DataFlowIssue")
 public class Forecasts {
     public void updateForecasts() throws IOException {
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking forecasts...");
+
         JSONArray input;
-
         if (!AirCheck.testing) {
-            String apiUrl = "http://dataservice.accuweather.com/indices/v1/daily/1day/" + new Secrets().getAccuLocationCode() + "?apikey=" + new Secrets().getAccuApiKey();
+            InputStream url = new URL(
+                "http://dataservice.accuweather.com/indices/v1/daily/1day/" + new Secrets().getAccuLocationCode() + "?apikey=" + new Secrets().getAccuApiKey()).openStream();
+            input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8));
+            url.close();
 
-            InputStream stream = new URL(apiUrl).openStream();
-            String out = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine();
-            stream.close();
-
-            input = new JSONArray(out);
-        } else {
-            File activitiesFile = new File("AirCheck/activities.json");
-            Scanner fileScanner = new Scanner(activitiesFile);
-
-            input = new JSONArray(fileScanner.nextLine());
-        }
+        } else input = new JSONArray(Files.readString(Path.of("AirCheck/activities.json")));
 
         StringBuilder healthForecasts = new StringBuilder();
         String pollenForecasts = new Pollen().getPollen();

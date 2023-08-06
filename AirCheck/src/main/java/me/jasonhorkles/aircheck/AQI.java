@@ -5,31 +5,25 @@ import net.dv8tion.jda.api.entities.Activity;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Scanner;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class AQI {
     public void checkAir() throws IOException {
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking air quality...");
+
         JSONArray input;
-
         if (!AirCheck.testing) {
-            String apiUrl = "https://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json&zipCode=" + new Secrets().getZip() + "&distance=25&API_KEY=" + new Secrets().getAqiApiKey();
+            InputStream url = new URL(
+                "https://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json&zipCode=" + new Secrets().getZip() + "&distance=25&API_KEY=" + new Secrets().getAqiApiKey()).openStream();
+            input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8));
+            url.close();
 
-            InputStream stream = new URL(apiUrl).openStream();
-            String out = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine();
-            stream.close();
-
-            input = new JSONArray(out);
-        } else {
-            File file = new File("AirCheck/air.json");
-            Scanner fileScanner = new Scanner(file);
-
-            input = new JSONArray(fileScanner.nextLine());
-        }
+        } else input = new JSONArray(Files.readString(Path.of("AirCheck/air.json")));
 
         JSONObject pm25 = null;
         for (int x = 0; x < input.length(); x++) {
