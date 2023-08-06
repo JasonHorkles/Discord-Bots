@@ -124,15 +124,21 @@ public class Alerts {
                 if (!idFound) alertType = "Alert";
             }
 
-            long ends = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString("ends")))
+            long ends;
+            if (alert.isNull("ends"))
+                ends = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString("expires")))
+                    .toEpochMilli() / 1000;
+            else ends = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString("ends")))
                 .toEpochMilli() / 1000;
+
             long sent = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString("sent")))
                 .toEpochMilli() / 1000;
             String area = boldAreas(alert.getString("areaDesc"));
             String certainty = alert.getString("certainty");
             String event = alert.getString("event");
-            String instruction = "- " + alert.getString("instruction").replace("\n", " ")
-                .replace("  ", "\n- ");
+            String instruction;
+            if (alert.isNull("instruction")) instruction = "None";
+            else instruction = "- " + alert.getString("instruction").replace("\n", " ").replace("  ", "\n- ");
             String sender = alert.getString("senderName");
             String severity = alert.getString("severity");
             String urgency = alert.getString("urgency");

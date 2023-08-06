@@ -36,8 +36,8 @@ public class Weather extends ListenerAdapter {
 
     public void checkConditions() throws IOException, ExecutionException, InterruptedException, TimeoutException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking weather...");
+        
         String weather;
-
         if (!StormAlerts.testing) {
             Connection conn = Jsoup.connect(
                 "https://www.google.com/search?q=" + new Secrets().getWeatherSearch()).timeout(15000);
