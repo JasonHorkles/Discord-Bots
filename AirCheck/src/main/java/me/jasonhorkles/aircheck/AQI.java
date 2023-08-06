@@ -41,14 +41,21 @@ public class AQI {
         if (topPollutant.equals("O3")) topPollutant = "Ozone";
 
         String airQualityName = switch (catNumber) {
+            // 🟢
             case 1 -> "Good \uD83D\uDFE2";
+            // 🟡
             case 2 -> "Moderate \uD83D\uDFE1";
+            // 🟠
             case 3 -> "Unhealty for sensitive groups \uD83D\uDFE0";
+            // 🔴
             case 4 -> "Unhealthy \uD83D\uDD34";
+            // ⚫
             case 5 -> "Very unhealthy ⚫";
-            case 6 -> "Hazardous ⚠";
-            case 7 -> "⚠ Unavailable";
-            default -> "⚠ Error: " + catNumber;
+            // ⚠️
+            case 6 -> "Hazardous ⚠️";
+            case 7 -> "⚠️ Unavailable";
+            
+            default -> "⚠️ Error: " + catNumber;
         };
 
         AirCheck.jda.getPresence().setStatus(OnlineStatus.ONLINE);

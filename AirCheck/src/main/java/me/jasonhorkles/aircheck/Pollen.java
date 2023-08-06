@@ -1,90 +1,76 @@
 package me.jasonhorkles.aircheck;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Pollen {
     public String getPollen() throws IOException {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking pollen...");
 
-        JSONObject input;
+        String input;
         if (!AirCheck.testing) {
-            //todo switch to a better api
-            InputStream url = new URL(
-                "http://dataservice.accuweather.com/forecasts/v1/daily/1day/" + new Secrets().getAccuLocationCode() + "?apikey=" + new Secrets().getAccuApiKey() + "&details=true").openStream();
-            input = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
-            url.close();
+            Connection conn = Jsoup.connect(
+                    "https://weather.com/forecast/allergy/l/" + new Secrets().getPollenLocationId())
+                .timeout(15000);
+            Document doc = conn.get();
 
-        } else input = new JSONObject(Files.readString(Path.of("AirCheck/pollen.json")));
+            //noinspection DataFlowIssue
+            input = doc.select("[class*=\"PollenBreakdown--body--\"]").first().text();
 
-        JSONArray pollen = input.getJSONArray("DailyForecasts").getJSONObject(0).getJSONArray("AirAndPollen");
-        int grassIndex = -1;
-        int weedIndex = -1;
-        int treeIndex = -1;
+        } else input = Files.readString(Path.of("AirCheck/pollen.txt"));
 
-        for (int x = 0; x < pollen.length(); x++) {
-            JSONObject obj = pollen.getJSONObject(x);
+        Map<String, String> pollenLevels = new HashMap<>();
+        Pattern pattern = Pattern.compile("(\\w+?) Pollen (Today|Tonight): (\\w+)");
+        Matcher matcher = pattern.matcher(input);
 
-            switch (obj.getString("Name")) {
-                case "Grass" -> grassIndex = obj.getInt("CategoryValue");
-                case "Ragweed" -> weedIndex = obj.getInt("CategoryValue");
-                case "Tree" -> treeIndex = obj.getInt("CategoryValue");
-            }
+        while (matcher.find()) {
+            String pollenType = matcher.group(1);
+            String level = matcher.group(3);
+
+            pollenLevels.put(pollenType, level);
         }
 
-        StringBuilder pollenForecasts = new StringBuilder(getColor(grassIndex)).append("**Grass**")
-            .append(getForecast(grassIndex)).append("\n");
+        String grassLevel = pollenLevels.getOrDefault("Grass", "ERROR");
+        String weedLevel = pollenLevels.getOrDefault("Ragweed", "ERROR");
+        String treeLevel = pollenLevels.getOrDefault("Tree", "ERROR");
 
-        pollenForecasts.append(getColor(weedIndex)).append("**Ragweed**").append(getForecast(weedIndex))
-            .append("\n");
-
-        pollenForecasts.append(getColor(treeIndex)).append("**Tree**").append(getForecast(treeIndex))
-            .append("\n");
+        String pollenForecasts = getColor(grassLevel) + "**Grass** → " + grassLevel + "\n" + getColor(
+            weedLevel) + "**Ragweed** → " + weedLevel + "\n" + getColor(
+            treeLevel) + "**Tree** → " + treeLevel + "\n";
 
         System.out.println(new Utils().getTime(
-            Utils.LogColor.GREEN) + "Got the pollen! (G:" + grassIndex + " W:" + weedIndex + " T:" + treeIndex + ")");
+            Utils.LogColor.GREEN) + "Got the pollen! (G:" + grassLevel + " W:" + weedLevel + " T:" + treeLevel + ")");
 
-        return pollenForecasts.toString();
+        return pollenForecasts;
     }
 
-    private String getColor(int value) {
+    private String getColor(String value) {
         return switch (value) {
+            // ⭕
+            case "ERROR" -> "⭕ ";
             // 🟢
-            case 1 -> "\uD83D\uDFE2 ";
+            case "None" -> "\uD83D\uDFE2 ";
+            // 🔵
+            case "Very Low" -> "\uD83D\uDD35 ";
             // 🟡
-            case 2 -> "\uD83D\uDFE1 ";
+            case "Low" -> "\uD83D\uDFE1 ";
             // 🟠
-            case 3 -> "\uD83D\uDFE0 ";
+            case "Moderate" -> "\uD83D\uDFE0 ";
             // 🔴
-            case 4 -> "\uD83D\uDD34 ";
+            case "High" -> "\uD83D\uDD34 ";
             // ⚠️
-            case 5 -> "⚠️ ";
+            case "Very High" -> "⚠️ ";
 
-            default -> String.valueOf(value);
-        };
-    }
-
-    private String getForecast(int value) {
-        return switch (value) {
-            // 🟢
-            case 1 -> " → Low";
-            // 🟡
-            case 2 -> " → Moderate";
-            // 🟠
-            case 3 -> " → High";
-            // 🔴
-            case 4 -> " → Very High";
-            // ⚠️
-            case 5 -> " → Extreme";
-
-            default -> String.valueOf(value);
+            default -> value;
         };
     }
 }
