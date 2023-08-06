@@ -5,17 +5,17 @@ import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -36,49 +36,31 @@ public class Pws {
         if (!StormAlerts.testing) {
             InputStream url = new URL(
                 "https://api.ambientweather.net/v1/devices/?apiKey=" + new Secrets().getAwApiKey() + "&applicationKey=" + new Secrets().getAwAppKey()).openStream();
-            String out = new Scanner(url, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine();
+            input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8)).getJSONObject(0)
+                .getJSONObject("lastData");
             url.close();
 
-            input = new JSONArray(out).getJSONObject(0);
-        } else {
-            File file = new File("StormAlerts/Tests/pwsweather.json");
-            Scanner fileScanner = new Scanner(file);
+        } else input = new JSONArray(
+            Files.readString(Path.of("StormAlerts/Tests/pwsweather.json"))).getJSONObject(0)
+            .getJSONObject("lastData");
 
-            String out = fileScanner.nextLine();
-            input = new JSONArray(out).getJSONObject(0);
-        }
-        input = new JSONObject(new Utils().getJsonKey(input, "lastData", true));
-
-        temperature = Double.parseDouble(new Utils().getJsonKey(input, "tempf", true));
-
-        try {
-            currentRainRate = Double.parseDouble(new Utils().getJsonKey(input, "hourlyrainin", true));
-        } catch (NumberFormatException ignored) {
-            currentRainRate = -1;
-        }
-
-        try {
-            wm2 = Double.parseDouble(new Utils().getJsonKey(input, "solarradiation", true));
-        } catch (NumberFormatException ignored) {
-            wm2 = -1;
-        }
+        currentRainRate = input.getDouble("hourlyrainin");
+        temperature = input.getDouble("tempf");
+        wm2 = input.getDouble("solarradiation");
 
         // Set the values
-        int humidity = Integer.parseInt(new Utils().getJsonKey(input, "humidity", true));
-        double feelsLike = Double.parseDouble(new Utils().getJsonKey(input, "feelsLike", true));
-        int uv = Integer.parseInt(new Utils().getJsonKey(input, "uv", true));
-        int wind = Math.toIntExact(
-            Math.round(Double.parseDouble(new Utils().getJsonKey(input, "windspeedmph", true))));
-        int windGust = Math.toIntExact(
-            Math.round(Double.parseDouble(new Utils().getJsonKey(input, "windgustmph", true))));
-        int windMax = Math.toIntExact(
-            Math.round(Double.parseDouble(new Utils().getJsonKey(input, "maxdailygust", true))));
-        double rainDaily = Double.parseDouble(new Utils().getJsonKey(input, "dailyrainin", true));
-        double rainWeekly = Double.parseDouble(new Utils().getJsonKey(input, "weeklyrainin", true));
-        double rainMonthly = Double.parseDouble(new Utils().getJsonKey(input, "monthlyrainin", true));
-        double rainYearly = Double.parseDouble(new Utils().getJsonKey(input, "yearlyrainin", true));
-        int strikesPerHour = Integer.parseInt(new Utils().getJsonKey(input, "lightning_hour", true));
-        int lightningToday = Integer.parseInt(new Utils().getJsonKey(input, "lightning_day", true));
+        int humidity = input.getInt("humidity");
+        double feelsLike = input.getDouble("feelsLike");
+        int uv = input.getInt("uv");
+        int wind = Math.toIntExact(Math.round(input.getDouble("windspeedmph")));
+        int windGust = Math.toIntExact(Math.round(input.getDouble("windgustmph")));
+        int windMax = Math.toIntExact(Math.round(input.getDouble("maxdailygust")));
+        double rainDaily = input.getDouble("dailyrainin");
+        double rainWeekly = input.getDouble("weeklyrainin");
+        double rainMonthly = input.getDouble("monthlyrainin");
+        double rainYearly = input.getDouble("yearlyrainin");
+        int strikesPerHour = input.getInt("lightning_hour");
+        int lightningToday = input.getInt("lightning_day");
 
         // Record checking
         if (currentRainRate > Records.maxRainRateToday) {
@@ -164,8 +146,7 @@ public class Pws {
                 lightningTodayChannel.getManager().setName("Nearby Today | " + lightningToday).queue();
 
             DateTimeFormatter timeUpdatedFormat = DateTimeFormatter.ofPattern("h:mm a");
-            Instant timeUpdatedRaw = Instant.ofEpochMilli(
-                Long.parseLong(new Utils().getJsonKey(input, "dateutc", true)));
+            Instant timeUpdatedRaw = Instant.ofEpochMilli(input.getLong("dateutc"));
             String timeUpdated = timeUpdatedFormat.format(
                 ZonedDateTime.ofInstant(timeUpdatedRaw, ZoneId.of("America/Denver")));
 
@@ -182,10 +163,10 @@ public class Pws {
                 }
             }, "Rate Limit").start();
         }
-
-
+        
         // Wind alerts
         if (windMax >= 20 && lastAlertedWindGust < windMax) {
+            //todo fix alert on startup if sent today already
             TextChannel windChannel = StormAlerts.jda.getTextChannelById(1028358818050080768L);
 
             String ping = "";
@@ -198,24 +179,19 @@ public class Pws {
                 .setSuppressedNotifications(new Utils().shouldIBeSilent(windChannel)).queue();
             lastAlertedWindGust = windMax;
         }
-
-
+        
         // Lightning alerts
-        String lightningTime = new Utils().getJsonKey(input, "lightning_time", true);
-        if (lightningTime.equals("null")) return;
+        long lightningTime = input.getLong("lightning_time");
+        long previousLightningTime = Long.parseLong(
+            Files.readString(Path.of("StormAlerts/lastlightningid.txt")));
 
-        File file = new File("StormAlerts/lastlightningid.txt");
-        Scanner fileScanner = new Scanner(file);
-
-        Long previousLightningTime = fileScanner.nextLong();
-        long lightningTimeLong = Long.parseLong(lightningTime);
-
-        if (previousLightningTime.equals(lightningTimeLong)) return;
-        if (lightningTimeLong < System.currentTimeMillis() - 600000) return;
+        // Ignore lightning if it's the same as the last one
+        if (previousLightningTime == lightningTime) return;
+        // Ignore lightning if it's more than 10 minutes old
+        if (lightningTime < System.currentTimeMillis() - 600000) return;
 
         if (lightningToday > 1) {
-            int lightningDistance = Math.toIntExact(
-                Math.round(Double.parseDouble(new Utils().getJsonKey(input, "lightning_distance", true))));
+            int lightningDistance = Math.toIntExact(Math.round(input.getDouble("lightning_distance")));
             String s = "s";
             if (lightningDistance == 1) s = "";
 
@@ -224,7 +200,7 @@ public class Pws {
             String ping = "";
             if (new Utils().shouldIPing(lightningChannel)) ping = "<@&896877424824954881>\n";
 
-            String message = ping + "🌩️ Lightning detected **~" + lightningDistance + " mile" + s + "** from Eastern Farmington <t:" + (lightningTimeLong / 1000) + ":R>!";
+            String message = ping + "🌩️ Lightning detected **~" + lightningDistance + " mile" + s + "** from Eastern Farmington <t:" + (lightningTime / 1000) + ":R>!";
             if (lightningDistance <= 2) message += " <a:weewoo:1083615022455992382>";
 
             // Always send silent if lightning is more than 15 miles away
@@ -234,8 +210,8 @@ public class Pws {
                 .setSuppressedNotifications(new Utils().shouldIBeSilent(lightningChannel)).queue();
         }
 
-        FileWriter fw = new FileWriter(file, false);
-        fw.write(lightningTime);
+        FileWriter fw = new FileWriter("StormAlerts/lastlightningid.txt", false);
+        fw.write(String.valueOf(lightningTime));
         fw.close();
     }
 }

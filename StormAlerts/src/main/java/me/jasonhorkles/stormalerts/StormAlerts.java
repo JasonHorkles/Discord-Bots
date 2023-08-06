@@ -62,10 +62,13 @@ public class StormAlerts extends ListenerAdapter {
                 .get(30, TimeUnit.SECONDS).get(0);
             if (windMessage != null) {
                 OffsetDateTime fiveHoursAgo = OffsetDateTime.now().minusHours(5);
-                if (windMessage.getTimeCreated().isAfter(fiveHoursAgo))
-                    Pws.lastAlertedWindGust = Integer.parseInt(
-                        windMessage.getContentStripped().replace("\n", " ").replaceFirst(".*of ", "")
-                            .replaceFirst(" mph.*", ""));
+                OffsetDateTime midnight = OffsetDateTime.now().withHour(0).withMinute(0).withSecond(0)
+                    .withNano(0);
+
+                if (windMessage.getTimeCreated().isAfter(fiveHoursAgo) || windMessage.getTimeCreated()
+                    .isAfter(midnight)) Pws.lastAlertedWindGust = Integer.parseInt(
+                    windMessage.getContentStripped().replace("\n", " ").replaceFirst(".*of ", "")
+                        .replaceFirst(" mph.*", ""));
             }
         } catch (ExecutionException | TimeoutException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
@@ -73,7 +76,16 @@ public class StormAlerts extends ListenerAdapter {
             new Utils().logError(e);
         }
 
-        // Alerts
+        // Schedule records announcement and cache current records
+        try {
+            new Records().scheduleRecordCheck();
+        } catch (Exception e) {
+            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Error grabbing the records!");
+            e.printStackTrace();
+            new Utils().logError(e);
+        }
+
+        // 1.5 mins
         //noinspection resource
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
@@ -84,12 +96,13 @@ public class StormAlerts extends ListenerAdapter {
                 e.printStackTrace();
                 new Utils().logError(e);
             }
-        }, 1, 180, TimeUnit.SECONDS));
 
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignored) {
+            }
 
-        // PWS / Rain / Lightning
-        //noinspection resource
-        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            //todo https://ambientweather.docs.apiary.io/#reference/ambient-realtime-api instead
             try {
                 new Pws().checkConditions();
             } catch (Exception e) {
@@ -101,18 +114,18 @@ public class StormAlerts extends ListenerAdapter {
 
                 System.out.println(new Utils().getTime(
                     Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
-                if (reason.isEmpty()) {
+                if (reason.isBlank()) {
                     System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
                     new Utils().logError(e);
                 }
             }
-        }, 3, 90, TimeUnit.SECONDS));
 
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignored) {
+            }
 
-        // Weather
-        //noinspection resource
-        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
                 new Weather().checkConditions();
             } catch (Exception e) {
@@ -123,16 +136,21 @@ public class StormAlerts extends ListenerAdapter {
                 jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
                 new Utils().logError(e);
             }
-        }, 5, 90, TimeUnit.SECONDS));
+        }, 1, 90, TimeUnit.SECONDS));
 
-        // Schedule records announcement
-        try {
-            new Records().scheduleRecordCheck();
-        } catch (Exception e) {
-            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Error grabbing the records!");
-            e.printStackTrace();
-            new Utils().logError(e);
-        }
+        // 6 mins
+        //noinspection resource
+        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            try {
+                new Visibility().checkConditions();
+            } catch (Exception e) {
+                System.out.println(
+                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the visibility!");
+                e.printStackTrace();
+                new Utils().logError(e);
+                new Visibility().updateVisibility("ERROR");
+            }
+        }, 5, 360, TimeUnit.SECONDS));
 
         // Schedule traffic checks
         new Traffic().scheduleTrafficCheck("2:40 PM", true);

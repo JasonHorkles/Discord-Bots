@@ -38,23 +38,21 @@ public class Alerts {
 
         dontDeleteMe.clear();
 
-        String input;
+        JSONObject input;
         if (!StormAlerts.testing) {
             InputStream url = new URL(
                 "https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&zone=" + new Secrets().getAlertZone()).openStream();
-            input = new String(url.readAllBytes(), StandardCharsets.UTF_8);
+            input = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();
 
-        } else input = Files.readString(Path.of("StormAlerts/Tests/alerts-update.json"));
-
-        JSONObject inputObject = new JSONObject(input);
-        String type = inputObject.getString("type");
+        } else input = new JSONObject(Files.readString(Path.of("StormAlerts/Tests/alerts-empty.json")));
 
         JSONArray alerts = new JSONArray();
+        String type = input.getString("type");
         // Feature (1 alert)
-        if (type.equals("Feature")) alerts.put(inputObject.get("properties"));
+        if (type.equals("Feature")) alerts.put(input.get("properties"));
             // FeatureCollection (2+ alerts)
-        else for (Object feature : inputObject.getJSONArray("features"))
+        else for (Object feature : input.getJSONArray("features"))
             alerts.put(new JSONObject(feature.toString()).getJSONObject("properties"));
 
         TextChannel alertsChannel = StormAlerts.jda.getTextChannelById(850442466775662613L);

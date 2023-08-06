@@ -10,22 +10,17 @@ import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.ErrorResponse;
-import org.json.JSONObject;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.*;
 
 @SuppressWarnings("DataFlowIssue")
@@ -37,57 +32,20 @@ public class Weather extends ListenerAdapter {
     private static double rainRate;
     private static ScheduledFuture<?> scheduledSnowMessage;
     private static String previousWeatherName;
-    private static String weather = "null";
     private static String weatherName;
 
     public void checkConditions() throws IOException, ExecutionException, InterruptedException, TimeoutException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking weather...");
+        String weather;
 
-        StringBuilder visibilityInput = new StringBuilder();
-
-        boolean weatherOffline = false;
-
-        if (!StormAlerts.testing) try {
+        if (!StormAlerts.testing) {
             Connection conn = Jsoup.connect(
                 "https://www.google.com/search?q=" + new Secrets().getWeatherSearch()).timeout(15000);
             Document doc = conn.get();
             weather = doc.body().getElementsByClass("wob_dcp").get(0).text();
-
-            InputStream url = new URL(
-                "https://api.weather.gov/stations/" + new Secrets().getNwsStation() + "/observations/latest").openStream();
-            Scanner scanner = new Scanner(url, StandardCharsets.UTF_8).useDelimiter("\\A");
-            while (scanner.hasNextLine()) visibilityInput.append(scanner.nextLine());
-            url.close();
-
-        } catch (SocketTimeoutException ignored) {
-            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Timed out checking the weather!");
-            weatherOffline = true;
-
-        } catch (IndexOutOfBoundsException ignored) {
-            System.out.println(
-                new Utils().getTime(Utils.LogColor.RED) + "Couldn't get the weather! (No Results)");
-            weatherOffline = true;
-        }
-
-        else {
-            Scanner weatherScanner = new Scanner(new File("StormAlerts/Tests/weather.txt"));
-            Scanner visibilityScanner = new Scanner(new File("StormAlerts/Tests/visibility.json"));
-            weather = weatherScanner.nextLine();
-            visibilityInput.append(visibilityScanner.nextLine());
-        }
-
-        String visibility;
-        if (!weatherOffline) visibility = String.valueOf((int) Math.round(
-            new JSONObject(visibilityInput.toString()).getJSONObject("properties").getJSONObject("visibility")
-                .getInt("value") / 1609d));
-        else visibility = "ERROR";
-
-        long visibilityChannel = 899872710233051178L;
-        if (!StormAlerts.jda.getVoiceChannelById(visibilityChannel).getName()
-            .equals("Visibility | " + visibility + " mi"))
-            StormAlerts.jda.getVoiceChannelById(visibilityChannel).getManager()
-                .setName("Visibility | " + visibility + " mi").queue();
-
+            
+        } else weather = Files.readString(Path.of("StormAlerts/Tests/weather.txt"));
+        
         weatherName = null;
         if (weather.toLowerCase().contains("hail") || weather.toLowerCase().contains("sleet"))
             weatherName = "hailing 🧊";
@@ -175,7 +133,7 @@ public class Weather extends ListenerAdapter {
                         .isAfter(OffsetDateTime.now().minusMinutes(3)) && message.getContentRaw()
                         .contains("(Bot restarted at")) {
                         scheduleMessage = false;
-                        sendSnowMessage(snowChannel, true);
+                        sendSnowMessage(snowChannel, true, weather);
                     }
 
                 } catch (Exception e) {
@@ -185,12 +143,16 @@ public class Weather extends ListenerAdapter {
                 }
 
                 // Send the snow message after 45 minutes IF it's still snowing by then
-                if (scheduleMessage) new Thread(() -> {
-                    try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                        scheduledSnowMessage = executor.schedule(() -> sendSnowMessage(snowChannel, false),
-                            2705, TimeUnit.SECONDS);
-                    }
-                }, "Snow Message").start();
+                if (scheduleMessage) {
+                    String finalWeather = weather;
+                    new Thread(() -> {
+                        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                            scheduledSnowMessage = executor.schedule(
+                                () -> sendSnowMessage(snowChannel, false, finalWeather), 2705,
+                                TimeUnit.SECONDS);
+                        }
+                    }, "Snow Message").start();
+                }
 
             } else if (weather.equals("RAIN") && Pws.temperature >= 30) {
                 String ping = "";
@@ -362,7 +324,7 @@ public class Weather extends ListenerAdapter {
                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
     }
 
-    private void sendSnowMessage(TextChannel snowChannel, boolean silent) {
+    private void sendSnowMessage(TextChannel snowChannel, boolean silent, String weather) {
         // It should already be cancelled if it stopped snowing, but this is a failsafe
         if (!weatherName.startsWith("snowing")) return;
 

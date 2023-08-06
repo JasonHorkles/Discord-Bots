@@ -3,17 +3,17 @@ package me.jasonhorkles.stormalerts;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Calendar;
-import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -25,18 +25,12 @@ public class Traffic {
             if (!StormAlerts.testing) {
                 InputStream url = new URL(
                     "https://data.traffic.hereapi.com/v7/flow?in=circle:" + new Secrets().getTrafficCoords() + ";r=10&locationReferencing=none&apiKey=" + new Secrets().getTrafficApiKey()).openStream();
-                JSONObject obj = new JSONObject(
-                    new Scanner(url, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine());
+                JSONObject obj = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
                 url.close();
 
                 input = obj.getJSONArray("results");
-            } else {
-                File file = new File("StormAlerts/Tests/traffic.json");
-                Scanner fileScanner = new Scanner(file);
-
-                String out = fileScanner.nextLine();
-                input = new JSONObject(out).getJSONArray("results");
-            }
+            } else input = new JSONObject(
+                Files.readString(Path.of("StormAlerts/Tests/traffic.json"))).getJSONArray("results");
 
             // Find the correct direction
             JSONObject traffic = new JSONObject();
@@ -77,7 +71,7 @@ public class Traffic {
                 .flatMap(channel -> channel.sendMessage("**Failed to check traffic!** :warning:")).queue();
         }
     }
-    
+
     public void scheduleTrafficCheck(String time, boolean toWork) throws ParseException {
         DayOfWeek day = LocalDate.now().getDayOfWeek();
         if (day != DayOfWeek.SATURDAY && day != DayOfWeek.SUNDAY) {

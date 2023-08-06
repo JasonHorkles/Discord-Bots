@@ -7,14 +7,11 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -42,47 +39,6 @@ public class Utils {
 
         if (logColor == null) return time;
         return logColor.getLogColor() + time;
-    }
-
-    String value;
-
-    public String getJsonKey(JSONObject json, String key, boolean firstRun) {
-        boolean exists = json.has(key);
-        Iterator<?> keys;
-        String nextKeys;
-        if (firstRun) value = "null";
-
-        if (!exists) {
-            keys = json.keys();
-
-            while (keys.hasNext()) {
-                nextKeys = (String) keys.next();
-                try {
-                    if (json.get(nextKeys) instanceof JSONObject)
-                        getJsonKey(json.getJSONObject(nextKeys), key, false);
-                    else if (json.get(nextKeys) instanceof JSONArray) {
-                        JSONArray jsonArray = json.getJSONArray(nextKeys);
-
-                        int x = 0;
-                        if (x < jsonArray.length()) {
-                            String jsonArrayString = jsonArray.get(x).toString();
-                            JSONObject innerJSON = new JSONObject(jsonArrayString);
-
-                            getJsonKey(innerJSON, key, false);
-                        }
-                    }
-                } catch (Exception e) {
-                    System.out.print(new Utils().getTime(LogColor.RED));
-                    e.printStackTrace();
-                    new Utils().logError(e);
-                }
-            }
-        } else {
-            value = json.get(key).toString();
-            return value;
-        }
-
-        return value;
     }
 
     public CompletableFuture<List<Message>> getMessages(MessageChannel channel, int count) {
@@ -131,6 +87,8 @@ public class Utils {
             return false;
         }
     }
+    
+    //todo make update vc method
 
     public void updateNow(@Nullable SlashCommandInteractionEvent event) {
         String error = "Done!";

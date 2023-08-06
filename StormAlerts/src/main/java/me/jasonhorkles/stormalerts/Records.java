@@ -4,12 +4,12 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -33,15 +33,9 @@ public class Records {
     public static long maxRainRateTime;
     public static long maxWindTime;
 
-    public void scheduleRecordCheck() throws FileNotFoundException {
+    public void scheduleRecordCheck() throws IOException {
         // Populate the variables
-        String todayFilePath = "StormAlerts/records-today.json";
-
-        Scanner fileScanner = new Scanner(new File(todayFilePath));
-        String jsonObject = "{}";
-        if (fileScanner.hasNextLine()) jsonObject = fileScanner.nextLine();
-        JSONObject recordsToday = new JSONObject(jsonObject);
-        fileScanner.close();
+        JSONObject recordsToday = new JSONObject(Files.readString(Path.of("StormAlerts/records-today.json")));
 
         if (!recordsToday.isEmpty()) {
             // Stats
@@ -90,8 +84,7 @@ public class Records {
         String totalFilePath = "StormAlerts/records.json";
 
         try {
-            Scanner totalRecords = new Scanner(new File(totalFilePath));
-            JSONObject records = new JSONObject(totalRecords.nextLine());
+            JSONObject records = new JSONObject(Files.readString(Path.of(totalFilePath)));
 
             // Find new records
             if (highestLightningRateToday > records.getInt("highLightningRate")) {
