@@ -265,13 +265,13 @@ public class Forecasts {
                     case "Sports" -> {
                         if (!message.getEmbeds().get(0).getDescription()
                             .equals(sportsForecasts.toString().strip()))
-                            message.editMessageEmbeds(sports.build()).queueAfter(8, TimeUnit.SECONDS);
+                            message.editMessageEmbeds(sports.build()).queueAfter(12, TimeUnit.SECONDS);
                     }
 
                     case "Activities" -> {
                         if (!message.getEmbeds().get(0).getDescription()
                             .equals(activityForecasts.toString().strip()))
-                            message.editMessageEmbeds(activities.build()).queueAfter(12, TimeUnit.SECONDS);
+                            message.editMessageEmbeds(activities.build()).queueAfter(17, TimeUnit.SECONDS);
                     }
                 }
 
