@@ -20,7 +20,7 @@ public class Pollen {
         if (!AirCheck.testing) {
             Connection conn = Jsoup.connect(
                     "https://weather.com/forecast/allergy/l/" + new Secrets().getPollenLocationId())
-                .timeout(15000);
+                .timeout(30000);
             Document doc = conn.get();
 
             //noinspection DataFlowIssue

@@ -63,10 +63,16 @@ public class AirCheck {
             try {
                 new Forecasts().updateForecasts();
             } catch (Exception e) {
+                String reason = "";
+                if (e.getMessage().contains("Read timed out")) reason = " (Read Timed Out)";
+
                 System.out.println(
-                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the forecasts!");
-                e.printStackTrace();
-                new Utils().logError(e);
+                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the forecasts!" + reason);
+                if (reason.isBlank()) {
+                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                    e.printStackTrace();
+                    new Utils().logError(e);
+                }
             }
         }, 2, 2700, TimeUnit.SECONDS));
 
