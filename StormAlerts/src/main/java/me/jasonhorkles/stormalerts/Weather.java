@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -36,16 +37,21 @@ public class Weather extends ListenerAdapter {
 
     public void checkConditions() throws IOException, ExecutionException, InterruptedException, TimeoutException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking weather...");
-        
+
         String weather;
         if (!StormAlerts.testing) {
             Connection conn = Jsoup.connect(
                 "https://www.google.com/search?q=" + new Secrets().getWeatherSearch()).timeout(15000);
             Document doc = conn.get();
-            weather = doc.body().getElementsByClass("wob_dcp").get(0).text();
-            
+            List<Element> elements = doc.body().getElementsByClass("wob_dcp");
+            if (elements.isEmpty()) {
+                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Couldn't find the weather!");
+                return;
+            }
+            weather = elements.get(0).text();
+
         } else weather = Files.readString(Path.of("StormAlerts/Tests/weather.txt"));
-        
+
         weatherName = null;
         if (weather.toLowerCase().contains("hail") || weather.toLowerCase().contains("sleet"))
             weatherName = "hailing 🧊";
