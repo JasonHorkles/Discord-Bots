@@ -38,17 +38,13 @@ public class Weather extends ListenerAdapter {
     public void checkConditions() throws IOException, ExecutionException, InterruptedException, TimeoutException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking weather...");
 
-        String weather;
+        String weather = "Unavailable";
         if (!StormAlerts.testing) {
             Connection conn = Jsoup.connect(
                 "https://www.google.com/search?q=" + new Secrets().getWeatherSearch()).timeout(15000);
             Document doc = conn.get();
             List<Element> elements = doc.body().getElementsByClass("wob_dcp");
-            if (elements.isEmpty()) {
-                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Couldn't find the weather!");
-                return;
-            }
-            weather = elements.get(0).text();
+            if (!elements.isEmpty()) weather = elements.get(0).text();
 
         } else weather = Files.readString(Path.of("StormAlerts/Tests/weather.txt"));
 
