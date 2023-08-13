@@ -1,6 +1,5 @@
 package me.jasonhorkles.quorum;
 
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.io.File;
@@ -9,12 +8,14 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("DataFlowIssue")
 public class ScheduleDMs {
@@ -79,7 +80,7 @@ public class ScheduleDMs {
             }
         }
 
-        TextChannel messageChannel = Quorum.jda.getTextChannelById(869009573774761984L);
+        /*TextChannel messageChannel = Quorum.jda.getTextChannelById(869009573774761984L);
         if (usersLeft == 0) try {
             if (new Utils().getMessages(messageChannel, 1).get(30, TimeUnit.SECONDS).get(0).getTimeCreated()
                 .isBefore(OffsetDateTime.now().minusHours(71))) messageChannel.sendMessage(
@@ -88,7 +89,7 @@ public class ScheduleDMs {
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
-        }
+        }*/
     }
 
     public void scheduleInitial(String name, String date, String title, String scripture, String link, long delay) {
