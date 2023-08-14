@@ -143,8 +143,9 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
+        if (event.getGuild().getIdLong() != 843919716677582888L) return;
+        
         User user = event.getUser();
-
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle(user.getName() + " has left the server");
         embed.setDescription(user.getAsMention());
