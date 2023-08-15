@@ -42,9 +42,16 @@ public class Weather extends ListenerAdapter {
         if (!StormAlerts.testing) {
             Connection conn = Jsoup.connect(
                 "https://www.google.com/search?q=" + new Secrets().getWeatherSearch()).timeout(15000);
-            Document doc = conn.get();
-            List<Element> elements = doc.body().getElementsByClass("wob_dcp");
-            if (!elements.isEmpty()) weather = elements.get(0).text();
+            try {
+                Document doc = conn.get();
+                List<Element> elements = doc.body().getElementsByClass("wob_dcp");
+                if (!elements.isEmpty()) weather = elements.get(0).text();
+            } catch (IOException e) {
+                System.out.println(
+                    new Utils().getTime(Utils.LogColor.RED) + "Failed to check weather! Stacktrace:");
+                System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                e.printStackTrace();
+            }
 
         } else weather = Files.readString(Path.of("StormAlerts/Tests/weather.txt"));
 
