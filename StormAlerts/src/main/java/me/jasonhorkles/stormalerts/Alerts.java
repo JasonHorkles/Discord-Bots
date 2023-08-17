@@ -22,6 +22,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("DataFlowIssue")
@@ -67,11 +69,23 @@ public class Alerts {
         for (Object object : alerts) {
             JSONObject alert = new JSONObject(object.toString());
 
-            String description = boldAreas(
-                alert.getString("description").replace("\n", " ").replace("  ", "\n")
-                    .replaceAll("(?m)^\\* ", "### ").replaceAll("\\b\\.\\.\\.\\b", "\n"));
-            String id = alert.getString("id").replaceFirst("urn:oid:", "");
+            String pattern = "^([A-Z]+\\.\\.\\..+)$";
+            Pattern regex = Pattern.compile(pattern, Pattern.MULTILINE);
 
+            Matcher matcher = regex.matcher(
+                boldAreas(alert.getString("description").replace("\n", " ").replace("  ", "\n")));
+
+            StringBuilder output = new StringBuilder();
+            while (matcher.find()) {
+                String match = matcher.group(1);
+                String replacement = "### " + match;
+                matcher.appendReplacement(output, replacement);
+            }
+            matcher.appendTail(output);
+
+            String description = output.toString().replaceAll("(?<!\\s)\\.{3}(?=\\S)", "\n");
+
+            String id = alert.getString("id").replaceFirst("urn:oid:", "");
 
             if (!description.toLowerCase().contains(fa.toLowerCase()) && !description.toLowerCase()
                 .contains(ce.toLowerCase()) && !description.toLowerCase()

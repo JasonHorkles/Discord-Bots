@@ -33,7 +33,6 @@ public class StormAlerts extends ListenerAdapter {
     public static final boolean testing = false;
     public static JDA jda;
 
-
     public static void main(String[] args) throws InterruptedException, ParseException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
