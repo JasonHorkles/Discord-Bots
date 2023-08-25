@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -74,18 +73,18 @@ public class Events extends ListenerAdapter {
 
         // Utility
 
-        /*if (text.contains("update members")) {
+        if (text.equals("update members") || text.equals("check nicknames")) {
             if (member.getIdLong() != 277291758503723010L) {
                 message.reply("no").queue();
                 return;
             }
 
             new Utils().sendMessage(null, message, "Updating members... See console for details.", false);
-            new Utils().runNameCheckForGuild(event.getGuild());
+            new Nicknames().runNameCheckForGuild();
             return;
-        }*/
+        }
 
-        if (text.contains("stop") || text.contains("shut down"))
+        if (text.equals("stop") || text.equals("shut down"))
             if (member.getIdLong() == 277291758503723010L) {
                 message.reply("Shutting down...").mentionRepliedUser(false).queue();
                 PteroClient ptero = PteroBuilder.createClient(new Secrets().getPteroUrl(),
@@ -94,7 +93,7 @@ public class Events extends ListenerAdapter {
                 return;
             }
 
-        if (text.contains("restart")) if (member.getIdLong() == 277291758503723010L) {
+        if (text.equals("restart")) if (member.getIdLong() == 277291758503723010L) {
             message.reply("Restarting...").mentionRepliedUser(false).complete();
             System.exit(0);
             return;
@@ -275,7 +274,7 @@ public class Events extends ListenerAdapter {
             return;
         }
 
-        if (text.startsWith("hi") || text.endsWith("hi") || text.contains("hello")) {
+        if (text.startsWith("hi") || text.contains("hello")) {
             int number = r.nextInt(4);
             switch (number) {
                 case 0 -> msg = "hi " + new Utils().getFirstName(member);
@@ -288,7 +287,7 @@ public class Events extends ListenerAdapter {
             return;
         }
 
-        if (text.startsWith("ily") || text.endsWith("ily")) {
+        if (text.equals("ily")) {
             int number = r.nextInt(4);
             switch (number) {
                 case 0 -> msg = "I love **YOU**!";
@@ -567,22 +566,6 @@ public class Events extends ListenerAdapter {
         FileWriter fileWriter = new FileWriter(file, false);
         for (String word : wordList) fileWriter.write(word + "\n");
         return fileWriter;
-    }
-
-    @Override
-    public void onGuildMemberUpdateNickname(GuildMemberUpdateNicknameEvent event) {
-        if (event.getUser().isBot()) return;
-
-        Member member = event.getMember();
-//        Guild guild = event.getGuild();
-        String newNickname = event.getNewNickname();
-
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + member.getUser()
-            .getName() + " changed their nickname from '" + event.getOldNickname() + "' to '" + newNickname + "'");
-
-        // If not sushed
-        /*if (!member.getRoles().toString().contains("842490529744945192"))
-            new Utils().runNameCheckForUser(newNickname, member, guild);*/
     }
 
     @Override
