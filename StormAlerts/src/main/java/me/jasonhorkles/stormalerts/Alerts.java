@@ -73,7 +73,7 @@ public class Alerts {
             Pattern regex = Pattern.compile(pattern, Pattern.MULTILINE);
 
             Matcher matcher = regex.matcher(
-                boldAreas(alert.getString("description").replace("\n", " ").replace("  ", "\n")));
+                boldAreas(alert.getString("description").replace("\n", " ").replace("  ", "\n").replace("* ", "### ")));
 
             StringBuilder output = new StringBuilder();
             while (matcher.find()) {
