@@ -22,8 +22,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("DataFlowIssue")
@@ -69,21 +67,11 @@ public class Alerts {
         for (Object object : alerts) {
             JSONObject alert = new JSONObject(object.toString());
 
-            String pattern = "^([A-Z]+\\.\\.\\..+)$";
-            Pattern regex = Pattern.compile(pattern, Pattern.MULTILINE);
-
-            Matcher matcher = regex.matcher(
-                boldAreas(alert.getString("description").replace("\n", " ").replace("  ", "\n").replace("* ", "### ")));
-
-            StringBuilder output = new StringBuilder();
-            while (matcher.find()) {
-                String match = matcher.group(1);
-                String replacement = "### " + match;
-                matcher.appendReplacement(output, replacement);
-            }
-            matcher.appendTail(output);
-
-            String description = output.toString().replaceAll("(?<!\\s)\\.{3}(?=\\S)", "\n");
+            String description = boldAreas(
+                alert.getString("description").replace("\n", "§").replaceAll("\\s{2,}", " ")
+                    .replaceAll("\\s{2}(?=\\b[A-Z]{2,}\\.\\.\\.)", "\n### ").replace("§§", "\n")
+                    .replace("* ", "### ").replaceAll("- ### .*\\.\\.\\.", "")
+                    .replaceAll("(?<=[A-Z])\\.{3}", "\n").replace(" - ", "\n- ").replace("§", " "));
 
             String id = alert.getString("id").replaceFirst("urn:oid:", "");
 
