@@ -68,10 +68,10 @@ public class Alerts {
             JSONObject alert = new JSONObject(object.toString());
 
             String description = boldAreas(
-                alert.getString("description").replace("\n", "§").replaceAll(" {2,}", " ")
-                    .replaceAll("\\s{2}(?=\\b[A-Z]{2,}\\.\\.\\.)", "\n### ").replace("§§", "\n")
+                alert.getString("description").replace("\n", "§").replaceAll(" {2,}", " ").replace("§§", "\n")
+                    .replace("§", " ").replaceAll("\\s{2}(?=\\b[A-Z]{2,}\\.\\.\\.)", "\n### ")
                     .replace("* ", "### ").replaceAll("- ### .*\\.\\.\\.", "")
-                    .replaceAll("(?<=[A-Z])\\.{3}", "\n").replace(" - ", "\n- ").replace("§", " "));
+                    .replaceAll("(?<=[A-Z])\\.{3}", "\n").replace(" - ", "\n- "));
 
             String id = alert.getString("id").replaceFirst("urn:oid:", "");
 
