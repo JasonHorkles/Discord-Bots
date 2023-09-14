@@ -50,7 +50,7 @@ public class Phoenella {
         jda = builder.build();
 
         jda.awaitReady();
-        
+
         jda.addEventListener(new Nicknames());
 
         // Cache members
@@ -65,7 +65,7 @@ public class Phoenella {
 
         // Guild nickname check
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Starting nickname check...");
-        new Nicknames().runNameCheckForGuild();
+        new Nicknames().runNameCheckForGuild(true);
 
         // Scan Wordle leaderboard for nonexistent players
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Starting leaderboard check...");
@@ -179,6 +179,15 @@ public class Phoenella {
         }, "Console Input").start();
 
         Runtime.getRuntime().gc();
+
+        /*try {
+            for (Message message : new Utils().getMessages(
+                    jda.getUserById(335444013421297674L).openPrivateChannel().complete(), 10)
+                .get(15, TimeUnit.SECONDS))
+                message.delete().queue();
+        } catch (ExecutionException | TimeoutException e) {
+            throw new RuntimeException(e);
+        }*/
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }

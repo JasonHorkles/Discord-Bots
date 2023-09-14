@@ -80,7 +80,7 @@ public class Events extends ListenerAdapter {
             }
 
             new Utils().sendMessage(null, message, "Updating members... See console for details.", false);
-            new Nicknames().runNameCheckForGuild();
+            new Nicknames().runNameCheckForGuild(false);
             return;
         }
 
