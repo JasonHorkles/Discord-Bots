@@ -180,15 +180,6 @@ public class Phoenella {
 
         Runtime.getRuntime().gc();
 
-        /*try {
-            for (Message message : new Utils().getMessages(
-                    jda.getUserById(335444013421297674L).openPrivateChannel().complete(), 10)
-                .get(15, TimeUnit.SECONDS))
-                message.delete().queue();
-        } catch (ExecutionException | TimeoutException e) {
-            throw new RuntimeException(e);
-        }*/
-
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }
 
