@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("DataFlowIssue")
 public class Events extends ListenerAdapter {
+    //todo remove user nickname warnings on leave
     private static final Map<TextChannel, Integer> channelCooldown = new HashMap<>();
     private static final ArrayList<String> messageCooldown = new ArrayList<>();
 

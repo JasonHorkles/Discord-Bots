@@ -16,6 +16,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 
 public class Nicknames extends ListenerAdapter {
     private final Guild guild;
@@ -101,7 +102,7 @@ public class Nicknames extends ListenerAdapter {
                                             ":warning: Couldn't message " + user.getAsMention() + " that they were kicked! Are their DMs off?")
                                         .queue();
                                 }));
-                        member.kick().queue();
+                        member.kick().queueAfter(1, TimeUnit.SECONDS);
 
                         System.out.println(new Utils().getTime(
                             Utils.LogColor.YELLOW) + "Kicked " + user.getName() + " for not changing their nickname!");
