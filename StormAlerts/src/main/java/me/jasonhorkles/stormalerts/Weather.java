@@ -238,7 +238,7 @@ public class Weather extends ListenerAdapter {
                 new Utils().getTime(Utils.LogColor.GREEN) + "Raining @ " + rainRate + " in/hr");
 
         } else StormAlerts.jda.getPresence()
-            .setActivity(Activity.playing("it's " + weatherName + " (" + weather + ")"));
+            .setActivity(Activity.customStatus("It's " + weatherName + " (" + weather + ")"));
 
         previousWeatherName = weatherName;
 

@@ -60,7 +60,7 @@ public class AQI {
 
         AirCheck.jda.getPresence().setStatus(OnlineStatus.ONLINE);
         AirCheck.jda.getPresence()
-            .setActivity(Activity.playing(airQualityName + " (" + highestAqi + ", " + topPollutant + ")"));
+            .setActivity(Activity.customStatus(airQualityName + " (" + highestAqi + ", " + topPollutant + ")"));
 
         System.out.println(new Utils().getTime(
             Utils.LogColor.GREEN) + "Got the air! (" + highestAqi + ", " + topPollutant + ")");

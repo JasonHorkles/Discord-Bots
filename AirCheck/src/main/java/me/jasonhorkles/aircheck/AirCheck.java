@@ -53,7 +53,7 @@ public class AirCheck {
                 }
 
                 jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-                jda.getPresence().setActivity(Activity.playing("⚠ Error"));
+                jda.getPresence().setActivity(Activity.customStatus("⚠ Error"));
             }
         }, 1, 1800, TimeUnit.SECONDS));
 
