@@ -214,8 +214,8 @@ public class StormAlerts extends ListenerAdapter {
                 Scanner in = new Scanner(System.in);
                 String text = in.nextLine();
                 if (text.equalsIgnoreCase("stop")) System.exit(0);
-                if (text.equalsIgnoreCase("traffic n")) new Traffic().checkTraffic(true);
-                if (text.equalsIgnoreCase("traffic s")) new Traffic().checkTraffic(false);
+                if (text.equalsIgnoreCase("n")) new Traffic().checkTraffic(true);
+                if (text.equalsIgnoreCase("s")) new Traffic().checkTraffic(false);
             }
         }, "Console Input");
         input.start();
