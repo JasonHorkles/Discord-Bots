@@ -125,6 +125,8 @@ public class Phoenella {
         // Remove duplicate words from Wordle list
         System.out.println(
             new Utils().getTime(Utils.LogColor.GREEN) + "Removing duplicate Wordle entries...");
+        
+        // Allowed words
         File wordsFile = new File("Phoenella/Wordle/words.txt");
         Scanner wordScanner = new Scanner(wordsFile);
 
@@ -139,6 +141,25 @@ public class Phoenella {
         originalWordList.clear();
 
         FileWriter wordWriter = new FileWriter(wordsFile, false);
+        for (String word : wordList) wordWriter.write(word + "\n");
+        wordWriter.close();
+        wordList.clear();
+
+        // Banned words
+        wordsFile = new File("Phoenella/Wordle/banned-requests.txt");
+        wordScanner = new Scanner(wordsFile);
+
+        originalWordList = new ArrayList<>();
+        while (wordScanner.hasNextLine())
+            if (wordScanner.hasNextLine()) originalWordList.add(wordScanner.nextLine());
+        wordList = new HashSet<>(originalWordList);
+
+        duplicates = originalWordList.size() - wordList.size();
+        System.out.println(
+            new Utils().getTime(Utils.LogColor.GREEN) + "Removed " + duplicates + " duplicate banned words!");
+        originalWordList.clear();
+
+        wordWriter = new FileWriter(wordsFile, false);
         for (String word : wordList) wordWriter.write(word + "\n");
         wordWriter.close();
         wordList.clear();
