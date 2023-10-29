@@ -219,11 +219,11 @@ public class Utils {
     /* BAD WORD LIST BELOW */
 
     public boolean containsBadWord(String phrase) {
-        String[] badWords = {"\\bsex\\b", "\\bass\\b", "bitch", "fuck", "breast"};
+        String[] badWords = {"\\bsex\\b", "\\bass\\b", "bitch", "fuck", "breast", "penis", "vagina", "dicks"};
 
         for (String word : badWords) {
-            String temp = phrase.replaceAll(word, "REDACTED");
-            if (temp.contains("REDACTED")) return true;
+            String temp = phrase.toLowerCase().replaceAll(word, "§REDACTED§");
+            if (temp.contains("§REDACTED§")) return true;
         }
 
         return false;
