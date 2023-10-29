@@ -220,12 +220,7 @@ public class Utils {
 
     public boolean containsBadWord(String phrase) {
         String[] badWords = {"\\bsex\\b", "\\bass\\b", "bitch", "fuck", "breast", "penis", "vagina", "dicks"};
-
-        for (String word : badWords) {
-            String temp = phrase.toLowerCase().replaceAll(word, "§REDACTED§");
-            if (temp.contains("§REDACTED§")) return true;
-        }
-
+        for (String word : badWords) if (phrase.matches("(?si).*" + word + ".*")) return true;
         return false;
     }
 }

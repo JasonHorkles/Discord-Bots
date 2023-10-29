@@ -85,14 +85,13 @@ public class Events extends ListenerAdapter {
             return;
         }
 
-        if (text.equals("stop") || text.equals("shut down"))
-            if (member.getIdLong() == 277291758503723010L) {
-                message.reply("Shutting down...").mentionRepliedUser(false).queue();
-                PteroClient ptero = PteroBuilder.createClient(new Secrets().getPteroUrl(),
-                    new Secrets().getPteroApiKey());
-                ptero.retrieveServerByIdentifier("5243694c").flatMap(ClientServer::stop).executeAsync();
-                return;
-            }
+        if (text.equals("stop") || text.equals("shut down")) if (member.getIdLong() == 277291758503723010L) {
+            message.reply("Shutting down...").mentionRepliedUser(false).queue();
+            PteroClient ptero = PteroBuilder.createClient(new Secrets().getPteroUrl(),
+                new Secrets().getPteroApiKey());
+            ptero.retrieveServerByIdentifier("5243694c").flatMap(ClientServer::stop).executeAsync();
+            return;
+        }
 
         if (text.equals("restart")) if (member.getIdLong() == 277291758503723010L) {
             message.reply("Restarting...").mentionRepliedUser(false).complete();
@@ -732,6 +731,11 @@ public class Events extends ListenerAdapter {
 
             if (tries < 4 || tries > 8) {
                 event.reply("**Error:** Tries must be between 4-8!").setEphemeral(true).queue();
+                return;
+            }
+
+            if (new Utils().containsBadWord(word)) {
+                event.reply("**Error:** That word is not allowed!").setEphemeral(true).queue();
                 return;
             }
 
