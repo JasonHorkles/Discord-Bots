@@ -157,9 +157,12 @@ public class Reactions extends ListenerAdapter {
 
     @Override
     public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
-        // kek
-        if (event.getReaction().getEmoji().getName().equalsIgnoreCase("kek")) event.retrieveMessage().queue(
-            msg -> msg.removeReaction(event.getGuild().getEmojiById("841681203278774322"),
-                event.getJDA().getSelfUser()).queue());
+        // Remove kek if only bot is left
+        if (event.getReaction().getEmoji().getName().equalsIgnoreCase("kek"))
+            event.retrieveMessage().queue(msg -> event.getReaction().retrieveUsers().queue(users -> {
+                if (users.size() == 1 && users.get(0).equals(event.getJDA().getSelfUser()))
+                    msg.removeReaction(event.getGuild().getEmojiById("841681203278774322"),
+                        event.getJDA().getSelfUser()).queue();
+            }));
     }
 }
