@@ -1,5 +1,6 @@
 package me.jasonhorkles.phoenella;
 
+import me.jasonhorkles.phoenella.events.*;
 import me.jasonhorkles.phoenella.games.RPS;
 import me.jasonhorkles.phoenella.games.Wordle;
 import net.dv8tion.jda.api.JDA;
@@ -46,7 +47,8 @@ public class Phoenella {
         builder.setEnableShutdownHook(false);
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.playing("Wordle"));
-        builder.addEventListeners(new Events(), new GameManager(), new RPS(), new Wordle());
+        builder.addEventListeners(new Buttons(), new Messages(), new GameManager(), new Modals(),
+            new Reactions(), new RPS(), new SlashCommands(), new Wordle());
         jda = builder.build();
 
         jda.awaitReady();
@@ -125,7 +127,7 @@ public class Phoenella {
         // Remove duplicate words from Wordle list
         System.out.println(
             new Utils().getTime(Utils.LogColor.GREEN) + "Removing duplicate Wordle entries...");
-        
+
         // Allowed words
         File wordsFile = new File("Phoenella/Wordle/words.txt");
         Scanner wordScanner = new Scanner(wordsFile);

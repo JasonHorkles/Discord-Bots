@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 public class Nicknames extends ListenerAdapter {
+    //todo remove user nickname warnings on leave
     private final Guild guild;
     private final Role role;
 
