@@ -41,7 +41,6 @@ import java.util.concurrent.TimeoutException;
 public class Events extends ListenerAdapter {
     public static int lastNumber;
 
-    @SuppressWarnings("SuspiciousMethodCalls")
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember()
@@ -49,8 +48,9 @@ public class Events extends ListenerAdapter {
 
         // If in discord server, not a staff member or admin, and in the wrong channel, make it private
         boolean ephemeral = event.isFromGuild() && event.getGuild()
-            .getIdLong() == 455919765999976461L && !(event.getMember().getRoles()
-            .contains("667793980318154783") || event.getMember()
+            .getIdLong() == 455919765999976461L && !(event.getMember().getRoles().contains(
+            event.getJDA().getGuildById(455919765999976461L)
+                .getRoleById(667793980318154783L)) || event.getMember()
             .hasPermission(Permission.ADMINISTRATOR)) && !(event.getChannel()
             .getIdLong() == 456470772207190036L || event.getChannel().getIdLong() == 468416589331562506L);
 
