@@ -403,6 +403,18 @@ public class Events extends ListenerAdapter {
 
             return;
         }
+        
+        if (text.startsWith("are you sure")) {
+            int number = r.nextInt(3);
+            switch (number) {
+                case 0 -> msg = "Don't question me foo";
+                case 1 -> msg = "foo don't question me";
+                case 2 -> msg = "you questioning me?";
+            }
+
+            new Utils().sendMessage(channel, null, msg, allCaps);
+            return;
+        }
 
         msg = new Utils().lookUp(text, new Utils().getFirstName(member));
         if (msg.equals("501")) {
