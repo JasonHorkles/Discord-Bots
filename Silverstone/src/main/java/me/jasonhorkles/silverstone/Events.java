@@ -249,11 +249,11 @@ public class Events extends ListenerAdapter {
 
         // Counting
         if (event.getChannel().getIdLong() == 816885380577230906L) {
-            Message m = event.getMessage();
+            Message message = event.getMessage();
             int value;
             try {
                 // Errors if invalid int, resulting in catch statement running
-                value = Integer.parseInt(m.getContentRaw());
+                value = Integer.parseInt(message.getContentRaw());
 
                 if (lastNumber == -2) lastNumber = value + 1;
 
@@ -262,20 +262,26 @@ public class Events extends ListenerAdapter {
                 else {
                     System.out.println(new Utils().getTime(
                         Utils.LogColor.YELLOW) + "Deleting invalid number from counting: " + value);
-                    m.delete().queue();
+                    message.delete().queue();
                 }
 
             } catch (NumberFormatException ignored) {
                 // NaN
                 System.out.println(new Utils().getTime(
-                    Utils.LogColor.YELLOW) + "Deleting invalid message from counting: " + m.getContentRaw());
-                m.delete().queue();
+                    Utils.LogColor.YELLOW) + "Deleting invalid message from counting: " + message.getContentRaw());
+                message.delete().queue();
             }
         }
 
         // Ping
         if (event.getMessage().getContentRaw().contains("<@277291758503723010>"))
             event.getMessage().addReaction(Emoji.fromCustom("piiiiiing", 658749607488127017L, false)).queue();
+
+        // Animal pics
+        if (event.getChannel().getIdLong() == 884169435773009950L) {
+            Message message = event.getMessage();
+            if (!message.getAttachments().isEmpty()) message.addReaction(Emoji.fromUnicode("❤")).queue();
+        }
     }
 
     private void sendToPluginSupport(MessageReceivedEvent event) {

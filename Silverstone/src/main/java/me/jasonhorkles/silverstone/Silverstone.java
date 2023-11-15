@@ -76,13 +76,13 @@ public class Silverstone {
         if (!messages.isEmpty()) {
             boolean isFirstNumber = true;
 
-            for (Message m : messages) {
-                if (m == null) break;
+            for (Message message : messages) {
+                if (message == null) break;
 
                 int value;
                 try {
                     // Errors if invalid int, resulting in catch statement running
-                    value = Integer.parseInt(m.getContentRaw());
+                    value = Integer.parseInt(message.getContentRaw());
 
                     // Set first number
                     if (isFirstNumber) {
@@ -95,14 +95,14 @@ public class Silverstone {
                     else {
                         System.out.println(new Utils().getTime(
                             Utils.LogColor.YELLOW) + "Deleting invalid number from counting: " + value);
-                        m.delete().queue();
+                        message.delete().queue();
                     }
 
                 } catch (NumberFormatException ignored) {
                     // NaN
                     System.out.println(new Utils().getTime(
-                        Utils.LogColor.YELLOW) + "Deleting invalid message from counting: " + m.getContentRaw());
-                    m.delete().queue();
+                        Utils.LogColor.YELLOW) + "Deleting invalid message from counting: " + message.getContentRaw());
+                    message.delete().queue();
                 }
             }
         }
