@@ -255,7 +255,7 @@ public class Weather extends ListenerAdapter {
                 TextChannel rainChannel = StormAlerts.jda.getTextChannelById(900248256515285002L);
                 rainChannel.sendMessage(
                     event.getMessage().getContentRaw().replaceFirst("\\[CONFIRMATION NEEDED] ", "")).queue();
-                event.getMessage().delete().queue();
+                event.deferEdit().queue(na -> event.getMessage().delete().queue());
 
                 StormAlerts.jda.getPresence().setStatus(OnlineStatus.ONLINE);
                 StormAlerts.jda.getPresence()
@@ -284,7 +284,7 @@ public class Weather extends ListenerAdapter {
                     event.getMessage().getContentRaw().replaceFirst("\\[CONFIRMATION NEEDED] ", "")
                         .replaceFirst("<@&843956362059841596>\n", "")
                         .replace("!", "! (May be snow melting in the rain gauge)")).queue();
-                event.getMessage().delete().queue();
+                event.deferEdit().queue(na -> event.getMessage().delete().queue());
 
                 StormAlerts.jda.getPresence().setStatus(OnlineStatus.ONLINE);
                 StormAlerts.jda.getPresence().setActivity(
@@ -300,7 +300,7 @@ public class Weather extends ListenerAdapter {
                         executor.schedule(() -> rainDenied = false, 1, TimeUnit.HOURS);
                     }
                 }, "Deny Rain").start();
-                event.getMessage().delete().queue();
+                event.deferEdit().queue(na -> event.getMessage().delete().queue());
             }
         }
     }
