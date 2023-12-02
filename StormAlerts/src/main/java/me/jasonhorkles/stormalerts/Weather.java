@@ -168,7 +168,7 @@ public class Weather extends ListenerAdapter {
                 if (new Utils().shouldIPing(rainChannel)) ping = "<@&843956362059841596>\n";
 
                 // If it's bright enough outside (AKA not cloudy/raining), set to true
-                boolean mightBeSnowMelt = (int) Pws.wm2 >= 70;
+                boolean mightBeSnowMelt = (int) Pws.wm2 >= 25;
 
                 String message = null;
                 switch (rainIntensity) {
