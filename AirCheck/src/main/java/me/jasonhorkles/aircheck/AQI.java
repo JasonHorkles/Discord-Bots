@@ -25,6 +25,14 @@ public class AQI {
 
         } else input = new JSONArray(Files.readString(Path.of("AirCheck/air.json")));
 
+        if (input.isEmpty()) {
+            System.out.println(
+                new Utils().getTime(Utils.LogColor.RED) + "[ERROR] No air quality data found!");
+            AirCheck.jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
+            AirCheck.jda.getPresence().setActivity(Activity.playing("⚠ No air quality data found!"));
+            return;
+        }
+
         int highestAqiIndex = -1;
         int highestAqi = -1;
         for (int x = 0; x < input.length(); x++) {
@@ -54,13 +62,13 @@ public class AQI {
             // ⚠️
             case 6 -> "Hazardous ⚠️";
             case 7 -> "⚠️ Unavailable";
-            
+
             default -> "⚠️ Error: " + catNumber;
         };
 
         AirCheck.jda.getPresence().setStatus(OnlineStatus.ONLINE);
-        AirCheck.jda.getPresence()
-            .setActivity(Activity.customStatus(airQualityName + " (" + highestAqi + ", " + topPollutant + ")"));
+        AirCheck.jda.getPresence().setActivity(
+            Activity.customStatus(airQualityName + " (" + highestAqi + ", " + topPollutant + ")"));
 
         System.out.println(new Utils().getTime(
             Utils.LogColor.GREEN) + "Got the air! (" + highestAqi + ", " + topPollutant + ")");
