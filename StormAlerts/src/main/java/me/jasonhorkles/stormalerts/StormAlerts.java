@@ -168,7 +168,7 @@ public class StormAlerts extends ListenerAdapter {
         }, 3, 360, TimeUnit.SECONDS));
 
         // Schedule traffic checks
-        new Traffic().scheduleTrafficCheck("2:40 PM", true);
+        new Traffic().scheduleTrafficCheck("2:37 PM", true);
         new Traffic().scheduleTrafficCheck("5:50 PM", false);
         new Traffic().scheduleTrafficCheck("6:00 PM", false);
 
