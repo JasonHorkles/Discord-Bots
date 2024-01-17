@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.channel.ChannelCreateEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -288,6 +289,15 @@ public class Events extends ListenerAdapter {
             Message message = event.getMessage();
             if (!message.getAttachments().isEmpty()) message.addReaction(Emoji.fromUnicode("❤")).queue();
         }
+    }
+
+    @Override
+    public void onChannelCreate(ChannelCreateEvent event) {
+        if (event.getChannelType() != ChannelType.GUILD_PUBLIC_THREAD) return;
+        ThreadChannel post = event.getChannel().asThreadChannel();
+        if (post.getParentChannel().getIdLong() != 1023735878075564042L) return;
+
+        post.addThreadMember(event.getJDA().getUserById(277291758503723010L)).queue();
     }
 
     private void sendToPluginSupport(MessageReceivedEvent event) {
