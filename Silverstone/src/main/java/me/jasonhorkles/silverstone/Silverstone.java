@@ -36,7 +36,7 @@ public class Silverstone {
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setBulkDeleteSplittingEnabled(false);
         builder.setStatus(OnlineStatus.ONLINE);
-        builder.setActivity(Activity.watching("the days go by"));
+        builder.setActivity(Activity.playing("on Silverstone (play.silverstonemc.net)"));
         builder.setEnableShutdownHook(false);
         builder.addEventListeners(new Events(), new Testing());
         jda = builder.build();
