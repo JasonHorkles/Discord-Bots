@@ -59,9 +59,15 @@ public class Events extends ListenerAdapter {
                     .getAsString() + "` file(s) to <https://paste.gg/>\nThen, click \"Submit anonymously\" and post the link in this channel.")
                 .queue();
 
-            case "ecdebug" -> event.reply(
-                    "Please run the command `/ecl debug` in-game.\nOnce everything has completed, upload the newly created debug dump file from the EntityClearer plugin folder (`/plugins/EntityClearer`) to this channel.")
-                .queue();
+            case "ecldebug" -> {
+                String message = " run the command `/ecl debug` in-game.\nOnce everything has completed, upload the newly created debug dump file from the EntityClearer plugin folder (`/plugins/EntityClearer`) to this channel.";
+                boolean isNull = event.getOption("replyto") == null;
+                if (!isNull) if (event.getOption("replyto").getAsMember() == null) isNull = true;
+
+                if (isNull) event.reply("Please" + message).queue();
+                else event.reply(
+                    event.getOption("replyto").getAsMember().getAsMention() + ", please" + message).queue();
+            }
 
             case "plgh" -> event.reply("""
                 **EntityClearer:** <https://github.com/SilverstoneMC/EntityClearer>

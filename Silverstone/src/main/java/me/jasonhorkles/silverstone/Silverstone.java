@@ -51,7 +51,7 @@ public class Silverstone {
 
         //noinspection DataFlowIssue
         jda.getGuildById(455919765999976461L).updateCommands()
-            .addCommands(Commands.slash("ecdebug", "EntityClearer debug"),
+            .addCommands(Commands.slash("ecldebug", "EntityClearer debug").addOption(OptionType.MENTIONABLE, "replyto", "Who to reply to", false),
                 Commands.slash("paste", "Get a link to paste text to")
                     .addOption(OptionType.STRING, "what", "What should be pasted", true),
                 Commands.slash("plgh", "Links to the plugins on GitHub"),
