@@ -297,7 +297,9 @@ public class Events extends ListenerAdapter {
         ThreadChannel post = event.getChannel().asThreadChannel();
         if (post.getParentChannel().getIdLong() != 1023735878075564042L) return;
 
-        post.addThreadMember(event.getJDA().getUserById(277291758503723010L)).queue();
+        post.sendMessage("<@277291758503723010>").queue(del -> del.delete()
+            .queueAfter(100, TimeUnit.MILLISECONDS, null,
+                new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
     }
 
     private void sendToPluginSupport(MessageReceivedEvent event) {
