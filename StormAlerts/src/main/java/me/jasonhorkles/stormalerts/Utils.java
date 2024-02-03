@@ -53,8 +53,8 @@ public class Utils {
             Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).get(0);
 
             if (message.isEdited()) //noinspection DataFlowIssue
-                return message.getTimeEdited().isBefore(OffsetDateTime.now().minusHours(2));
-            else return message.getTimeCreated().isBefore(OffsetDateTime.now().minusHours(2));
+                return message.getTimeEdited().isBefore(OffsetDateTime.now().minusHours(12));
+            else return message.getTimeCreated().isBefore(OffsetDateTime.now().minusHours(12));
 
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             System.out.print(new Utils().getTime(LogColor.RED));
@@ -74,10 +74,10 @@ public class Utils {
         try {
             Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).get(0);
 
-            // If edited or sent within the last 5 minutes, send silently
+            // If edited/sent within the last hour, send silently
             if (message.isEdited()) //noinspection DataFlowIssue
-                return message.getTimeEdited().isAfter(OffsetDateTime.now().minusMinutes(5));
-            else return message.getTimeCreated().isAfter(OffsetDateTime.now().minusMinutes(5));
+                return message.getTimeEdited().isAfter(OffsetDateTime.now().minusHours(1));
+            else return message.getTimeCreated().isAfter(OffsetDateTime.now().minusHours(1));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             System.out.print(new Utils().getTime(LogColor.RED));
             e.printStackTrace();
