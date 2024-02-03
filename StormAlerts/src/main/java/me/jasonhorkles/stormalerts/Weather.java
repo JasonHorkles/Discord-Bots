@@ -56,7 +56,8 @@ public class Weather extends ListenerAdapter {
         weatherName = null;
         if (weather.toLowerCase().contains("hail") || weather.toLowerCase().contains("sleet"))
             weatherName = "hailing 🧊";
-        else if (weather.toLowerCase().contains("snow")) weatherName = "snowing 🌨️";
+        else if (weather.toLowerCase().contains("snow") && !weather.toLowerCase().contains("rain"))
+            weatherName = "snowing 🌨️";
 
         rainRate = Pws.currentRainRate;
         String intensity = null;
