@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,11 +40,10 @@ public class Weather extends ListenerAdapter {
         String weather = "Unavailable";
         if (!StormAlerts.testing) {
             Connection conn = Jsoup.connect(
-                "https://www.google.com/search?q=" + new Secrets().getWeatherSearch()).timeout(15000);
+                "https://weather.com/weather/today/l/" + new Secrets().getWeatherCode()).timeout(15000);
             try {
                 Document doc = conn.get();
-                List<Element> elements = doc.body().getElementsByClass("wob_dcp");
-                if (!elements.isEmpty()) weather = elements.get(0).text();
+                weather = doc.select("[class*=\"CurrentConditions--phraseValue--\"]").first().text();
             } catch (IOException e) {
                 System.out.println(
                     new Utils().getTime(Utils.LogColor.RED) + "Failed to check weather! Stacktrace:");
@@ -58,8 +56,7 @@ public class Weather extends ListenerAdapter {
         weatherName = null;
         if (weather.toLowerCase().contains("hail") || weather.toLowerCase().contains("sleet"))
             weatherName = "hailing 🧊";
-        else if (weather.toLowerCase().contains("snow") || weather.toLowerCase().contains("freezing rain"))
-            weatherName = "snowing 🌨️";
+        else if (weather.toLowerCase().contains("snow")) weatherName = "snowing 🌨️";
 
         rainRate = Pws.currentRainRate;
         String intensity = null;
