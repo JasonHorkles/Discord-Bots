@@ -184,6 +184,13 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        // Auto publish announcements
+        if (event.getChannelType() == ChannelType.NEWS) {
+            event.getMessage().crosspost().queue(null,
+                new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE, ErrorResponse.ALREADY_CROSSPOSTED));
+            return;
+        }
+
         if (event.getAuthor().isBot()) return;
 
         // Plugin support thread
