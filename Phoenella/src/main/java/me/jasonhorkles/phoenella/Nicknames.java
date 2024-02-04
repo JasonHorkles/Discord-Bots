@@ -180,6 +180,8 @@ public class Nicknames extends ListenerAdapter {
             }
 
             if (userData != null) {
+                System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Removing " + event.getUser()
+                    .getName() + " from the bad nickname list...");
                 usersData.remove(index);
                 Files.writeString(dataPath, usersData.toString());
             }
