@@ -181,6 +181,8 @@ public class Messages extends ListenerAdapter {
             return;
         }
 
+        if ((text.length() == 3 || text.length() == 4) && !text.equals("ily")) return;
+
         // Message cooldowns
         for (String s : messageCooldown)
             if (s.equalsIgnoreCase(text)) {
