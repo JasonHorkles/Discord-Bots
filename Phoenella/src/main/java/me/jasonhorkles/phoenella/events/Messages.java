@@ -69,7 +69,7 @@ public class Messages extends ListenerAdapter {
             }
 
             new Utils().sendMessage(null, message, "Updating members... See console for details.", false);
-            new Nicknames().runNameCheckForGuild(false);
+            new Thread(() -> new Nicknames().runNameCheckForGuild(false)).start();
             return;
         }
 

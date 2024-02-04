@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -19,7 +20,6 @@ import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 public class Nicknames extends ListenerAdapter {
-    //todo remove user nickname warnings on leave
     private final Guild guild;
     private final Role role;
 
@@ -159,6 +159,34 @@ public class Nicknames extends ListenerAdapter {
             guild.getTextChannelById(893184802084225115L).sendMessage(
                     ":warning: **ERROR:** Failed to get user data for " + member.getAsMention() + "'s nickname! <@277291758503723010>")
                 .queue();
+        }
+    }
+
+    @Override
+    public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
+        try {
+            Path dataPath = Path.of("Phoenella/nickname-warnings.json");
+            JSONArray usersData = new JSONArray(Files.readString(dataPath));
+
+            JSONObject userData = null;
+            int index = 0;
+            for (int x = 0; x < usersData.length(); x++) {
+                JSONObject userJSON = usersData.getJSONObject(x);
+                if (userJSON.getLong("id") == event.getUser().getIdLong()) {
+                    userData = userJSON;
+                    index = x;
+                    break;
+                }
+            }
+
+            if (userData != null) {
+                usersData.remove(index);
+                Files.writeString(dataPath, usersData.toString());
+            }
+
+        } catch (IOException e) {
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            e.printStackTrace();
         }
     }
 
