@@ -165,9 +165,6 @@ public class Weather extends ListenerAdapter {
                 String ping = "";
                 if (new Utils().shouldIPing(rainChannel)) ping = "<@&843956362059841596>\n";
 
-                // If it's bright enough outside (AKA not cloudy/raining), set to true
-                boolean mightBeSnowMelt = (int) Pws.wm2 >= 25;
-
                 String message = null;
                 switch (rainIntensity) {
                     case 4 -> {
@@ -194,15 +191,14 @@ public class Weather extends ListenerAdapter {
                         Utils.LogColor.RED) + "[ERROR] It's raining, but there's no valid intensity! (" + rainIntensity + ")");
                 }
 
-                if (message != null) if (acceptRainForDay || !mightBeSnowMelt)
-                    rainChannel.sendMessage(message)
-                        .setSuppressedNotifications(new Utils().shouldIBeSilent(rainChannel)).queue();
+                if (message != null) if (acceptRainForDay) rainChannel.sendMessage(message)
+                    .setSuppressedNotifications(new Utils().shouldIBeSilent(rainChannel)).queue();
                 else {
                     sendConfirmationMessage("[CONFIRMATION NEEDED] " + message);
                     idle = true;
                 }
 
-                if (!mightBeSnowMelt) previousTypeChannel = rainChannel;
+                previousTypeChannel = rainChannel;
             }
         }
 
