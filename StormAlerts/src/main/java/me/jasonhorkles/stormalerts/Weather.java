@@ -155,8 +155,8 @@ public class Weather extends ListenerAdapter {
                     new Thread(() -> {
                         try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
                             scheduledSnowMessage = executor.schedule(
-                                () -> sendSnowMessage(snowChannel, false, finalWeather), 2705,
-                                TimeUnit.SECONDS);
+                                () -> sendSnowMessage(snowChannel, false, finalWeather), 20,
+                                TimeUnit.MINUTES);
                         }
                     }, "Snow Message").start();
                 }
