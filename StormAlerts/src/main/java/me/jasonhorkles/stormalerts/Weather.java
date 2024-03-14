@@ -149,13 +149,13 @@ public class Weather extends ListenerAdapter {
                     new Utils().logError(e);
                 }
 
-                // Send the snow message after 45 minutes IF it's still snowing by then
+                // Send the snow message after 30 minutes IF it's still snowing by then
                 if (scheduleMessage) {
                     String finalWeather = weather;
                     new Thread(() -> {
                         try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
                             scheduledSnowMessage = executor.schedule(
-                                () -> sendSnowMessage(snowChannel, false, finalWeather), 20,
+                                () -> sendSnowMessage(snowChannel, false, finalWeather), 30,
                                 TimeUnit.MINUTES);
                         }
                     }, "Snow Message").start();
@@ -323,7 +323,7 @@ public class Weather extends ListenerAdapter {
             Button.success("acceptrain", "Accept for the day").withEmoji(Emoji.fromUnicode("✅")),
             Button.secondary("unsurerain", "Unsure").withEmoji(Emoji.fromUnicode("❔")),
             Button.danger("denyrain", "Deny for 1 hour").withEmoji(Emoji.fromUnicode("✖️"))).queue(
-            del -> del.delete().queueAfter(30, TimeUnit.MINUTES, null,
+            del -> del.delete().queueAfter(15, TimeUnit.MINUTES, null,
                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
     }
 

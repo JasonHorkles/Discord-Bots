@@ -33,15 +33,13 @@ public class Pws {
 
         JSONObject input;
         if (!StormAlerts.testing) {
-            InputStream url = new URL(
-                "https://api.ambientweather.net/v1/devices/?apiKey=" + new Secrets().getAwApiKey() + "&applicationKey=" + new Secrets().getAwAppKey()).openStream();
+            InputStream url = new URL("https://api.ambientweather.net/v1/devices/?apiKey=" + new Secrets().getAwApiKey() + "&applicationKey=" + new Secrets().getAwAppKey()).openStream();
             input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8)).getJSONObject(0)
                 .getJSONObject("lastData");
             url.close();
 
-        } else input = new JSONArray(
-            Files.readString(Path.of("StormAlerts/Tests/pwsweather.json"))).getJSONObject(0)
-            .getJSONObject("lastData");
+        } else input = new JSONArray(Files.readString(Path.of("StormAlerts/Tests/pwsweather.json")))
+            .getJSONObject(0).getJSONObject("lastData");
 
         currentRainRate = input.getDouble("hourlyrainin");
         temperature = input.getDouble("tempf");
@@ -54,6 +52,7 @@ public class Pws {
         int wind = Math.toIntExact(Math.round(input.getDouble("windspeedmph")));
         int windGust = Math.toIntExact(Math.round(input.getDouble("windgustmph")));
         int windMax = Math.toIntExact(Math.round(input.getDouble("maxdailygust")));
+        int windMaxFps = Math.toIntExact(Math.round(windMax * 1.46667));
         double rainDaily = input.getDouble("dailyrainin");
         double rainWeekly = input.getDouble("weeklyrainin");
         double rainMonthly = input.getDouble("monthlyrainin");
@@ -108,8 +107,8 @@ public class Pws {
 
             DateTimeFormatter timeUpdatedFormat = DateTimeFormatter.ofPattern("h:mm a");
             Instant timeUpdatedRaw = Instant.ofEpochMilli(input.getLong("dateutc"));
-            String timeUpdated = timeUpdatedFormat.format(
-                ZonedDateTime.ofInstant(timeUpdatedRaw, ZoneId.of("America/Denver")));
+            String timeUpdated = timeUpdatedFormat.format(ZonedDateTime.ofInstant(timeUpdatedRaw,
+                ZoneId.of("America/Denver")));
             new Utils().updateVoiceChannel(941791190704062545L, "Stats Updated: " + timeUpdated);
 
             rateLimited = true;
@@ -126,21 +125,22 @@ public class Pws {
         if (windMax >= 20 && lastAlertedWindGust < windMax) {
             TextChannel windChannel = StormAlerts.jda.getTextChannelById(1028358818050080768L);
 
-            String ping = "";
-            if (new Utils().shouldIPing(windChannel)) ping = "<@&1046148944108978227>\n";
+            boolean pingOverride = windMax >= (lastAlertedWindGust + 5);
 
-            String message = ping + "🍃 Wind gust of **" + windMax + " mph** detected!";
+            String ping = "";
+            if (new Utils().shouldIPing(windChannel) || pingOverride) ping = "<@&1046148944108978227>\n";
+
+            String message = ping + "🍃 Wind gust of **" + windMax + " mph** *(" + windMaxFps + " ft/s)* detected!";
             if (windMax >= 50) message += " <a:weewoo:1083615022455992382>";
 
-            windChannel.sendMessage(message)
-                .setSuppressedNotifications(new Utils().shouldIBeSilent(windChannel)).queue();
+            windChannel.sendMessage(message).setSuppressedNotifications(new Utils().shouldIBeSilent(
+                windChannel) || pingOverride).queue();
             lastAlertedWindGust = windMax;
         }
 
         // Lightning alerts
         long lightningTime = input.getLong("lightning_time");
-        long previousLightningTime = Long.parseLong(
-            Files.readString(Path.of("StormAlerts/lastlightningid.txt")));
+        long previousLightningTime = Long.parseLong(Files.readString(Path.of("StormAlerts/lastlightningid.txt")));
 
         // Ignore lightning if it's the same as the last one
         if (previousLightningTime == lightningTime) return;
@@ -163,8 +163,8 @@ public class Pws {
             // Always send silent if lightning is more than 15 miles away
             if (lightningDistance > 15)
                 lightningChannel.sendMessage(message).setSuppressedNotifications(true).queue();
-            else lightningChannel.sendMessage(message)
-                .setSuppressedNotifications(new Utils().shouldIBeSilent(lightningChannel)).queue();
+            else lightningChannel.sendMessage(message).setSuppressedNotifications(new Utils().shouldIBeSilent(
+                lightningChannel)).queue();
         }
 
         FileWriter fw = new FileWriter("StormAlerts/lastlightningid.txt", false);
