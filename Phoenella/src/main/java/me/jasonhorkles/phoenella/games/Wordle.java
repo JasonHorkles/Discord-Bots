@@ -339,7 +339,6 @@ public class Wordle extends ListenerAdapter {
         }
     }
 
-    @SuppressWarnings("DataFlowIssue")
     @NotNull
     private static EmbedBuilder getEmbedBuilder(MessageEmbed embed, String embed1, String embed2, String fails) {
         EmbedBuilder newEmbed = new EmbedBuilder(embed);

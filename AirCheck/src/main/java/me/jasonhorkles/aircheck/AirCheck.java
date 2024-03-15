@@ -34,7 +34,6 @@ public class AirCheck {
         jda.awaitReady();
 
         // Air Quality
-        //noinspection resource
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
                 new AQI().checkAir();
@@ -58,7 +57,6 @@ public class AirCheck {
         }, 1, 1800, TimeUnit.SECONDS));
 
         // Forecasts
-        //noinspection resource
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
                 new Forecasts().updateForecasts();

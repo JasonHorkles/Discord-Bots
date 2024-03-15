@@ -85,7 +85,6 @@ public class StormAlerts extends ListenerAdapter {
         }
 
         // 1.5 mins
-        //noinspection resource
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
                 new Alerts().checkAlerts();
@@ -146,7 +145,6 @@ public class StormAlerts extends ListenerAdapter {
         }, 1, 90, TimeUnit.SECONDS));
 
         // 6 mins
-        //noinspection resource
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
                 new Visibility().checkConditions();

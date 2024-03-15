@@ -23,7 +23,6 @@ public class Pws {
     public static double currentRainRate = 0.00;
     public static double lastAlertedWindGust = -1;
     public static double temperature = -1;
-    public static double wm2 = -1;
 
     private static boolean rateLimited = false;
 
@@ -43,7 +42,6 @@ public class Pws {
 
         currentRainRate = input.getDouble("hourlyrainin");
         temperature = input.getDouble("tempf");
-        wm2 = input.getDouble("solarradiation");
 
         // Set the values
         int humidity = input.getInt("humidity");
