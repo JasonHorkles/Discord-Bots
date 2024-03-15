@@ -134,7 +134,7 @@ public class Pws {
             if (windMax >= 50) message += " <a:weewoo:1083615022455992382>";
 
             windChannel.sendMessage(message).setSuppressedNotifications(new Utils().shouldIBeSilent(
-                windChannel) || pingOverride).queue();
+                windChannel) && !pingOverride).queue();
             lastAlertedWindGust = windMax;
         }
 
