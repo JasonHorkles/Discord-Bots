@@ -49,9 +49,8 @@ public class Events extends ListenerAdapter {
 
         // If in discord server, not a staff member or admin, and in the wrong channel, make it private
         boolean ephemeral = event.isFromGuild() && event.getGuild()
-            .getIdLong() == 455919765999976461L && !(event.getMember().getRoles().contains(
-            event.getJDA().getGuildById(455919765999976461L)
-                .getRoleById(667793980318154783L)) || event.getMember()
+            .getIdLong() == 455919765999976461L && !(event.getMember().getRoles().contains(event.getJDA()
+            .getGuildById(455919765999976461L).getRoleById(667793980318154783L)) || event.getMember()
             .hasPermission(Permission.ADMINISTRATOR)) && !(event.getChannel()
             .getIdLong() == 456470772207190036L || event.getChannel().getIdLong() == 468416589331562506L);
 
@@ -66,8 +65,8 @@ public class Events extends ListenerAdapter {
                 if (!isNull) if (event.getOption("replyto").getAsMember() == null) isNull = true;
 
                 if (isNull) event.reply("Please" + message).queue();
-                else event.reply(
-                    event.getOption("replyto").getAsMember().getAsMention() + ", please" + message).queue();
+                else event.reply(event.getOption("replyto").getAsMember()
+                    .getAsMention() + ", please" + message).queue();
             }
 
             case "plgh" -> event.reply("""
@@ -77,25 +76,36 @@ public class Events extends ListenerAdapter {
                 **BungeeNicks:** <https://github.com/SilverstoneMC/BungeeNicks>
                 """).setEphemeral(ephemeral).queue();
 
-            case "plugins" -> event.reply("See Jason's plugins at: <https://hangar.papermc.io/JasonHorkles>")
-                .setEphemeral(ephemeral).queue();
+            case "plugins" ->
+                event.reply("See Jason's plugins at: <https://hangar.papermc.io/JasonHorkles>").setEphemeral(
+                    ephemeral).queue();
 
             case "tutorials" -> event.reply(
                     "JasonHorkles Tutorials: <https://www.youtube.com/channel/UCIyJ0zf3moNSRN1wIetpbmA>")
                 .setEphemeral(ephemeral).queue();
 
-            case "moss" -> event.reply("Get EssentialsX help and more here: https://discord.gg/PHpuzZS")
-                .setEphemeral(ephemeral).queue();
+            case "moss" ->
+                event.reply("Get EssentialsX help and more here: https://discord.gg/PHpuzZS").setEphemeral(
+                    ephemeral).queue();
 
-            case "lp" ->
-                event.reply("Get LuckPerms help here: https://discord.gg/luckperms").setEphemeral(ephemeral)
-                    .queue();
+            case "lp" -> event.reply("Get LuckPerms help here: https://discord.gg/luckperms").setEphemeral(
+                ephemeral).queue();
 
             case "config" -> {
                 String plugin = event.getOption("plugin").getAsString();
-                event.reply(
-                        "See the " + plugin + " config at: <https://github.com/SilverstoneMC/" + plugin + "/blob/main/src/main/resources/config.yml>")
+                event
+                    .reply("See the " + plugin + " config at: <https://github.com/SilverstoneMC/" + plugin + "/blob/main/src/main/resources/config.yml>")
                     .setEphemeral(ephemeral).queue();
+            }
+
+            case "close" -> {
+                if (event.getChannelType() == ChannelType.GUILD_PUBLIC_THREAD)
+                    if (event.getGuildChannel().asThreadChannel().getParentChannel()
+                        .getIdLong() == 1023735878075564042L && event.getUser()
+                        .getIdLong() == 277291758503723010L) sendThankYouMessage(event.getChannel()
+                        .asThreadChannel());
+                    else event.reply("Command not available.").setEphemeral(true).queue();
+                else event.reply("Command not available.").setEphemeral(true).queue();
             }
         }
     }
@@ -161,8 +171,8 @@ public class Events extends ListenerAdapter {
 
                 // Read the response
                 InputStream input = http.getInputStream();
-                JSONObject returnedText = new JSONObject(
-                    new String(input.readAllBytes(), StandardCharsets.UTF_8));
+                JSONObject returnedText = new JSONObject(new String(input.readAllBytes(),
+                    StandardCharsets.UTF_8));
 
                 if (returnedText.getString("status").equals("success")) {
                     String id = returnedText.getJSONObject("result").getString("id");
@@ -202,34 +212,14 @@ public class Events extends ListenerAdapter {
 
                 // Thanks for coming :)
                 if (message.getContentStripped().toLowerCase().startsWith("np")) {
-
-                    EmbedBuilder embed = new EmbedBuilder();
-
-                    embed.addField("Spigot", """
-                        [BungeeNicks](https://www.spigotmc.org/resources/bungeenicks.110948/)
-                        [EntityClearer](https://www.spigotmc.org/resources/entityclearer.90802/)
-                        [ExpensiveDeaths](https://www.spigotmc.org/resources/expensivedeaths.96065/)
-                        [FileCleaner](https://www.spigotmc.org/resources/filecleaner.93372/)""", true);
-                    embed.addField("Hangar", """
-                        [BungeeNicks](https://hangar.papermc.io/JasonHorkles/BungeeNicks)
-                        [EntityClearer](https://hangar.papermc.io/JasonHorkles/EntityClearer)
-                        [ExpensiveDeaths](https://hangar.papermc.io/JasonHorkles/ExpensiveDeaths)
-                        [FileCleaner](https://hangar.papermc.io/JasonHorkles/FileCleaner)""", true);
-                    embed.setColor(new Color(43, 45, 49));
-                    embed.setFooter("This post will now be closed. Send a message to re-open it.");
-
-                    event.getChannel().sendMessage(
-                            "Thank you for coming. If you enjoy the plugin and are happy with the support you received, please consider leaving a review on Spigot, or a star on Hangar \\:)")
-                        .addEmbeds(embed.build()).queue(
-                            na -> event.getChannel().asThreadChannel().getManager().setArchived(true)
-                                .queueAfter(1, TimeUnit.SECONDS));
+                    sendThankYouMessage(event.getChannel().asThreadChannel());
                     return;
                 }
 
                 // Ping OP
                 if (message.getMessageReference() == null) try {
-                    List<Message> messages = new Utils().getMessages(event.getChannel(), 2)
-                        .get(30, TimeUnit.SECONDS);
+                    List<Message> messages = new Utils().getMessages(event.getChannel(), 2).get(30,
+                        TimeUnit.SECONDS);
                     if (messages.size() < 2) return;
 
                     OffsetDateTime fiveMinsAgo = OffsetDateTime.now().minusMinutes(5);
@@ -242,7 +232,9 @@ public class Events extends ListenerAdapter {
                     if (author != op.getUser()) return;
 
                     event.getChannel().sendMessage(op.getAsMention()).queue(del -> del.delete()
-                        .queueAfter(100, TimeUnit.MILLISECONDS, null,
+                        .queueAfter(100,
+                            TimeUnit.MILLISECONDS,
+                            null,
                             new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
 
                 } catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -274,15 +266,13 @@ public class Events extends ListenerAdapter {
                 // If value is 1 less than the last number, update the last number value
                 if (value + 1 == lastNumber) lastNumber = value;
                 else {
-                    System.out.println(new Utils().getTime(
-                        Utils.LogColor.YELLOW) + "Deleting invalid number from counting: " + value);
+                    System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Deleting invalid number from counting: " + value);
                     message.delete().queue();
                 }
 
             } catch (NumberFormatException ignored) {
                 // NaN
-                System.out.println(new Utils().getTime(
-                    Utils.LogColor.YELLOW) + "Deleting invalid message from counting: " + message.getContentRaw());
+                System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Deleting invalid message from counting: " + message.getContentRaw());
                 message.delete().queue();
             }
         }
@@ -304,24 +294,25 @@ public class Events extends ListenerAdapter {
         ThreadChannel post = event.getChannel().asThreadChannel();
         if (post.getParentChannel().getIdLong() != 1023735878075564042L) return;
 
-        post.sendMessage("<@277291758503723010>").queue(del -> del.delete()
-            .queueAfter(100, TimeUnit.MILLISECONDS, null,
-                new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
+        post.sendMessage("<@277291758503723010>").queue(del -> del.delete().queueAfter(100,
+            TimeUnit.MILLISECONDS,
+            null,
+            new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
     }
 
     private void sendToPluginSupport(MessageReceivedEvent event) {
         String message = event.getMessage().getContentStripped().toLowerCase().replace(" ", "");
         if (message.contains("entityclearer") || message.contains("expensivedeaths") || message.contains(
-            "filecleaner") || message.contains("bungeenicks")) event.getMessage()
-            .reply("Please go to <#1023735878075564042> if you need help with Jason's plugins.")
-            .mentionRepliedUser(true).queue();
+            "filecleaner") || message.contains("bungeenicks")) event.getMessage().reply(
+            "Please go to <#1023735878075564042> if you need help with Jason's plugins.").mentionRepliedUser(
+            true).queue();
     }
 
     // When recent chatter leaves
     @Override
     public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
-        System.out.println(
-            "\n" + new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser().getName() + " left!");
+        System.out.println("\n" + new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser()
+            .getName() + " left!");
 
         OffsetDateTime thirtyMinsAgo = OffsetDateTime.now().minusMinutes(30);
         OffsetDateTime threeDaysAgo = OffsetDateTime.now().minusDays(3);
@@ -330,8 +321,7 @@ public class Events extends ListenerAdapter {
             .getThreadChannels()) {
             if (thread.isArchived()) continue;
 
-            System.out.println(
-                new Utils().getTime(Utils.LogColor.YELLOW) + "Checking post '" + thread.getName() + "'");
+            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking post '" + thread.getName() + "'");
 
             if (thread.getOwnerIdLong() == event.getUser().getIdLong()) {
                 sendOPLeaveMessage(thread, event.getUser());
@@ -401,7 +391,29 @@ public class Events extends ListenerAdapter {
         embed.setThumbnail(user.getAvatarUrl());
         embed.setColor(new Color(255, 100, 0));
 
-        channel.sendMessageEmbeds(embed.build()).queue(
-            na -> channel.getManager().setArchived(true).setLocked(true).queueAfter(1, TimeUnit.SECONDS));
+        channel.sendMessageEmbeds(embed.build()).queue(na -> channel.getManager().setArchived(true)
+            .setLocked(true).queueAfter(1, TimeUnit.SECONDS));
+    }
+
+    private void sendThankYouMessage(ThreadChannel channel) {
+        EmbedBuilder embed = new EmbedBuilder();
+
+        embed.addField("Spigot", """
+            [BungeeNicks](https://www.spigotmc.org/resources/bungeenicks.110948/)
+            [EntityClearer](https://www.spigotmc.org/resources/entityclearer.90802/)
+            [ExpensiveDeaths](https://www.spigotmc.org/resources/expensivedeaths.96065/)
+            [FileCleaner](https://www.spigotmc.org/resources/filecleaner.93372/)""", true);
+        embed.addField("Hangar", """
+            [BungeeNicks](https://hangar.papermc.io/JasonHorkles/BungeeNicks)
+            [EntityClearer](https://hangar.papermc.io/JasonHorkles/EntityClearer)
+            [ExpensiveDeaths](https://hangar.papermc.io/JasonHorkles/ExpensiveDeaths)
+            [FileCleaner](https://hangar.papermc.io/JasonHorkles/FileCleaner)""", true);
+        embed.setColor(new Color(43, 45, 49));
+        embed.setFooter("This post will now be closed. Send a message to re-open it.");
+
+        channel.sendMessage(
+                "Thank you for coming. If you enjoy the plugin and are happy with the support you received, please consider leaving a review on Spigot, or a star on Hangar \\:)")
+            .addEmbeds(embed.build()).queue(na -> channel.getManager().setArchived(true)
+                .queueAfter(1, TimeUnit.SECONDS));
     }
 }

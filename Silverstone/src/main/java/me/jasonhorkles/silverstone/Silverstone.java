@@ -30,8 +30,11 @@ public class Silverstone {
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
         builder.disableCache(CacheFlag.ACTIVITY);
-        builder.enableIntents(GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MEMBERS,
-            GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.MESSAGE_CONTENT);
+        builder.enableIntents(GatewayIntent.GUILD_PRESENCES,
+            GatewayIntent.GUILD_MEMBERS,
+            GatewayIntent.GUILD_MESSAGES,
+            GatewayIntent.GUILD_VOICE_STATES,
+            GatewayIntent.MESSAGE_CONTENT);
         builder.enableCache(CacheFlag.ONLINE_STATUS, CacheFlag.VOICE_STATE);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setBulkDeleteSplittingEnabled(false);
@@ -43,32 +46,36 @@ public class Silverstone {
 
         jda.awaitReady();
 
-        OptionData plugins = new OptionData(OptionType.STRING, "plugin", "The plugin", true).addChoices(
-            new Command.Choice("BungeeNicks", "BungeeNicks"),
+        OptionData plugins = new OptionData(OptionType.STRING,
+            "plugin",
+            "The plugin",
+            true).addChoices(new Command.Choice("BungeeNicks", "BungeeNicks"),
             new Command.Choice("EntityClearer", "EntityClearer"),
             new Command.Choice("ExpensiveDeaths", "ExpensiveDeaths"),
             new Command.Choice("FileCleaner", "FileCleaner"));
 
         //noinspection DataFlowIssue
-        jda.getGuildById(455919765999976461L).updateCommands()
-            .addCommands(Commands.slash("ecldebug", "EntityClearer debug").addOption(OptionType.MENTIONABLE, "replyto", "Who to reply to", false),
-                Commands.slash("paste", "Get a link to paste text to")
-                    .addOption(OptionType.STRING, "what", "What should be pasted", true),
-                Commands.slash("plgh", "Links to the plugins on GitHub"),
-                Commands.slash("plugins", "Get a list of Jason's plugins"),
-                Commands.slash("tutorials", "Link to the tutorial channel"),
-                Commands.slash("moss", "M.O.S.S. Discord invite"),
-                Commands.slash("lp", "LuckPerms Discord invite"),
-                Commands.slash("config", "Get a link to the latest config file of a plugin")
-                    .addOptions(plugins), Commands.message("Upload file(s) to paste.gg")).queue();
+        jda.getGuildById(455919765999976461L).updateCommands().addCommands(Commands
+                .slash("ecldebug", "EntityClearer debug")
+                .addOption(OptionType.MENTIONABLE, "replyto", "Who to reply to", false),
+            Commands.slash("paste", "Get a link to paste text to")
+                .addOption(OptionType.STRING, "what", "What should be pasted", true),
+            Commands.slash("plgh", "Links to the plugins on GitHub"),
+            Commands.slash("plugins", "Get a list of Jason's plugins"),
+            Commands.slash("tutorials", "Link to the tutorial channel"),
+            Commands.slash("moss", "M.O.S.S. Discord invite"),
+            Commands.slash("lp", "LuckPerms Discord invite"),
+            Commands.slash("config", "Get a link to the latest config file of a plugin").addOptions(plugins),
+            Commands.message("Upload file(s) to paste.gg"),
+            Commands.slash("close", "Close a plugin support thread")).queue();
 
         new Time().updateTime();
 
         // Cache last counting number and verify last 10 messages
         TextChannel counting = jda.getChannelById(TextChannel.class, 816885380577230906L);
         //noinspection DataFlowIssue
-        LinkedList<Message> messages = new LinkedList<>(
-            new Utils().getMessages(counting, 50).get(60, TimeUnit.SECONDS));
+        LinkedList<Message> messages = new LinkedList<>(new Utils().getMessages(counting, 50)
+            .get(60, TimeUnit.SECONDS));
         // Sort messages oldest to newest
         messages.sort(Comparator.comparing(ISnowflake::getTimeCreated));
 
@@ -93,15 +100,13 @@ public class Silverstone {
                     // If value is 1 less than the last number, update the last number value
                     if (value + 1 == lastNumber) lastNumber = value;
                     else {
-                        System.out.println(new Utils().getTime(
-                            Utils.LogColor.YELLOW) + "Deleting invalid number from counting: " + value);
+                        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Deleting invalid number from counting: " + value);
                         message.delete().queue();
                     }
 
                 } catch (NumberFormatException ignored) {
                     // NaN
-                    System.out.println(new Utils().getTime(
-                        Utils.LogColor.YELLOW) + "Deleting invalid message from counting: " + message.getContentRaw());
+                    System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Deleting invalid message from counting: " + message.getContentRaw());
                     message.delete().queue();
                 }
             }
