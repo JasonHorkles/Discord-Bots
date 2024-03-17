@@ -132,8 +132,8 @@ public class Utils {
                 return embed.build();
             }
 
-            JSONObject obj = new JSONArray(
-                new Scanner(url, StandardCharsets.UTF_8).useDelimiter("\\A").nextLine()).getJSONObject(0);
+            JSONObject obj = new JSONArray(new Scanner(url, StandardCharsets.UTF_8).useDelimiter("\\A")
+                .nextLine()).getJSONObject(0);
             url.close();
 
             String receivedWord = obj.getString("word");
@@ -175,8 +175,7 @@ public class Utils {
             e.printStackTrace();
 
             embed.setColor(new Color(212, 43, 65));
-            embed.setDescription(
-                "Failed to search dictionary for word **" + word + "**! Please try again later.");
+            embed.setDescription("Failed to search dictionary for word **" + word + "**! Please try again later.");
         }
 
         return embed.build();

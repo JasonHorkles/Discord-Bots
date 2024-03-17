@@ -23,8 +23,7 @@ import java.util.*;
 public class SlashCommands extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + new Utils().getFullName(
-            event.getMember()) + " used the /" + event.getName() + " command");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + new Utils().getFullName(event.getMember()) + " used the /" + event.getName() + " command");
 
         //noinspection SwitchStatementWithTooFewBranches
         switch (event.getName().toLowerCase()) {
@@ -35,8 +34,8 @@ public class SlashCommands extends ListenerAdapter {
                             .setPlaceholder("Standard words are 5 characters").setMinLength(4).setMaxLength(8)
                             .build();
                         TextInput tries = TextInput.create("tries", "Tries", TextInputStyle.SHORT)
-                            .setPlaceholder("Must be between 4-8").setMinLength(1).setMaxLength(1)
-                            .setValue(String.valueOf(6)).build();
+                            .setPlaceholder("Must be between 4-8").setMinLength(1).setMaxLength(1).setValue(
+                                String.valueOf(6)).build();
 
                         Modal modal = Modal.create("customwordle", "Create Custom Wordle").addActionRow(word)
                             .addActionRow(tries).build();
@@ -47,17 +46,19 @@ public class SlashCommands extends ListenerAdapter {
                     case "play" -> {
                         event.reply("Creating a game...").setEphemeral(true).queue();
                         try {
-                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), null, false,
-                                false, null);
+                            TextChannel gameChannel = new Wordle().startGame(event.getMember(),
+                                null,
+                                false,
+                                false,
+                                null);
                             if (gameChannel == null) event.getHook().editOriginal(
                                     "Either you already have an ongoing game with that word or you have too many games active at once!")
                                 .queue();
                             else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention())
                                 .queue();
                         } catch (IOException e) {
-                            event.getHook()
-                                .editOriginal("Couldn't generate a random word! Please try again later.")
-                                .queue();
+                            event.getHook().editOriginal(
+                                "Couldn't generate a random word! Please try again later.").queue();
                             System.out.print(new Utils().getTime(Utils.LogColor.RED));
                             e.printStackTrace();
                         }
@@ -89,17 +90,19 @@ public class SlashCommands extends ListenerAdapter {
                             fw.write(event.getMember().getId() + "\n");
                             fw.close();
 
-                            TextChannel gameChannel = new Wordle().startGame(event.getMember(), word, false,
-                                true, null);
+                            TextChannel gameChannel = new Wordle().startGame(event.getMember(),
+                                word,
+                                false,
+                                true,
+                                null);
                             if (gameChannel == null) event.getHook().editOriginal(
                                     "Either you already have an ongoing game with that word or you have too many games active at once!")
                                 .queue();
                             else event.getHook().editOriginal("Game created in " + gameChannel.getAsMention())
                                 .queue();
                         } catch (IOException e) {
-                            event.getHook()
-                                .editOriginal("Couldn't generate a random word! Please try again later.")
-                                .queue();
+                            event.getHook().editOriginal(
+                                "Couldn't generate a random word! Please try again later.").queue();
                             System.out.print(new Utils().getTime(Utils.LogColor.RED));
                             e.printStackTrace();
                         }
@@ -137,16 +140,15 @@ public class SlashCommands extends ListenerAdapter {
 
                             LinkedHashMap<Member, Integer> sortedLeaderboard = new LinkedHashMap<>();
                             lines.entrySet().stream()
-                                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                                .forEachOrdered(x -> sortedLeaderboard.put(x.getKey(), x.getValue()));
+                                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).forEachOrdered(
+                                    x -> sortedLeaderboard.put(x.getKey(), x.getValue()));
 
                             StringBuilder finalLeaderboard = new StringBuilder("```\n");
                             int index = 1;
                             for (Member member : sortedLeaderboard.keySet()) {
                                 if (index > 10) break;
-                                finalLeaderboard.append(index).append(". ")
-                                    .append(new Utils().getFullName(member)).append(" | ")
-                                    .append(sortedLeaderboard.get(member)).append("\n");
+                                finalLeaderboard.append(index).append(". ").append(new Utils().getFullName(
+                                    member)).append(" | ").append(sortedLeaderboard.get(member)).append("\n");
                                 index++;
                             }
                             finalLeaderboard.append("```");

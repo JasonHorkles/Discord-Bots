@@ -19,11 +19,9 @@ public class Buttons extends ListenerAdapter {
     public void onButtonInteraction(ButtonInteractionEvent event) {
         switch (event.getComponentId()) {
             case "definitionreport" -> {
-                Phoenella.jda.openPrivateChannelById(277291758503723010L).flatMap(
-                        channel -> channel.sendMessage(
-                            ":warning: Definition report from **" + new Utils().getFullName(
-                                event.getMember()) + ":**").setEmbeds(event.getMessage().getEmbeds().get(0)))
-                    .queue();
+                Phoenella.jda.openPrivateChannelById(277291758503723010L).flatMap(channel -> channel
+                    .sendMessage(":warning: Definition report from **" + new Utils().getFullName(event.getMember()) + ":**")
+                    .setEmbeds(event.getMessage().getEmbeds().get(0))).queue();
 
                 event.deferEdit().queue();
 

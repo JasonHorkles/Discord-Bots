@@ -18,8 +18,8 @@ public class Pollen {
 
         String input;
         if (!AirCheck.testing) {
-            Connection conn = Jsoup.connect(
-                    "https://weather.com/forecast/allergy/l/" + new Secrets().getPollenLocationId())
+            Connection conn = Jsoup
+                .connect("https://weather.com/forecast/allergy/l/" + new Secrets().getPollenLocationId())
                 .timeout(30000);
             Document doc = conn.get();
 
@@ -44,11 +44,9 @@ public class Pollen {
         String treeLevel = pollenLevels.getOrDefault("Tree", "ERROR");
 
         String pollenForecasts = getColor(grassLevel) + "**Grass** → " + grassLevel + "\n" + getColor(
-            weedLevel) + "**Ragweed** → " + weedLevel + "\n" + getColor(
-            treeLevel) + "**Tree** → " + treeLevel + "\n";
+            weedLevel) + "**Ragweed** → " + weedLevel + "\n" + getColor(treeLevel) + "**Tree** → " + treeLevel + "\n";
 
-        System.out.println(new Utils().getTime(
-            Utils.LogColor.GREEN) + "Got the pollen! (G:" + grassLevel + " W:" + weedLevel + " T:" + treeLevel + ")");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got the pollen! (G:" + grassLevel + " W:" + weedLevel + " T:" + treeLevel + ")");
 
         return pollenForecasts;
     }

@@ -21,7 +21,8 @@ public class MCB {
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
         builder.disableCache(CacheFlag.ACTIVITY, CacheFlag.VOICE_STATE);
-        builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS,
+        builder.enableIntents(GatewayIntent.GUILD_MESSAGES,
+            GatewayIntent.GUILD_MEMBERS,
             GatewayIntent.MESSAGE_CONTENT);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setBulkDeleteSplittingEnabled(true);
@@ -36,9 +37,9 @@ public class MCB {
         // Cache members
         jda.getGuildById(603190205393928193L).loadMembers().get();
 
-        jda.getGuildById(603190205393928193L).updateCommands().addCommands(
-                Commands.slash("enginehub", "Link to the EngineHub Discord for WorldEdit, WorldGuard, etc"))
-            .queue();
+        jda.getGuildById(603190205393928193L).updateCommands().addCommands(Commands.slash(
+            "enginehub",
+            "Link to the EngineHub Discord for WorldEdit, WorldGuard, etc")).queue();
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new MCB().shutdown(), "Shutdown Hook"));

@@ -67,18 +67,18 @@ public class Alerts {
         for (Object object : alerts) {
             JSONObject alert = new JSONObject(object.toString());
 
-            String description = boldAreas(
-                alert.getString("description").replace("\n", "§").replaceAll(" {2,}", " ").replace("§§", "\n")
-                    .replace("§", " ").replaceAll("\\s{2}(?=\\b[A-Z]{2,}\\.\\.\\.)", "\n### ")
-                    .replace("* ", "### ").replaceAll("- ### .*\\.\\.\\.", "")
-                    .replaceAll("(?<=[A-Z])\\.{3}", "\n").replace(" - ", "\n- "));
+            String description = boldAreas(alert.getString("description").replace("\n", "§").replaceAll(
+                    " {2,}",
+                    " ").replace("§§", "\n").replace("§", " ").replaceAll(
+                    "\\s{2}(?=\\b[A-Z]{2,}\\.\\.\\.)",
+                    "\n### ").replace("* ", "### ").replaceAll("- ### .*\\.\\.\\.", "")
+                .replaceAll("(?<=[A-Z])\\.{3}", "\n").replace(" - ", "\n- "));
 
             String id = alert.getString("id").replaceFirst("urn:oid:", "");
 
-            if (!description.toLowerCase().contains(fa.toLowerCase()) && !description.toLowerCase()
-                .contains(ce.toLowerCase()) && !description.toLowerCase()
-                .contains(ka.toLowerCase()) && !description.toLowerCase().contains(nwf.toLowerCase()))
-                continue;
+            if (!description.toLowerCase().contains(fa.toLowerCase()) && !description.toLowerCase().contains(
+                ce.toLowerCase()) && !description.toLowerCase().contains(ka.toLowerCase()) && !description
+                .toLowerCase().contains(nwf.toLowerCase())) continue;
 
             String alertType = alert.getString("messageType");
             if (!alertType.equals("Alert") && !alertType.equals("Update")) continue;
@@ -127,9 +127,8 @@ public class Alerts {
             }
 
             long ends;
-            if (alert.isNull("ends"))
-                ends = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString("expires")))
-                    .toEpochMilli() / 1000;
+            if (alert.isNull("ends")) ends = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString(
+                "expires"))).toEpochMilli() / 1000;
             else ends = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString("ends")))
                 .toEpochMilli() / 1000;
 
@@ -147,11 +146,12 @@ public class Alerts {
 
             if (alertMessage == null)
                 System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got an alert! " + event);
-            else System.out.println(
-                new Utils().getTime(Utils.LogColor.GREEN) + "Got an update for the \"" + event + "\" alert!");
+            else
+                System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got an update for the \"" + event + "\" alert!");
 
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setAuthor(sender, null,
+            embed.setAuthor(sender,
+                null,
                 "https://pbs.twimg.com/profile_images/1076936762377814016/AOf7ktiH.jpg");
             embed.setTitle("Issued <t:" + sent + ":F>\nEnds <t:" + ends + ":F>");
             embed.setThumbnail(getThumbnailImage(event));
@@ -173,15 +173,15 @@ public class Alerts {
             switch (alertType) {
                 case "Alert" -> {
                     String message = "<@&850471646191812700>\n**[" + severity.toUpperCase() + "] " + event + "** for " + area;
-                    if (severity.equalsIgnoreCase("Extreme"))
-                        message = message.replaceFirst("<@&850471646191812700>\n",
-                            "<@&850471646191812700>\n<a:weewoo:1083615022455992382> ");
+                    if (severity.equalsIgnoreCase("Extreme")) message = message.replaceFirst(
+                        "<@&850471646191812700>\n",
+                        "<@&850471646191812700>\n<a:weewoo:1083615022455992382> ");
 
                     embed.setDescription(description);
                     for (MessageEmbed.Field field : fields) embed.addField(field);
 
-                    dontDeleteMe.add(
-                        alertsChannel.sendMessage(message).setEmbeds(embed.build()).complete().getIdLong());
+                    dontDeleteMe.add(alertsChannel.sendMessage(message).setEmbeds(embed.build()).complete()
+                        .getIdLong());
                 }
 
                 case "Update" -> {
@@ -193,69 +193,71 @@ public class Alerts {
 
                     // Calculate diffs for description
                     String newDescription = applyDiffs(generator,
-                        alertMessage.getEmbeds().get(0).getDescription(), description);
+                        alertMessage.getEmbeds().get(0).getDescription(),
+                        description);
                     embed.setDescription(newDescription);
 
                     // Calculate diffs for instruction field
                     String newInstruction = applyDiffs(generator,
-                        alertMessage.getEmbeds().get(0).getFields().get(0).getValue(), instruction);
+                        alertMessage.getEmbeds().get(0).getFields().get(0).getValue(),
+                        instruction);
                     fields.set(0, new MessageEmbed.Field("Instruction", newInstruction, false));
                     for (MessageEmbed.Field field : fields) embed.addField(field);
 
                     String message = "<@&850471690093854810>\n**[" + severity.toUpperCase() + "] " + event + "** for " + area;
-                    if (severity.equalsIgnoreCase("Extreme"))
-                        message = message.replaceFirst("<@&850471690093854810>\n",
-                            "<@&850471690093854810>\n<a:weewoo:1083615022455992382> ");
+                    if (severity.equalsIgnoreCase("Extreme")) message = message.replaceFirst(
+                        "<@&850471690093854810>\n",
+                        "<@&850471690093854810>\n<a:weewoo:1083615022455992382> ");
                     embed.setFooter("Updated");
                     embed.setTimestamp(Instant.now());
 
-                    dontDeleteMe.add(alertMessage.editMessage(message).setEmbeds(embed.build())
-                        .setActionRow(Button.secondary("viewchanges", "View all changes")).complete()
-                        .getIdLong());
+                    dontDeleteMe.add(alertMessage.editMessage(message).setEmbeds(embed.build()).setActionRow(
+                        Button.secondary("viewchanges", "View all changes")).complete().getIdLong());
                     hasUpdated = true;
                 }
             }
         }
 
         // Delete inactive alerts
-        ArrayList<Long> deleteTheseMessages = alertsChannel.getIterableHistory().complete().stream()
-            .map(Message::getIdLong).collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<Long> deleteTheseMessages = alertsChannel.getIterableHistory().complete().stream().map(
+            Message::getIdLong).collect(Collectors.toCollection(ArrayList::new));
         // Remove all the saved messages from the to-delete list
         deleteTheseMessages.removeAll(dontDeleteMe);
 
         // Delete the remaining to-delete messages
         for (Long id : deleteTheseMessages)
             alertsChannel.retrieveMessageById(id).queue(msg -> {
-                System.out.println(
-                    new Utils().getTime(Utils.LogColor.GREEN) + "Deleted \"" + msg.getContentStripped()
-                        .replaceFirst(".*\n.*] ", "") + "\" alert as it no longer exists.");
+                System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Deleted \"" + msg
+                    .getContentStripped().replaceFirst(".*\n.*] ", "") + "\" alert as it no longer exists.");
                 msg.delete().queue();
             });
 
-        if (hasUpdated) alertsChannel.sendMessage("<@&850471690093854810>")
-            .queue(del -> del.delete().queueAfter(250, TimeUnit.MILLISECONDS));
+        if (hasUpdated) alertsChannel.sendMessage("<@&850471690093854810>").queue(del -> del.delete()
+            .queueAfter(250, TimeUnit.MILLISECONDS));
     }
 
     private String boldAreas(String input) {
         return input.replace(fa, "**" + fa + "**").replace(ce, "**" + ce + "**").replace(ka, "**" + ka + "**")
             .replace(nwf, "**" + nwf + "**").replace(da, "**" + da + "**")
 
-            .replace(fa.toUpperCase(), "**" + fa.toUpperCase() + "**")
-            .replace(ce.toUpperCase(), "**" + ce.toUpperCase() + "**")
-            .replace(ka.toUpperCase(), "**" + ka.toUpperCase() + "**")
-            .replace(nwf.toUpperCase(), "**" + nwf.toUpperCase() + "**")
-            .replace(da.toUpperCase(), "**" + da.toUpperCase() + "**");
+            .replace(fa.toUpperCase(), "**" + fa.toUpperCase() + "**").replace(
+                ce.toUpperCase(),
+                "**" + ce.toUpperCase() + "**").replace(ka.toUpperCase(), "**" + ka.toUpperCase() + "**")
+            .replace(nwf.toUpperCase(), "**" + nwf.toUpperCase() + "**").replace(
+                da.toUpperCase(),
+                "**" + da.toUpperCase() + "**");
     }
 
     private String applyDiffs(DiffRowGenerator generator, String originalText, String newText) {
         // Remove previous text and strip updated text formatting, then generate diffs
-        List<DiffRow> diff = generator.generateDiffRows(
-            List.of(originalText.replaceAll("\\|\\|\\s*(.*?)\\s*\\|\\| ?", "").replace("__", "")),
+        List<DiffRow> diff = generator.generateDiffRows(List.of(originalText
+                .replaceAll("\\|\\|\\s*(.*?)\\s*\\|\\| ?", "").replace("__", "")),
             List.of(newText));
 
         // Return the updated text with the diff formatting applied
-        return diff.stream().map(DiffRow::getOldLine).collect(Collectors.joining("\n"))
-            .replaceAll("\\|\\|_", "|| _");
+        return diff.stream().map(DiffRow::getOldLine).collect(Collectors.joining("\n")).replaceAll(
+            "\\|\\|_",
+            "|| _");
     }
 
     private String getThumbnailImage(String event) {

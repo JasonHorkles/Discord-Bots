@@ -27,8 +27,8 @@ public class Reactions extends ListenerAdapter {
 
         // kek
         if (event.getReaction().getEmoji().getName().equalsIgnoreCase("kek")) {
-            event.retrieveMessage()
-                .queue(msg -> msg.addReaction(event.getGuild().getEmojiById("841681203278774322")).queue());
+            event.retrieveMessage().queue(msg -> msg
+                .addReaction(event.getGuild().getEmojiById("841681203278774322")).queue());
             return;
         }
 
@@ -41,23 +41,34 @@ public class Reactions extends ListenerAdapter {
                     Member member = message.getMember();
 
                     if (member.isTimedOut()) {
-                        event.getChannel().sendMessage(
-                            event.getMember().getAsMention() + ", that person is already shushed!").queue(
-                            (m) -> m.delete().queueAfter(5, TimeUnit.SECONDS, null,
+                        event.getChannel().sendMessage(event.getMember()
+                            .getAsMention() + ", that person is already shushed!").queue((m) -> m.delete()
+                            .queueAfter(5,
+                                TimeUnit.SECONDS,
+                                null,
                                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
                         return;
                     }
 
-                    member.timeoutFor(10, TimeUnit.MINUTES).queue((na) -> event.getChannel()
-                        .sendMessage(new Utils().getFirstName(member) + " just got shushed!").queue(del -> {
-                            del.delete().queueAfter(10, TimeUnit.MINUTES, null,
-                                new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
-                            event.getChannel().sendMessage("https://tenor.com/vfW7.gif").queue(
-                                del2 -> del2.delete().queueAfter(10, TimeUnit.MINUTES, null,
-                                    new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
-                        }), (na1) -> event.getChannel()
-                        .sendMessage(event.getMember().getAsMention() + ", I can't shush that person!").queue(
-                            (del) -> del.delete().queueAfter(5, TimeUnit.SECONDS, null,
+                    member.timeoutFor(10, TimeUnit.MINUTES).queue(
+                        (na) -> event.getChannel()
+                            .sendMessage(new Utils().getFirstName(member) + " just got shushed!")
+                            .queue(del -> {
+                                del.delete().queueAfter(10,
+                                    TimeUnit.MINUTES,
+                                    null,
+                                    new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
+                                event.getChannel().sendMessage("https://tenor.com/vfW7.gif")
+                                    .queue(del2 -> del2.delete().queueAfter(10,
+                                        TimeUnit.MINUTES,
+                                        null,
+                                        new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
+                            }),
+                        (na1) -> event.getChannel()
+                            .sendMessage(event.getMember().getAsMention() + ", I can't shush that person!")
+                            .queue((del) -> del.delete().queueAfter(5,
+                                TimeUnit.SECONDS,
+                                null,
                                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE))));
                 });
             return;
@@ -90,8 +101,8 @@ public class Reactions extends ListenerAdapter {
                     message.delete().queue();
 
                 } catch (IOException e) {
-                    message.reply("Failed to write word! See console for details.")
-                        .queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+                    message.reply("Failed to write word! See console for details.").queue(msg -> msg.delete()
+                        .queueAfter(5, TimeUnit.SECONDS));
                     System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
                 }
@@ -123,15 +134,15 @@ public class Reactions extends ListenerAdapter {
                 try {
                     if (message.getContentStripped().contains("Auto word request")) {
                         FileWriter fileWriter = new FileWriter(file, true);
-                        fileWriter.write(
-                            message.getContentStripped().replaceAll(".*: ", "").toUpperCase() + "\n");
+                        fileWriter.write(message.getContentStripped().replaceAll(".*: ", "")
+                            .toUpperCase() + "\n");
                         fileWriter.close();
                     }
                     message.delete().queue();
 
                 } catch (IOException e) {
-                    message.reply("Failed to write word! See console for details.")
-                        .queue(msg -> msg.delete().queueAfter(5, TimeUnit.SECONDS));
+                    message.reply("Failed to write word! See console for details.").queue(msg -> msg.delete()
+                        .queueAfter(5, TimeUnit.SECONDS));
                     System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
                 }
@@ -158,8 +169,8 @@ public class Reactions extends ListenerAdapter {
     @Override
     public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
         // Remove kek if only bot is left
-        if (event.getReaction().getEmoji().getName().equalsIgnoreCase("kek"))
-            event.retrieveMessage().queue(msg -> event.getReaction().retrieveUsers().queue(users -> {
+        if (event.getReaction().getEmoji().getName().equalsIgnoreCase("kek")) event.retrieveMessage().queue(
+            msg -> event.getReaction().retrieveUsers().queue(users -> {
                 if (users.size() == 1 && users.get(0).equals(event.getJDA().getSelfUser()))
                     msg.removeReaction(event.getGuild().getEmojiById("841681203278774322"),
                         event.getJDA().getSelfUser()).queue();

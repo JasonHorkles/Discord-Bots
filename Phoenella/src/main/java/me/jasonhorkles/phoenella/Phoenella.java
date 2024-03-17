@@ -41,14 +41,22 @@ public class Phoenella {
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
         builder.disableCache(CacheFlag.ACTIVITY);
         builder.enableCache(CacheFlag.VOICE_STATE);
-        builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES,
-            GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.MESSAGE_CONTENT);
+        builder.enableIntents(GatewayIntent.GUILD_MEMBERS,
+            GatewayIntent.GUILD_MESSAGES,
+            GatewayIntent.GUILD_VOICE_STATES,
+            GatewayIntent.MESSAGE_CONTENT);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setEnableShutdownHook(false);
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.playing("Wordle"));
-        builder.addEventListeners(new Buttons(), new Messages(), new GameManager(), new Modals(),
-            new Reactions(), new RPS(), new SlashCommands(), new Wordle());
+        builder.addEventListeners(new Buttons(),
+            new Messages(),
+            new GameManager(),
+            new Modals(),
+            new Reactions(),
+            new RPS(),
+            new SlashCommands(),
+            new Wordle());
         jda = builder.build();
 
         jda.awaitReady();
@@ -62,7 +70,9 @@ public class Phoenella {
             .addSubcommands(new SubcommandData("play", "Play with a random word"),
                 new SubcommandData("create", "Create a Wordle for others to play"),
                 new SubcommandData("leaderboard", "View the Wordle leaderboard").addOption(OptionType.BOOLEAN,
-                    "show", "Show the leaderboard message publicly?", false),
+                    "show",
+                    "Show the leaderboard message publicly?",
+                    false),
                 new SubcommandData("daily", "Play the daily Wordle"))).queue();
 
         // Guild nickname check
@@ -97,8 +107,7 @@ public class Phoenella {
                     lastCleared.write(String.valueOf(LocalDate.now().getMonthValue()));
                     lastCleared.close();
 
-                    System.out.println(new Utils().getTime(
-                        Utils.LogColor.YELLOW) + "Clearing the leaderboard for the new month!");
+                    System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Clearing the leaderboard for the new month!");
                     lbWriter.close();
 
                     dontDoCheck = true;
@@ -110,8 +119,7 @@ public class Phoenella {
                     long id = Long.parseLong(line.replaceFirst(":.*", ""));
                     Member member = jda.getGuildById(729083627308056597L).getMemberById(id);
                     if (member == null) {
-                        System.out.println(
-                            new Utils().getTime(Utils.LogColor.YELLOW) + "Removing user with ID " + id);
+                        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Removing user with ID " + id);
                         continue;
                     }
 
@@ -125,8 +133,7 @@ public class Phoenella {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Leaderboard check complete!");
 
         // Remove duplicate words from Wordle list
-        System.out.println(
-            new Utils().getTime(Utils.LogColor.GREEN) + "Removing duplicate Wordle entries...");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Removing duplicate Wordle entries...");
 
         // Allowed words
         File wordsFile = new File("Phoenella/Wordle/words.txt");
@@ -138,8 +145,7 @@ public class Phoenella {
         HashSet<String> wordList = new HashSet<>(originalWordList);
 
         int duplicates = originalWordList.size() - wordList.size();
-        System.out.println(
-            new Utils().getTime(Utils.LogColor.GREEN) + "Removed " + duplicates + " duplicate words!");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Removed " + duplicates + " duplicate words!");
         originalWordList.clear();
 
         FileWriter wordWriter = new FileWriter(wordsFile, false);
@@ -157,8 +163,7 @@ public class Phoenella {
         wordList = new HashSet<>(originalWordList);
 
         duplicates = originalWordList.size() - wordList.size();
-        System.out.println(
-            new Utils().getTime(Utils.LogColor.GREEN) + "Removed " + duplicates + " duplicate banned words!");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Removed " + duplicates + " duplicate banned words!");
         originalWordList.clear();
 
         wordWriter = new FileWriter(wordsFile, false);
@@ -178,11 +183,12 @@ public class Phoenella {
 
         if (delay >= 0) new Thread(() -> {
             try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                schedules.add(
-                    executor.schedule(() -> new Utils().updateDailyWordle(), delay, TimeUnit.MILLISECONDS));
-                System.out.println(
-                    new Utils().getTime(Utils.LogColor.GREEN) + "Scheduled new daily Wordle in " + Math.round(
-                        delay / 3600000.0) + " hours.");
+                schedules.add(executor.schedule(
+                    () -> new Utils().updateDailyWordle(),
+                    delay,
+                    TimeUnit.MILLISECONDS));
+                System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Scheduled new daily Wordle in " + Math.round(
+                    delay / 3600000.0) + " hours.");
             }
         }, "Daily Wordle").start();
 

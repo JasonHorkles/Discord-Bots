@@ -48,7 +48,7 @@ public class Utils {
 
     public boolean shouldIPing(TextChannel channel) {
         if (StormAlerts.testing) return false;
-        
+
         try {
             Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).get(0);
 
@@ -69,7 +69,7 @@ public class Utils {
 
     public boolean shouldIBeSilent(TextChannel channel) {
         if (StormAlerts.testing) return true;
-        
+
         // Set whether or not the message should be silent (e.g. right after a restart)
         try {
             Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).get(0);
@@ -88,12 +88,11 @@ public class Utils {
             return false;
         }
     }
-    
+
     @SuppressWarnings("DataFlowIssue")
     public void updateVoiceChannel(long id, String name) {
         VoiceChannel voiceChannel = StormAlerts.jda.getVoiceChannelById(id);
-        if (!voiceChannel.getName().equals(name))
-            voiceChannel.getManager().setName(name).queue();
+        if (!voiceChannel.getName().equals(name)) voiceChannel.getManager().setName(name).queue();
     }
 
     public void updateNow(@Nullable SlashCommandInteractionEvent event) {
@@ -120,22 +119,19 @@ public class Utils {
         try {
             new Pws().checkConditions();
         } catch (Exception e) {
-            System.out.println(
-                new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!");
+            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!");
             e.printStackTrace();
             new Utils().logError(e);
             error = "Couldn't get the PWS conditions!";
         }
 
         // Weather
-        System.out.println(
-            new Utils().getTime(Utils.LogColor.YELLOW) + "Force checking weather conditions...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Force checking weather conditions...");
         if (isSlash) event.getHook().editOriginal("Checking weather conditions...").complete();
         try {
             new Weather().checkConditions();
         } catch (Exception e) {
-            System.out.println(
-                new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
+            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
             e.printStackTrace();
             new Utils().logError(e);
             error = "Couldn't get the weather conditions!";

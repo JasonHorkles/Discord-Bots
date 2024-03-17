@@ -53,8 +53,9 @@ public class Messages extends ListenerAdapter {
             if (message.getMessageReference().getMessage().getAuthor().equals(Phoenella.jda.getSelfUser()))
                 isReply = true;
 
-        String text = message.getContentRaw().replaceAll("(?i)\\bphoenella\\b", "PHOENELLA")
-            .replaceAll("(?i)\\bphoe\\b", "PHOENELLA").strip();
+        String text = message.getContentRaw().replaceAll("(?i)\\bphoenella\\b", "PHOENELLA").replaceAll(
+            "(?i)\\bphoe\\b",
+            "PHOENELLA").strip();
 
         if (!text.contains("PHOENELLA") && !isReply && channel.getIdLong() != 892802385301352548L) return;
 
@@ -175,8 +176,8 @@ public class Messages extends ListenerAdapter {
 
                 TextChannel gameChannel = new RPS().startGame(players);
                 message.addReaction(Emoji.fromUnicode("👍")).queue();
-                message.reply("Game created in " + gameChannel.getAsMention())
-                    .queue(del -> del.delete().queueAfter(15, TimeUnit.SECONDS));
+                message.reply("Game created in " + gameChannel.getAsMention()).queue(del -> del.delete()
+                    .queueAfter(15, TimeUnit.SECONDS));
             }
             return;
         }
@@ -318,8 +319,8 @@ public class Messages extends ListenerAdapter {
             return;
         }
 
-        if ((text.contains("what") || text.contains("plz")) && (text.contains("time") || text.contains(
-            "date") || text.contains("day") || text.contains("month") || text.contains("year"))) {
+        if ((text.contains("what") || text.contains("plz")) && (text.contains("time") || text.contains("date") || text.contains(
+            "day") || text.contains("month") || text.contains("year"))) {
             msg = "It's currently";
 
             if (allCaps) msg = msg.toUpperCase();
@@ -387,8 +388,8 @@ public class Messages extends ListenerAdapter {
             if (embed.getDescription() != null) if (embed.getDescription().startsWith("Couldn't find "))
                 message.replyEmbeds(embed).mentionRepliedUser(false).queue();
 
-            else message.replyEmbeds(embed).setActionRow(
-                        Button.danger("definitionreport", "Report definition").withEmoji(Emoji.fromUnicode("🚩")))
+            else message.replyEmbeds(embed).setActionRow(Button
+                        .danger("definitionreport", "Report definition").withEmoji(Emoji.fromUnicode("🚩")))
                     .mentionRepliedUser(false).queue();
 
             return;

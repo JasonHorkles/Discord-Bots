@@ -15,15 +15,14 @@ public class Visibility {
 
         JSONObject input;
         if (!StormAlerts.testing) {
-            InputStream url = new URL(
-                "https://api.weather.gov/stations/" + new Secrets().getNwsStation() + "/observations/latest").openStream();
+            InputStream url = new URL("https://api.weather.gov/stations/" + new Secrets().getNwsStation() + "/observations/latest").openStream();
             input = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();
 
         } else input = new JSONObject(Files.readString(Path.of("StormAlerts/Tests/visibility.json")));
 
-        String visibility = String.valueOf((int) Math.round(
-            input.getJSONObject("properties").getJSONObject("visibility").getInt("value") / 1609d));
+        String visibility = String.valueOf((int) Math.round(input.getJSONObject("properties")
+            .getJSONObject("visibility").getInt("value") / 1609d));
         new Utils().updateVoiceChannel(899872710233051178L, "Visibility | " + visibility + " mi");
     }
 }

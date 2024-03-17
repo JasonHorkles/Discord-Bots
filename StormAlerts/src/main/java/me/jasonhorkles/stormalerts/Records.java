@@ -56,8 +56,7 @@ public class Records {
             maxWindTime = recordsToday.getLong("maxWindTime");
 
         } else {
-            System.out.println(
-                new Utils().getTime(Utils.LogColor.YELLOW) + "No records today found! Populating...");
+            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "No records today found! Populating...");
             resetValues();
         }
 
@@ -67,11 +66,12 @@ public class Records {
 
         new Thread(() -> {
             try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                StormAlerts.scheduledTimers.add(
-                    executor.schedule(this::checkRecords, delay, TimeUnit.SECONDS));
+                StormAlerts.scheduledTimers.add(executor.schedule(
+                    this::checkRecords,
+                    delay,
+                    TimeUnit.SECONDS));
 
-                System.out.println(new Utils().getTime(
-                    Utils.LogColor.GREEN) + "Scheduled record check in " + delay / 3600 + " hours.");
+                System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Scheduled record check in " + delay / 3600 + " hours.");
             }
         }, "Record Check").start();
     }
@@ -85,44 +85,59 @@ public class Records {
 
             // Find new records
             if (highestLightningRateToday > records.getInt("highLightningRate")) {
-                sendRecordMessage("High lightning rate", highestLightningRateToday + " strikes per hour",
-                    highestLightningRateTime, records.getInt("highLightningRate") + " strikes per hour",
+                sendRecordMessage("High lightning rate",
+                    highestLightningRateToday + " strikes per hour",
+                    highestLightningRateTime,
+                    records.getInt("highLightningRate") + " strikes per hour",
                     records.getLong("highLightningRateTime"));
                 records.put("highLightningRate", highestLightningRateToday);
                 records.put("highLightningRateTime", highestLightningRateTime);
             }
 
             if (highestTempToday > records.getDouble("highTemp")) {
-                sendRecordMessage("High temperature", highestTempToday + "°", highestTempTime,
-                    records.getDouble("highTemp") + "°", records.getLong("highTempTime"));
+                sendRecordMessage("High temperature",
+                    highestTempToday + "°",
+                    highestTempTime,
+                    records.getDouble("highTemp") + "°",
+                    records.getLong("highTempTime"));
                 records.put("highTemp", highestTempToday);
                 records.put("highTempTime", highestTempTime);
             }
 
             if (lowestTempToday < records.getDouble("lowTemp")) {
-                sendRecordMessage("Low temperature", lowestTempToday + "°", lowestTempTime,
-                    records.getDouble("lowTemp") + "°", records.getLong("lowTempTime"));
+                sendRecordMessage("Low temperature",
+                    lowestTempToday + "°",
+                    lowestTempTime,
+                    records.getDouble("lowTemp") + "°",
+                    records.getLong("lowTempTime"));
                 records.put("lowTemp", lowestTempToday);
                 records.put("lowTempTime", lowestTempTime);
             }
 
             if (maxLightningToday > records.getInt("maxLightning")) {
-                sendRecordMessage("Daily lightning strikes", String.valueOf(maxLightningToday),
-                    maxLightningTime, records.getInt("maxLightning") + " strikes",
+                sendRecordMessage("Daily lightning strikes",
+                    String.valueOf(maxLightningToday),
+                    maxLightningTime,
+                    records.getInt("maxLightning") + " strikes",
                     records.getLong("maxLightningTime"));
                 records.put("maxLightning", maxLightningToday);
                 records.put("maxLightningTime", maxLightningTime);
             }
 
             if (maxRainAmountToday > records.getDouble("maxRainAmount")) {
-                sendRecordMessage("Daily rain amount", maxRainAmountToday + " inches", maxRainAmountTime,
-                    records.getDouble("maxRainAmount") + " inches", records.getLong("maxRainAmountTime"));
+                sendRecordMessage("Daily rain amount",
+                    maxRainAmountToday + " inches",
+                    maxRainAmountTime,
+                    records.getDouble("maxRainAmount") + " inches",
+                    records.getLong("maxRainAmountTime"));
                 records.put("maxRainAmount", maxRainAmountToday);
                 records.put("maxRainAmountTime", maxRainAmountTime);
             }
 
             if (maxRainRateToday > records.getDouble("maxRainRate")) {
-                sendRecordMessage("High rain rate", maxRainRateToday + " inches per hour", maxRainRateTime,
+                sendRecordMessage("High rain rate",
+                    maxRainRateToday + " inches per hour",
+                    maxRainRateTime,
                     records.getDouble("maxRainRate") + " inches per hour",
                     records.getLong("maxRainRateTime"));
                 records.put("maxRainRate", maxRainRateToday);
@@ -130,8 +145,11 @@ public class Records {
             }
 
             if (maxWindToday > records.getInt("maxWind")) {
-                sendRecordMessage("High winds", maxWindToday + " mph", maxWindTime,
-                    records.getInt("maxWind") + " mph", records.getLong("maxWindTime"));
+                sendRecordMessage("High winds",
+                    maxWindToday + " mph",
+                    maxWindTime,
+                    records.getInt("maxWind") + " mph",
+                    records.getLong("maxWindTime"));
                 records.put("maxWind", maxWindToday);
                 records.put("maxWindTime", maxWindTime);
             }
@@ -175,8 +193,8 @@ public class Records {
 
         // 📊
         //noinspection DataFlowIssue
-        channel.sendMessage(
-                ping + "\uD83D\uDCCA New record! **" + recordType + "** of **" + newRecord + "** reported on <t:" + newTimeStamp + ":F>, beating the old record of " + oldRecord + " from <t:" + oldTimeStamp + ":F>")
+        channel
+            .sendMessage(ping + "\uD83D\uDCCA New record! **" + recordType + "** of **" + newRecord + "** reported on <t:" + newTimeStamp + ":F>, beating the old record of " + oldRecord + " from <t:" + oldTimeStamp + ":F>")
             .complete();
     }
 

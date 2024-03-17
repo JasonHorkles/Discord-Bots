@@ -24,8 +24,7 @@ public class Forecasts {
 
         JSONArray input;
         if (!AirCheck.testing) {
-            InputStream url = new URL(
-                "http://dataservice.accuweather.com/indices/v1/daily/1day/" + new Secrets().getAccuLocationCode() + "?apikey=" + new Secrets().getAccuApiKey()).openStream();
+            InputStream url = new URL("http://dataservice.accuweather.com/indices/v1/daily/1day/" + new Secrets().getAccuLocationCode() + "?apikey=" + new Secrets().getAccuApiKey()).openStream();
             input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();
 
@@ -46,42 +45,38 @@ public class Forecasts {
                 /* Health */
 
                 // Common cold
-                case 25 -> healthForecasts.append(getColor(categoryValue, CategoryType.RISK))
-                    .append("**Common Cold**").append(getForecast(categoryValue, CategoryType.RISK))
-                    .append("\n");
+                case 25 -> healthForecasts.append(getColor(categoryValue, CategoryType.RISK)).append(
+                    "**Common Cold**").append(getForecast(categoryValue, CategoryType.RISK)).append("\n");
 
                 // Flu
-                case 26 ->
-                    healthForecasts.append(getColor(categoryValue, CategoryType.RISK)).append("**Flu**")
-                        .append(getForecast(categoryValue, CategoryType.RISK)).append("\n");
+                case 26 -> healthForecasts.append(getColor(categoryValue, CategoryType.RISK))
+                    .append("**Flu**").append(getForecast(categoryValue, CategoryType.RISK)).append("\n");
 
                 // Migraines
-                case 27 ->
-                    healthForecasts.append(getColor(categoryValue, CategoryType.RISK)).append("**Migraines**")
-                        .append(getForecast(categoryValue, CategoryType.RISK)).append("\n");
+                case 27 -> healthForecasts.append(getColor(categoryValue, CategoryType.RISK)).append(
+                    "**Migraines**").append(getForecast(categoryValue, CategoryType.RISK)).append("\n");
 
                 // Mosquito activity
-                case 17 -> healthForecasts.append(getColor(categoryValue, CategoryType.EXTREMITY))
-                    .append("**Mosquito Activity**")
-                    .append(getForecast(categoryValue, CategoryType.EXTREMITY)).append("\n");
+                case 17 -> healthForecasts.append(getColor(categoryValue, CategoryType.EXTREMITY)).append(
+                        "**Mosquito Activity**").append(getForecast(categoryValue, CategoryType.EXTREMITY))
+                    .append("\n");
 
                 // Sinus pressure
-                case 30 -> healthForecasts.append(getColor(categoryValue, CategoryType.RISK))
-                    .append("**Sinus Pressure**").append(getForecast(categoryValue, CategoryType.RISK))
-                    .append("\n");
+                case 30 -> healthForecasts.append(getColor(categoryValue, CategoryType.RISK)).append(
+                    "**Sinus Pressure**").append(getForecast(categoryValue, CategoryType.RISK)).append("\n");
 
 
                 /* Transportation */
 
                 // Bicycling
                 case 4 -> transportationForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Bicycling**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
-                    .append("\n");
+                    .append("**Bicycling**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append(
+                        "\n");
 
                 // Driving
                 case 40 -> transportationForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Driving**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
-                    .append("\n");
+                    .append("**Driving**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append(
+                        "\n");
 
                 // Flight delays
                 case -3 -> transportationForecasts.append(getColor(categoryValue, CategoryType.UNLIKELIHOOD))
@@ -92,105 +87,89 @@ public class Forecasts {
                 /* Work */
 
                 // Composting
-                case 38 -> workForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Composting**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
-                    .append("\n");
+                case 38 -> workForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                    "**Composting**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
 
                 // Construction
-                case 14 -> workForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Construction**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
+                case 14 -> workForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                        "**Construction**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
                     .append("\n");
 
                 // Lawn mowing
-                case 28 -> workForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Lawn Mowing**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
-                    .append("\n");
+                case 28 -> workForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                    "**Lawn Mowing**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
 
 
                 /* Sports */
 
                 // Fishing
-                case 13 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Fishing**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
-                    .append("\n");
+                case 13 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                    "**Fishing**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
 
                 // Golf
-                case 5 ->
-                    sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append("**Golf**")
-                        .append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 5 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                    "**Golf**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
 
                 // Hiking
-                case 3 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Hiking**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
-                    .append("\n");
+                case 3 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                    "**Hiking**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
 
                 // Hunting
-                case 20 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Hunting**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
-                    .append("\n");
+                case 20 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                    "**Hunting**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
 
                 // Jogging
-                case 2 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Jogging**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
-                    .append("\n");
+                case 2 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                    "**Jogging**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
 
                 // Running
-                case 1 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Running**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
-                    .append("\n");
+                case 1 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                    "**Running**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
 
                 // Skateboarding
-                case 7 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Skateboarding**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
+                case 7 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                        "**Skateboarding**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
                     .append("\n");
 
                 // Skiing
-                case 15 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Skiing**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
-                    .append("\n");
+                case 15 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                    "**Skiing**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
 
                 // Swimming
-                case 10 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Swimming**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
-                    .append("\n");
+                case 10 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                    "**Swimming**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
 
                 // Tennis
-                case 6 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Tennis**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
-                    .append("\n");
+                case 6 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                    "**Tennis**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
 
 
                 /* Activities */
 
                 // BBQ
-                case 24 ->
-                    activityForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append("**BBQ**")
-                        .append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 24 -> activityForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                    "**BBQ**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
 
                 // Dog walking
-                case 43 -> activityForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Dog Walking**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
-                    .append("\n");
+                case 43 -> activityForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                    "**Dog Walking**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
 
                 // Outdoor concerts
-                case 8 -> activityForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Outdoor Concerts**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
-                    .append("\n");
+                case 8 -> activityForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                    "**Outdoor Concerts**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append(
+                    "\n");
 
                 // Shopping
-                case 39 -> activityForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Shopping**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
-                    .append("\n");
+                case 39 -> activityForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                    "**Shopping**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
 
                 // Snow day
-                case 19 -> activityForecasts.append(getColor(categoryValue, CategoryType.LIKELIHOOD))
-                    .append("**Snow Day**").append(getForecast(categoryValue, CategoryType.LIKELIHOOD))
-                    .append("\n");
+                case 19 -> activityForecasts.append(getColor(categoryValue, CategoryType.LIKELIHOOD)).append(
+                    "**Snow Day**").append(getForecast(categoryValue, CategoryType.LIKELIHOOD)).append("\n");
 
                 // Stargazing
-                case 12 -> activityForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Stargazing**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
-                    .append("\n");
+                case 12 -> activityForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                    "**Stargazing**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
             }
         }
 
@@ -240,9 +219,8 @@ public class Forecasts {
             } else for (Message message : latestMessages)
                 switch (message.getEmbeds().get(0).getTitle()) {
                     case "Health" -> {
-                        if (!message.getEmbeds().get(0).getDescription()
-                            .equals(healthForecasts.toString().strip()))
-                            message.editMessageEmbeds(health.build()).queue();
+                        if (!message.getEmbeds().get(0).getDescription().equals(healthForecasts.toString()
+                            .strip())) message.editMessageEmbeds(health.build()).queue();
                     }
 
                     case "Pollen" -> {
@@ -251,27 +229,30 @@ public class Forecasts {
                     }
 
                     case "Transportation" -> {
-                        if (!message.getEmbeds().get(0).getDescription()
-                            .equals(transportationForecasts.toString().strip()))
+                        if (!message.getEmbeds().get(0).getDescription().equals(transportationForecasts
+                            .toString().strip()))
                             message.editMessageEmbeds(transportation.build()).queueAfter(2, TimeUnit.SECONDS);
                     }
 
                     case "Work" -> {
-                        if (!message.getEmbeds().get(0).getDescription()
-                            .equals(workForecasts.toString().strip()))
-                            message.editMessageEmbeds(work.build()).queueAfter(3, TimeUnit.SECONDS);
+                        if (!message.getEmbeds().get(0).getDescription().equals(workForecasts.toString()
+                            .strip())) message.editMessageEmbeds(work.build()).queueAfter(
+                            3,
+                            TimeUnit.SECONDS);
                     }
 
                     case "Sports" -> {
-                        if (!message.getEmbeds().get(0).getDescription()
-                            .equals(sportsForecasts.toString().strip()))
-                            message.editMessageEmbeds(sports.build()).queueAfter(12, TimeUnit.SECONDS);
+                        if (!message.getEmbeds().get(0).getDescription().equals(sportsForecasts.toString()
+                            .strip())) message.editMessageEmbeds(sports.build()).queueAfter(
+                            12,
+                            TimeUnit.SECONDS);
                     }
 
                     case "Activities" -> {
-                        if (!message.getEmbeds().get(0).getDescription()
-                            .equals(activityForecasts.toString().strip()))
-                            message.editMessageEmbeds(activities.build()).queueAfter(17, TimeUnit.SECONDS);
+                        if (!message.getEmbeds().get(0).getDescription().equals(activityForecasts.toString()
+                            .strip())) message.editMessageEmbeds(activities.build()).queueAfter(
+                            17,
+                            TimeUnit.SECONDS);
                     }
                 }
 

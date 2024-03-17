@@ -19,11 +19,11 @@ public class Events extends ListenerAdapter {
         if (event.getChannelJoined() == null) return;
         if (event.getMember().getIdLong() != 840025878947692554L && event.getMember()
             .getIdLong() != 277291758503723010L) return;
-        if (!event.getChannelJoined().getMembers()
-            .contains(event.getGuild().getMemberById(840025878947692554L)) || !event.getChannelJoined()
-            .getMembers().contains(event.getGuild().getMemberById(277291758503723010L))) return;
-        if (!event.getChannelJoined().getMembers()
-            .contains(event.getGuild().getMemberById(277291758503723010L))) return;
+        if (!event.getChannelJoined().getMembers().contains(event.getGuild()
+            .getMemberById(840025878947692554L)) || !event.getChannelJoined().getMembers().contains(event
+            .getGuild().getMemberById(277291758503723010L))) return;
+        if (!event.getChannelJoined().getMembers().contains(event.getGuild()
+            .getMemberById(277291758503723010L))) return;
         if (!isLive()) return;
 
         AudioManager audioManager = event.getGuild().getAudioManager();
@@ -31,9 +31,8 @@ public class Events extends ListenerAdapter {
             audioManager.openAudioConnection(event.getChannelJoined());
             audioManager.setSelfDeafened(true);
         } catch (InsufficientPermissionException ignored) {
-            System.out.println(
-                new Utils().getTime(Utils.LogColor.YELLOW) + "Couldn't join '" + event.getChannelJoined()
-                    .getName() + "' due to insufficient permissions!");
+            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Couldn't join '" + event
+                .getChannelJoined().getName() + "' due to insufficient permissions!");
         }
 
         String file = null;
@@ -101,8 +100,8 @@ public class Events extends ListenerAdapter {
 
     private boolean isLive() {
         //noinspection DataFlowIssue
-        for (Activity activity : TheDawg.jda.getGuildById(335435349734064140L)
-            .getMemberById(277291758503723010L).getActivities())
+        for (Activity activity : TheDawg.jda.getGuildById(335435349734064140L).getMemberById(
+            277291758503723010L).getActivities())
             if (activity.getName()
                 .equalsIgnoreCase("Twitch") && activity.getType() == Activity.ActivityType.STREAMING)
                 return true;

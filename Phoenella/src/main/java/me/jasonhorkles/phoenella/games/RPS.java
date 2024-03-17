@@ -39,15 +39,19 @@ public class RPS extends ListenerAdapter {
                 "__**How to play:**__\nBeat your opponent, win 2/3 times\n\n*The game will start in 5 seconds...*")
             .queue(del -> del.delete().queueAfter(5, TimeUnit.SECONDS));
 
-        channel.sendMessage("__**Round 0/3**__\n\n**" + new Utils().getFirstName(
-                playerList.get(0)) + ":** 0\n**" + new Utils().getFirstName(playerList.get(1)) + ":** 0")
-            .setActionRow(Button.primary("rps:rock", Emoji.fromUnicode("\uD83E\uDEA8")),
+        channel
+            .sendMessage("__**Round 0/3**__\n\n**" + new Utils().getFirstName(playerList.get(0)) + ":** 0\n**" + new Utils().getFirstName(
+                playerList.get(1)) + ":** 0").setActionRow(Button.primary(
+                    "rps:rock",
+                    Emoji.fromUnicode("\uD83E\uDEA8")),
                 Button.primary("rps:paper", Emoji.fromUnicode("\uD83D\uDCDD")),
                 Button.primary("rps:scissors", Emoji.fromUnicode("✂️"))).queueAfter(5, TimeUnit.SECONDS);
 
         StringBuilder mentions = new StringBuilder();
         for (Member player : playerList) mentions.append(player.getAsMention());
-        channel.sendMessage(mentions).queue(del -> del.delete().queueAfter(100, TimeUnit.MILLISECONDS, null,
+        channel.sendMessage(mentions).queue(del -> del.delete().queueAfter(100,
+            TimeUnit.MILLISECONDS,
+            null,
             new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
 
         return channel;
@@ -70,10 +74,10 @@ public class RPS extends ListenerAdapter {
             event.deferEdit().queue();
 
             if (player1Selection.containsKey(player1Local) && player2Selection.containsKey(player2Local)) {
-                event.getMessage().editMessageComponents(
-                    ActionRow.of(Button.primary("rps:rock", Emoji.fromUnicode("\uD83E\uDEA8")).asDisabled(),
-                        Button.primary("rps:paper", Emoji.fromUnicode("\uD83D\uDCDD")).asDisabled(),
-                        Button.primary("rps:scissors", Emoji.fromUnicode("✂️")).asDisabled())).complete();
+                event.getMessage().editMessageComponents(ActionRow.of(Button
+                        .primary("rps:rock", Emoji.fromUnicode("\uD83E\uDEA8")).asDisabled(),
+                    Button.primary("rps:paper", Emoji.fromUnicode("\uD83D\uDCDD")).asDisabled(),
+                    Button.primary("rps:scissors", Emoji.fromUnicode("✂️")).asDisabled())).complete();
 
                 if (player1Selection.get(player1Local).equals(player2Selection.get(player2Local)))
                     channel.sendMessage("You both chose **" + player1Selection.get(player1Local) + "**!")
@@ -86,32 +90,32 @@ public class RPS extends ListenerAdapter {
 
                     points.put(player1Local, points.get(player1Local) + 1);
                     channel.sendMessage(player1Local.getAsMention() + " chose **" + player1Selection.get(
-                            player1Local) + "**! They win this round!")
-                        .queue(del -> del.delete().queueAfter(3, TimeUnit.SECONDS));
+                        player1Local) + "**! They win this round!").queue(del -> del.delete()
+                        .queueAfter(3, TimeUnit.SECONDS));
                 } else {
                     points.put(player2Local, points.get(player2Local) + 1);
                     channel.sendMessage(player2Local.getAsMention() + " chose **" + player2Selection.get(
-                            player2Local) + "**! They win this round!")
-                        .queue(del -> del.delete().queueAfter(3, TimeUnit.SECONDS));
+                        player2Local) + "**! They win this round!").queue(del -> del.delete()
+                        .queueAfter(3, TimeUnit.SECONDS));
                 }
 
                 round.put(channel, round.get(channel) + 1);
                 player1Selection.remove(player1Local);
                 player2Selection.remove(player2Local);
 
-                event.getMessage().editMessage(
-                    "__**Round " + round.get(channel) + "/3**__\n\n**" + new Utils().getFirstName(
+                event.getMessage()
+                    .editMessage("__**Round " + round.get(channel) + "/3**__\n\n**" + new Utils().getFirstName(
                         player1Local) + ":** " + points.get(player1Local) + "\n**" + new Utils().getFirstName(
                         player2Local) + ":** " + points.get(player2Local)).queue();
 
                 if ((points.get(player1Local) >= 2 && points.get(player2Local) <= 1) || (points.get(
                     player2Local) >= 2 && points.get(player1Local) <= 1))
 
-                    if (points.get(player1Local) - points.get(player2Local) >= 1 || points.get(
-                        player1Local) - points.get(player2Local) <= -1) {
+                    if (points.get(player1Local) - points.get(player2Local) >= 1 || points.get(player1Local) - points.get(
+                        player2Local) <= -1) {
 
-                        if (points.get(player1Local) > points.get(player2Local))
-                            channel.sendMessage(player1Local.getAsMention() + " wins!").queue();
+                        if (points.get(player1Local) > points.get(player2Local)) channel.sendMessage(
+                            player1Local.getAsMention() + " wins!").queue();
                         else channel.sendMessage(player2Local.getAsMention() + " wins!").queue();
 
                         new Thread(() -> {
@@ -123,11 +127,11 @@ public class RPS extends ListenerAdapter {
                         return;
                     }
 
-                event.getMessage().editMessageComponents(
-                        ActionRow.of(Button.primary("rps:rock", Emoji.fromUnicode("\uD83E\uDEA8")),
-                            Button.primary("rps:paper", Emoji.fromUnicode("\uD83D\uDCDD")),
-                            Button.primary("rps:scissors", Emoji.fromUnicode("✂️"))))
-                    .queueAfter(1, TimeUnit.SECONDS);
+                event.getMessage().editMessageComponents(ActionRow.of(Button.primary(
+                        "rps:rock",
+                        Emoji.fromUnicode("\uD83E\uDEA8")),
+                    Button.primary("rps:paper", Emoji.fromUnicode("\uD83D\uDCDD")),
+                    Button.primary("rps:scissors", Emoji.fromUnicode("✂️")))).queueAfter(1, TimeUnit.SECONDS);
             }
         }
 

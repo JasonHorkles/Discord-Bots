@@ -20,8 +20,10 @@ public class TheDawg {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
-        builder.enableIntents(GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MEMBERS,
-            GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_VOICE_STATES);
+        builder.enableIntents(GatewayIntent.GUILD_PRESENCES,
+            GatewayIntent.GUILD_MEMBERS,
+            GatewayIntent.GUILD_MESSAGES,
+            GatewayIntent.GUILD_VOICE_STATES);
         builder.enableCache(CacheFlag.ONLINE_STATUS, CacheFlag.VOICE_STATE, CacheFlag.ACTIVITY);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setBulkDeleteSplittingEnabled(false);
@@ -34,9 +36,8 @@ public class TheDawg {
         jda.awaitReady();
 
         //noinspection DataFlowIssue
-        jda.getGuildById(605786572519899206L).updateCommands().addCommands(
-                Commands.slash("zebra", "Free zebras").addOption(OptionType.STRING, "zebra", "The zebra", false))
-            .queue();
+        jda.getGuildById(605786572519899206L).updateCommands().addCommands(Commands
+            .slash("zebra", "Free zebras").addOption(OptionType.STRING, "zebra", "The zebra", false)).queue();
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new TheDawg().shutdown(), "Shutdown Hook"));

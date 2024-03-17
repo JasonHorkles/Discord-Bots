@@ -37,9 +37,12 @@ public class StormAlerts extends ListenerAdapter {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
-        builder.disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS,
+        builder.disableCache(CacheFlag.ACTIVITY,
+            CacheFlag.CLIENT_STATUS,
+            CacheFlag.ONLINE_STATUS,
             CacheFlag.VOICE_STATE);
-        builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT,
+        builder.enableIntents(GatewayIntent.GUILD_MESSAGES,
+            GatewayIntent.MESSAGE_CONTENT,
             GatewayIntent.GUILD_MEMBERS);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setBulkDeleteSplittingEnabled(false);
@@ -51,9 +54,10 @@ public class StormAlerts extends ListenerAdapter {
         jda.awaitReady();
 
         //noinspection DataFlowIssue
-        jda.getGuildById(843919716677582888L).updateCommands()
-            .addCommands(Commands.slash("checknow", "Force all checks (except records)"),
-                Commands.slash("updaterecords", "Force the record checks")).queue();
+        jda.getGuildById(843919716677582888L).updateCommands().addCommands(Commands.slash(
+                "checknow",
+                "Force all checks (except records)"),
+            Commands.slash("updaterecords", "Force the record checks")).queue();
 
         // Cache wind speed
         try {
@@ -65,9 +69,9 @@ public class StormAlerts extends ListenerAdapter {
                     .withNano(0);
 
                 if (windMessage.getTimeCreated().isAfter(fiveHoursAgo) || windMessage.getTimeCreated()
-                    .isAfter(midnight)) Pws.lastAlertedWindGust = Integer.parseInt(
-                    windMessage.getContentStripped().replace("\n", " ").replaceFirst(".*of ", "")
-                        .replaceFirst(" mph.*", ""));
+                    .isAfter(midnight)) Pws.lastAlertedWindGust = Integer.parseInt(windMessage
+                    .getContentStripped().replace("\n", " ").replaceFirst(".*of ", "")
+                    .replaceFirst(" mph.*", ""));
             }
         } catch (ExecutionException | TimeoutException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
@@ -94,8 +98,7 @@ public class StormAlerts extends ListenerAdapter {
                 else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
                 else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
 
-                System.out.println(
-                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!" + reason);
+                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!" + reason);
                 if (reason.isBlank()) {
                     System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
@@ -118,8 +121,7 @@ public class StormAlerts extends ListenerAdapter {
                 else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
                 else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
 
-                System.out.println(new Utils().getTime(
-                    Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
+                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
                 if (reason.isBlank()) {
                     System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
@@ -135,8 +137,7 @@ public class StormAlerts extends ListenerAdapter {
             try {
                 new Weather().checkConditions();
             } catch (Exception e) {
-                System.out.println(
-                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
+                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
                 e.printStackTrace();
                 jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
                 jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
@@ -154,8 +155,7 @@ public class StormAlerts extends ListenerAdapter {
                 else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
                 else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
 
-                System.out.println(new Utils().getTime(
-                    Utils.LogColor.RED) + "[ERROR] Couldn't get the visibility!" + reason);
+                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the visibility!" + reason);
                 if (reason.isBlank()) {
                     System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
@@ -175,30 +175,31 @@ public class StormAlerts extends ListenerAdapter {
             TextChannel channel = jda.getTextChannelById(843919716677582891L);
             ArrayList<SelectOption> selectOptions = new ArrayList<>();
 
-            selectOptions.add(
-                SelectOption.of("New NWS Alerts", "850471646191812700").withEmoji(Emoji.fromUnicode("⚠️")));
-            selectOptions.add(
-                SelectOption.of("NWS Alert Updates", "850471690093854810").withEmoji(Emoji.fromUnicode("📝")));
-            selectOptions.add(
-                SelectOption.of("New Records", "1046149064519073813").withEmoji(Emoji.fromUnicode("📊")));
-            selectOptions.add(
-                SelectOption.of("Snow", "845055624165064734").withEmoji(Emoji.fromUnicode("🌨️")));
-            selectOptions.add(
-                SelectOption.of("Hail", "845055784156397608").withEmoji(Emoji.fromUnicode("🧊")));
-            selectOptions.add(
-                SelectOption.of("Rain", "843956362059841596").withEmoji(Emoji.fromUnicode("🌦️")));
-            selectOptions.add(
-                SelectOption.of("Heavy Rain", "843956325690900503").withEmoji(Emoji.fromUnicode("🌧️")));
-            selectOptions.add(
-                SelectOption.of("High Wind", "1046148944108978227").withEmoji(Emoji.fromUnicode("🍃")));
-            selectOptions.add(
-                SelectOption.of("Lightning Info", "896877424824954881").withEmoji(Emoji.fromUnicode("⚡")));
+            selectOptions.add(SelectOption.of("New NWS Alerts", "850471646191812700")
+                .withEmoji(Emoji.fromUnicode("⚠️")));
+            selectOptions.add(SelectOption.of("NWS Alert Updates", "850471690093854810")
+                .withEmoji(Emoji.fromUnicode("📝")));
+            selectOptions.add(SelectOption.of("New Records", "1046149064519073813")
+                .withEmoji(Emoji.fromUnicode("📊")));
+            selectOptions.add(SelectOption.of("Snow", "845055624165064734")
+                .withEmoji(Emoji.fromUnicode("🌨️")));
+            selectOptions.add(SelectOption.of("Hail", "845055784156397608")
+                .withEmoji(Emoji.fromUnicode("🧊")));
+            selectOptions.add(SelectOption.of("Rain", "843956362059841596")
+                .withEmoji(Emoji.fromUnicode("🌦️")));
+            selectOptions.add(SelectOption.of("Heavy Rain", "843956325690900503")
+                .withEmoji(Emoji.fromUnicode("🌧️")));
+            selectOptions.add(SelectOption.of("High Wind", "1046148944108978227")
+                .withEmoji(Emoji.fromUnicode("🍃")));
+            selectOptions.add(SelectOption.of("Lightning Info", "896877424824954881")
+                .withEmoji(Emoji.fromUnicode("⚡")));
 
             if (new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).isEmpty()) channel.sendMessage(
                     "**Select your desired notifications below:**\n*Each selection acts as a toggle*")
                 .addActionRow(StringSelectMenu.create("role-select").addOptions(selectOptions).setMinValues(0)
-                    .setMaxValues(selectOptions.size()).build())
-                .addActionRow(Button.secondary("viewroles", "Your Roles")).queue();
+                    .setMaxValues(selectOptions.size()).build()).addActionRow(Button.secondary(
+                    "viewroles",
+                    "Your Roles")).queue();
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
@@ -230,8 +231,7 @@ public class StormAlerts extends ListenerAdapter {
             recordsToday.close();
 
         } catch (IOException e) {
-            System.out.println(new Utils().getTime(
-                Utils.LogColor.RED) + "Unable to write to records file! Dumping to DMs...");
+            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Unable to write to records file! Dumping to DMs...");
 
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
@@ -240,11 +240,20 @@ public class StormAlerts extends ListenerAdapter {
             jda.openPrivateChannelById(277291758503723010L).flatMap(channel -> channel.sendMessage(
                 MessageFormat.format(
                     "Error saving records file!\nLightning rate: {0}:{7}\nTemp high: {1}:{8}\nTemp low: {2}:{9}\nLightning today: {3}:{10}\nRain today: {4}:{11}\nRain rate: {5}:{12}\nWind: {6}:{13}",
-                    Records.highestLightningRateToday, Records.highestTempToday, Records.lowestTempToday,
-                    Records.maxLightningToday, Records.maxRainAmountToday, Records.maxRainRateToday,
-                    Records.maxWindToday, Records.highestLightningRateTime, Records.highestTempTime,
-                    Records.lowestTempTime, Records.maxLightningTime, Records.maxRainAmountTime,
-                    Records.maxRainRateTime, Records.maxWindTime))).complete();
+                    Records.highestLightningRateToday,
+                    Records.highestTempToday,
+                    Records.lowestTempToday,
+                    Records.maxLightningToday,
+                    Records.maxRainAmountToday,
+                    Records.maxRainRateToday,
+                    Records.maxWindToday,
+                    Records.highestLightningRateTime,
+                    Records.highestTempTime,
+                    Records.lowestTempTime,
+                    Records.maxLightningTime,
+                    Records.maxRainAmountTime,
+                    Records.maxRainRateTime,
+                    Records.maxWindTime))).complete();
         }
 
         if (!scheduledTimers.isEmpty()) for (ScheduledFuture<?> task : scheduledTimers) task.cancel(true);

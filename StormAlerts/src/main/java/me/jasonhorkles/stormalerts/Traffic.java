@@ -23,14 +23,14 @@ public class Traffic {
         try {
             JSONArray input;
             if (!StormAlerts.testing) {
-                InputStream url = new URL(
-                    "https://data.traffic.hereapi.com/v7/flow?in=circle:" + new Secrets().getTrafficCoords() + ";r=10&locationReferencing=none&apiKey=" + new Secrets().getTrafficApiKey()).openStream();
+                InputStream url = new URL("https://data.traffic.hereapi.com/v7/flow?in=circle:" + new Secrets().getTrafficCoords() + ";r=10&locationReferencing=none&apiKey=" + new Secrets().getTrafficApiKey()).openStream();
                 JSONObject obj = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
                 url.close();
 
                 input = obj.getJSONArray("results");
-            } else input = new JSONObject(
-                Files.readString(Path.of("StormAlerts/Tests/traffic.json"))).getJSONArray("results");
+            } else
+                input = new JSONObject(Files.readString(Path.of("StormAlerts/Tests/traffic.json"))).getJSONArray(
+                    "results");
 
             // Find the correct direction
             JSONObject traffic = new JSONObject();
@@ -44,22 +44,19 @@ public class Traffic {
             }
 
             // Get speed and jam factor
-            int currentSpeed = Math.toIntExact(
-                Math.round(traffic.getJSONObject("currentFlow").getDouble("speedUncapped") * 2.23694));
+            int currentSpeed = Math.toIntExact(Math.round(traffic.getJSONObject("currentFlow")
+                .getDouble("speedUncapped") * 2.23694));
             double jamFactor = traffic.getJSONObject("currentFlow").getDouble("jamFactor");
 
-            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + new Secrets().getRoadName(
-                north) + " is currently ~" + currentSpeed + " mph with a jam factor of " + jamFactor);
+            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + new Secrets().getRoadName(north) + " is currently ~" + currentSpeed + " mph with a jam factor of " + jamFactor);
 
-            if (currentSpeed <= 55 && currentSpeed >= 40)
-                StormAlerts.jda.openPrivateChannelById(277291758503723010L).flatMap(
-                        channel -> channel.sendMessage("**" + new Secrets().getRoadName(
-                            north) + "** has a slowdown @ **" + currentSpeed + " mph**!\nJam factor: **" + jamFactor + "/10.0** :yellow_circle:"))
-                    .queue();
+            if (currentSpeed <= 55 && currentSpeed >= 40) StormAlerts.jda.openPrivateChannelById(
+                    277291758503723010L).flatMap(channel -> channel.sendMessage("**" + new Secrets().getRoadName(
+                    north) + "** has a slowdown @ **" + currentSpeed + " mph**!\nJam factor: **" + jamFactor + "/10.0** :yellow_circle:"))
+                .queue();
 
             else if (currentSpeed < 40) StormAlerts.jda.openPrivateChannelById(277291758503723010L).flatMap(
-                    channel -> channel.sendMessage("**" + new Secrets().getRoadName(
-                        north) + "** has a slowdown @ **" + currentSpeed + " mph**!\nJam factor: **" + jamFactor + "/10.0** :red_circle:"))
+                    channel -> channel.sendMessage("**" + new Secrets().getRoadName(north) + "** has a slowdown @ **" + currentSpeed + " mph**!\nJam factor: **" + jamFactor + "/10.0** :red_circle:"))
                 .queue();
 
         } catch (Exception e) {
@@ -83,11 +80,10 @@ public class Traffic {
 
             if (delay >= 0) new Thread(() -> {
                 try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                    StormAlerts.scheduledTimers.add(
-                        executor.schedule(() -> new Traffic().checkTraffic(toWork), delay,
-                            TimeUnit.MILLISECONDS));
-                    System.out.println(new Utils().getTime(
-                        Utils.LogColor.GREEN) + "Scheduled traffic check in " + Math.round(
+                    StormAlerts.scheduledTimers.add(executor.schedule(() -> new Traffic().checkTraffic(toWork),
+                        delay,
+                        TimeUnit.MILLISECONDS));
+                    System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Scheduled traffic check in " + Math.round(
                         delay / 3600000.0) + " hours.");
                 }
             }, "Traffic Check").start();

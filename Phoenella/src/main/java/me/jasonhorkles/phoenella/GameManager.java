@@ -17,9 +17,9 @@ public class GameManager extends ListenerAdapter {
         StringBuilder daily = new StringBuilder();
         if (isDailyWordle) daily.append("daily-");
 
-        TextChannel channel = Phoenella.jda.getCategoryById(900747596245639238L).createTextChannel(
-                new Utils().getFirstName(players.get(0)) + "-" + daily + game.toString().toLowerCase())
-            .complete();
+        TextChannel channel = Phoenella.jda.getCategoryById(900747596245639238L)
+            .createTextChannel(new Utils().getFirstName(players.get(0)) + "-" + daily + game.toString()
+                .toLowerCase()).complete();
 
         for (Member player : players)
             channel.upsertPermissionOverride(player).setAllowed(Permission.VIEW_CHANNEL)
@@ -35,13 +35,15 @@ public class GameManager extends ListenerAdapter {
     }
 
     public void sendEndGameMessage(TextChannel channel, Game game) {
-        channel.sendMessage("**Click the button below to end the game.**").setActionRow(
-            Button.danger("endgame:" + game.toString().toLowerCase(), "End game")
-                .withEmoji(Emoji.fromUnicode("🗑️"))).complete();
+        channel.sendMessage("**Click the button below to end the game.**").setActionRow(Button
+            .danger("endgame:" + game.toString().toLowerCase(), "End game")
+            .withEmoji(Emoji.fromUnicode("🗑️"))).complete();
     }
 
     public void deleteGame(TextChannel channel) {
-        if (channel.getParentCategory() != null) if (channel.getParentCategoryIdLong() == 900747596245639238L)
-            channel.delete().queue(null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
+        if (channel.getParentCategory() != null)
+            if (channel.getParentCategoryIdLong() == 900747596245639238L) channel.delete().queue(
+                null,
+                new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
     }
 }

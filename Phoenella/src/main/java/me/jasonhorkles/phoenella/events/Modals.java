@@ -37,11 +37,12 @@ public class Modals extends ListenerAdapter {
                 return;
             }
 
-            event.reply("Creating challenge for word **" + word + "** in <#956267174727671869>")
-                .setEphemeral(true).queue();
+            event.reply("Creating challenge for word **" + word + "** in <#956267174727671869>").setEphemeral(
+                true).queue();
 
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setAuthor(new Utils().getFullName(event.getMember()) + " has created a Wordle!", null,
+            embed.setAuthor(new Utils().getFullName(event.getMember()) + " has created a Wordle!",
+                null,
                 event.getMember().getEffectiveAvatarUrl());
             embed.setColor(new Color(43, 45, 49));
             embed.addField("Plays", "0", true);

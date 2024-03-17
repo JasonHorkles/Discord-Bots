@@ -23,7 +23,9 @@ public class AirCheck {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
-        builder.disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS,
+        builder.disableCache(CacheFlag.ACTIVITY,
+            CacheFlag.CLIENT_STATUS,
+            CacheFlag.ONLINE_STATUS,
             CacheFlag.VOICE_STATE);
         builder.setMemberCachePolicy(MemberCachePolicy.NONE);
         builder.setBulkDeleteSplittingEnabled(false);
@@ -43,8 +45,7 @@ public class AirCheck {
                 else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
                 else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
 
-                System.out.println(new Utils().getTime(
-                    Utils.LogColor.RED) + "[ERROR] Couldn't get the air quality!" + reason);
+                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the air quality!" + reason);
                 if (reason.isBlank()) {
                     System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();
@@ -64,8 +65,7 @@ public class AirCheck {
                 String reason = "";
                 if (e.getMessage().contains("Read timed out")) reason = " (Read Timed Out)";
 
-                System.out.println(
-                    new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the forecasts!" + reason);
+                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the forecasts!" + reason);
                 if (reason.isBlank()) {
                     System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();

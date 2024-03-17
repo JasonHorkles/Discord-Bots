@@ -72,8 +72,10 @@ public class Events extends ListenerAdapter {
                 embed.setDescription(oldEmbed.getDescription().replace("||", "~~"));
 
                 ArrayList<MessageEmbed.Field> fields = new ArrayList<>(oldEmbed.getFields());
-                fields.set(0, new MessageEmbed.Field(oldEmbed.getFields().get(0).getName(),
-                    oldEmbed.getFields().get(0).getValue().replace("||", "~~"), false));
+                fields.set(0, new MessageEmbed.Field(
+                    oldEmbed.getFields().get(0).getName(),
+                    oldEmbed.getFields().get(0).getValue().replace("||", "~~"),
+                    false));
 
                 embed.clearFields();
                 for (MessageEmbed.Field field : fields) embed.addField(field);
@@ -101,15 +103,13 @@ public class Events extends ListenerAdapter {
                     for (SelectOption option : event.getSelectedOptions()) {
                         Role role = guild.getRoleById(option.getValue());
                         if (member.getRoles().contains(role)) {
-                            System.out.println(
-                                new Utils().getTime(Utils.LogColor.YELLOW) + "Removing " + role.getName()
-                                    .toLowerCase() + " role from '" + member.getEffectiveName() + "'");
+                            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Removing " + role
+                                .getName().toLowerCase() + " role from '" + member.getEffectiveName() + "'");
                             guild.removeRoleFromMember(member, role).complete();
 
                         } else {
-                            System.out.println(
-                                new Utils().getTime(Utils.LogColor.YELLOW) + "Adding " + role.getName()
-                                    .toLowerCase() + " role to '" + member.getEffectiveName() + "'");
+                            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Adding " + role
+                                .getName().toLowerCase() + " role to '" + member.getEffectiveName() + "'");
                             guild.addRoleToMember(member, role).complete();
                         }
                     }
@@ -144,7 +144,7 @@ public class Events extends ListenerAdapter {
     @Override
     public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
         if (event.getGuild().getIdLong() != 843919716677582888L) return;
-        
+
         User user = event.getUser();
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle(user.getName() + " has left the server");

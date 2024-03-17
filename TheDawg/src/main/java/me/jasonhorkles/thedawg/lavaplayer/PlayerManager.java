@@ -52,8 +52,7 @@ public class PlayerManager {
 
             @Override
             public void noMatches() {
-                System.out.println(new Utils().getTime(
-                    Utils.LogColor.RED) + "[ERROR] NO MATCHES FOUND FOR \"" + file + "\"");
+                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] NO MATCHES FOUND FOR \"" + file + "\"");
             }
 
             @Override
