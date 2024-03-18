@@ -76,9 +76,9 @@ public class Events extends ListenerAdapter {
                 **BungeeNicks:** <https://github.com/SilverstoneMC/BungeeNicks>
                 """).setEphemeral(ephemeral).queue();
 
-            case "plugins" ->
-                event.reply("See Jason's plugins at: <https://hangar.papermc.io/JasonHorkles>").setEphemeral(
-                    ephemeral).queue();
+            case "plugins" -> event.reply(
+                    "See Jason's plugins on [Spigot](<https://www.spigotmc.org/resources/authors/jasonhorkles.339646/>) | [Hangar](<https://hangar.papermc.io/JasonHorkles>)")
+                .setEphemeral(ephemeral).queue();
 
             case "tutorials" -> event.reply(
                     "JasonHorkles Tutorials: <https://www.youtube.com/channel/UCIyJ0zf3moNSRN1wIetpbmA>")
