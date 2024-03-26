@@ -37,7 +37,7 @@ public class Live {
 
     private void sendLiveAlert(Activity activity) {
         EmbedBuilder embed = new EmbedBuilder();
-        embed.setImage("https://static-cdn.jtvnw.net/previews-ttv/live_user_jasonhorkles-1920x1080.jpg");
+        embed.setImage("https://static-cdn.jtvnw.net/previews-ttv/live_user_jasonhorkles-1920x1080.jpg?id=" + System.currentTimeMillis() / 1000);
         embed.setColor(new Color(43, 45, 49));
 
         //noinspection DataFlowIssue
