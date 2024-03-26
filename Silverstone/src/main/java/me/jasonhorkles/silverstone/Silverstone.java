@@ -18,12 +18,12 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Scanner;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 public class Silverstone {
     public static JDA jda;
+
+    private static ScheduledFuture<?> liveTimer;
 
     public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
@@ -35,7 +35,7 @@ public class Silverstone {
             GatewayIntent.GUILD_MESSAGES,
             GatewayIntent.GUILD_VOICE_STATES,
             GatewayIntent.MESSAGE_CONTENT);
-        builder.enableCache(CacheFlag.ONLINE_STATUS, CacheFlag.VOICE_STATE);
+        builder.enableCache(CacheFlag.ONLINE_STATUS, CacheFlag.ACTIVITY);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setBulkDeleteSplittingEnabled(false);
         builder.setStatus(OnlineStatus.ONLINE);
@@ -113,6 +113,10 @@ public class Silverstone {
         }
         Events.lastNumber = lastNumber;
 
+        // Start the live check timer
+        liveTimer = Executors.newSingleThreadScheduledExecutor()
+            .scheduleAtFixedRate(() -> new Live().checkIfLive(), 0, 1, TimeUnit.MINUTES);
+
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new Silverstone().shutdown(), "Shutdown Hook"));
         Thread input = new Thread(() -> {
@@ -129,6 +133,7 @@ public class Silverstone {
 
     public void shutdown() {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
+        liveTimer.cancel(true);
         try {
             // Initating the shutdown, this closes the gateway connection and subsequently closes the requester queue
             jda.shutdown();
