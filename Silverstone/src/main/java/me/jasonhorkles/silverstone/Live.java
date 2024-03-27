@@ -46,6 +46,6 @@ public class Live {
             .sendMessage("Jason is now live in **" + activity.getState() + "**!\nVisit the stream at [**twitch.tv/jasonhorkles**](https://twitch.tv/jasonhorkles)\n<@&1196208254804566027>")
             .complete();
 
-        liveMessage.editMessageEmbeds(embed.build()).queueAfter(5, TimeUnit.MINUTES);
+        liveMessage.editMessageEmbeds(embed.build()).queueAfter(10, TimeUnit.MINUTES);
     }
 }
