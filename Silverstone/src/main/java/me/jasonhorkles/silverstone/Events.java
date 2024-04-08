@@ -37,9 +37,9 @@ public class Events extends ListenerAdapter {
             .getIdLong() == 456470772207190036L || event.getChannel().getIdLong() == 468416589331562506L);
 
         switch (event.getName().toLowerCase()) {
-            case "moss" ->
-                event.reply("Get EssentialsX help and more here: https://discord.gg/PHpuzZS").setEphemeral(
-                    ephemeral).queue();
+            case "moss" -> event.reply(
+                    "Get help with EssentialsX, Jason's plugins, and more here: https://discord.gg/PHpuzZS")
+                .setEphemeral(ephemeral).queue();
 
             case "lp" -> event.reply("Get LuckPerms help here: https://discord.gg/luckperms").setEphemeral(
                 ephemeral).queue();
