@@ -29,7 +29,6 @@ public class Silverstone {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
-        builder.disableCache(CacheFlag.ACTIVITY);
         builder.enableIntents(GatewayIntent.GUILD_PRESENCES,
             GatewayIntent.GUILD_MEMBERS,
             GatewayIntent.GUILD_MESSAGES,
