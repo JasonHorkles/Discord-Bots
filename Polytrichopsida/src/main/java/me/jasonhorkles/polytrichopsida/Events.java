@@ -77,9 +77,8 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        // Auto publish announcements in updates & github-spam
-        if (event.getChannel().getIdLong() == 1226930147245035571L || event.getChannel()
-            .getIdLong() == 1226929485895434271L) {
+        // Auto publish announcements in github-spam
+        if (event.getChannel().getIdLong() == 1226929485895434271L) {
             event.getMessage().crosspost().queue(null,
                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE, ErrorResponse.ALREADY_CROSSPOSTED));
             return;
