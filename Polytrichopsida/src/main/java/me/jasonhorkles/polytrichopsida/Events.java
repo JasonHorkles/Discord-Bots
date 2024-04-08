@@ -48,7 +48,6 @@ public class Events extends ListenerAdapter {
                 **EntityClearer:** <https://github.com/SilverstoneMC/EntityClearer>
                 **ExpensiveDeaths:** <https://github.com/SilverstoneMC/ExpensiveDeaths>
                 **FileCleaner:** <https://github.com/SilverstoneMC/FileCleaner>
-                **BungeeNicks:** <https://github.com/SilverstoneMC/BungeeNicks>
                 """).queue();
 
             case "plugins" -> event.reply(
@@ -229,12 +228,10 @@ public class Events extends ListenerAdapter {
         EmbedBuilder embed = new EmbedBuilder();
 
         embed.addField("Spigot", """
-            [BungeeNicks](https://www.spigotmc.org/resources/bungeenicks.110948/)
             [EntityClearer](https://www.spigotmc.org/resources/entityclearer.90802/)
             [ExpensiveDeaths](https://www.spigotmc.org/resources/expensivedeaths.96065/)
             [FileCleaner](https://www.spigotmc.org/resources/filecleaner.93372/)""", true);
         embed.addField("Hangar", """
-            [BungeeNicks](https://hangar.papermc.io/JasonHorkles/BungeeNicks)
             [EntityClearer](https://hangar.papermc.io/JasonHorkles/EntityClearer)
             [ExpensiveDeaths](https://hangar.papermc.io/JasonHorkles/ExpensiveDeaths)
             [FileCleaner](https://hangar.papermc.io/JasonHorkles/FileCleaner)""", true);
