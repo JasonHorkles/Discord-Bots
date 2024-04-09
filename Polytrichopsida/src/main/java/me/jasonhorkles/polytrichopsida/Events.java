@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.time.OffsetDateTime;
@@ -68,7 +69,7 @@ public class Events extends ListenerAdapter {
                 if (event.getChannelType() == ChannelType.GUILD_PUBLIC_THREAD)
                     // In plugin support thread and has helper role or manage threads permission
                     if (isFromStaff(event.getChannel().asThreadChannel(), event.getMember()))
-                        sendThankYouMessage(event.getChannel().asThreadChannel());
+                        sendThankYouMessage(event.getChannel().asThreadChannel(), event);
                     else event.reply("Command not available.").setEphemeral(true).queue();
                 else event.reply("Command not available.").setEphemeral(true).queue();
             }
@@ -93,7 +94,7 @@ public class Events extends ListenerAdapter {
 
             // Thanks for coming :)
             if (message.getContentStripped().toLowerCase().startsWith("np")) {
-                sendThankYouMessage(event.getChannel().asThreadChannel());
+                sendThankYouMessage(event.getChannel().asThreadChannel(), null);
                 return;
             }
 
@@ -223,7 +224,7 @@ public class Events extends ListenerAdapter {
             .setLocked(true).queueAfter(1, TimeUnit.SECONDS));
     }
 
-    private void sendThankYouMessage(ThreadChannel channel) {
+    private void sendThankYouMessage(ThreadChannel channel, @Nullable SlashCommandInteractionEvent slashEvent) {
         EmbedBuilder embed = new EmbedBuilder();
 
         embed.addField("Spigot", """
@@ -237,10 +238,12 @@ public class Events extends ListenerAdapter {
         embed.setColor(new Color(43, 45, 49));
         embed.setFooter("This post will now be closed. Send a message to re-open it.");
 
-        channel.sendMessage(
-                "Thank you for coming. If you enjoy the plugin and are happy with the support you received, please consider leaving a review on Spigot or a star on Hangar \\:)")
-            .addEmbeds(embed.build()).queue(na -> channel.getManager().setArchived(true)
-                .queueAfter(1, TimeUnit.SECONDS));
+        String message = "Thank you for coming. If you enjoy the plugin and are happy with the support you received, please consider leaving a review on Spigot or a star on Hangar \\:)";
+
+        if (slashEvent != null) slashEvent.reply(message).addEmbeds(embed.build()).queue(na -> channel
+            .getManager().setArchived(true).queueAfter(1, TimeUnit.SECONDS));
+        else channel.sendMessage(message).addEmbeds(embed.build()).queue(na -> channel.getManager()
+            .setArchived(true).queueAfter(1, TimeUnit.SECONDS));
     }
 
     private boolean isFromStaff(ThreadChannel channel, Member member) {
