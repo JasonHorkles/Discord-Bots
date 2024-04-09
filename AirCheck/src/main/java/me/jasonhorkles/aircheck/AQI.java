@@ -7,19 +7,20 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class AQI {
-    public void checkAir() throws IOException {
+    public void checkAir() throws IOException, URISyntaxException {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking air quality...");
 
         JSONArray input;
         if (!AirCheck.testing) {
-            InputStream url = new URL(
-                "https://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json&zipCode=" + new Secrets().getZip() + "&distance=25&API_KEY=" + new Secrets().getAqiApiKey()).openStream();
+            InputStream url = new URI(
+                "https://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json&zipCode=" + new Secrets().getZip() + "&distance=25&API_KEY=" + new Secrets().getAqiApiKey()).toURL().openStream();
             input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();
 

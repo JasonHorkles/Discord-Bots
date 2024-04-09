@@ -13,7 +13,8 @@ import org.json.JSONObject;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,15 +34,15 @@ public class Alerts {
     private final String nwf = Secrets.Area.NWF.getArea();
     private final String da = Secrets.Area.DA.getArea();
 
-    public void checkAlerts() throws IOException {
+    public void checkAlerts() throws IOException, URISyntaxException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking alerts...");
 
         dontDeleteMe.clear();
 
         JSONObject input;
         if (!StormAlerts.testing) {
-            InputStream url = new URL(
-                "https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&zone=" + new Secrets().getAlertZone()).openStream();
+            InputStream url = new URI(
+                "https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&zone=" + new Secrets().getAlertZone()).toURL().openStream();
             input = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();
 
@@ -94,7 +95,7 @@ public class Alerts {
                 }
 
                 // If the ID is the same, don't send an update
-                if (message.getEmbeds().get(0).getFields().get(3).getValue().equals(id)) {
+                if (message.getEmbeds().getFirst().getFields().get(3).getValue().equals(id)) {
                     sameAlert = true;
                     dontDeleteMe.add(message.getIdLong());
                     break;
@@ -115,7 +116,7 @@ public class Alerts {
                             .replaceFirst("urn:oid:", "");
 
                         // Compare if the footer has that ID
-                        if (message.getEmbeds().get(0).getFields().get(3).getValue().equals(identifier)) {
+                        if (message.getEmbeds().getFirst().getFields().get(3).getValue().equals(identifier)) {
                             alertMessage = message;
                             idFound = true;
                             break;
@@ -193,13 +194,13 @@ public class Alerts {
 
                     // Calculate diffs for description
                     String newDescription = applyDiffs(generator,
-                        alertMessage.getEmbeds().get(0).getDescription(),
+                        alertMessage.getEmbeds().getFirst().getDescription(),
                         description);
                     embed.setDescription(newDescription);
 
                     // Calculate diffs for instruction field
                     String newInstruction = applyDiffs(generator,
-                        alertMessage.getEmbeds().get(0).getFields().get(0).getValue(),
+                        alertMessage.getEmbeds().getFirst().getFields().getFirst().getValue(),
                         instruction);
                     fields.set(0, new MessageEmbed.Field("Instruction", newInstruction, false));
                     for (MessageEmbed.Field field : fields) embed.addField(field);

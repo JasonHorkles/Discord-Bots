@@ -22,6 +22,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -162,7 +164,7 @@ public class Wordle extends ListenerAdapter {
         }
 
         if (!isNonReal.get(channel)) if (!wordList.toString().contains(input)) try {
-            URL url = new URL("https://api.dictionaryapi.dev/api/v2/entries/en/" + input.toLowerCase());
+            URL url = new URI("https://api.dictionaryapi.dev/api/v2/entries/en/" + input.toLowerCase()).toURL();
             try (InputStream ignored1 = url.openStream()) {
                 wordRequest(input.toUpperCase(), event.getMember());
             } catch (FileNotFoundException ignored) {
@@ -172,7 +174,7 @@ public class Wordle extends ListenerAdapter {
                 return;
             }
 
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
 
@@ -257,7 +259,7 @@ public class Wordle extends ListenerAdapter {
                 //noinspection DataFlowIssue
                 event.getJDA().getTextChannelById(956267174727671869L)
                     .retrieveMessageById(originalMessage.get(channel)).queue(original -> {
-                        MessageEmbed embed = original.getEmbeds().get(0);
+                        MessageEmbed embed = original.getEmbeds().getFirst();
                         // Add 1 to wins
                         if (!embed.isEmpty()) {
                             //noinspection DataFlowIssue
@@ -328,7 +330,7 @@ public class Wordle extends ListenerAdapter {
                 //noinspection DataFlowIssue
                 event.getJDA().getTextChannelById(956267174727671869L)
                     .retrieveMessageById(originalMessage.get(channel)).queue(original -> {
-                        MessageEmbed embed = original.getEmbeds().get(0);
+                        MessageEmbed embed = original.getEmbeds().getFirst();
                         // Add 1 to fails
                         if (!embed.isEmpty()) {
                             //noinspection DataFlowIssue
@@ -425,7 +427,7 @@ public class Wordle extends ListenerAdapter {
 
                 else {
                     event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
-                    MessageEmbed message = event.getMessage().getEmbeds().get(0);
+                    MessageEmbed message = event.getMessage().getEmbeds().getFirst();
                     // Add 1 to plays
                     if (!message.isEmpty()) {
                         //noinspection DataFlowIssue

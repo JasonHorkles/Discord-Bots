@@ -132,7 +132,7 @@ public class Weather extends ListenerAdapter {
                 // If the bot had just restarted, send snow message instantly and silently
                 try {
                     Message message = new Utils().getMessages(snowChannel, 1).get(30, TimeUnit.SECONDS)
-                        .get(0);
+                        .getFirst();
 
                     // If the message was edited within the last 3 minutes and it contains the restart message
                     if (message.isEdited()) if (message.getTimeEdited().isAfter(OffsetDateTime.now()
@@ -217,7 +217,7 @@ public class Weather extends ListenerAdapter {
 
             if (previousTypeChannel != null) {
                 Message message = new Utils().getMessages(previousTypeChannel, 1).get(30, TimeUnit.SECONDS)
-                    .get(0);
+                    .getFirst();
                 if (!message.getContentRaw().contains("Ended") && !message.getContentRaw().contains(
                     "restarted")) message.editMessage(message.getContentRaw()
                     .replace("!", "! (Ended at <t:" + System.currentTimeMillis() / 1000 + ":t>)")).queue();

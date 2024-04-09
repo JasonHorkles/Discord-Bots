@@ -37,8 +37,8 @@ public class Events extends ListenerAdapter {
 
                 StringBuilder roleList = new StringBuilder();
                 StringBuilder notRoleList = new StringBuilder();
-                for (SelectOption option : ((StringSelectMenu) event.getMessage().getActionRows().get(0)
-                    .getComponents().get(0)).getOptions()) {
+                for (SelectOption option : ((StringSelectMenu) event.getMessage().getActionRows().getFirst()
+                    .getComponents().getFirst()).getOptions()) {
                     Role role = event.getGuild().getRoleById(option.getValue());
 
                     if (event.getMember().getRoles().contains(role))
@@ -67,14 +67,14 @@ public class Events extends ListenerAdapter {
                     return;
                 }
 
-                MessageEmbed oldEmbed = message.getEmbeds().get(0);
-                EmbedBuilder embed = new EmbedBuilder(message.getEmbeds().get(0));
+                MessageEmbed oldEmbed = message.getEmbeds().getFirst();
+                EmbedBuilder embed = new EmbedBuilder(message.getEmbeds().getFirst());
                 embed.setDescription(oldEmbed.getDescription().replace("||", "~~"));
 
                 ArrayList<MessageEmbed.Field> fields = new ArrayList<>(oldEmbed.getFields());
                 fields.set(0, new MessageEmbed.Field(
-                    oldEmbed.getFields().get(0).getName(),
-                    oldEmbed.getFields().get(0).getValue().replace("||", "~~"),
+                    oldEmbed.getFields().getFirst().getName(),
+                    oldEmbed.getFields().getFirst().getValue().replace("||", "~~"),
                     false));
 
                 embed.clearFields();
@@ -117,8 +117,8 @@ public class Events extends ListenerAdapter {
                     // Show user's roles
                     StringBuilder roleList = new StringBuilder();
                     StringBuilder notRoleList = new StringBuilder();
-                    for (SelectOption option : ((StringSelectMenu) event.getMessage().getActionRows().get(0)
-                        .getComponents().get(0)).getOptions()) {
+                    for (SelectOption option : ((StringSelectMenu) event.getMessage().getActionRows().getFirst()
+                        .getComponents().getFirst()).getOptions()) {
                         Role role = event.getGuild().getRoleById(option.getValue());
 
                         if (event.getMember().getRoles().contains(role))

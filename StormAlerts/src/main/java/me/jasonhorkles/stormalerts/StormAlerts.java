@@ -62,7 +62,7 @@ public class StormAlerts extends ListenerAdapter {
         // Cache wind speed
         try {
             Message windMessage = new Utils().getMessages(jda.getTextChannelById(1028358818050080768L), 1)
-                .get(30, TimeUnit.SECONDS).get(0);
+                .get(30, TimeUnit.SECONDS).getFirst();
             if (windMessage != null) {
                 OffsetDateTime fiveHoursAgo = OffsetDateTime.now().minusHours(5);
                 OffsetDateTime midnight = OffsetDateTime.now().withHour(0).withMinute(0).withSecond(0)
@@ -262,7 +262,7 @@ public class StormAlerts extends ListenerAdapter {
             Message message = null;
             try {
                 message = new Utils().getMessages(Weather.previousTypeChannel, 1).get(1, TimeUnit.SECONDS)
-                    .get(0);
+                    .getFirst();
                 Thread.sleep(500);
 
             } catch (InterruptedException | ExecutionException | TimeoutException e) {

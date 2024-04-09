@@ -4,7 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,7 +23,7 @@ public class Traffic {
         try {
             JSONArray input;
             if (!StormAlerts.testing) {
-                InputStream url = new URL("https://data.traffic.hereapi.com/v7/flow?in=circle:" + new Secrets().getTrafficCoords() + ";r=10&locationReferencing=none&apiKey=" + new Secrets().getTrafficApiKey()).openStream();
+                InputStream url = new URI("https://data.traffic.hereapi.com/v7/flow?in=circle:" + new Secrets().getTrafficCoords() + ";r=10&locationReferencing=none&apiKey=" + new Secrets().getTrafficApiKey()).toURL().openStream();
                 JSONObject obj = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
                 url.close();
 

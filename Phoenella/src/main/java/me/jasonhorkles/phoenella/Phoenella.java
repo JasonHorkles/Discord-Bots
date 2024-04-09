@@ -90,7 +90,7 @@ public class Phoenella {
         } catch (NoSuchElementException ignored) {
         }
 
-        if (!lines.isEmpty()) if (lines.get(0).equalsIgnoreCase("local")) {
+        if (!lines.isEmpty()) if (lines.getFirst().equalsIgnoreCase("local")) {
             System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Leaderboard set to local mode!");
             localWordleBoard = true;
         }

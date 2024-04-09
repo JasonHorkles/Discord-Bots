@@ -18,7 +18,7 @@ public class GameManager extends ListenerAdapter {
         if (isDailyWordle) daily.append("daily-");
 
         TextChannel channel = Phoenella.jda.getCategoryById(900747596245639238L)
-            .createTextChannel(new Utils().getFirstName(players.get(0)) + "-" + daily + game.toString()
+            .createTextChannel(new Utils().getFirstName(players.getFirst()) + "-" + daily + game.toString()
                 .toLowerCase()).complete();
 
         for (Member player : players)

@@ -21,7 +21,7 @@ public class Buttons extends ListenerAdapter {
             case "definitionreport" -> {
                 Phoenella.jda.openPrivateChannelById(277291758503723010L).flatMap(channel -> channel
                     .sendMessage(":warning: Definition report from **" + new Utils().getFullName(event.getMember()) + ":**")
-                    .setEmbeds(event.getMessage().getEmbeds().get(0))).queue();
+                    .setEmbeds(event.getMessage().getEmbeds().getFirst())).queue();
 
                 event.deferEdit().queue();
 
@@ -36,8 +36,8 @@ public class Buttons extends ListenerAdapter {
 
                 StringBuilder roleList = new StringBuilder();
                 StringBuilder notRoleList = new StringBuilder();
-                for (SelectOption option : ((StringSelectMenu) event.getMessage().getActionRows().get(0)
-                    .getComponents().get(0)).getOptions()) {
+                for (SelectOption option : ((StringSelectMenu) event.getMessage().getActionRows().getFirst()
+                    .getComponents().getFirst()).getOptions()) {
                     Role role = event.getGuild().getRoleById(option.getValue());
 
                     if (event.getMember().getRoles().contains(role))

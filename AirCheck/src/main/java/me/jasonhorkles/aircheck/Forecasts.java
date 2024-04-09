@@ -8,7 +8,8 @@ import org.json.JSONArray;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,12 +20,12 @@ import java.util.concurrent.TimeoutException;
 
 @SuppressWarnings("DataFlowIssue")
 public class Forecasts {
-    public void updateForecasts() throws IOException {
+    public void updateForecasts() throws IOException, URISyntaxException {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking forecasts...");
 
         JSONArray input;
         if (!AirCheck.testing) {
-            InputStream url = new URL("http://dataservice.accuweather.com/indices/v1/daily/1day/" + new Secrets().getAccuLocationCode() + "?apikey=" + new Secrets().getAccuApiKey()).openStream();
+            InputStream url = new URI("http://dataservice.accuweather.com/indices/v1/daily/1day/" + new Secrets().getAccuLocationCode() + "?apikey=" + new Secrets().getAccuApiKey()).toURL().openStream();
             input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();
 
@@ -217,39 +218,39 @@ public class Forecasts {
                 channel.sendMessageEmbeds(health.build()).queueAfter(5, TimeUnit.SECONDS);
 
             } else for (Message message : latestMessages)
-                switch (message.getEmbeds().get(0).getTitle()) {
+                switch (message.getEmbeds().getFirst().getTitle()) {
                     case "Health" -> {
-                        if (!message.getEmbeds().get(0).getDescription().equals(healthForecasts.toString()
+                        if (!message.getEmbeds().getFirst().getDescription().equals(healthForecasts.toString()
                             .strip())) message.editMessageEmbeds(health.build()).queue();
                     }
 
                     case "Pollen" -> {
-                        if (!message.getEmbeds().get(0).getDescription().equals(pollenForecasts.strip()))
+                        if (!message.getEmbeds().getFirst().getDescription().equals(pollenForecasts.strip()))
                             message.editMessageEmbeds(pollen.build()).queueAfter(1, TimeUnit.SECONDS);
                     }
 
                     case "Transportation" -> {
-                        if (!message.getEmbeds().get(0).getDescription().equals(transportationForecasts
+                        if (!message.getEmbeds().getFirst().getDescription().equals(transportationForecasts
                             .toString().strip()))
                             message.editMessageEmbeds(transportation.build()).queueAfter(2, TimeUnit.SECONDS);
                     }
 
                     case "Work" -> {
-                        if (!message.getEmbeds().get(0).getDescription().equals(workForecasts.toString()
+                        if (!message.getEmbeds().getFirst().getDescription().equals(workForecasts.toString()
                             .strip())) message.editMessageEmbeds(work.build()).queueAfter(
                             3,
                             TimeUnit.SECONDS);
                     }
 
                     case "Sports" -> {
-                        if (!message.getEmbeds().get(0).getDescription().equals(sportsForecasts.toString()
+                        if (!message.getEmbeds().getFirst().getDescription().equals(sportsForecasts.toString()
                             .strip())) message.editMessageEmbeds(sports.build()).queueAfter(
                             12,
                             TimeUnit.SECONDS);
                     }
 
                     case "Activities" -> {
-                        if (!message.getEmbeds().get(0).getDescription().equals(activityForecasts.toString()
+                        if (!message.getEmbeds().getFirst().getDescription().equals(activityForecasts.toString()
                             .strip())) message.editMessageEmbeds(activities.build()).queueAfter(
                             17,
                             TimeUnit.SECONDS);

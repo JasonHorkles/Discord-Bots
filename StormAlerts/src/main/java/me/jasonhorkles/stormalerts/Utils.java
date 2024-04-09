@@ -50,7 +50,7 @@ public class Utils {
         if (StormAlerts.testing) return false;
 
         try {
-            Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).get(0);
+            Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).getFirst();
 
             if (message.isEdited()) //noinspection DataFlowIssue
                 return message.getTimeEdited().isBefore(OffsetDateTime.now().minusHours(12));
@@ -72,7 +72,7 @@ public class Utils {
 
         // Set whether or not the message should be silent (e.g. right after a restart)
         try {
-            Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).get(0);
+            Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).getFirst();
 
             // If edited/sent within the last hour, send silently
             if (message.isEdited()) //noinspection DataFlowIssue

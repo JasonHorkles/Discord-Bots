@@ -15,7 +15,8 @@ import org.jsoup.nodes.Document;
 
 import java.awt.*;
 import java.io.*;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -125,7 +126,7 @@ public class Utils {
             InputStream url;
 
             try {
-                url = new URL("https://api.dictionaryapi.dev/api/v2/entries/en/" + word).openStream();
+                url = new URI("https://api.dictionaryapi.dev/api/v2/entries/en/" + word).toURL().openStream();
             } catch (FileNotFoundException ignored) {
                 embed.setColor(new Color(212, 43, 65));
                 embed.setDescription("Couldn't find **" + word + "** in the dictionary!");
@@ -170,7 +171,7 @@ public class Utils {
             if (phonetic != null) embed.setTitle(phonetic);
             embed.setDescription(definitions);
 
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             System.out.print(getTime(LogColor.RED));
             e.printStackTrace();
 

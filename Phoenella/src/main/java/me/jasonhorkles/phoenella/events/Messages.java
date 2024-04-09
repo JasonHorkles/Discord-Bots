@@ -165,14 +165,14 @@ public class Messages extends ListenerAdapter {
             channel.sendTyping().complete();
 
             if (message.getMentions().getMembers().isEmpty() || message.getMentions().getMembers()
-                .get(0) == member || message.getMentions().getMembers().get(0).getUser().isBot()) {
+                .getFirst() == member || message.getMentions().getMembers().getFirst().getUser().isBot()) {
                 message.reply("You must ping an opponent in your message!").queue();
                 return;
 
             } else {
                 ArrayList<Member> players = new ArrayList<>();
                 players.add(member);
-                players.add(message.getMentions().getMembers().get(0));
+                players.add(message.getMentions().getMembers().getFirst());
 
                 TextChannel gameChannel = new RPS().startGame(players);
                 message.addReaction(Emoji.fromUnicode("👍")).queue();
@@ -361,7 +361,7 @@ public class Messages extends ListenerAdapter {
             try {
                 Connection conn = Jsoup.connect(page).timeout(15000);
                 Document doc = conn.get();
-                msg = doc.body().getElementsByClass("ILfuVd").get(0).text();
+                msg = doc.body().getElementsByClass("ILfuVd").getFirst().text();
 
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setTitle(search.toUpperCase(), page);
