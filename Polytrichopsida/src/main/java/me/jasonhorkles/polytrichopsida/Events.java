@@ -36,7 +36,7 @@ public class Events extends ListenerAdapter {
 
         switch (event.getName().toLowerCase()) {
             case "ecldebug" -> {
-                String message = " run the command `/ecl debug` in-game.\nOnce everything has completed, upload the newly created debug dump file from the EntityClearer plugin folder (`/plugins/EntityClearer`) to this channel.";
+                String message = " run the command `/ecl debug` in-game.\nOnce everything has completed, send the link it provided to this channel.";
                 boolean isNull = event.getOption("replyto") == null;
                 if (!isNull) if (event.getOption("replyto").getAsMember() == null) isNull = true;
 
