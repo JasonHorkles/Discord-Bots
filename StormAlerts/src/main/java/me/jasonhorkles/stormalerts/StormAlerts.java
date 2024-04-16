@@ -20,16 +20,18 @@ import org.json.JSONObject;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.*;
 
 @SuppressWarnings({"DataFlowIssue"})
 public class StormAlerts extends ListenerAdapter {
-    public static final ArrayList<ScheduledFuture<?>> scheduledTimers = new ArrayList<>();
+    public static final List<ScheduledFuture<?>> scheduledTimers = new ArrayList<>();
     public static final boolean testing = false;
     public static JDA jda;
 
@@ -54,8 +56,7 @@ public class StormAlerts extends ListenerAdapter {
         jda.awaitReady();
 
         //noinspection DataFlowIssue
-        jda.getGuildById(843919716677582888L).updateCommands().addCommands(Commands.slash(
-                "checknow",
+        jda.getGuildById(843919716677582888L).updateCommands().addCommands(Commands.slash("checknow",
                 "Force all checks (except records)"),
             Commands.slash("updaterecords", "Force the record checks")).queue();
 
@@ -173,7 +174,7 @@ public class StormAlerts extends ListenerAdapter {
         // Send select menu message if needed
         try {
             TextChannel channel = jda.getTextChannelById(843919716677582891L);
-            ArrayList<SelectOption> selectOptions = new ArrayList<>();
+            List<SelectOption> selectOptions = new ArrayList<>();
 
             selectOptions.add(SelectOption.of("New NWS Alerts", "850471646191812700")
                 .withEmoji(Emoji.fromUnicode("⚠️")));
@@ -197,8 +198,7 @@ public class StormAlerts extends ListenerAdapter {
             if (new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).isEmpty()) channel.sendMessage(
                     "**Select your desired notifications below:**\n*Each selection acts as a toggle*")
                 .addActionRow(StringSelectMenu.create("role-select").addOptions(selectOptions).setMinValues(0)
-                    .setMaxValues(selectOptions.size()).build()).addActionRow(Button.secondary(
-                    "viewroles",
+                    .setMaxValues(selectOptions.size()).build()).addActionRow(Button.secondary("viewroles",
                     "Your Roles")).queue();
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
@@ -210,7 +210,7 @@ public class StormAlerts extends ListenerAdapter {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new StormAlerts().shutdown(), "Shutdown Hook"));
         Thread input = new Thread(() -> {
             while (true) {
-                Scanner in = new Scanner(System.in);
+                Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
                 String text = in.nextLine();
                 if (text.equalsIgnoreCase("stop")) System.exit(0);
                 if (text.equalsIgnoreCase("n")) new Traffic().checkTraffic(true);
@@ -312,7 +312,7 @@ public class StormAlerts extends ListenerAdapter {
         allRecords.put("maxRainRateTime", Records.maxRainRateTime);
         allRecords.put("maxWindTime", Records.maxWindTime);
 
-        FileWriter recordsToday = new FileWriter(filePath, false);
+        FileWriter recordsToday = new FileWriter(filePath, StandardCharsets.UTF_8, false);
         recordsToday.write(allRecords.toString());
         return recordsToday;
     }

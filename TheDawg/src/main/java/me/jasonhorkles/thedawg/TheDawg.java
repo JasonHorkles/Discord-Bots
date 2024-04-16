@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -43,7 +44,7 @@ public class TheDawg {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new TheDawg().shutdown(), "Shutdown Hook"));
         Thread input = new Thread(() -> {
             while (true) {
-                Scanner in = new Scanner(System.in);
+                Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
                 String text = in.nextLine();
                 if (text.equalsIgnoreCase("stop")) System.exit(0);
             }

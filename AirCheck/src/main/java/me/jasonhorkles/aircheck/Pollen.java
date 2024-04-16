@@ -17,7 +17,8 @@ public class Pollen {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking pollen...");
 
         String input;
-        if (!AirCheck.testing) {
+        if (AirCheck.testing) input = Files.readString(Path.of("AirCheck/pollen.txt"));
+        else {
             Connection conn = Jsoup
                 .connect("https://weather.com/forecast/allergy/l/" + new Secrets().getPollenLocationId())
                 .timeout(30000);
@@ -26,7 +27,7 @@ public class Pollen {
             //noinspection DataFlowIssue
             input = doc.select("[class*=\"PollenBreakdown--body--\"]").first().text();
 
-        } else input = Files.readString(Path.of("AirCheck/pollen.txt"));
+        }
 
         Map<String, String> pollenLevels = new HashMap<>();
         Pattern pattern = Pattern.compile("(\\w+?) Pollen (Today|Tonight): (\\w+)");

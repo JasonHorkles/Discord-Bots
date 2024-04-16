@@ -19,12 +19,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.NoSuchElementException;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.List;
+import java.util.*;
 
 //@SuppressWarnings("DataFlowIssue")
 public class Utils {
@@ -76,7 +75,7 @@ public class Utils {
     public void sendMessage(@Nullable TextChannel channel, @Nullable Message replyTo, String message, Boolean allCaps) {
         if (!message.startsWith("http")) if (allCaps) message = message.toUpperCase();
         else {
-            Random r = new Random();
+            Random r = new SecureRandom();
             if (r.nextBoolean()) message = message.toLowerCase();
         }
 
@@ -90,7 +89,10 @@ public class Utils {
             FileWriter daily = fileWriter();
             daily.close();
 
-            FileWriter plays = new FileWriter("Phoenella/Wordle/played-daily.txt", false);
+            FileWriter plays = new FileWriter(
+                "Phoenella/Wordle/played-daily.txt",
+                StandardCharsets.UTF_8,
+                false);
             plays.close();
 
             System.out.println(getTime(LogColor.GREEN) + "Updated the daily Wordle!");
@@ -103,17 +105,17 @@ public class Utils {
 
     @NotNull
     private static FileWriter fileWriter() throws IOException {
-        Scanner words = new Scanner(new File("Phoenella/Wordle/words.txt"));
+        Scanner words = new Scanner(new File("Phoenella/Wordle/words.txt"), StandardCharsets.UTF_8);
         ArrayList<String> wordList = new ArrayList<>();
         while (words.hasNext()) try {
             wordList.add(words.next());
         } catch (NoSuchElementException ignored) {
         }
 
-        Random r = new Random();
+        Random r = new SecureRandom();
         String word = wordList.get(r.nextInt(wordList.size()));
 
-        FileWriter daily = new FileWriter("Phoenella/Wordle/daily.txt", false);
+        FileWriter daily = new FileWriter("Phoenella/Wordle/daily.txt", StandardCharsets.UTF_8, false);
         daily.write(word);
         return daily;
     }
@@ -147,7 +149,7 @@ public class Utils {
                 if (x > 0) definitions.append("\n\n");
                 JSONObject info = meanings.getJSONObject(x);
 
-                ArrayList<String> definitionList = new ArrayList<>();
+                List<String> definitionList = new ArrayList<>();
                 JSONArray rawDefinitions = info.getJSONArray("definitions");
                 int iterations = 0;
                 for (int y = 0; y < rawDefinitions.length() && iterations < 2; y++) {

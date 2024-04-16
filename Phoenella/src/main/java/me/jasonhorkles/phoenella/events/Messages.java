@@ -24,11 +24,11 @@ import org.jsoup.nodes.Document;
 
 import java.awt.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("DataFlowIssue")
 public class Messages extends ListenerAdapter {
     private static final Map<TextChannel, Integer> channelCooldown = new HashMap<>();
-    private static final ArrayList<String> messageCooldown = new ArrayList<>();
+    private static final List<String> messageCooldown = new ArrayList<>();
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -48,16 +48,15 @@ public class Messages extends ListenerAdapter {
         TextChannel channel = event.getChannel().asTextChannel();
         Message message = event.getMessage();
 
-        boolean isReply = false;
+        boolean notReply = true;
         if (message.getMessageReference() != null)
             if (message.getMessageReference().getMessage().getAuthor().equals(Phoenella.jda.getSelfUser()))
-                isReply = true;
+                notReply = false;
 
-        String text = message.getContentRaw().replaceAll("(?i)\\bphoenella\\b", "PHOENELLA").replaceAll(
-            "(?i)\\bphoe\\b",
+        String text = message.getContentRaw().replaceAll("(?i)\\bphoenella\\b", "PHOENELLA").replaceAll("(?i)\\bphoe\\b",
             "PHOENELLA").strip();
 
-        if (!text.contains("PHOENELLA") && !isReply && channel.getIdLong() != 892802385301352548L) return;
+        if (!text.contains("PHOENELLA") && notReply && channel.getIdLong() != 892802385301352548L) return;
 
         text = text.replace("  ", " ").replaceAll(" ?PHOENELLA ?", "").toLowerCase();
 
@@ -92,14 +91,14 @@ public class Messages extends ListenerAdapter {
         if (channel.getParentCategory() != null)
             if (channel.getParentCategoryIdLong() == 900747596245639238L) return;
 
-        ArrayList<String> disabledChannels = new ArrayList<>();
+        List<String> disabledChannels = new ArrayList<>();
         try {
             File file = new File("Phoenella/channel-blacklist.txt");
-            Scanner fileScanner = new Scanner(file);
+            Scanner fileScanner = new Scanner(file, StandardCharsets.UTF_8);
 
             while (fileScanner.hasNextLine()) disabledChannels.add(fileScanner.nextLine());
         } catch (NoSuchElementException ignored) {
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
         }
@@ -109,7 +108,10 @@ public class Messages extends ListenerAdapter {
 
             try {
                 disabledChannels.remove(channel.getId());
-                FileWriter fileWriter = new FileWriter("Phoenella/channel-blacklist.txt", false);
+                FileWriter fileWriter = new FileWriter(
+                    "Phoenella/channel-blacklist.txt",
+                    StandardCharsets.UTF_8,
+                    false);
                 for (String channels : disabledChannels) fileWriter.write(channels + "\n");
                 fileWriter.close();
             } catch (IOException e) {
@@ -130,7 +132,10 @@ public class Messages extends ListenerAdapter {
 
             try {
                 disabledChannels.add(channel.getId());
-                FileWriter fileWriter = new FileWriter("Phoenella/channel-blacklist.txt", false);
+                FileWriter fileWriter = new FileWriter(
+                    "Phoenella/channel-blacklist.txt",
+                    StandardCharsets.UTF_8,
+                    false);
                 for (String channels : disabledChannels) fileWriter.write(channels + "\n");
                 fileWriter.close();
             } catch (IOException e) {
@@ -165,7 +170,8 @@ public class Messages extends ListenerAdapter {
             channel.sendTyping().complete();
 
             if (message.getMentions().getMembers().isEmpty() || message.getMentions().getMembers()
-                .getFirst() == member || message.getMentions().getMembers().getFirst().getUser().isBot()) {
+                                                                    .getFirst() == member || message
+                    .getMentions().getMembers().getFirst().getUser().isBot()) {
                 message.reply("You must ping an opponent in your message!").queue();
                 return;
 
@@ -235,7 +241,7 @@ public class Messages extends ListenerAdapter {
 
         channel.sendTyping().complete();
 
-        Random r = new Random();
+        Random r = new SecureRandom();
 
         if (text.isEmpty()) {
             msg = new Utils().getFirstName(member);

@@ -26,9 +26,9 @@ public class Buttons extends ListenerAdapter {
                 event.deferEdit().queue();
 
                 Message message = event.getMessage();
-                if (!message.isEphemeral()) message.delete().queue();
-                else event.getHook().editOriginalComponents(ActionRow.of(event.getButton().asDisabled()))
-                    .queue();
+                if (message.isEphemeral()) event.getHook().editOriginalComponents(ActionRow.of(event
+                    .getButton().asDisabled())).queue();
+                else message.delete().queue();
             }
 
             case "viewroles" -> {

@@ -14,7 +14,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -42,24 +44,22 @@ public class Reactions extends ListenerAdapter {
 
                     if (member.isTimedOut()) {
                         event.getChannel().sendMessage(event.getMember()
-                            .getAsMention() + ", that person is already shushed!").queue((m) -> m.delete()
-                            .queueAfter(5,
+                                                           .getAsMention() + ", that person is already shushed!")
+                            .queue((m) -> m.delete().queueAfter(5,
                                 TimeUnit.SECONDS,
                                 null,
                                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
                         return;
                     }
 
-                    member.timeoutFor(10, TimeUnit.MINUTES).queue(
-                        (na) -> event.getChannel()
-                            .sendMessage(new Utils().getFirstName(member) + " just got shushed!")
-                            .queue(del -> {
+                    member.timeoutFor(10, TimeUnit.MINUTES).queue((na) -> event.getChannel()
+                            .sendMessage(new Utils().getFirstName(member) + " just got shushed!").queue(del -> {
                                 del.delete().queueAfter(10,
                                     TimeUnit.MINUTES,
                                     null,
                                     new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
-                                event.getChannel().sendMessage("https://tenor.com/vfW7.gif")
-                                    .queue(del2 -> del2.delete().queueAfter(10,
+                                event.getChannel().sendMessage("https://tenor.com/vfW7.gif").queue(del2 -> del2
+                                    .delete().queueAfter(10,
                                         TimeUnit.MINUTES,
                                         null,
                                         new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
@@ -88,7 +88,7 @@ public class Reactions extends ListenerAdapter {
 
                 try {
                     if (message.getContentStripped().toLowerCase().contains("word request")) {
-                        FileWriter fileWriter = new FileWriter(file, true);
+                        FileWriter fileWriter = new FileWriter(file, StandardCharsets.UTF_8, true);
                         String word = message.getContentStripped().replaceAll(".*: ", "").toUpperCase();
                         fileWriter.write(word + "\n");
                         fileWriter.close();
@@ -112,7 +112,7 @@ public class Reactions extends ListenerAdapter {
 
         // Delete message
         if (event.getReaction().getEmoji().getName().equals("❌") && event.getChannel().asTextChannel()
-            .getParentCategoryIdLong() != 900747596245639238L) {
+                                                                        .getParentCategoryIdLong() != 900747596245639238L) {
             event.retrieveMessage().queue(message -> {
                 if (message.getAuthor().equals(Phoenella.jda.getSelfUser())) message.delete().queue();
             });
@@ -133,9 +133,9 @@ public class Reactions extends ListenerAdapter {
 
                 try {
                     if (message.getContentStripped().contains("Auto word request")) {
-                        FileWriter fileWriter = new FileWriter(file, true);
+                        FileWriter fileWriter = new FileWriter(file, StandardCharsets.UTF_8, true);
                         fileWriter.write(message.getContentStripped().replaceAll(".*: ", "")
-                            .toUpperCase() + "\n");
+                                             .toUpperCase() + "\n");
                         fileWriter.close();
                     }
                     message.delete().queue();
@@ -151,8 +151,8 @@ public class Reactions extends ListenerAdapter {
 
     @NotNull
     private FileWriter fileWriter(File file, Message message) throws IOException {
-        Scanner words = new Scanner(file);
-        ArrayList<String> wordList = new ArrayList<>();
+        Scanner words = new Scanner(file, StandardCharsets.UTF_8);
+        List<String> wordList = new ArrayList<>();
 
         while (words.hasNext()) try {
             String next = words.next();
@@ -161,7 +161,7 @@ public class Reactions extends ListenerAdapter {
         } catch (NoSuchElementException ignored) {
         }
 
-        FileWriter fileWriter = new FileWriter(file, false);
+        FileWriter fileWriter = new FileWriter(file, StandardCharsets.UTF_8, false);
         for (String word : wordList) fileWriter.write(word + "\n");
         return fileWriter;
     }

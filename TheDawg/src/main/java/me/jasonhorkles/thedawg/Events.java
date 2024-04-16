@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 public class Events extends ListenerAdapter {
     public static Guild currentVoiceChannel;
@@ -18,7 +18,8 @@ public class Events extends ListenerAdapter {
     public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
         if (event.getChannelJoined() == null) return;
         if (event.getMember().getIdLong() != 840025878947692554L && event.getMember()
-            .getIdLong() != 277291758503723010L) return;
+                                                                        .getIdLong() != 277291758503723010L)
+            return;
         if (!event.getChannelJoined().getMembers().contains(event.getGuild()
             .getMemberById(840025878947692554L)) || !event.getChannelJoined().getMembers().contains(event
             .getGuild().getMemberById(277291758503723010L))) return;
@@ -36,7 +37,7 @@ public class Events extends ListenerAdapter {
         }
 
         String file = null;
-        switch (new Random().nextInt(8)) {
+        switch (new SecureRandom().nextInt(8)) {
             case 0 -> file = "TheDawg/Sounds/N1.mp3";
             case 1 -> file = "TheDawg/Sounds/SD1.mp3";
             case 2 -> file = "TheDawg/Sounds/SD2.mp3";
@@ -61,9 +62,17 @@ public class Events extends ListenerAdapter {
         //noinspection SwitchStatementWithTooFewBranches
         switch (event.getName().toLowerCase()) {
             case "zebra" -> {
-                if (event.getMember().getIdLong() != 277291758503723010L) {
+                if (event.getMember().getIdLong() == 277291758503723010L) {
+                    if (event.getOption("zebra") == null) {
+                        event.reply("You didn't provide anything to say!").setEphemeral(true).queue();
+                        return;
+                    }
+
+                    event.getChannel().sendMessage(event.getOption("zebra").getAsString()).queue();
+                    event.reply("Tada!").setEphemeral(true).queue();
+                } else {
                     String image = "You broke it!";
-                    switch (new Random().nextInt(9)) {
+                    switch (new SecureRandom().nextInt(9)) {
                         case 0 ->
                             image = "https://media.discordapp.net/attachments/335445132520194058/1098675297873838161/Plains_Zebra_Equus_quagga.png?width=447&height=671";
                         case 1 ->
@@ -85,14 +94,6 @@ public class Events extends ListenerAdapter {
                     }
                     event.reply(image).setEphemeral(true).queue();
 
-                } else {
-                    if (event.getOption("zebra") == null) {
-                        event.reply("You didn't provide anything to say!").setEphemeral(true).queue();
-                        return;
-                    }
-
-                    event.getChannel().sendMessage(event.getOption("zebra").getAsString()).queue();
-                    event.reply("Tada!").setEphemeral(true).queue();
                 }
             }
         }
@@ -103,7 +104,7 @@ public class Events extends ListenerAdapter {
         for (Activity activity : TheDawg.jda.getGuildById(335435349734064140L).getMemberById(
             277291758503723010L).getActivities())
             if (activity.getName()
-                .equalsIgnoreCase("Twitch") && activity.getType() == Activity.ActivityType.STREAMING)
+                    .equalsIgnoreCase("Twitch") && activity.getType() == Activity.ActivityType.STREAMING)
                 return true;
         return false;
     }

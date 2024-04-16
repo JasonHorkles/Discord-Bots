@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("DataFlowIssue")
 public class Events extends ListenerAdapter {
@@ -71,7 +72,7 @@ public class Events extends ListenerAdapter {
                 EmbedBuilder embed = new EmbedBuilder(message.getEmbeds().getFirst());
                 embed.setDescription(oldEmbed.getDescription().replace("||", "~~"));
 
-                ArrayList<MessageEmbed.Field> fields = new ArrayList<>(oldEmbed.getFields());
+                List<MessageEmbed.Field> fields = new ArrayList<>(oldEmbed.getFields());
                 fields.set(0, new MessageEmbed.Field(
                     oldEmbed.getFields().getFirst().getName(),
                     oldEmbed.getFields().getFirst().getValue().replace("||", "~~"),
@@ -117,8 +118,8 @@ public class Events extends ListenerAdapter {
                     // Show user's roles
                     StringBuilder roleList = new StringBuilder();
                     StringBuilder notRoleList = new StringBuilder();
-                    for (SelectOption option : ((StringSelectMenu) event.getMessage().getActionRows().getFirst()
-                        .getComponents().getFirst()).getOptions()) {
+                    for (SelectOption option : ((StringSelectMenu) event.getMessage().getActionRows()
+                        .getFirst().getComponents().getFirst()).getOptions()) {
                         Role role = event.getGuild().getRoleById(option.getValue());
 
                         if (event.getMember().getRoles().contains(role))

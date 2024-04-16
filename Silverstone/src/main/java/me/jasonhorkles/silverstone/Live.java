@@ -3,6 +3,7 @@ package me.jasonhorkles.silverstone;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +24,7 @@ public class Live {
         }
     }
 
+    @Nullable
     private Activity getLiveActivity() {
         Activity activity = null;
         //noinspection DataFlowIssue

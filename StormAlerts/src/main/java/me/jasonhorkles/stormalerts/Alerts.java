@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings("DataFlowIssue")
 public class Alerts {
-    private static final ArrayList<Long> dontDeleteMe = new ArrayList<>();
+    private static final List<Long> dontDeleteMe = new ArrayList<>();
     private final String fa = Secrets.Area.FA.getArea();
     private final String ce = Secrets.Area.CE.getArea();
     private final String ka = Secrets.Area.KA.getArea();
@@ -40,13 +40,16 @@ public class Alerts {
         dontDeleteMe.clear();
 
         JSONObject input;
-        if (!StormAlerts.testing) {
+        if (StormAlerts.testing) input = new JSONObject(Files.readString(Path.of(
+            "StormAlerts/Tests/alerts-empty.json")));
+        else {
             InputStream url = new URI(
-                "https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&zone=" + new Secrets().getAlertZone()).toURL().openStream();
+                "https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&zone=" + new Secrets().getAlertZone())
+                .toURL().openStream();
             input = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();
 
-        } else input = new JSONObject(Files.readString(Path.of("StormAlerts/Tests/alerts-empty.json")));
+        }
 
         JSONArray alerts = new JSONArray();
         String type = input.getString("type");
@@ -68,12 +71,11 @@ public class Alerts {
         for (Object object : alerts) {
             JSONObject alert = new JSONObject(object.toString());
 
-            String description = boldAreas(alert.getString("description").replace("\n", "§").replaceAll(
-                    " {2,}",
-                    " ").replace("§§", "\n").replace("§", " ").replaceAll(
-                    "\\s{2}(?=\\b[A-Z]{2,}\\.\\.\\.)",
-                    "\n### ").replace("* ", "### ").replaceAll("- ### .*\\.\\.\\.", "")
-                .replaceAll("(?<=[A-Z])\\.{3}", "\n").replace(" - ", "\n- "));
+            String description = boldAreas(alert.getString("description").replace("\n", "§").replaceAll(" {2,}",
+                " ").replace("§§", "\n").replace("§", " ").replaceAll("\\s{2}(?=\\b[A-Z]{2,}\\.\\.\\.)",
+                "\n### ").replace("* ", "### ").replaceAll(
+                "- ### .*\\.\\.\\.",
+                "").replaceAll("(?<=[A-Z])\\.{3}", "\n").replace(" - ", "\n- "));
 
             String id = alert.getString("id").replaceFirst("urn:oid:", "");
 
@@ -131,10 +133,10 @@ public class Alerts {
             if (alert.isNull("ends")) ends = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString(
                 "expires"))).toEpochMilli() / 1000;
             else ends = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString("ends")))
-                .toEpochMilli() / 1000;
+                            .toEpochMilli() / 1000;
 
             long sent = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString("sent")))
-                .toEpochMilli() / 1000;
+                            .toEpochMilli() / 1000;
             String area = boldAreas(alert.getString("areaDesc"));
             String certainty = alert.getString("certainty");
             String event = alert.getString("event");
@@ -157,7 +159,7 @@ public class Alerts {
             embed.setTitle("Issued <t:" + sent + ":F>\nEnds <t:" + ends + ":F>");
             embed.setThumbnail(getThumbnailImage(event));
 
-            ArrayList<MessageEmbed.Field> fields = new ArrayList<>();
+            List<MessageEmbed.Field> fields = new ArrayList<>();
             fields.add(new MessageEmbed.Field("Instruction", instruction, false));
             fields.add(new MessageEmbed.Field("Certainty", certainty, true));
             fields.add(new MessageEmbed.Field("Urgency", urgency, true));
@@ -220,8 +222,8 @@ public class Alerts {
         }
 
         // Delete inactive alerts
-        ArrayList<Long> deleteTheseMessages = alertsChannel.getIterableHistory().complete().stream().map(
-            Message::getIdLong).collect(Collectors.toCollection(ArrayList::new));
+        List<Long> deleteTheseMessages = alertsChannel.getIterableHistory().complete().stream()
+            .map(Message::getIdLong).collect(Collectors.toCollection(ArrayList::new));
         // Remove all the saved messages from the to-delete list
         deleteTheseMessages.removeAll(dontDeleteMe);
 
@@ -241,12 +243,11 @@ public class Alerts {
         return input.replace(fa, "**" + fa + "**").replace(ce, "**" + ce + "**").replace(ka, "**" + ka + "**")
             .replace(nwf, "**" + nwf + "**").replace(da, "**" + da + "**")
 
-            .replace(fa.toUpperCase(), "**" + fa.toUpperCase() + "**").replace(
-                ce.toUpperCase(),
-                "**" + ce.toUpperCase() + "**").replace(ka.toUpperCase(), "**" + ka.toUpperCase() + "**")
-            .replace(nwf.toUpperCase(), "**" + nwf.toUpperCase() + "**").replace(
-                da.toUpperCase(),
-                "**" + da.toUpperCase() + "**");
+            .replace(fa.toUpperCase(), "**" + fa.toUpperCase() + "**").replace(ce.toUpperCase(),
+                "**" + ce.toUpperCase() + "**").replace(
+                ka.toUpperCase(),
+                "**" + ka.toUpperCase() + "**").replace(nwf.toUpperCase(), "**" + nwf.toUpperCase() + "**")
+            .replace(da.toUpperCase(), "**" + da.toUpperCase() + "**");
     }
 
     private String applyDiffs(DiffRowGenerator generator, String originalText, String newText) {
@@ -256,8 +257,7 @@ public class Alerts {
             List.of(newText));
 
         // Return the updated text with the diff formatting applied
-        return diff.stream().map(DiffRow::getOldLine).collect(Collectors.joining("\n")).replaceAll(
-            "\\|\\|_",
+        return diff.stream().map(DiffRow::getOldLine).collect(Collectors.joining("\n")).replaceAll("\\|\\|_",
             "|| _");
     }
 
@@ -279,7 +279,8 @@ public class Alerts {
                 return "https://cdn.discordapp.com/attachments/335445132520194058/1049516137605501039/6a00d8341cdd0d53ef022ad3c2a6f5200d-pi.png";
             }
 
-            case "Brisk Wind Advisory", "High Wind Warning", "High Wind Watch", "Wind Advisory", "Extreme Wind Warning" -> {
+            case "Brisk Wind Advisory", "High Wind Warning", "High Wind Watch", "Wind Advisory",
+                 "Extreme Wind Warning" -> {
                 return "https://cdn.discordapp.com/attachments/335445132520194058/1049516138079453235/wind-clipart-xl.png";
             }
 
@@ -307,19 +308,23 @@ public class Alerts {
                 return "https://cdn.discordapp.com/attachments/335445132520194058/1049516774737059881/image.png";
             }
 
-            case "Flash Flood Statement", "Flash Flood Warning", "Flash Flood Watch", "Flood Advisory", "Flood Statement", "Flood Warning", "Flood Watch" -> {
+            case "Flash Flood Statement", "Flash Flood Warning", "Flash Flood Watch", "Flood Advisory",
+                 "Flood Statement", "Flood Warning", "Flood Watch" -> {
                 return "https://cdn.discordapp.com/attachments/335445132520194058/1049516775118745640/flood-disaster-home-vector-vector-id1038699624.png";
             }
 
-            case "Snow Squall Warning", "Winter Storm Warning", "Winter Storm Watch", "Winter Weather Advisory" -> {
+            case "Snow Squall Warning", "Winter Storm Warning", "Winter Storm Watch",
+                 "Winter Weather Advisory" -> {
                 return "https://cdn.discordapp.com/attachments/335445132520194058/1049516775492042794/wintershovel.png";
             }
 
-            case "Freeze Warning", "Freeze Watch", "Frost Advisory", "Hard Freeze Warning", "Hard Freeze Watch" -> {
+            case "Freeze Warning", "Freeze Watch", "Frost Advisory", "Hard Freeze Warning",
+                 "Hard Freeze Watch" -> {
                 return "https://cdn.discordapp.com/attachments/335445132520194058/1049516775810801664/frost-texture-frozen-glass-surfaces-blue-ice-sheet-white-marks-frosty-crystal-winter-pattern-transparent-water-crystals-196937681.png";
             }
 
-            case "Severe Thunderstorm Warning", "Storm Watch", "Storm Warning", "Special Weather Statement", "Severe Weather Statement", "Severe Thunderstorm Watch" -> {
+            case "Severe Thunderstorm Warning", "Storm Watch", "Storm Warning", "Special Weather Statement",
+                 "Severe Weather Statement", "Severe Thunderstorm Watch" -> {
                 return "https://cdn.discordapp.com/attachments/335445132520194058/1049519190614228992/StormAlerts.png";
             }
 

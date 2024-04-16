@@ -14,9 +14,9 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 
 import java.awt.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @SuppressWarnings("DataFlowIssue")
@@ -67,7 +67,7 @@ public class SlashCommands extends ListenerAdapter {
                     case "daily" -> {
                         File daily = new File("Phoenella/Wordle/played-daily.txt");
                         try {
-                            Scanner dailyPlays = new Scanner(daily);
+                            Scanner dailyPlays = new Scanner(daily, StandardCharsets.UTF_8);
                             ArrayList<String> plays = new ArrayList<>();
                             while (dailyPlays.hasNextLine()) plays.add(dailyPlays.nextLine());
 
@@ -76,7 +76,7 @@ public class SlashCommands extends ListenerAdapter {
                                     .queue();
                                 return;
                             }
-                        } catch (FileNotFoundException e) {
+                        } catch (IOException e) {
                             System.out.print(new Utils().getTime(Utils.LogColor.RED));
                             e.printStackTrace();
                         }
@@ -84,9 +84,9 @@ public class SlashCommands extends ListenerAdapter {
                         event.reply("Creating a game...").setEphemeral(true).queue();
                         try {
                             File dailyWord = new File("Phoenella/Wordle/daily.txt");
-                            String word = new Scanner(dailyWord).next();
+                            String word = new Scanner(dailyWord, StandardCharsets.UTF_8).next();
 
-                            FileWriter fw = new FileWriter(daily, true);
+                            FileWriter fw = new FileWriter(daily, StandardCharsets.UTF_8, true);
                             fw.write(event.getMember().getId() + "\n");
                             fw.close();
 
@@ -114,20 +114,20 @@ public class SlashCommands extends ListenerAdapter {
                         else {
                             boolean ephemeral = true;
                             if (event.getChannel().asTextChannel()
-                                .getParentCategoryIdLong() != 900747596245639238L)
-                                if (event.getOption("show") != null)
-                                    ephemeral = !event.getOption("show").getAsBoolean();
+                                    .getParentCategoryIdLong() != 900747596245639238L) if (event.getOption(
+                                "show") != null) ephemeral = !event.getOption("show").getAsBoolean();
 
                             event.deferReply(ephemeral).queue();
 
                             Scanner leaderboard = null;
                             try {
-                                leaderboard = new Scanner(new File("Phoenella/Wordle/leaderboard.txt"));
-                            } catch (FileNotFoundException e) {
+                                leaderboard = new Scanner(new File("Phoenella/Wordle/leaderboard.txt"),
+                                    StandardCharsets.UTF_8);
+                            } catch (IOException e) {
                                 System.out.print(new Utils().getTime(Utils.LogColor.RED));
                                 e.printStackTrace();
                             }
-                            HashMap<Member, Integer> lines = new HashMap<>();
+                            Map<Member, Integer> lines = new HashMap<>();
 
                             while (leaderboard.hasNextLine()) try {
                                 String line = leaderboard.nextLine();
@@ -145,10 +145,10 @@ public class SlashCommands extends ListenerAdapter {
 
                             StringBuilder finalLeaderboard = new StringBuilder("```\n");
                             int index = 1;
-                            for (Member member : sortedLeaderboard.keySet()) {
+                            for (Map.Entry<Member, Integer> entry : sortedLeaderboard.entrySet()) {
                                 if (index > 10) break;
                                 finalLeaderboard.append(index).append(". ").append(new Utils().getFullName(
-                                    member)).append(" | ").append(sortedLeaderboard.get(member)).append("\n");
+                                    entry.getKey())).append(" | ").append(entry.getValue()).append("\n");
                                 index++;
                             }
                             finalLeaderboard.append("```");

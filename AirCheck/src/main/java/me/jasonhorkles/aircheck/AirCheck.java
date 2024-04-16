@@ -7,7 +7,9 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
@@ -17,7 +19,7 @@ public class AirCheck {
     public static JDA jda;
     public static final boolean testing = false;
 
-    private static final ArrayList<ScheduledFuture<?>> scheduledTimers = new ArrayList<>();
+    private static final List<ScheduledFuture<?>> scheduledTimers = new ArrayList<>();
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
@@ -78,7 +80,7 @@ public class AirCheck {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new AirCheck().shutdown(), "Shutdown Hook"));
         Thread input = new Thread(() -> {
             while (true) {
-                Scanner in = new Scanner(System.in);
+                Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
                 String text = in.nextLine();
                 if (text.equalsIgnoreCase("stop")) System.exit(0);
             }

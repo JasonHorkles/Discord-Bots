@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -37,15 +38,14 @@ public class MCB {
         // Cache members
         jda.getGuildById(603190205393928193L).loadMembers().get();
 
-        jda.getGuildById(603190205393928193L).updateCommands().addCommands(Commands.slash(
-            "enginehub",
+        jda.getGuildById(603190205393928193L).updateCommands().addCommands(Commands.slash("enginehub",
             "Link to the EngineHub Discord for WorldEdit, WorldGuard, etc")).queue();
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new MCB().shutdown(), "Shutdown Hook"));
         Thread input = new Thread(() -> {
             while (true) {
-                Scanner in = new Scanner(System.in);
+                Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
                 String text = in.nextLine();
                 if (text.equalsIgnoreCase("stop")) System.exit(0);
             }

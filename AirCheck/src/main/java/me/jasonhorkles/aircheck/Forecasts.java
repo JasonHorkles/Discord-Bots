@@ -24,16 +24,18 @@ public class Forecasts {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking forecasts...");
 
         JSONArray input;
-        if (!AirCheck.testing) {
-            InputStream url = new URI("http://dataservice.accuweather.com/indices/v1/daily/1day/" + new Secrets().getAccuLocationCode() + "?apikey=" + new Secrets().getAccuApiKey()).toURL().openStream();
+        if (AirCheck.testing) input = new JSONArray(Files.readString(Path.of("AirCheck/activities.json")));
+        else {
+            InputStream url = new URI("http://dataservice.accuweather.com/indices/v1/daily/1day/" + new Secrets().getAccuLocationCode() + "?apikey=" + new Secrets().getAccuApiKey())
+                .toURL().openStream();
             input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();
 
-        } else input = new JSONArray(Files.readString(Path.of("AirCheck/activities.json")));
+        }
 
         StringBuilder healthForecasts = new StringBuilder();
         String pollenForecasts = new Pollen().getPollen();
-        StringBuilder transportationForecasts = new StringBuilder();
+        StringBuilder transportForecasts = new StringBuilder();
         StringBuilder workForecasts = new StringBuilder();
         StringBuilder sportsForecasts = new StringBuilder();
         StringBuilder activityForecasts = new StringBuilder();
@@ -70,17 +72,15 @@ public class Forecasts {
                 /* Transportation */
 
                 // Bicycling
-                case 4 -> transportationForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Bicycling**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append(
-                        "\n");
+                case 4 -> transportForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                    "**Bicycling**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
 
                 // Driving
-                case 40 -> transportationForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS))
-                    .append("**Driving**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append(
-                        "\n");
+                case 40 -> transportForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
+                    "**Driving**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
 
                 // Flight delays
-                case -3 -> transportationForecasts.append(getColor(categoryValue, CategoryType.UNLIKELIHOOD))
+                case -3 -> transportForecasts.append(getColor(categoryValue, CategoryType.UNLIKELIHOOD))
                     .append("**Flight Delays**").append(getForecast(categoryValue, CategoryType.UNLIKELIHOOD))
                     .append("\n");
 
@@ -187,7 +187,7 @@ public class Forecasts {
         EmbedBuilder transportation = new EmbedBuilder();
         transportation.setColor(new Color(43, 45, 49));
         transportation.setTitle("Transportation");
-        transportation.setDescription(transportationForecasts.toString().strip());
+        transportation.setDescription(transportForecasts.toString().strip());
 
         EmbedBuilder work = new EmbedBuilder();
         work.setColor(new Color(43, 45, 49));
@@ -230,29 +230,26 @@ public class Forecasts {
                     }
 
                     case "Transportation" -> {
-                        if (!message.getEmbeds().getFirst().getDescription().equals(transportationForecasts
+                        if (!message.getEmbeds().getFirst().getDescription().equals(transportForecasts
                             .toString().strip()))
                             message.editMessageEmbeds(transportation.build()).queueAfter(2, TimeUnit.SECONDS);
                     }
 
                     case "Work" -> {
                         if (!message.getEmbeds().getFirst().getDescription().equals(workForecasts.toString()
-                            .strip())) message.editMessageEmbeds(work.build()).queueAfter(
-                            3,
+                            .strip())) message.editMessageEmbeds(work.build()).queueAfter(3,
                             TimeUnit.SECONDS);
                     }
 
                     case "Sports" -> {
                         if (!message.getEmbeds().getFirst().getDescription().equals(sportsForecasts.toString()
-                            .strip())) message.editMessageEmbeds(sports.build()).queueAfter(
-                            12,
+                            .strip())) message.editMessageEmbeds(sports.build()).queueAfter(12,
                             TimeUnit.SECONDS);
                     }
 
                     case "Activities" -> {
-                        if (!message.getEmbeds().getFirst().getDescription().equals(activityForecasts.toString()
-                            .strip())) message.editMessageEmbeds(activities.build()).queueAfter(
-                            17,
+                        if (!message.getEmbeds().getFirst().getDescription().equals(activityForecasts
+                            .toString().strip())) message.editMessageEmbeds(activities.build()).queueAfter(17,
                             TimeUnit.SECONDS);
                     }
                 }

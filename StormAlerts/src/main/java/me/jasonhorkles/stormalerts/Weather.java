@@ -27,8 +27,8 @@ import java.util.concurrent.*;
 public class Weather extends ListenerAdapter {
     public static TextChannel previousTypeChannel;
 
-    private static boolean acceptRainForDay = false;
-    private static boolean rainDenied = false;
+    private static boolean acceptRainForDay;
+    private static boolean rainDenied;
     private static double rainRate;
     private static ScheduledFuture<?> scheduledSnowMessage;
     private static String previousWeatherName;
@@ -38,7 +38,8 @@ public class Weather extends ListenerAdapter {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking weather...");
 
         String weather = "Unavailable";
-        if (!StormAlerts.testing) {
+        if (StormAlerts.testing) weather = Files.readString(Path.of("StormAlerts/Tests/weather.txt"));
+        else {
             Connection conn = Jsoup
                 .connect("https://weather.com/weather/today/l/" + new Secrets().getWeatherCode()).timeout(
                     15000);
@@ -51,7 +52,7 @@ public class Weather extends ListenerAdapter {
                 e.printStackTrace();
             }
 
-        } else weather = Files.readString(Path.of("StormAlerts/Tests/weather.txt"));
+        }
 
         weatherName = null;
         if (weather.toLowerCase().contains("hail") || weather.toLowerCase().contains("sleet"))
@@ -92,13 +93,13 @@ public class Weather extends ListenerAdapter {
         }
 
         String trimmedWeatherName = null;
-        boolean dontSendAlerts = false;
+        boolean sendAlerts = true;
         if (weatherName != null) {
             trimmedWeatherName = trimmedWeatherName();
 
             if (weatherName.equals(previousWeatherName)) {
                 System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "The weather hasn't changed!");
-                dontSendAlerts = true;
+                sendAlerts = false;
             }
         }
 
@@ -110,7 +111,7 @@ public class Weather extends ListenerAdapter {
         boolean idle = false;
 
         // If the weather is something we care about, it won't be null
-        if (weatherName != null && !dontSendAlerts) {
+        if (weatherName != null && sendAlerts) {
             // If not snowing, cancel any pending snow messages
             if (!weatherName.startsWith("snowing")) if (scheduledSnowMessage != null) {
                 scheduledSnowMessage.cancel(true);

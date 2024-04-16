@@ -18,13 +18,15 @@ public class AQI {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking air quality...");
 
         JSONArray input;
-        if (!AirCheck.testing) {
+        if (AirCheck.testing) input = new JSONArray(Files.readString(Path.of("AirCheck/air.json")));
+        else {
             InputStream url = new URI(
-                "https://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json&zipCode=" + new Secrets().getZip() + "&distance=25&API_KEY=" + new Secrets().getAqiApiKey()).toURL().openStream();
+                "https://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json&zipCode=" + new Secrets().getZip() + "&distance=25&API_KEY=" + new Secrets().getAqiApiKey())
+                .toURL().openStream();
             input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();
 
-        } else input = new JSONArray(Files.readString(Path.of("AirCheck/air.json")));
+        }
 
         if (input.isEmpty()) {
             System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] No air quality data found!");

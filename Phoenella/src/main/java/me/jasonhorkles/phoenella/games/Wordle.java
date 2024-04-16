@@ -25,6 +25,8 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Wordle extends ListenerAdapter {
     private static final ArrayList<String> wordList = new ArrayList<>();
-    private static final HashMap<TextChannel, ArrayList<Message>> messages = new HashMap<>();
+    private static final Map<TextChannel, ArrayList<Message>> messages = new HashMap<>();
     private static final HashMap<TextChannel, Boolean> daily = new HashMap<>();
     private static final HashMap<TextChannel, Boolean> isNonReal = new HashMap<>();
     private static final HashMap<TextChannel, Integer> attempt = new HashMap<>();
@@ -41,18 +43,18 @@ public class Wordle extends ListenerAdapter {
     private static final HashMap<TextChannel, Long> originalMessage = new HashMap<>();
     private static final HashMap<TextChannel, Member> players = new HashMap<>();
     private static final HashMap<TextChannel, Message> keyboard = new HashMap<>();
-    private static final HashMap<TextChannel, ScheduledFuture<?>> deleteChannel = new HashMap<>();
+    private static final Map<TextChannel, ScheduledFuture<?>> deleteChannel = new HashMap<>();
     private static final HashMap<TextChannel, String> answers = new HashMap<>();
 
-    public TextChannel startGame(Member player, @Nullable String answer, boolean isUserGenerated, boolean isDaily, @Nullable Integer tries) throws IOException {
+    public @Nullable TextChannel startGame(Member player, @Nullable String answer, boolean isUserGenerated, boolean isDaily, @Nullable Integer tries) throws IOException {
         // Scan for too many channels
         int channelsWithName = 0;
-        if (players.containsValue(player)) for (TextChannel channels : players.keySet())
-            if (players.get(channels) == player) channelsWithName++;
+        if (players.containsValue(player)) for (Member member : players.values())
+            if (member == player) channelsWithName++;
         if (channelsWithName >= 3) return null;
 
         // Update words
-        Scanner words = new Scanner(new File("Phoenella/Wordle/words.txt"));
+        Scanner words = new Scanner(new File("Phoenella/Wordle/words.txt"), StandardCharsets.UTF_8);
         wordList.clear();
         while (words.hasNext()) try {
             wordList.add(words.next());
@@ -60,30 +62,29 @@ public class Wordle extends ListenerAdapter {
         }
 
         if (answer == null || answer.equals("null")) {
-            Random r = new Random();
+            Random r = new SecureRandom();
             answer = wordList.get(r.nextInt(wordList.size()));
         }
 
         String obfuscatedAnswer;
-        obfuscatedAnswer = UUID.nameUUIDFromBytes(answer.getBytes()).toString();
+        obfuscatedAnswer = UUID.nameUUIDFromBytes(answer.getBytes(StandardCharsets.UTF_8)).toString();
 
         // Scan thru for duplicates
-        if (players.containsValue(player)) for (TextChannel channels : players.keySet())
-            if (players.get(channels) == player) if (Objects.equals(channels.getTopic(), obfuscatedAnswer))
+        if (players.containsValue(player)) for (Map.Entry<TextChannel, Member> entry : players.entrySet())
+            if (entry.getValue() == player) if (Objects.equals(entry.getKey().getTopic(), obfuscatedAnswer))
                 return null;
 
         TextChannel channel = new GameManager().createChannel(GameManager.Game.WORDLE,
             new ArrayList<>(Collections.singleton(player)),
             isDaily);
 
-        Wordle.isNonReal.put(channel, isUserGenerated);
+        isNonReal.put(channel, isUserGenerated);
         players.put(channel, player);
         answers.put(channel, answer.toUpperCase());
         attempt.put(channel, 0);
         daily.put(channel, isDaily);
 
-        channel.getManager().setTopic(obfuscatedAnswer).queue(
-            null,
+        channel.getManager().setTopic(obfuscatedAnswer).queue(null,
             new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
 
         if (tries == null) maxTries.put(channel, 6);
@@ -121,8 +122,7 @@ public class Wordle extends ListenerAdapter {
                     null,
                     new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
 
-                channel.upsertPermissionOverride(player).setAllowed(
-                    Permission.MESSAGE_SEND,
+                channel.upsertPermissionOverride(player).setAllowed(Permission.MESSAGE_SEND,
                     Permission.VIEW_CHANNEL).queue();
             } catch (ErrorResponseException ignored) {
             }
@@ -185,9 +185,9 @@ public class Wordle extends ListenerAdapter {
 
         message.delete().queueAfter(150, TimeUnit.MILLISECONDS);
 
-        ArrayList<Character> answerChars = new ArrayList<>(answer.chars().mapToObj(c -> (char) c).toList());
+        List<Character> answerChars = new ArrayList<>(answer.chars().mapToObj(c -> (char) c).toList());
         ArrayList<Character> inputChars = new ArrayList<>(input.chars().mapToObj(c -> (char) c).toList());
-        ArrayList<String> output = new ArrayList<>();
+        List<String> output = new ArrayList<>();
 
         // Gray / Incorrect - Word
         for (Character character : inputChars) output.add(getLetter(character, LetterType.WRONG));
@@ -277,8 +277,8 @@ public class Wordle extends ListenerAdapter {
                 // Add to the leaderboard if not user-generated
             else if (!Phoenella.localWordleBoard) try {
                 File leaderboardFile = new File("Phoenella/Wordle/leaderboard.txt");
-                Scanner leaderboard = new Scanner(leaderboardFile);
-                ArrayList<String> lines = new ArrayList<>();
+                Scanner leaderboard = new Scanner(leaderboardFile, StandardCharsets.UTF_8);
+                List<String> lines = new ArrayList<>();
 
                 int index = 0;
                 int memberAtIndex = -1;
@@ -302,7 +302,7 @@ public class Wordle extends ListenerAdapter {
                 }
                 if (daily.get(channel)) score *= 2;
 
-                FileWriter writer = new FileWriter(leaderboardFile, false);
+                FileWriter writer = new FileWriter(leaderboardFile, StandardCharsets.UTF_8, false);
                 if (memberAtIndex == -1) {
                     lines.add(event.getMember().getId() + ":" + score);
 
@@ -502,7 +502,7 @@ public class Wordle extends ListenerAdapter {
     private void sendRetryMsg(TextChannel channel, String message, String answer) {
         channel.upsertPermissionOverride(players.get(channel)).setDenied(Permission.MESSAGE_SEND).queue();
 
-        ArrayList<ItemComponent> buttons = new ArrayList<>();
+        List<ItemComponent> buttons = new ArrayList<>();
         if (!isNonReal.get(channel)) {
             buttons.add(Button.danger("reportword:" + answer, "Report word")
                 .withEmoji(Emoji.fromUnicode("🚩")));
@@ -525,12 +525,13 @@ public class Wordle extends ListenerAdapter {
     }
 
     private void wordRequest(String word, Member member) {
-        ArrayList<String> words = new ArrayList<>();
+        List<String> words = new ArrayList<>();
         try {
-            Scanner fileScanner = new Scanner(new File("Phoenella/Wordle/banned-requests.txt"));
+            Scanner fileScanner = new Scanner(new File("Phoenella/Wordle/banned-requests.txt"),
+                StandardCharsets.UTF_8);
             while (fileScanner.hasNextLine()) words.add(fileScanner.nextLine());
         } catch (NoSuchElementException ignored) {
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
         }

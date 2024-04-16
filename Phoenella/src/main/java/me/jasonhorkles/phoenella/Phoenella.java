@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,8 +32,8 @@ import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings({"DataFlowIssue"})
 public class Phoenella {
-    private static final ArrayList<ScheduledFuture<?>> schedules = new ArrayList<>();
-    public static boolean localWordleBoard = false;
+    private static final List<ScheduledFuture<?>> schedules = new ArrayList<>();
+    public static boolean localWordleBoard;
     public static JDA jda;
 
     public static void main(String[] args) throws InterruptedException, IOException, ParseException {
@@ -82,8 +83,8 @@ public class Phoenella {
         // Scan Wordle leaderboard for nonexistent players
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Starting leaderboard check...");
         File leaderboardFile = new File("Phoenella/Wordle/leaderboard.txt");
-        Scanner leaderboard = new Scanner(leaderboardFile);
-        ArrayList<String> lines = new ArrayList<>();
+        Scanner leaderboard = new Scanner(leaderboardFile, StandardCharsets.UTF_8);
+        List<String> lines = new ArrayList<>();
 
         while (leaderboard.hasNextLine()) try {
             lines.add(leaderboard.nextLine());
@@ -96,25 +97,25 @@ public class Phoenella {
         }
 
         if (!localWordleBoard) {
-            FileWriter lbWriter = new FileWriter(leaderboardFile, false);
-            boolean dontDoCheck = false;
+            FileWriter lbWriter = new FileWriter(leaderboardFile, StandardCharsets.UTF_8, false);
+            boolean doCheck = true;
 
             if (LocalDate.now().getDayOfMonth() == 1) {
                 File lastClearedFile = new File("Phoenella/Wordle/last-cleared-leaderboard.txt");
-                int month = new Scanner(lastClearedFile).nextInt();
+                int month = new Scanner(lastClearedFile, StandardCharsets.UTF_8).nextInt();
                 if (month != LocalDate.now().getMonthValue()) {
-                    FileWriter lastCleared = new FileWriter(lastClearedFile, false);
+                    FileWriter lastCleared = new FileWriter(lastClearedFile, StandardCharsets.UTF_8, false);
                     lastCleared.write(String.valueOf(LocalDate.now().getMonthValue()));
                     lastCleared.close();
 
                     System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Clearing the leaderboard for the new month!");
                     lbWriter.close();
 
-                    dontDoCheck = true;
+                    doCheck = false;
                 }
             }
 
-            if (!dontDoCheck) {
+            if (doCheck) {
                 for (String line : lines) {
                     long id = Long.parseLong(line.replaceFirst(":.*", ""));
                     Member member = jda.getGuildById(729083627308056597L).getMemberById(id);
@@ -137,25 +138,25 @@ public class Phoenella {
 
         // Allowed words
         File wordsFile = new File("Phoenella/Wordle/words.txt");
-        Scanner wordScanner = new Scanner(wordsFile);
+        Scanner wordScanner = new Scanner(wordsFile, StandardCharsets.UTF_8);
 
         ArrayList<String> originalWordList = new ArrayList<>();
         while (wordScanner.hasNextLine())
             if (wordScanner.hasNextLine()) originalWordList.add(wordScanner.nextLine());
-        HashSet<String> wordList = new HashSet<>(originalWordList);
+        Set<String> wordList = new HashSet<>(originalWordList);
 
         int duplicates = originalWordList.size() - wordList.size();
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Removed " + duplicates + " duplicate words!");
         originalWordList.clear();
 
-        FileWriter wordWriter = new FileWriter(wordsFile, false);
+        FileWriter wordWriter = new FileWriter(wordsFile, StandardCharsets.UTF_8, false);
         for (String word : wordList) wordWriter.write(word + "\n");
         wordWriter.close();
         wordList.clear();
 
         // Banned words
         wordsFile = new File("Phoenella/Wordle/banned-requests.txt");
-        wordScanner = new Scanner(wordsFile);
+        wordScanner = new Scanner(wordsFile, StandardCharsets.UTF_8);
 
         originalWordList = new ArrayList<>();
         while (wordScanner.hasNextLine())
@@ -166,7 +167,7 @@ public class Phoenella {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Removed " + duplicates + " duplicate banned words!");
         originalWordList.clear();
 
-        wordWriter = new FileWriter(wordsFile, false);
+        wordWriter = new FileWriter(wordsFile, StandardCharsets.UTF_8, false);
         for (String word : wordList) wordWriter.write(word + "\n");
         wordWriter.close();
         wordList.clear();
@@ -183,8 +184,7 @@ public class Phoenella {
 
         if (delay >= 0) new Thread(() -> {
             try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                schedules.add(executor.schedule(
-                    () -> new Utils().updateDailyWordle(),
+                schedules.add(executor.schedule(() -> new Utils().updateDailyWordle(),
                     delay,
                     TimeUnit.MILLISECONDS));
                 System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Scheduled new daily Wordle in " + Math.round(
@@ -200,14 +200,12 @@ public class Phoenella {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new Phoenella().shutdown(), "Shutdown Hook"));
         new Thread(() -> {
             while (true) {
-                Scanner in = new Scanner(System.in);
+                Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
                 String text = in.nextLine();
                 if (text.equalsIgnoreCase("stop")) System.exit(0);
                 if (text.equalsIgnoreCase("dailywordle")) new Utils().updateDailyWordle();
             }
         }, "Console Input").start();
-
-        Runtime.getRuntime().gc();
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }

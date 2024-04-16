@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -36,7 +37,10 @@ public class Records {
         // Populate the variables
         JSONObject recordsToday = new JSONObject(Files.readString(Path.of("StormAlerts/records-today.json")));
 
-        if (!recordsToday.isEmpty()) {
+        if (recordsToday.isEmpty()) {
+            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "No records today found! Populating...");
+            resetValues();
+        } else {
             // Stats
             highestLightningRateToday = recordsToday.getInt("highLightningRate");
             highestTempToday = recordsToday.getDouble("highTemp");
@@ -55,9 +59,6 @@ public class Records {
             maxRainRateTime = recordsToday.getLong("maxRainRateTime");
             maxWindTime = recordsToday.getLong("maxWindTime");
 
-        } else {
-            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "No records today found! Populating...");
-            resetValues();
         }
 
         LocalDateTime future = LocalDateTime.now().withHour(23).withMinute(59).withSecond(0);
@@ -66,8 +67,7 @@ public class Records {
 
         new Thread(() -> {
             try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                StormAlerts.scheduledTimers.add(executor.schedule(
-                    this::checkRecords,
+                StormAlerts.scheduledTimers.add(executor.schedule(this::checkRecords,
                     delay,
                     TimeUnit.SECONDS));
 
@@ -155,7 +155,7 @@ public class Records {
             }
 
             // Save the records file
-            FileWriter recordsFile = new FileWriter(totalFilePath, false);
+            FileWriter recordsFile = new FileWriter(totalFilePath, StandardCharsets.UTF_8, false);
             recordsFile.write(records.toString());
             recordsFile.close();
 

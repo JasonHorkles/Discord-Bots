@@ -21,25 +21,27 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Pws {
-    public static double currentRainRate = 0.00;
+    public static double currentRainRate;
     public static double lastAlertedWindGust = -1;
     public static double temperature = -1;
 
-    private static boolean rateLimited = false;
+    private static boolean notRateLimited = true;
 
     @SuppressWarnings("DataFlowIssue")
     public void checkConditions() throws IOException, URISyntaxException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking PWS conditions...");
 
         JSONObject input;
-        if (!StormAlerts.testing) {
-            InputStream url = new URI("https://api.ambientweather.net/v1/devices/?apiKey=" + new Secrets().getAwApiKey() + "&applicationKey=" + new Secrets().getAwAppKey()).toURL().openStream();
+        if (StormAlerts.testing) input = new JSONArray(Files.readString(Path.of(
+            "StormAlerts/Tests/pwsweather.json"))).getJSONObject(0).getJSONObject("lastData");
+        else {
+            InputStream url = new URI("https://api.ambientweather.net/v1/devices/?apiKey=" + new Secrets().getAwApiKey() + "&applicationKey=" + new Secrets().getAwAppKey())
+                .toURL().openStream();
             input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8)).getJSONObject(0)
                 .getJSONObject("lastData");
             url.close();
 
-        } else input = new JSONArray(Files.readString(Path.of("StormAlerts/Tests/pwsweather.json")))
-            .getJSONObject(0).getJSONObject("lastData");
+        }
 
         currentRainRate = input.getDouble("hourlyrainin");
         temperature = input.getDouble("tempf");
@@ -89,7 +91,7 @@ public class Pws {
             Records.maxWindTime = System.currentTimeMillis() / 1000;
         }
 
-        if (!rateLimited) {
+        if (notRateLimited) {
             new Utils().updateVoiceChannel(879099218302746694L, "Temperature | " + temperature + "°");
             new Utils().updateVoiceChannel(927585852396294164L, "Feels Like | " + feelsLike + "°");
             new Utils().updateVoiceChannel(879099369587081226L, "UV Index | " + uv);
@@ -110,11 +112,11 @@ public class Pws {
                 ZoneId.of("America/Denver")));
             new Utils().updateVoiceChannel(941791190704062545L, "Stats Updated: " + timeUpdated);
 
-            rateLimited = true;
+            notRateLimited = false;
             new Thread(() -> {
                 try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
                     executor.schedule(() -> {
-                        rateLimited = false;
+                        notRateLimited = true;
                     }, 6, TimeUnit.MINUTES);
                 }
             }, "Rate Limit").start();
@@ -139,10 +141,10 @@ public class Pws {
 
         // Lightning alerts
         long lightningTime = input.getLong("lightning_time");
-        long previousLightningTime = Long.parseLong(Files.readString(Path.of("StormAlerts/lastlightningid.txt")));
+        long prevLightningTime = Long.parseLong(Files.readString(Path.of("StormAlerts/lastlightningid.txt")));
 
         // Ignore lightning if it's the same as the last one
-        if (previousLightningTime == lightningTime) return;
+        if (prevLightningTime == lightningTime) return;
         // Ignore lightning if it's more than 10 minutes old
         if (lightningTime < System.currentTimeMillis() - 600000) return;
 
@@ -166,7 +168,7 @@ public class Pws {
                 lightningChannel)).queue();
         }
 
-        FileWriter fw = new FileWriter("StormAlerts/lastlightningid.txt", false);
+        FileWriter fw = new FileWriter("StormAlerts/lastlightningid.txt", StandardCharsets.UTF_8, false);
         fw.write(String.valueOf(lightningTime));
         fw.close();
     }

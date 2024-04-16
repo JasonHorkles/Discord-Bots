@@ -28,7 +28,7 @@ public class Events extends ListenerAdapter {
     private static final Long showBuilds = 1023721665332523098L;
     private static final Long buildAdvice = 1023721017144786945L;
     private static final Long buildRequests = 1023709419017617438L;
-    private static final Long[] forums = new Long[]{showBuilds, buildAdvice, buildRequests};
+    private static final Long[] forums = {showBuilds, buildAdvice, buildRequests};
 
     // Channels
     private static final Long letsPlay = 688770749191815323L;
@@ -37,7 +37,7 @@ public class Events extends ListenerAdapter {
     private static final Long youtube = 692712729273696326L;
     private static final Long shopping = 615208624855449613L;
     //    private static final Long logs = 603585853444456449L;
-    private static final Long[] channels = new Long[]{letsPlay, hire, showServer, youtube, shopping};
+    private static final Long[] channels = {letsPlay, hire, showServer, youtube, shopping};
 
 
     @SuppressWarnings("DataFlowIssue")
@@ -49,8 +49,7 @@ public class Events extends ListenerAdapter {
         if (event.getMessage().getChannel().getIdLong() == 1023721665332523098L)
             if (!event.getMessage().getAttachments().isEmpty() || event.getMessage().getContentStripped()
                 .toLowerCase().contains("http")) if (!event.getMember().getRoles().toString().contains(
-                "646293661729947658")) event.getGuild().addRoleToMember(
-                event.getMember(),
+                "646293661729947658")) event.getGuild().addRoleToMember(event.getMember(),
                 event.getGuild().getRoleById(646293661729947658L)).queue();
 
         // Ping check
@@ -81,8 +80,7 @@ public class Events extends ListenerAdapter {
             event.getMessage().reply(message).queue(message1 -> message1.delete().queueAfter(15,
                 TimeUnit.MINUTES,
                 null,
-                new ErrorHandler().handle(
-                    ErrorResponse.UNKNOWN_MESSAGE,
+                new ErrorHandler().handle(ErrorResponse.UNKNOWN_MESSAGE,
                     (e) -> System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Unable to delete warning message."))));
         }
     }

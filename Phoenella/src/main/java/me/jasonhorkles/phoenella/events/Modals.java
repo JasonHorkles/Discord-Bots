@@ -41,7 +41,8 @@ public class Modals extends ListenerAdapter {
                 true).queue();
 
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setAuthor(new Utils().getFullName(event.getMember()) + " has created a Wordle!",
+            embed.setAuthor(
+                new Utils().getFullName(event.getMember()) + " has created a Wordle!",
                 null,
                 event.getMember().getEffectiveAvatarUrl());
             embed.setColor(new Color(43, 45, 49));

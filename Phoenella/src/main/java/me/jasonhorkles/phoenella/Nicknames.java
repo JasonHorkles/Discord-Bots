@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameE
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -24,8 +25,8 @@ public class Nicknames extends ListenerAdapter {
     private final Role role;
 
     public Nicknames() {
-        this.guild = Phoenella.jda.getGuildById(729083627308056597L);
-        this.role = Phoenella.jda.getRoleById(1144676839588106360L);
+        guild = Phoenella.jda.getGuildById(729083627308056597L);
+        role = Phoenella.jda.getRoleById(1144676839588106360L);
     }
 
     @Override
@@ -137,8 +138,7 @@ public class Nicknames extends ListenerAdapter {
 
                     String s = daysLeft == 1 ? "" : "s";
                     String message = "Your nickname is not in the correct format in the Phoenix Gaming server! Please see https://discord.com/channels/729083627308056597/741088695498571786/1144702255996612628 and change it as soon as you can. If you're stuck, please DM <@277291758503723010>.\n\n*You will be kicked in " + daysLeft + " day" + s + " if you do not change your nickname.*";
-                    user.openPrivateChannel().flatMap(channel -> channel.sendMessage(message)).queue(
-                        null,
+                    user.openPrivateChannel().flatMap(channel -> channel.sendMessage(message)).queue(null,
                         new ErrorHandler().handle(ErrorResponse.CANNOT_SEND_TO_USER, (na) -> {
                             //noinspection DataFlowIssue
                             guild.getTextChannelById(893184802084225115L).sendMessage(
@@ -159,7 +159,7 @@ public class Nicknames extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
+    public void onGuildMemberRemove(@NotNull GuildMemberRemoveEvent event) {
         try {
             Path dataPath = Path.of("Phoenella/nickname-warnings.json");
             JSONArray usersData = new JSONArray(Files.readString(dataPath));

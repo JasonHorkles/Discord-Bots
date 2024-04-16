@@ -15,20 +15,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PlayerManager {
-    private static PlayerManager instance;
     private final Map<Long, GuildMusicManager> musicManagers;
     private final AudioPlayerManager audioPlayerManager;
 
     public PlayerManager() {
-        this.musicManagers = new HashMap<>();
-        this.audioPlayerManager = new DefaultAudioPlayerManager();
+        musicManagers = new HashMap<>();
+        audioPlayerManager = new DefaultAudioPlayerManager();
 
         AudioSourceManagers.registerLocalSource(audioPlayerManager);
     }
 
     public GuildMusicManager getMusicManager(Guild guild) {
         return musicManagers.computeIfAbsent(guild.getIdLong(), (guildId) -> {
-            final GuildMusicManager guildMusicManager = new GuildMusicManager(audioPlayerManager);
+            GuildMusicManager guildMusicManager = new GuildMusicManager(audioPlayerManager);
 
             guild.getAudioManager().setSendingHandler(guildMusicManager.getSendHandler());
 
@@ -37,7 +36,7 @@ public class PlayerManager {
     }
 
     public void loadAndPlay(String file) {
-        final GuildMusicManager musicManager = getMusicManager(Events.currentVoiceChannel);
+        GuildMusicManager musicManager = getMusicManager(Events.currentVoiceChannel);
 
         audioPlayerManager.loadItemOrdered(musicManager, file, new AudioLoadResultHandler() {
             @Override
@@ -63,9 +62,11 @@ public class PlayerManager {
         });
     }
 
-    public static PlayerManager getInstance() {
-        if (instance == null) instance = new PlayerManager();
+    private static final class InstanceHolder {
+        private static final PlayerManager instance = new PlayerManager();
+    }
 
-        return instance;
+    public static PlayerManager getInstance() {
+        return InstanceHolder.instance;
     }
 }
