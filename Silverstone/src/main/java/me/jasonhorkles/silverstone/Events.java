@@ -33,10 +33,8 @@ public class Events extends ListenerAdapter {
         // Make private if not from staff nor in bot channel
         boolean ephemeral = !(event.getMember().getRoles().contains(event.getGuild()
             .getRoleById(667793980318154783L)) || event.getMember()
-                                  .hasPermission(Permission.ADMINISTRATOR)) && !(event.getChannel()
-                                                                                     .getIdLong() == 456470772207190036L || event
-                                                                                                                                .getChannel()
-                                                                                                                                .getIdLong() == 468416589331562506L);
+            .hasPermission(Permission.ADMINISTRATOR)) && !(event.getChannel()
+            .getIdLong() == 456470772207190036L || event.getChannel().getIdLong() == 468416589331562506L);
 
         switch (event.getName().toLowerCase()) {
             case "moss" -> event.reply(
@@ -131,7 +129,7 @@ public class Events extends ListenerAdapter {
             // Check the past 15 messages within 30 minutes
             for (Message messages : new Utils().getMessages(channel, 15).get(30, TimeUnit.SECONDS))
                 if (messages.getTimeCreated().isAfter(thirtyMinsAgo) && messages.getAuthor()
-                                                                            .getIdLong() == userId) {
+                    .getIdLong() == userId) {
                     fromUser = true;
                     break;
                 }

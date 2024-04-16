@@ -46,7 +46,7 @@ public class Traffic {
 
             // Get speed and jam factor
             int currentSpeed = Math.toIntExact(Math.round(traffic.getJSONObject("currentFlow")
-                                                              .getDouble("speedUncapped") * 2.23694));
+                .getDouble("speedUncapped") * 2.23694));
             double jamFactor = traffic.getJSONObject("currentFlow").getDouble("jamFactor");
 
             System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + new Secrets().getRoadName(north) + " is currently ~" + currentSpeed + " mph with a jam factor of " + jamFactor);

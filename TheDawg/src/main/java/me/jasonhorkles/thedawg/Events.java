@@ -18,8 +18,7 @@ public class Events extends ListenerAdapter {
     public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
         if (event.getChannelJoined() == null) return;
         if (event.getMember().getIdLong() != 840025878947692554L && event.getMember()
-                                                                        .getIdLong() != 277291758503723010L)
-            return;
+            .getIdLong() != 277291758503723010L) return;
         if (!event.getChannelJoined().getMembers().contains(event.getGuild()
             .getMemberById(840025878947692554L)) || !event.getChannelJoined().getMembers().contains(event
             .getGuild().getMemberById(277291758503723010L))) return;
@@ -104,7 +103,7 @@ public class Events extends ListenerAdapter {
         for (Activity activity : TheDawg.jda.getGuildById(335435349734064140L).getMemberById(
             277291758503723010L).getActivities())
             if (activity.getName()
-                    .equalsIgnoreCase("Twitch") && activity.getType() == Activity.ActivityType.STREAMING)
+                .equalsIgnoreCase("Twitch") && activity.getType() == Activity.ActivityType.STREAMING)
                 return true;
         return false;
     }

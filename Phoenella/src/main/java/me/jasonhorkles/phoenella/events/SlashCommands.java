@@ -114,8 +114,9 @@ public class SlashCommands extends ListenerAdapter {
                         else {
                             boolean ephemeral = true;
                             if (event.getChannel().asTextChannel()
-                                    .getParentCategoryIdLong() != 900747596245639238L) if (event.getOption(
-                                "show") != null) ephemeral = !event.getOption("show").getAsBoolean();
+                                .getParentCategoryIdLong() != 900747596245639238L)
+                                if (event.getOption("show") != null)
+                                    ephemeral = !event.getOption("show").getAsBoolean();
 
                             event.deferReply(ephemeral).queue();
 

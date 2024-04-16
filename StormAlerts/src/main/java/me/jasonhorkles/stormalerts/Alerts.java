@@ -72,10 +72,9 @@ public class Alerts {
             JSONObject alert = new JSONObject(object.toString());
 
             String description = boldAreas(alert.getString("description").replace("\n", "§").replaceAll(" {2,}",
-                " ").replace("§§", "\n").replace("§", " ").replaceAll("\\s{2}(?=\\b[A-Z]{2,}\\.\\.\\.)",
-                "\n### ").replace("* ", "### ").replaceAll(
-                "- ### .*\\.\\.\\.",
-                "").replaceAll("(?<=[A-Z])\\.{3}", "\n").replace(" - ", "\n- "));
+                    " ").replace("§§", "\n").replace("§", " ").replaceAll("\\s{2}(?=\\b[A-Z]{2,}\\.\\.\\.)",
+                    "\n### ").replace("* ", "### ").replaceAll("- ### .*\\.\\.\\.", "")
+                .replaceAll("(?<=[A-Z])\\.{3}", "\n").replace(" - ", "\n- "));
 
             String id = alert.getString("id").replaceFirst("urn:oid:", "");
 
@@ -133,10 +132,10 @@ public class Alerts {
             if (alert.isNull("ends")) ends = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString(
                 "expires"))).toEpochMilli() / 1000;
             else ends = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString("ends")))
-                            .toEpochMilli() / 1000;
+                .toEpochMilli() / 1000;
 
             long sent = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString("sent")))
-                            .toEpochMilli() / 1000;
+                .toEpochMilli() / 1000;
             String area = boldAreas(alert.getString("areaDesc"));
             String certainty = alert.getString("certainty");
             String event = alert.getString("event");
@@ -244,10 +243,10 @@ public class Alerts {
             .replace(nwf, "**" + nwf + "**").replace(da, "**" + da + "**")
 
             .replace(fa.toUpperCase(), "**" + fa.toUpperCase() + "**").replace(ce.toUpperCase(),
-                "**" + ce.toUpperCase() + "**").replace(
-                ka.toUpperCase(),
-                "**" + ka.toUpperCase() + "**").replace(nwf.toUpperCase(), "**" + nwf.toUpperCase() + "**")
-            .replace(da.toUpperCase(), "**" + da.toUpperCase() + "**");
+                "**" + ce.toUpperCase() + "**").replace(ka.toUpperCase(), "**" + ka.toUpperCase() + "**")
+            .replace(
+                nwf.toUpperCase(),
+                "**" + nwf.toUpperCase() + "**").replace(da.toUpperCase(), "**" + da.toUpperCase() + "**");
     }
 
     private String applyDiffs(DiffRowGenerator generator, String originalText, String newText) {

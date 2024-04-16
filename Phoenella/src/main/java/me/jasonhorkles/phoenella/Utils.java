@@ -89,8 +89,7 @@ public class Utils {
             FileWriter daily = fileWriter();
             daily.close();
 
-            FileWriter plays = new FileWriter(
-                "Phoenella/Wordle/played-daily.txt",
+            FileWriter plays = new FileWriter("Phoenella/Wordle/played-daily.txt",
                 StandardCharsets.UTF_8,
                 false);
             plays.close();

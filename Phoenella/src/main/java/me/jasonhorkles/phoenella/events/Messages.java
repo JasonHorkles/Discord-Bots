@@ -108,8 +108,7 @@ public class Messages extends ListenerAdapter {
 
             try {
                 disabledChannels.remove(channel.getId());
-                FileWriter fileWriter = new FileWriter(
-                    "Phoenella/channel-blacklist.txt",
+                FileWriter fileWriter = new FileWriter("Phoenella/channel-blacklist.txt",
                     StandardCharsets.UTF_8,
                     false);
                 for (String channels : disabledChannels) fileWriter.write(channels + "\n");
@@ -132,8 +131,7 @@ public class Messages extends ListenerAdapter {
 
             try {
                 disabledChannels.add(channel.getId());
-                FileWriter fileWriter = new FileWriter(
-                    "Phoenella/channel-blacklist.txt",
+                FileWriter fileWriter = new FileWriter("Phoenella/channel-blacklist.txt",
                     StandardCharsets.UTF_8,
                     false);
                 for (String channels : disabledChannels) fileWriter.write(channels + "\n");
@@ -170,8 +168,7 @@ public class Messages extends ListenerAdapter {
             channel.sendTyping().complete();
 
             if (message.getMentions().getMembers().isEmpty() || message.getMentions().getMembers()
-                                                                    .getFirst() == member || message
-                    .getMentions().getMembers().getFirst().getUser().isBot()) {
+                .getFirst() == member || message.getMentions().getMembers().getFirst().getUser().isBot()) {
                 message.reply("You must ping an opponent in your message!").queue();
                 return;
 

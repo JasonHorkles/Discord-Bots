@@ -44,8 +44,8 @@ public class Reactions extends ListenerAdapter {
 
                     if (member.isTimedOut()) {
                         event.getChannel().sendMessage(event.getMember()
-                                                           .getAsMention() + ", that person is already shushed!")
-                            .queue((m) -> m.delete().queueAfter(5,
+                            .getAsMention() + ", that person is already shushed!").queue((m) -> m.delete()
+                            .queueAfter(5,
                                 TimeUnit.SECONDS,
                                 null,
                                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
@@ -112,7 +112,7 @@ public class Reactions extends ListenerAdapter {
 
         // Delete message
         if (event.getReaction().getEmoji().getName().equals("❌") && event.getChannel().asTextChannel()
-                                                                        .getParentCategoryIdLong() != 900747596245639238L) {
+            .getParentCategoryIdLong() != 900747596245639238L) {
             event.retrieveMessage().queue(message -> {
                 if (message.getAuthor().equals(Phoenella.jda.getSelfUser())) message.delete().queue();
             });
@@ -135,7 +135,7 @@ public class Reactions extends ListenerAdapter {
                     if (message.getContentStripped().contains("Auto word request")) {
                         FileWriter fileWriter = new FileWriter(file, StandardCharsets.UTF_8, true);
                         fileWriter.write(message.getContentStripped().replaceAll(".*: ", "")
-                                             .toUpperCase() + "\n");
+                            .toUpperCase() + "\n");
                         fileWriter.close();
                     }
                     message.delete().queue();

@@ -83,10 +83,9 @@ public class RPS extends ListenerAdapter {
                         .complete().delete().queueAfter(3, TimeUnit.SECONDS);
                 else if ((player1Selection.get(player1Local).equals("rock") && player2Selection.get(
                     player2Local).equals("scissors")) || (player1Selection.get(player1Local)
-                                                              .equals("scissors") && player2Selection.get(
-                    player2Local).equals("paper")) || (player1Selection.get(player1Local)
-                                                           .equals("paper") && player2Selection.get(
-                    player2Local).equals("rock"))) {
+                    .equals("scissors") && player2Selection.get(player2Local)
+                    .equals("paper")) || (player1Selection.get(player1Local)
+                    .equals("paper") && player2Selection.get(player2Local).equals("rock"))) {
 
                     points.put(player1Local, points.get(player1Local) + 1);
                     channel.sendMessage(player1Local.getAsMention() + " chose **" + player1Selection.get(

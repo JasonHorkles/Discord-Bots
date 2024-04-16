@@ -42,7 +42,7 @@ public class Events extends ListenerAdapter {
 
                 if (isNull) event.reply("Please" + message).queue();
                 else event.reply(event.getOption("replyto").getAsMember()
-                                     .getAsMention() + ", please" + message).queue();
+                    .getAsMention() + ", please" + message).queue();
             }
 
             case "plgh" -> event.reply("""
@@ -195,7 +195,7 @@ public class Events extends ListenerAdapter {
             // Check the past 15 messages within 30 minutes
             for (Message messages : new Utils().getMessages(channel, 15).get(30, TimeUnit.SECONDS))
                 if (messages.getTimeCreated().isAfter(thirtyMinsAgo) && messages.getAuthor()
-                                                                            .getIdLong() == userId) {
+                    .getIdLong() == userId) {
                     fromUser = true;
                     break;
                 }

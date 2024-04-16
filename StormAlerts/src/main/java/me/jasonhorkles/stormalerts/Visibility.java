@@ -26,8 +26,7 @@ public class Visibility {
         }
 
         String visibility = String.valueOf((int) Math.round(input.getJSONObject("properties")
-                                                                .getJSONObject("visibility")
-                                                                .getInt("value") / 1609.0d));
+            .getJSONObject("visibility").getInt("value") / 1609.0d));
         new Utils().updateVoiceChannel(899872710233051178L, "Visibility | " + visibility + " mi");
     }
 }
