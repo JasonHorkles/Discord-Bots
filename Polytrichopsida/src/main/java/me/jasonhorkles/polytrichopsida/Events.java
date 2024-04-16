@@ -261,7 +261,7 @@ public class Events extends ListenerAdapter {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle(resourceName);
         embed.setDescription("[Hangar](https://hangar.papermc.io/Silverstone/" + resourceName + ")\n" + "[Modrinth](https://modrinth.com/plugin/" + resourceName.toLowerCase() + ")\n" + "[Spigot](https://www.spigotmc.org/resources/" + resourceSpigotId + "/)");
-        embed.setImage("https://imgur.com/xPrBGLb.png");
+        embed.setThumbnail("https://imgur.com/xPrBGLb.png");
         embed.setColor(new Color(43, 45, 49));
         embed.setFooter("This post will now be closed. Send a message to re-open it.");
 
