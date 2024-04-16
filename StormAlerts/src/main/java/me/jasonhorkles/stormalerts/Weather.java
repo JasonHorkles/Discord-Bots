@@ -163,6 +163,10 @@ public class Weather extends ListenerAdapter {
                 String ping = "";
                 if (new Utils().shouldIPing(rainChannel)) ping = "<@&843956362059841596>\n";
 
+                // If it has NOT snowed in the last 3 days
+                boolean notSnowMelt = new Utils().getMessages(snowChannel, 1).get(30, TimeUnit.SECONDS)
+                    .getFirst().getTimeCreated().isBefore(OffsetDateTime.now().minusDays(5));
+
                 String message = null;
                 switch (rainIntensity) {
                     case 4 -> {
@@ -189,7 +193,7 @@ public class Weather extends ListenerAdapter {
                         System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] It's raining, but there's no valid intensity! (" + rainIntensity + ")");
                 }
 
-                if (message != null) if (acceptRainForDay)
+                if (acceptRainForDay || notSnowMelt)
                     rainChannel.sendMessage(message).setSuppressedNotifications(new Utils().shouldIBeSilent(
                         rainChannel)).queue();
                 else {
