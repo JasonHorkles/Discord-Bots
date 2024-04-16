@@ -68,8 +68,8 @@ public class Events extends ListenerAdapter {
             case "close" -> {
                 if (event.getChannelType() == ChannelType.GUILD_PUBLIC_THREAD)
                     // In plugin support thread and has helper role or manage threads permission
-                    if (isFromStaff(event.getChannel().asThreadChannel(), event.getMember()))
-                        sendThankYouMessage(event.getChannel().asThreadChannel(),
+                    if (isPluginSupport(event.getChannel().asThreadChannel(), event.getMember()))
+                        sendThankYouMsg(event.getChannel().asThreadChannel(),
                             getOP(event.getChannel().asThreadChannel()),
                             event);
                     else event.reply("Command not available.").setEphemeral(true).queue();
@@ -89,14 +89,25 @@ public class Events extends ListenerAdapter {
 
         if (event.getAuthor().isBot()) return;
 
+        if (event.getChannelType() == ChannelType.TEXT)
+            if (event.getChannel().asTextChannel().getParentCategoryIdLong() == 390942438061113345L) {
+                if (!isStaff(event.getMember())) {
+                    String message = event.getMessage().getContentStripped().toLowerCase().replace(" ", "");
+                    if (message.contains("entityclearer") || message.contains("expensivedeaths") || message.contains(
+                        "filecleaner")) event.getMessage().reply(
+                            "Please go to <#1226927981977403452> for plugin support under the Silverstone organization.")
+                        .mentionRepliedUser(true).queue();
+                }
+            }
+
         // Plugin support thread
-        if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD) if (isFromStaff(event
+        if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD) if (isPluginSupport(event
             .getChannel().asThreadChannel(), event.getMember())) {
             Message message = event.getMessage();
 
             // Thanks for coming :)
             if (message.getContentStripped().toLowerCase().startsWith("np")) {
-                sendThankYouMessage(event.getChannel().asThreadChannel(),
+                sendThankYouMsg(event.getChannel().asThreadChannel(),
                     getOP(event.getChannel().asThreadChannel()),
                     null);
                 return;
@@ -157,13 +168,13 @@ public class Events extends ListenerAdapter {
             System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking post '" + thread.getName() + "'");
 
             if (thread.getOwnerIdLong() == event.getUser().getIdLong()) {
-                sendOPLeaveMessage(thread, event.getUser());
+                sendOPLeaveMsg(thread, event.getUser());
                 continue;
             }
 
             // If the user that left sent the latest or a recent message, say so
             if (checkIfFromUser(thirtyMinsAgo, threeDaysAgo, thread, event.getUser().getIdLong()))
-                sendRecentLeaveMessage(thread, event.getUser());
+                sendRecentLeaveMsg(thread, event.getUser());
         }
 
         Long[] textChannels = {1226927642117410960L};
@@ -173,7 +184,7 @@ public class Events extends ListenerAdapter {
 
             // If the user that left sent the latest or a recent message, say so
             if (checkIfFromUser(thirtyMinsAgo, threeDaysAgo, channel, event.getUser().getIdLong()))
-                sendRecentLeaveMessage(channel, event.getUser());
+                sendRecentLeaveMsg(channel, event.getUser());
         }
     }
 
@@ -206,7 +217,7 @@ public class Events extends ListenerAdapter {
         return fromUser;
     }
 
-    private void sendRecentLeaveMessage(MessageChannel channel, User user) {
+    private void sendRecentLeaveMsg(MessageChannel channel, User user) {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("Recent chatter " + user.getName() + " has left the server");
         embed.setDescription(user.getAsMention());
@@ -216,7 +227,7 @@ public class Events extends ListenerAdapter {
         channel.sendMessageEmbeds(embed.build()).queue();
     }
 
-    private void sendOPLeaveMessage(ThreadChannel channel, User user) {
+    private void sendOPLeaveMsg(ThreadChannel channel, User user) {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("Original poster " + user.getName() + " has left the server");
         embed.setDescription(user.getAsMention());
@@ -228,7 +239,7 @@ public class Events extends ListenerAdapter {
             .setLocked(true).queueAfter(1, TimeUnit.SECONDS));
     }
 
-    private void sendThankYouMessage(ThreadChannel channel, Member op, @Nullable SlashCommandInteractionEvent slashEvent) {
+    private void sendThankYouMsg(ThreadChannel channel, Member op, @Nullable SlashCommandInteractionEvent slashEvent) {
         String resourceName;
         String resourceSpigotId;
 
@@ -263,11 +274,17 @@ public class Events extends ListenerAdapter {
             .setArchived(true).queueAfter(1, TimeUnit.SECONDS));
     }
 
-    private boolean isFromStaff(ThreadChannel channel, Member member) {
+    private boolean isPluginSupport(ThreadChannel channel, Member member) {
         // Plugin support channel and has helper role or manage threads permission
         return channel.getParentChannel().getIdLong() == 1226927981977403452L && (member.getRoles().contains(
             Polytrichopsida.jda.getGuildById(390942438061113344L)
                 .getRoleById(606393401839190016L)) || member.hasPermission(Permission.MANAGE_THREADS));
+    }
+
+    private boolean isStaff(Member member) {
+        // Has helper role or manage threads permission
+        return member.getRoles().contains(Polytrichopsida.jda.getGuildById(390942438061113344L)
+            .getRoleById(606393401839190016L)) || member.hasPermission(Permission.MESSAGE_MANAGE);
     }
 
     @Nullable
