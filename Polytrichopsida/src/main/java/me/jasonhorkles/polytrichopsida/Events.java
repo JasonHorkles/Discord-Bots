@@ -52,7 +52,7 @@ public class Events extends ListenerAdapter {
                 """).queue();
 
             case "plugins" -> event.reply(
-                    "See Jason's plugins on [Spigot](<https://www.spigotmc.org/resources/authors/jasonhorkles.339646/>) | [Hangar](<https://hangar.papermc.io/JasonHorkles>)")
+                    "See Jason's plugins on [Hangar](<https://hangar.papermc.io/Silverstone>) | [Modrinth](<https://modrinth.com/organization/silverstone> | [Spigot](<https://www.spigotmc.org/resources/authors/jasonhorkles.339646/>)")
                 .queue();
 
             case "tutorials" -> event.reply(
@@ -69,7 +69,9 @@ public class Events extends ListenerAdapter {
                 if (event.getChannelType() == ChannelType.GUILD_PUBLIC_THREAD)
                     // In plugin support thread and has helper role or manage threads permission
                     if (isFromStaff(event.getChannel().asThreadChannel(), event.getMember()))
-                        sendThankYouMessage(event.getChannel().asThreadChannel(), event);
+                        sendThankYouMessage(event.getChannel().asThreadChannel(),
+                            getOP(event.getChannel().asThreadChannel()),
+                            event);
                     else event.reply("Command not available.").setEphemeral(true).queue();
                 else event.reply("Command not available.").setEphemeral(true).queue();
             }
@@ -94,7 +96,9 @@ public class Events extends ListenerAdapter {
 
             // Thanks for coming :)
             if (message.getContentStripped().toLowerCase().startsWith("np")) {
-                sendThankYouMessage(event.getChannel().asThreadChannel(), null);
+                sendThankYouMessage(event.getChannel().asThreadChannel(),
+                    getOP(event.getChannel().asThreadChannel()),
+                    null);
                 return;
             }
 
@@ -107,7 +111,7 @@ public class Events extends ListenerAdapter {
                 OffsetDateTime fiveMinsAgo = OffsetDateTime.now().minusMinutes(5);
                 if (messages.get(1).getTimeCreated().isAfter(fiveMinsAgo)) return;
 
-                Member op = event.getChannel().asThreadChannel().getOwner();
+                Member op = getOP(event.getChannel().asThreadChannel());
                 if (op == null) return;
 
                 User author = messages.get(1).getAuthor();
@@ -224,21 +228,34 @@ public class Events extends ListenerAdapter {
             .setLocked(true).queueAfter(1, TimeUnit.SECONDS));
     }
 
-    private void sendThankYouMessage(ThreadChannel channel, @Nullable SlashCommandInteractionEvent slashEvent) {
-        EmbedBuilder embed = new EmbedBuilder();
+    private void sendThankYouMessage(ThreadChannel channel, Member op, @Nullable SlashCommandInteractionEvent slashEvent) {
+        String resourceName;
+        String resourceSpigotId;
 
-        embed.addField("Spigot", """
-            [EntityClearer](https://www.spigotmc.org/resources/entityclearer.90802/)
-            [ExpensiveDeaths](https://www.spigotmc.org/resources/expensivedeaths.96065/)
-            [FileCleaner](https://www.spigotmc.org/resources/filecleaner.93372/)""", true);
-        embed.addField("Hangar", """
-            [EntityClearer](https://hangar.papermc.io/JasonHorkles/EntityClearer)
-            [ExpensiveDeaths](https://hangar.papermc.io/JasonHorkles/ExpensiveDeaths)
-            [FileCleaner](https://hangar.papermc.io/JasonHorkles/FileCleaner)""", true);
+        String tags = channel.getAppliedTags().toString();
+        if (tags.contains("EntityClearer")) {
+            resourceName = "EntityClearer";
+            resourceSpigotId = "90802";
+        } else if (tags.contains("ExpensiveDeaths")) {
+            resourceName = "ExpensiveDeaths";
+            resourceSpigotId = "96065";
+        } else if (tags.contains("FileCleaner")) {
+            resourceName = "FileCleaner";
+            resourceSpigotId = "93372";
+        } else {
+            resourceName = "null";
+            resourceSpigotId = "null";
+        }
+
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setTitle(resourceName);
+        embed.setDescription("[Hangar](https://hangar.papermc.io/Silverstone/" + resourceName + ")\n" + "[Modrinth](https://modrinth.com/plugin/" + resourceName.toLowerCase() + ")\n" + "[Spigot](https://www.spigotmc.org/resources/" + resourceSpigotId + "/)");
+        embed.setImage("https://imgur.com/xPrBGLb.png");
         embed.setColor(new Color(43, 45, 49));
         embed.setFooter("This post will now be closed. Send a message to re-open it.");
 
-        String message = "Thank you for coming. If you enjoy the plugin and are happy with the support you received, please consider leaving a review on Spigot or a star on Hangar \\:)";
+        String ping = op == null ? "dear user" : op.getAsMention();
+        String message = "Thank you for coming, " + ping + ". If you enjoy the plugin and are happy with the support you received, please consider leaving a star on Hangar, a follow on Modrinth, or a review on Spigot :heart:";
 
         if (slashEvent != null) slashEvent.reply(message).addEmbeds(embed.build()).queue(na -> channel
             .getManager().setArchived(true).queueAfter(1, TimeUnit.SECONDS));
@@ -251,5 +268,10 @@ public class Events extends ListenerAdapter {
         return channel.getParentChannel().getIdLong() == 1226927981977403452L && (member.getRoles().contains(
             Polytrichopsida.jda.getGuildById(390942438061113344L)
                 .getRoleById(606393401839190016L)) || member.hasPermission(Permission.MANAGE_THREADS));
+    }
+
+    @Nullable
+    private Member getOP(ThreadChannel channel) {
+        return channel.getOwner();
     }
 }

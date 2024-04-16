@@ -61,8 +61,13 @@ public class Events extends ListenerAdapter {
         if (event.getAuthor().isBot()) return;
 
         // Direct to plugin support if not staff
-        if (!event.getMember().getRoles().toString().contains("667793980318154783"))
-            sendToPluginSupport(event);
+        if (!event.getMember().getRoles().toString().contains("667793980318154783")) {
+            String message = event.getMessage().getContentStripped().toLowerCase().replace(" ", "");
+            if (message.contains("entityclearer") || message.contains("expensivedeaths") || message.contains(
+                "filecleaner")) event.getMessage().reply(
+                    "This server is no longer dedicated to plugin support. Please go to https://discord.gg/4wRHMyrTgv if you need help with Jason's plugins.")
+                .mentionRepliedUser(true).queue();
+        }
 
         // Counting
         if (event.getChannel().getIdLong() == 816885380577230906L) {
@@ -97,14 +102,6 @@ public class Events extends ListenerAdapter {
             Message message = event.getMessage();
             if (!message.getAttachments().isEmpty()) message.addReaction(Emoji.fromUnicode("❤")).queue();
         }
-    }
-
-    private void sendToPluginSupport(MessageReceivedEvent event) {
-        String message = event.getMessage().getContentStripped().toLowerCase().replace(" ", "");
-        if (message.contains("entityclearer") || message.contains("expensivedeaths") || message.contains(
-            "filecleaner")) event.getMessage().reply(
-                "This server is no longer dedicated to plugin support. Please go to https://discord.gg/4wRHMyrTgv if you need help with Jason's plugins.")
-            .mentionRepliedUser(true).queue();
     }
 
     // When recent chatter leaves
