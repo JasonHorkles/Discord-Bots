@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.ThreadMember;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
@@ -122,7 +123,7 @@ public class Events extends ListenerAdapter {
                 OffsetDateTime fiveMinsAgo = OffsetDateTime.now().minusMinutes(5);
                 if (messages.get(1).getTimeCreated().isAfter(fiveMinsAgo)) return;
 
-                Member op = getOP(event.getChannel().asThreadChannel());
+                ThreadMember op = getOP(event.getChannel().asThreadChannel());
                 if (op == null) return;
 
                 User author = messages.get(1).getAuthor();
@@ -239,7 +240,7 @@ public class Events extends ListenerAdapter {
             .setLocked(true).queueAfter(1, TimeUnit.SECONDS));
     }
 
-    private void sendThankYouMsg(ThreadChannel channel, Member op, @Nullable SlashCommandInteractionEvent slashEvent) {
+    private void sendThankYouMsg(ThreadChannel channel, ThreadMember op, @Nullable SlashCommandInteractionEvent slashEvent) {
         String resourceName;
         String resourceSpigotId;
 
@@ -287,8 +288,7 @@ public class Events extends ListenerAdapter {
             .getRoleById(606393401839190016L)) || member.hasPermission(Permission.MESSAGE_MANAGE);
     }
 
-    @Nullable
-    private Member getOP(ThreadChannel channel) {
-        return channel.getOwner();
+    private ThreadMember getOP(ThreadChannel channel) {
+        return channel.retrieveThreadMemberById(channel.getOwnerIdLong()).complete();
     }
 }
