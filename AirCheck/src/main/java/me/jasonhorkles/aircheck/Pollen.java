@@ -31,13 +31,15 @@ public class Pollen {
 
         Map<String, String> pollenLevels = new HashMap<>();
         Pattern pattern = Pattern.compile("(\\w+?) Pollen (Today|Tonight): (\\w+)");
-        Matcher matcher = pattern.matcher(input);
+        Matcher matcher = pattern.matcher(input.replace("Very High", "VeryHigh")
+            .replace("Very Low", "VeryLow"));
 
         while (matcher.find()) {
             String pollenType = matcher.group(1);
             String level = matcher.group(3);
 
-            pollenLevels.put(pollenType, level);
+            pollenLevels.put(pollenType,
+                level.replace("VeryHigh", "Very High").replace("VeryLow", "Very Low"));
         }
 
         String grassLevel = pollenLevels.getOrDefault("Grass", "ERROR");

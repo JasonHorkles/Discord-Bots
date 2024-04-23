@@ -30,7 +30,6 @@ public class Forecasts {
                 .toURL().openStream();
             input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();
-
         }
 
         StringBuilder healthForecasts = new StringBuilder();
