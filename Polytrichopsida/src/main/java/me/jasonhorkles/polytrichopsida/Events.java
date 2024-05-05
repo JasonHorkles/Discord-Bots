@@ -46,6 +46,8 @@ public class Events extends ListenerAdapter {
                     .getAsMention() + ", please" + message).queue();
             }
 
+            case "faqs" -> sendFAQs(event);
+
             case "plgh" -> event.reply("""
                 **EntityClearer:** <https://github.com/SilverstoneMC/EntityClearer>
                 **ExpensiveDeaths:** <https://github.com/SilverstoneMC/ExpensiveDeaths>
@@ -76,6 +78,19 @@ public class Events extends ListenerAdapter {
                     else event.reply("Command not available.").setEphemeral(true).queue();
                 else event.reply("Command not available.").setEphemeral(true).queue();
             }
+        }
+    }
+
+    private void sendFAQs(SlashCommandInteractionEvent event) {
+        System.out.println(event.getOptions());
+        System.out.println(event.getOptions().getFirst());
+        System.out.println(event.getOptions().getFirst().getName());
+        //noinspection SwitchStatementWithTooFewBranches
+        switch (event.getOption("plugin").getAsString()) {
+            case "EntityClearer" -> event.reply(
+                "**EntityClearer FAQs:** <https://github.com/SilverstoneMC/EntityClearer/wiki/FAQs>").queue();
+
+            default -> event.reply("FAQs not available for that plugin.").setEphemeral(true).queue();
         }
     }
 

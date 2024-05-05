@@ -35,10 +35,8 @@ public class Polytrichopsida {
 
         jda.awaitReady();
 
-        OptionData plugins = new OptionData(OptionType.STRING,
-            "plugin",
-            "The plugin",
-            true).addChoices(new Command.Choice("EntityClearer", "EntityClearer"),
+        OptionData plugins = new OptionData(OptionType.STRING, "plugin", "The plugin", true).addChoices(
+            new Command.Choice("EntityClearer", "EntityClearer"),
             new Command.Choice("ExpensiveDeaths", "ExpensiveDeaths"),
             new Command.Choice("FileCleaner", "FileCleaner"));
 
@@ -46,6 +44,7 @@ public class Polytrichopsida {
         jda.getGuildById(390942438061113344L).updateCommands().addCommands(Commands
                 .slash("ecldebug", "EntityClearer debug")
                 .addOption(OptionType.MENTIONABLE, "replyto", "Who to reply to", false),
+            Commands.slash("faqs", "FAQs link").addOptions(plugins),
             Commands.slash("plgh", "Links to the plugins on GitHub"),
             Commands.slash("plugins", "Get a list of Jason's plugins"),
             Commands.slash("tutorials", "Link to the tutorial channel"),
@@ -59,7 +58,10 @@ public class Polytrichopsida {
             while (true) {
                 Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
                 String text = in.nextLine();
-                if (text.equalsIgnoreCase("stop")) System.exit(0);
+                if (text.equalsIgnoreCase("stop")) {
+                    in.close();
+                    System.exit(0);
+                }
             }
         }, "Console Input");
         input.start();
