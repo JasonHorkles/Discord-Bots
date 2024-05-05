@@ -82,9 +82,6 @@ public class Events extends ListenerAdapter {
     }
 
     private void sendFAQs(SlashCommandInteractionEvent event) {
-        System.out.println(event.getOptions());
-        System.out.println(event.getOptions().getFirst());
-        System.out.println(event.getOptions().getFirst().getName());
         //noinspection SwitchStatementWithTooFewBranches
         switch (event.getOption("plugin").getAsString()) {
             case "EntityClearer" -> event.reply(
