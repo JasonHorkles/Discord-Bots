@@ -282,9 +282,9 @@ public class Events extends ListenerAdapter {
         String message = "Thank you for coming, " + ping + ". If you enjoy the plugin and are happy with the support you received, please consider leaving a star on Hangar, a follow on Modrinth, or a review on Spigot :heart:";
 
         if (slashEvent != null) slashEvent.reply(message).addEmbeds(embed.build()).queue(na -> channel
-            .getManager().setArchived(true).queueAfter(1, TimeUnit.SECONDS));
+            .getManager().setArchived(true).queueAfter(5, TimeUnit.MINUTES));
         else channel.sendMessage(message).addEmbeds(embed.build()).queue(na -> channel.getManager()
-            .setArchived(true).queueAfter(1, TimeUnit.SECONDS));
+            .setArchived(true).queueAfter(5, TimeUnit.MINUTES));
     }
 
     private boolean isPluginSupport(ThreadChannel channel, Member member) {
