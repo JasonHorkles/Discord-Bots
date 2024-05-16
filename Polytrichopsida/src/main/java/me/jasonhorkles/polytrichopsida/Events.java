@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -106,10 +107,17 @@ public class Events extends ListenerAdapter {
             if (event.getChannel().asTextChannel().getParentCategoryIdLong() == 390942438061113345L) {
                 if (!isStaff(event.getMember())) {
                     String message = event.getMessage().getContentStripped().toLowerCase().replace(" ", "");
-                    if (message.contains("entityclearer") || message.contains("expensivedeaths") || message.contains(
-                        "filecleaner")) event.getMessage().reply(
-                            "Please go to <#1226927981977403452> for plugin support under the Silverstone organization.")
-                        .mentionRepliedUser(true).queue();
+                    List<String> plugins = Arrays.asList("entityclearer", "expensivedeaths", "filecleaner");
+
+                    if (plugins.stream().anyMatch(message::contains)) {
+                        if (plugins.stream().anyMatch(plugin -> message.contains(":" + plugin + ":"))) {
+                            return;
+                        }
+
+                        event.getMessage().reply(
+                                "Please go to <#1226927981977403452> for plugin support under the Silverstone organization.")
+                            .mentionRepliedUser(true).queue();
+                    }
                 }
             }
 
