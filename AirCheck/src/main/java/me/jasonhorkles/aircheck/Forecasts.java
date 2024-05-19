@@ -32,12 +32,12 @@ public class Forecasts {
             url.close();
         }
 
-        StringBuilder healthForecasts = new StringBuilder();
+        StringBuilder healthForecasts = new StringBuilder(120);
         String pollenForecasts = new Pollen().getPollen();
-        StringBuilder transportForecasts = new StringBuilder();
-        StringBuilder workForecasts = new StringBuilder();
-        StringBuilder sportsForecasts = new StringBuilder();
-        StringBuilder activityForecasts = new StringBuilder();
+        StringBuilder transportForecasts = new StringBuilder(60);
+        StringBuilder workForecasts = new StringBuilder(60);
+        StringBuilder sportsForecasts = new StringBuilder(170);
+        StringBuilder activityForecasts = new StringBuilder(120);
 
         for (int x = 0; x < input.length(); x++) {
             int id = input.getJSONObject(x).getInt("ID");
@@ -47,129 +47,124 @@ public class Forecasts {
                 /* Health */
 
                 // Common cold
-                case 25 -> healthForecasts.append(getColor(categoryValue, CategoryType.RISK)).append(
-                    "**Common Cold**").append(getForecast(categoryValue, CategoryType.RISK)).append("\n");
+                case 25 -> healthForecasts.append(getRisk(categoryValue, true)).append("**Common Cold**")
+                    .append(getRisk(categoryValue, false)).append("\n");
 
                 // Flu
-                case 26 -> healthForecasts.append(getColor(categoryValue, CategoryType.RISK))
-                    .append("**Flu**").append(getForecast(categoryValue, CategoryType.RISK)).append("\n");
+                case 26 -> healthForecasts.append(getRisk(categoryValue, true)).append("**Flu**").append(
+                    getRisk(categoryValue, false)).append("\n");
 
                 // Migraines
-                case 27 -> healthForecasts.append(getColor(categoryValue, CategoryType.RISK)).append(
-                    "**Migraines**").append(getForecast(categoryValue, CategoryType.RISK)).append("\n");
+                case 27 -> healthForecasts.append(getRisk(categoryValue, true)).append("**Migraines**")
+                    .append(getRisk(categoryValue, false)).append("\n");
 
                 // Mosquito activity
-                case 17 -> healthForecasts.append(getColor(categoryValue, CategoryType.EXTREMITY)).append(
-                        "**Mosquito Activity**").append(getForecast(categoryValue, CategoryType.EXTREMITY))
-                    .append("\n");
+                case 17 -> healthForecasts.append(getExtremity(categoryValue, true)).append(
+                    "**Mosquito Activity**").append(getExtremity(categoryValue, false)).append("\n");
 
                 // Sinus pressure
-                case 30 -> healthForecasts.append(getColor(categoryValue, CategoryType.RISK)).append(
-                    "**Sinus Pressure**").append(getForecast(categoryValue, CategoryType.RISK)).append("\n");
+                case 30 -> healthForecasts.append(getRisk(categoryValue, true)).append("**Sinus Pressure**")
+                    .append(getRisk(categoryValue, false)).append("\n");
 
 
                 /* Transportation */
 
                 // Bicycling
-                case 4 -> transportForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                    "**Bicycling**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 4 -> transportForecasts.append(getFairness(categoryValue, true)).append("**Bicycling**")
+                    .append(getFairness(categoryValue, false)).append("\n");
 
                 // Driving
-                case 40 -> transportForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                    "**Driving**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 40 -> transportForecasts.append(getFairness(categoryValue, true)).append("**Driving**")
+                    .append(getFairness(categoryValue, false)).append("\n");
 
                 // Flight delays
-                case -3 -> transportForecasts.append(getColor(categoryValue, CategoryType.UNLIKELIHOOD))
-                    .append("**Flight Delays**").append(getForecast(categoryValue, CategoryType.UNLIKELIHOOD))
-                    .append("\n");
+                case -3 -> transportForecasts.append(getUnlikelihood(categoryValue, true)).append(
+                    "**Flight Delays**").append(getUnlikelihood(categoryValue, false)).append("\n");
 
 
                 /* Work */
 
                 // Composting
-                case 38 -> workForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                    "**Composting**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 38 -> workForecasts.append(getFairness(categoryValue, true)).append("**Composting**")
+                    .append(getFairness(categoryValue, false)).append("\n");
 
                 // Construction
-                case 14 -> workForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                        "**Construction**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
-                    .append("\n");
+                case 14 -> workForecasts.append(getFairness(categoryValue, true)).append("**Construction**")
+                    .append(getFairness(categoryValue, false)).append("\n");
 
                 // Lawn mowing
-                case 28 -> workForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                    "**Lawn Mowing**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 28 -> workForecasts.append(getFairness(categoryValue, true)).append("**Lawn Mowing**")
+                    .append(getFairness(categoryValue, false)).append("\n");
 
 
                 /* Sports */
 
                 // Fishing
-                case 13 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                    "**Fishing**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 13 -> sportsForecasts.append(getFairness(categoryValue, true)).append("**Fishing**")
+                    .append(getFairness(categoryValue, false)).append("\n");
 
                 // Golf
-                case 5 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                    "**Golf**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 5 -> sportsForecasts.append(getFairness(categoryValue, true)).append("**Golf**").append(
+                    getFairness(categoryValue, false)).append("\n");
 
                 // Hiking
-                case 3 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                    "**Hiking**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 3 -> sportsForecasts.append(getFairness(categoryValue, true)).append("**Hiking**")
+                    .append(getFairness(categoryValue, false)).append("\n");
 
                 // Hunting
-                case 20 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                    "**Hunting**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 20 -> sportsForecasts.append(getFairness(categoryValue, true)).append("**Hunting**")
+                    .append(getFairness(categoryValue, false)).append("\n");
 
                 // Jogging
-                case 2 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                    "**Jogging**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 2 -> sportsForecasts.append(getFairness(categoryValue, true)).append("**Jogging**")
+                    .append(getFairness(categoryValue, false)).append("\n");
 
                 // Running
-                case 1 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                    "**Running**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 1 -> sportsForecasts.append(getFairness(categoryValue, true)).append("**Running**")
+                    .append(getFairness(categoryValue, false)).append("\n");
 
                 // Skateboarding
-                case 7 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                        "**Skateboarding**").append(getForecast(categoryValue, CategoryType.FAIRNESS))
-                    .append("\n");
+                case 7 -> sportsForecasts.append(getFairness(categoryValue, true)).append("**Skateboarding**")
+                    .append(getFairness(categoryValue, false)).append("\n");
 
                 // Skiing
-                case 15 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                    "**Skiing**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 15 -> sportsForecasts.append(getFairness(categoryValue, true)).append("**Skiing**")
+                    .append(getFairness(categoryValue, false)).append("\n");
 
                 // Swimming
-                case 10 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                    "**Swimming**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 10 -> sportsForecasts.append(getFairness(categoryValue, true)).append("**Swimming**")
+                    .append(getFairness(categoryValue, false)).append("\n");
 
                 // Tennis
-                case 6 -> sportsForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                    "**Tennis**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 6 -> sportsForecasts.append(getFairness(categoryValue, true)).append("**Tennis**")
+                    .append(getFairness(categoryValue, false)).append("\n");
 
 
                 /* Activities */
 
                 // BBQ
-                case 24 -> activityForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                    "**BBQ**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 24 -> activityForecasts.append(getFairness(categoryValue, true)).append("**BBQ**")
+                    .append(getFairness(categoryValue, false)).append("\n");
 
                 // Dog walking
-                case 43 -> activityForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                    "**Dog Walking**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 43 -> activityForecasts.append(getFairness(categoryValue, true))
+                    .append("**Dog Walking**").append(getFairness(categoryValue, false)).append("\n");
 
                 // Outdoor concerts
-                case 8 -> activityForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                    "**Outdoor Concerts**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append(
-                    "\n");
+                case 8 -> activityForecasts.append(getFairness(categoryValue, true)).append(
+                    "**Outdoor Concerts**").append(getFairness(categoryValue, false)).append("\n");
 
                 // Shopping
-                case 39 -> activityForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                    "**Shopping**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 39 -> activityForecasts.append(getFairness(categoryValue, true)).append("**Shopping**")
+                    .append(getFairness(categoryValue, false)).append("\n");
 
                 // Snow day
-                case 19 -> activityForecasts.append(getColor(categoryValue, CategoryType.LIKELIHOOD)).append(
-                    "**Snow Day**").append(getForecast(categoryValue, CategoryType.LIKELIHOOD)).append("\n");
+                case 19 -> activityForecasts.append(getLikelihood(categoryValue, true)).append("**Snow Day**")
+                    .append(getLikelihood(categoryValue, false)).append("\n");
 
                 // Stargazing
-                case 12 -> activityForecasts.append(getColor(categoryValue, CategoryType.FAIRNESS)).append(
-                    "**Stargazing**").append(getForecast(categoryValue, CategoryType.FAIRNESS)).append("\n");
+                case 12 -> activityForecasts.append(getFairness(categoryValue, true)).append("**Stargazing**")
+                    .append(getFairness(categoryValue, false)).append("\n");
             }
         }
 
@@ -262,269 +257,138 @@ public class Forecasts {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got the forecasts!");
     }
 
-    private enum CategoryType {
-        FAIRNESS, EXTREMITY, LIKELIHOOD, RISK, UNLIKELIHOOD
-    }
-
-    private String getColor(int value, CategoryType categoryType) {
-        switch (categoryType) {
-            case FAIRNESS -> {
-                switch (value) {
-                    // 🔴
-                    case 1 -> {
-                        return "\uD83D\uDD34 ";
-                    }
-                    // 🟠
-                    case 2 -> {
-                        return "\uD83D\uDFE0 ";
-                    }
-                    // 🟡
-                    case 3 -> {
-                        return "\uD83D\uDFE1 ";
-                    }
-                    // 🔵
-                    case 4 -> {
-                        return "\uD83D\uDD35 ";
-                    }
-                    // 🟢
-                    case 5 -> {
-                        return "\uD83D\uDFE2 ";
-                    }
-                }
+    private String getFairness(int value, boolean color) {
+        switch (value) {
+            // 🔴
+            case 1 -> {
+                return color ? "\uD83D\uDD34 " : " → Poor";
             }
-
-            case EXTREMITY -> {
-                switch (value) {
-                    // 🟢
-                    case 1 -> {
-                        return "\uD83D\uDFE2 ";
-                    }
-                    // 🔵
-                    case 2 -> {
-                        return "\uD83D\uDD35 ";
-                    }
-                    // 🟡
-                    case 3 -> {
-                        return "\uD83D\uDFE1 ";
-                    }
-                    // 🟠
-                    case 4 -> {
-                        return "\uD83D\uDFE0 ";
-                    }
-                    // 🔴
-                    case 5 -> {
-                        return "\uD83D\uDD34 ";
-                    }
-                }
+            // 🟠
+            case 2 -> {
+                return color ? "\uD83D\uDFE0 " : " → Fair";
             }
-
-            case LIKELIHOOD -> {
-                switch (value) {
-                    // 🔴
-                    case 1 -> {
-                        return "\uD83D\uDD34 ";
-                    }
-                    // 🟠
-                    case 2 -> {
-                        return "\uD83D\uDFE0 ";
-                    }
-                    // 🟡
-                    case 3 -> {
-                        return "\uD83D\uDFE1 ";
-                    }
-                    // 🔵
-                    case 4 -> {
-                        return "\uD83D\uDD35 ";
-                    }
-                    // 🟢
-                    case 5 -> {
-                        return "\uD83D\uDFE2 ";
-                    }
-                }
+            // 🟡
+            case 3 -> {
+                return color ? "\uD83D\uDFE1 " : " → Good";
             }
-
-            case RISK -> {
-                switch (value) {
-                    // 🟢
-                    case 1 -> {
-                        return "\uD83D\uDFE2 ";
-                    }
-                    // 🔵
-                    case 2 -> {
-                        return "\uD83D\uDD35 ";
-                    }
-                    // 🟡
-                    case 3 -> {
-                        return "\uD83D\uDFE1 ";
-                    }
-                    // 🟠
-                    case 4 -> {
-                        return "\uD83D\uDFE0 ";
-                    }
-                    // 🔴
-                    case 5 -> {
-                        return "\uD83D\uDD34 ";
-                    }
-                }
+            // 🔵
+            case 4 -> {
+                return color ? "\uD83D\uDD35 " : " → Very Good";
             }
-
-            case UNLIKELIHOOD -> {
-                switch (value) {
-                    // 🔴
-                    case 1 -> {
-                        return "\uD83D\uDD34 ";
-                    }
-                    // 🟠
-                    case 2 -> {
-                        return "\uD83D\uDFE0 ";
-                    }
-                    // 🟡
-                    case 3 -> {
-                        return "\uD83D\uDFE1 ";
-                    }
-                    // 🔵
-                    case 4 -> {
-                        return "\uD83D\uDD35 ";
-                    }
-                    // 🟢
-                    case 5 -> {
-                        return "\uD83D\uDFE2 ";
-                    }
-                }
+            // 🟢
+            case 5 -> {
+                return color ? "\uD83D\uDFE2 " : " → Excellent";
             }
         }
 
-        return categoryType.toString();
+        return String.valueOf(value);
     }
 
-    private String getForecast(int value, CategoryType categoryType) {
-        switch (categoryType) {
-            case FAIRNESS -> {
-                switch (value) {
-                    // 🔴
-                    case 1 -> {
-                        return " → Poor";
-                    }
-                    // 🟠
-                    case 2 -> {
-                        return " → Fair";
-                    }
-                    // 🟡
-                    case 3 -> {
-                        return " → Good";
-                    }
-                    // 🔵
-                    case 4 -> {
-                        return " → Very Good";
-                    }
-                    // 🟢
-                    case 5 -> {
-                        return " → Excellent";
-                    }
-                }
+    private String getExtremity(int value, boolean color) {
+        switch (value) {
+            // 🟢
+            case 1 -> {
+                return color ? "\uD83D\uDFE2 " : " → Low";
             }
-
-            case EXTREMITY -> {
-                switch (value) {
-                    // 🟢
-                    case 1 -> {
-                        return " → Low";
-                    }
-                    // 🔵
-                    case 2 -> {
-                        return " → Moderate";
-                    }
-                    // 🟡
-                    case 3 -> {
-                        return " → High";
-                    }
-                    // 🟠
-                    case 4 -> {
-                        return " → Very High";
-                    }
-                    // 🔴
-                    case 5 -> {
-                        return " → Extreme";
-                    }
-                }
+            // 🔵
+            case 2 -> {
+                return color ? "\uD83D\uDD35 " : " → Moderate";
             }
-
-            case LIKELIHOOD -> {
-                switch (value) {
-                    // 🔴
-                    case 1 -> {
-                        return " → Very Unlikely";
-                    }
-                    // 🟠
-                    case 2 -> {
-                        return " → Unlikely";
-                    }
-                    // 🟡
-                    case 3 -> {
-                        return " → Possibly";
-                    }
-                    // 🔵
-                    case 4 -> {
-                        return " → Likely";
-                    }
-                    // 🟢
-                    case 5 -> {
-                        return " → Very Likely";
-                    }
-                }
+            // 🟡
+            case 3 -> {
+                return color ? "\uD83D\uDFE1 " : " → High";
             }
-
-            case RISK -> {
-                switch (value) {
-                    // 🟢
-                    case 1 -> {
-                        return " → Beneficial";
-                    }
-                    // 🔵
-                    case 2 -> {
-                        return " → Neutral";
-                    }
-                    // 🟡
-                    case 3 -> {
-                        return " → At Risk";
-                    }
-                    // 🟠
-                    case 4 -> {
-                        return " → At High Risk";
-                    }
-                    // 🔴
-                    case 5 -> {
-                        return " → At Extreme Risk";
-                    }
-                }
+            // 🟠
+            case 4 -> {
+                return color ? "\uD83D\uDFE0 " : " → Very High";
             }
-
-            case UNLIKELIHOOD -> {
-                switch (value) {
-                    // 🔴
-                    case 1 -> {
-                        return " → Very Likely";
-                    }
-                    // 🟠
-                    case 2 -> {
-                        return " → Likely";
-                    }
-                    // 🟡
-                    case 3 -> {
-                        return " → Possibly";
-                    }
-                    // 🔵
-                    case 4 -> {
-                        return " → Unlikely";
-                    }
-                    // 🟢
-                    case 5 -> {
-                        return " → Very Unlikely";
-                    }
-                }
+            // 🔴
+            case 5 -> {
+                return color ? "\uD83D\uDD34 " : " → Extreme";
             }
         }
 
-        return categoryType.toString();
+        return String.valueOf(value);
+    }
+
+    private String getLikelihood(int value, boolean color) {
+        switch (value) {
+            // 🔴
+            case 1 -> {
+                return color ? "\uD83D\uDD34 " : " → Very Unlikely";
+            }
+            // 🟠
+            case 2 -> {
+                return color ? "\uD83D\uDFE0 " : " → Unlikely";
+            }
+            // 🟡
+            case 3 -> {
+                return color ? "\uD83D\uDFE1 " : " → Possibly";
+            }
+            // 🔵
+            case 4 -> {
+                return color ? "\uD83D\uDD35 " : " → Likely";
+            }
+            // 🟢
+            case 5 -> {
+                return color ? "\uD83D\uDFE2 " : " → Very Likely";
+            }
+        }
+
+        return String.valueOf(value);
+    }
+
+    private String getRisk(int value, boolean color) {
+        switch (value) {
+            // 🟢
+            case 1 -> {
+                return color ? "\uD83D\uDFE2 " : " → Beneficial";
+            }
+            // 🔵
+            case 2 -> {
+                return color ? "\uD83D\uDD35 " : " → Neutral";
+            }
+            // 🟡
+            case 3 -> {
+                return color ? "\uD83D\uDFE1 " : " → At Risk";
+            }
+            // 🟠
+            case 4 -> {
+                return color ? "\uD83D\uDFE0 " : " → At High Risk";
+            }
+            // 🔴
+            case 5 -> {
+                return color ? "\uD83D\uDD34 " : " → At Extreme Risk";
+            }
+        }
+
+        return String.valueOf(value);
+    }
+
+    private String getUnlikelihood(int value, boolean color) {
+        switch (value) {
+            // 🔴
+            case 1 -> {
+                return color ? "\uD83D\uDD34 " : " → Very Likely";
+            }
+            // 🟠
+            case 2 -> {
+                return color ? "\uD83D\uDFE0 " : " → Likely";
+            }
+            // 🟡
+            case 3 -> {
+                return color ? "\uD83D\uDFE1 " : " → Possibly";
+            }
+            // 🔵
+            case 4 -> {
+                return color ? "\uD83D\uDD35 " : " → Unlikely";
+            }
+            // 🟢
+            case 5 -> {
+                return color ? "\uD83D\uDFE2 " : " → Very Unlikely";
+            }
+        }
+
+        return String.valueOf(value);
     }
 }

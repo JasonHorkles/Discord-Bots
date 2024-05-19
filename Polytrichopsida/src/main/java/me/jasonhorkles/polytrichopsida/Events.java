@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Stream;
 
 @SuppressWarnings("DataFlowIssue")
 public class Events extends ListenerAdapter {
@@ -109,9 +110,11 @@ public class Events extends ListenerAdapter {
                     String message = event.getMessage().getContentStripped().toLowerCase().replace(" ", "");
                     List<String> plugins = Arrays.asList("entityclearer", "expensivedeaths", "filecleaner");
 
-                    if (plugins.stream().anyMatch(message::contains)) {
-                        if (plugins.stream().anyMatch(plugin -> message.contains(":" + plugin + ":"))) {
-                            return;
+                    try (Stream<String> pluginStream1 = plugins.stream(); Stream<String> pluginStream2 = plugins.stream()) {
+                        if (pluginStream1.anyMatch(message::contains)) {
+                            if (pluginStream2.anyMatch(plugin -> message.contains(":" + plugin + ":"))) {
+                                return;
+                            }
                         }
 
                         event.getMessage().reply(

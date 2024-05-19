@@ -79,10 +79,13 @@ public class AirCheck {
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new AirCheck().shutdown(), "Shutdown Hook"));
         Thread input = new Thread(() -> {
+            Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
             while (true) {
-                Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
                 String text = in.nextLine();
-                if (text.equalsIgnoreCase("stop")) System.exit(0);
+                if (text.equalsIgnoreCase("stop")) {
+                    in.close();
+                    System.exit(0);
+                }
             }
         }, "Console Input");
         input.start();

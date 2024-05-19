@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings("DataFlowIssue")
 public class Alerts {
@@ -72,9 +73,10 @@ public class Alerts {
             JSONObject alert = new JSONObject(object.toString());
 
             String description = boldAreas(alert.getString("description").replace("\n", "§").replaceAll(" {2,}",
-                    " ").replace("§§", "\n").replace("§", " ").replaceAll("\\s{2}(?=\\b[A-Z]{2,}\\.\\.\\.)",
-                    "\n### ").replace("* ", "### ").replaceAll("- ### .*\\.\\.\\.", "")
-                .replaceAll("(?<=[A-Z])\\.{3}", "\n").replace(" - ", "\n- "));
+                " ").replace("§§", "\n").replace("§", " ").replaceAll("\\s{2}(?=\\b[A-Z]{2,}\\.\\.\\.)",
+                "\n### ").replace("* ", "### ").replaceAll(
+                "- ### .*\\.\\.\\.",
+                "").replaceAll("(?<=[A-Z])\\.{3}", "\n").replace(" - ", "\n- "));
 
             String id = alert.getString("id").replaceFirst("urn:oid:", "");
 
@@ -221,8 +223,10 @@ public class Alerts {
         }
 
         // Delete inactive alerts
-        List<Long> deleteTheseMessages = alertsChannel.getIterableHistory().complete().stream()
-            .map(Message::getIdLong).collect(Collectors.toCollection(ArrayList::new));
+        Stream<Message> history = alertsChannel.getIterableHistory().complete().stream();
+        List<Long> deleteTheseMessages = history.map(Message::getIdLong).collect(Collectors.toCollection(
+            ArrayList::new));
+        history.close();
         // Remove all the saved messages from the to-delete list
         deleteTheseMessages.removeAll(dontDeleteMe);
 
@@ -243,10 +247,12 @@ public class Alerts {
             .replace(nwf, "**" + nwf + "**").replace(da, "**" + da + "**")
 
             .replace(fa.toUpperCase(), "**" + fa.toUpperCase() + "**").replace(ce.toUpperCase(),
-                "**" + ce.toUpperCase() + "**").replace(ka.toUpperCase(), "**" + ka.toUpperCase() + "**")
+                "**" + ce.toUpperCase() + "**").replace(
+                ka.toUpperCase(),
+                "**" + ka.toUpperCase() + "**").replace(nwf.toUpperCase(), "**" + nwf.toUpperCase() + "**")
             .replace(
-                nwf.toUpperCase(),
-                "**" + nwf.toUpperCase() + "**").replace(da.toUpperCase(), "**" + da.toUpperCase() + "**");
+                da.toUpperCase(),
+                "**" + da.toUpperCase() + "**");
     }
 
     private String applyDiffs(DiffRowGenerator generator, String originalText, String newText) {
@@ -256,8 +262,11 @@ public class Alerts {
             List.of(newText));
 
         // Return the updated text with the diff formatting applied
-        return diff.stream().map(DiffRow::getOldLine).collect(Collectors.joining("\n")).replaceAll("\\|\\|_",
+        Stream<DiffRow> diffStream = diff.stream();
+        String diffText = diffStream.map(DiffRow::getOldLine).collect(Collectors.joining("\n")).replaceAll("\\|\\|_",
             "|| _");
+        diffStream.close();
+        return diffText;
     }
 
     private String getThumbnailImage(String event) {

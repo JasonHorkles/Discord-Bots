@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -106,7 +107,7 @@ public class Pws {
             new Utils().updateVoiceChannel(923433184132210698L, "Strikes | " + strikesPerHour + "/hr");
             new Utils().updateVoiceChannel(923432597789503568L, "Nearby Today | " + lightningToday);
 
-            DateTimeFormatter timeUpdatedFormat = DateTimeFormatter.ofPattern("h:mm a");
+            DateTimeFormatter timeUpdatedFormat = DateTimeFormatter.ofPattern("h:mm a", Locale.US);
             Instant timeUpdatedRaw = Instant.ofEpochMilli(input.getLong("dateutc"));
             String timeUpdated = timeUpdatedFormat.format(ZonedDateTime.ofInstant(timeUpdatedRaw,
                 ZoneId.of("America/Denver")));

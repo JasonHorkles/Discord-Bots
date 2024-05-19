@@ -42,7 +42,7 @@ public class Utils {
     }
 
     public String getTime(LogColor logColor) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm:ss a");
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm:ss a", Locale.US);
         return logColor.getLogColor() + "[" + dtf.format(LocalDateTime.now()) + "] ";
     }
 
@@ -110,6 +110,7 @@ public class Utils {
             wordList.add(words.next());
         } catch (NoSuchElementException ignored) {
         }
+        words.close();
 
         Random r = new SecureRandom();
         String word = wordList.get(r.nextInt(wordList.size()));
@@ -134,14 +135,14 @@ public class Utils {
                 return embed.build();
             }
 
-            JSONObject obj = new JSONArray(new Scanner(url, StandardCharsets.UTF_8).useDelimiter("\\A")
-                .nextLine()).getJSONObject(0);
+            JSONObject obj = new JSONArray(new String(url.readAllBytes(),
+                StandardCharsets.UTF_8)).getJSONObject(0);
             url.close();
 
             String receivedWord = obj.getString("word");
             String phonetic = null;
             if (obj.has("phonetic")) phonetic = obj.getString("phonetic");
-            StringBuilder definitions = new StringBuilder();
+            StringBuilder definitions = new StringBuilder(250);
 
             JSONArray meanings = new JSONArray(obj.getJSONArray("meanings"));
             for (int x = 0; x < meanings.length() && x < 3; x++) {

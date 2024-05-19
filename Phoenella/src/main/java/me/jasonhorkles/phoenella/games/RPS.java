@@ -46,7 +46,7 @@ public class RPS extends ListenerAdapter {
                 Button.primary("rps:paper", Emoji.fromUnicode("\uD83D\uDCDD")),
                 Button.primary("rps:scissors", Emoji.fromUnicode("✂️"))).queueAfter(5, TimeUnit.SECONDS);
 
-        StringBuilder mentions = new StringBuilder();
+        StringBuilder mentions = new StringBuilder(46);
         for (Member player : playerList) mentions.append(player.getAsMention());
         channel.sendMessage(mentions).queue(del -> del.delete().queueAfter(100,
             TimeUnit.MILLISECONDS,

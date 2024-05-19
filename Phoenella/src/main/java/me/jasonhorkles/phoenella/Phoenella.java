@@ -90,6 +90,7 @@ public class Phoenella {
             lines.add(leaderboard.nextLine());
         } catch (NoSuchElementException ignored) {
         }
+        leaderboard.close();
 
         if (!lines.isEmpty()) if (lines.getFirst().equalsIgnoreCase("local")) {
             System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Leaderboard set to local mode!");
@@ -102,7 +103,8 @@ public class Phoenella {
 
             if (LocalDate.now().getDayOfMonth() == 1) {
                 File lastClearedFile = new File("Phoenella/Wordle/last-cleared-leaderboard.txt");
-                int month = new Scanner(lastClearedFile, StandardCharsets.UTF_8).nextInt();
+                Scanner lastClearedScanner = new Scanner(lastClearedFile, StandardCharsets.UTF_8);
+                int month = lastClearedScanner.nextInt();
                 if (month != LocalDate.now().getMonthValue()) {
                     FileWriter lastCleared = new FileWriter(lastClearedFile, StandardCharsets.UTF_8, false);
                     lastCleared.write(String.valueOf(LocalDate.now().getMonthValue()));
@@ -113,6 +115,7 @@ public class Phoenella {
 
                     doCheck = false;
                 }
+                lastClearedScanner.close();
             }
 
             if (doCheck) {
@@ -163,6 +166,8 @@ public class Phoenella {
             if (wordScanner.hasNextLine()) originalWordList.add(wordScanner.nextLine());
         wordList = new HashSet<>(originalWordList);
 
+        wordScanner.close();
+
         duplicates = originalWordList.size() - wordList.size();
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Removed " + duplicates + " duplicate banned words!");
         originalWordList.clear();
@@ -175,7 +180,7 @@ public class Phoenella {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Duplicate word check complete!");
 
         // Schedule daily Wordle
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd h:mm a");
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd h:mm a", Locale.US);
         Calendar future = Calendar.getInstance();
         future.setTime(format.parse(LocalDate.now() + " 12:00 AM"));
         future.add(Calendar.DAY_OF_MONTH, 1);
@@ -199,10 +204,13 @@ public class Phoenella {
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new Phoenella().shutdown(), "Shutdown Hook"));
         new Thread(() -> {
+            Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
             while (true) {
-                Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
                 String text = in.nextLine();
-                if (text.equalsIgnoreCase("stop")) System.exit(0);
+                if (text.equalsIgnoreCase("stop")) {
+                    in.close();
+                    System.exit(0);
+                }
                 if (text.equalsIgnoreCase("dailywordle")) new Utils().updateDailyWordle();
             }
         }, "Console Input").start();

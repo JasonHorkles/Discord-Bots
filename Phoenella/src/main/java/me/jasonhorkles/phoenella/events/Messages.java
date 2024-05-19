@@ -95,8 +95,9 @@ public class Messages extends ListenerAdapter {
         try {
             File file = new File("Phoenella/channel-blacklist.txt");
             Scanner fileScanner = new Scanner(file, StandardCharsets.UTF_8);
-
             while (fileScanner.hasNextLine()) disabledChannels.add(fileScanner.nextLine());
+            fileScanner.close();
+
         } catch (NoSuchElementException ignored) {
         } catch (IOException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));

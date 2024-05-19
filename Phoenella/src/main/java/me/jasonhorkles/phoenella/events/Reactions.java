@@ -160,6 +160,7 @@ public class Reactions extends ListenerAdapter {
                 wordList.add(next.toUpperCase());
         } catch (NoSuchElementException ignored) {
         }
+        words.close();
 
         FileWriter fileWriter = new FileWriter(file, StandardCharsets.UTF_8, false);
         for (String word : wordList) fileWriter.write(word + "\n");

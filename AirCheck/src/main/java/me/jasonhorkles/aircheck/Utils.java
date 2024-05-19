@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
 public class Utils {
@@ -26,7 +27,7 @@ public class Utils {
     }
 
     public String getTime(@Nullable LogColor logColor) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm:ss a");
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm:ss a", Locale.US);
         String time = "[" + dtf.format(LocalDateTime.now()) + "] ";
 
         if (logColor == null) return time;

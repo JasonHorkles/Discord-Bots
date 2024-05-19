@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -73,7 +74,7 @@ public class Traffic {
     public void scheduleTrafficCheck(String time, boolean toWork) throws ParseException {
         DayOfWeek day = LocalDate.now().getDayOfWeek();
         if (day != DayOfWeek.SATURDAY && day != DayOfWeek.SUNDAY) {
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd h:mm a");
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd h:mm a", Locale.US);
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(format.parse(LocalDate.now() + " " + time));
 

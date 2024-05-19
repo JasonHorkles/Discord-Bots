@@ -35,8 +35,10 @@ public class Polytrichopsida {
 
         jda.awaitReady();
 
-        OptionData plugins = new OptionData(OptionType.STRING, "plugin", "The plugin", true).addChoices(
-            new Command.Choice("EntityClearer", "EntityClearer"),
+        OptionData plugins = new OptionData(OptionType.STRING,
+            "plugin",
+            "The plugin",
+            true).addChoices(new Command.Choice("EntityClearer", "EntityClearer"),
             new Command.Choice("ExpensiveDeaths", "ExpensiveDeaths"),
             new Command.Choice("FileCleaner", "FileCleaner"));
 
@@ -55,8 +57,8 @@ public class Polytrichopsida {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new Polytrichopsida().shutdown(),
             "Shutdown Hook"));
         Thread input = new Thread(() -> {
+            Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
             while (true) {
-                Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
                 String text = in.nextLine();
                 if (text.equalsIgnoreCase("stop")) {
                     in.close();

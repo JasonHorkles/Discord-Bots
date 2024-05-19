@@ -60,6 +60,7 @@ public class Wordle extends ListenerAdapter {
             wordList.add(words.next());
         } catch (NoSuchElementException ignored) {
         }
+        words.close();
 
         if (answer == null || answer.equals("null")) {
             Random r = new SecureRandom();
@@ -92,7 +93,7 @@ public class Wordle extends ListenerAdapter {
 
         Thread game = new Thread(() -> {
             ArrayList<Message> lines = new ArrayList<>();
-            StringBuilder empties = new StringBuilder();
+            StringBuilder empties = new StringBuilder(140);
             empties.append("<:empty:959950240516046868> ".repeat(answers.get(channel).length()));
             try {
                 for (int x = 0; x < maxTries.get(channel); x++)
@@ -234,7 +235,7 @@ public class Wordle extends ListenerAdapter {
                 letter);
         }
 
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(125);
         for (String character : output) {
             builder.append(character);
             builder.append(" ");
@@ -289,6 +290,7 @@ public class Wordle extends ListenerAdapter {
                     index++;
                 } catch (NoSuchElementException ignored) {
                 }
+                leaderboard.close();
 
                 // Calculate score
                 int score = 0;
@@ -530,6 +532,7 @@ public class Wordle extends ListenerAdapter {
             Scanner fileScanner = new Scanner(new File("Phoenella/Wordle/banned-requests.txt"),
                 StandardCharsets.UTF_8);
             while (fileScanner.hasNextLine()) words.add(fileScanner.nextLine());
+            fileScanner.close();
         } catch (NoSuchElementException ignored) {
         } catch (IOException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
@@ -552,337 +555,361 @@ public class Wordle extends ListenerAdapter {
     private String getLetter(Character letter, LetterType letterType) {
         switch (letterType) {
             case CORRECT -> {
-                switch (letter) {
-                    case 'A' -> {
-                        return "<:ca:959981731467915274>";
-                    }
-                    case 'B' -> {
-                        return "<:cb:959981731539193966>";
-                    }
-                    case 'C' -> {
-                        return "<:cc:959981731535003698>";
-                    }
-                    case 'D' -> {
-                        return "<:cd:959981731522437130>";
-                    }
-                    case 'E' -> {
-                        return "<:ce:959981731635658772>";
-                    }
-                    case 'F' -> {
-                        return "<:cf:959981731534995516>";
-                    }
-                    case 'G' -> {
-                        return "<:cg:959981731677630524>";
-                    }
-                    case 'H' -> {
-                        return "<:ch:959981731635683348>";
-                    }
-                    case 'I' -> {
-                        return "<:ci:959981731409186897>";
-                    }
-                    case 'J' -> {
-                        return "<:cj:959981731673436240>";
-                    }
-                    case 'K' -> {
-                        return "<:ck:959981731635683378>";
-                    }
-                    case 'L' -> {
-                        return "<:cl:959981731610501230>";
-                    }
-                    case 'M' -> {
-                        return "<:cm:959981731656646656>";
-                    }
-                    case 'N' -> {
-                        return "<:cn:959981731648245890>";
-                    }
-                    case 'O' -> {
-                        return "<:co:959981731627282462>";
-                    }
-                    case 'P' -> {
-                        return "<:cp:959981731727949874>";
-                    }
-                    case 'Q' -> {
-                        return "<:cq:959981731614687283>";
-                    }
-                    case 'R' -> {
-                        return "<:cr:959981731656646676>";
-                    }
-                    case 'S' -> {
-                        return "<:cs:959981731673411654>";
-                    }
-                    case 'T' -> {
-                        return "<:ct:959981731618910258>";
-                    }
-                    case 'U' -> {
-                        return "<:cu:959981731639885854>";
-                    }
-                    case 'V' -> {
-                        return "<:cv:959981731631497266>";
-                    }
-                    case 'W' -> {
-                        return "<:cw:959981731740540978>";
-                    }
-                    case 'X' -> {
-                        return "<:cx:959981731690209370>";
-                    }
-                    case 'Y' -> {
-                        return "<:cy:959981731736330270>";
-                    }
-                    case 'Z' -> {
-                        return "<:cz:959981731589529631>";
-                    }
-                }
+                return getCorrectLetter(letter);
             }
 
             case IN_WORD -> {
-                switch (letter) {
-                    case 'A' -> {
-                        return "<:ia:1167158134964502529>";
-                    }
-                    case 'B' -> {
-                        return "<:ib:1167158136134705212>";
-                    }
-                    case 'C' -> {
-                        return "<:ic:1167158138458353674>";
-                    }
-                    case 'D' -> {
-                        return "<:id:1167158139527901284>";
-                    }
-                    case 'E' -> {
-                        return "<:ie:1167158141599879370>";
-                    }
-                    case 'F' -> {
-                        return "<:if:1167158142845599854>";
-                    }
-                    case 'G' -> {
-                        return "<:ig:1167158143994839161>";
-                    }
-                    case 'H' -> {
-                        return "<:ih:1167158145756442724>";
-                    }
-                    case 'I' -> {
-                        return "<:ii:1167158146557558815>";
-                    }
-                    case 'J' -> {
-                        return "<:ij:1167158227365019698>";
-                    }
-                    case 'K' -> {
-                        return "<:ik:1167158228551991327>";
-                    }
-                    case 'L' -> {
-                        return "<:il:1167158149824905227>";
-                    }
-                    case 'M' -> {
-                        return "<:im:1167158231240560800>";
-                    }
-                    case 'N' -> {
-                        return "<:in:959981885025554462>";
-                    }
-                    case 'O' -> {
-                        return "<:io:959981885071700078>";
-                    }
-                    case 'P' -> {
-                        return "<:ip:959981884996223021>";
-                    }
-                    case 'Q' -> {
-                        return "<:iq:959981885017161728>";
-                    }
-                    case 'R' -> {
-                        return "<:ir:959981884979425320>";
-                    }
-                    case 'S' -> {
-                        return "<:is:959981885000384612>";
-                    }
-                    case 'T' -> {
-                        return "<:it:959981885029765160>";
-                    }
-                    case 'U' -> {
-                        return "<:iu:959981884719398984>";
-                    }
-                    case 'V' -> {
-                        return "<:iv:959981885008777226>";
-                    }
-                    case 'W' -> {
-                        return "<:iw:959981885000400946>";
-                    }
-                    case 'X' -> {
-                        return "<:ix:959981884992024586>";
-                    }
-                    case 'Y' -> {
-                        return "<:iy:959981885063299113>";
-                    }
-                    case 'Z' -> {
-                        return "<:iz:959981884987826176>";
-                    }
-                }
+                return getInWordLetter(letter);
             }
 
             case WRONG -> {
-                switch (letter) {
-                    case 'A' -> {
-                        return "<:wa:959981914196942949>";
-                    }
-                    case 'B' -> {
-                        return "<:wb:959981914033381417>";
-                    }
-                    case 'C' -> {
-                        return "<:wc:959981914272440330>";
-                    }
-                    case 'D' -> {
-                        return "<:wd:959981914180186142>";
-                    }
-                    case 'E' -> {
-                        return "<:we:959981913827860544>";
-                    }
-                    case 'F' -> {
-                        return "<:wf:959981914222104616>";
-                    }
-                    case 'G' -> {
-                        return "<:wg:959981914305990746>";
-                    }
-                    case 'H' -> {
-                        return "<:wh:959981914238910524>";
-                    }
-                    case 'I' -> {
-                        return "<:wi:959981914121465887>";
-                    }
-                    case 'J' -> {
-                        return "<:wj:959981914213732362>";
-                    }
-                    case 'K' -> {
-                        return "<:wk:959981914238898176>";
-                    }
-                    case 'L' -> {
-                        return "<:wl:959981913953681460>";
-                    }
-                    case 'M' -> {
-                        return "<:wm:959981914289225768>";
-                    }
-                    case 'N' -> {
-                        return "<:wn:959981914054352947>";
-                    }
-                    case 'O' -> {
-                        return "<:wo:959981914272456724>";
-                    }
-                    case 'P' -> {
-                        return "<:wp:959981914448621588>";
-                    }
-                    case 'Q' -> {
-                        return "<:wq:959981914360528956>";
-                    }
-                    case 'R' -> {
-                        return "<:wr:959981914280849449>";
-                    }
-                    case 'S' -> {
-                        return "<:ws:959981914335358986>";
-                    }
-                    case 'T' -> {
-                        return "<:wt:959981914255654913>";
-                    }
-                    case 'U' -> {
-                        return "<:wu:959981914280828968>";
-                    }
-                    case 'V' -> {
-                        return "<:wv:959981914511511572>";
-                    }
-                    case 'W' -> {
-                        return "<:ww:959981914268262400>";
-                    }
-                    case 'X' -> {
-                        return "<:wx:959981914331164722>";
-                    }
-                    case 'Y' -> {
-                        return "<:wy:959981914020790314>";
-                    }
-                    case 'Z' -> {
-                        return "<:wz:959981914331152434>";
-                    }
-                }
+                return getWrongLetter(letter);
             }
 
             case NOT_GUESSED -> {
-                switch (letter) {
-                    case 'A' -> {
-                        return "<:na:960965057842384896>";
-                    }
-                    case 'B' -> {
-                        return "<:nb:960965057737556008>";
-                    }
-                    case 'C' -> {
-                        return "<:nc:960965057867546724>";
-                    }
-                    case 'D' -> {
-                        return "<:nd:960965057536229387>";
-                    }
-                    case 'E' -> {
-                        return "<:ne:960965057787863120>";
-                    }
-                    case 'F' -> {
-                        return "<:nf:960965057892724828>";
-                    }
-                    case 'G' -> {
-                        return "<:ng:960965057552973835>";
-                    }
-                    case 'H' -> {
-                        return "<:nh:960965057800466472>";
-                    }
-                    case 'I' -> {
-                        return "<:ni:960965057829822494>";
-                    }
-                    case 'J' -> {
-                        return "<:nj:960965057678831617>";
-                    }
-                    case 'K' -> {
-                        return "<:nk:960965057846595604>";
-                    }
-                    case 'L' -> {
-                        return "<:nl:960965057821425735>";
-                    }
-                    case 'M' -> {
-                        return "<:nm:960965057771102210>";
-                    }
-                    case 'N' -> {
-                        return "<:nn:960965058173763614>";
-                    }
-                    case 'O' -> {
-                        return "<:no:960965058307952700>";
-                    }
-                    case 'P' -> {
-                        return "<:np:960965057909522432>";
-                    }
-                    case 'Q' -> {
-                        return "<:nq:960965058467348570>";
-                    }
-                    case 'R' -> {
-                        return "<:nr:960965058085666916>";
-                    }
-                    case 'S' -> {
-                        return "<:ns:960965058110840852>";
-                    }
-                    case 'T' -> {
-                        return "<:nt:960965058458972290>";
-                    }
-                    case 'U' -> {
-                        return "<:nu:960965057620095098>";
-                    }
-                    case 'V' -> {
-                        return "<:nv:960965057930493952>";
-                    }
-                    case 'W' -> {
-                        return "<:nw:960965058047926303>";
-                    }
-                    case 'X' -> {
-                        return "<:nx:960965058156982292>";
-                    }
-                    case 'Y' -> {
-                        return "<:ny:960965057951453254>";
-                    }
-                    case 'Z' -> {
-                        return "<:nz:960965058165358642>";
-                    }
-                }
+                return getNotGuessedLetter(letter);
             }
         }
         return "<@277291758503723010> | Char: `" + letter + "` | LetterType: `" + letterType + "`";
+    }
+
+    private String getCorrectLetter(Character letter) {
+        switch (letter) {
+            case 'A' -> {
+                return "<:ca:959981731467915274>";
+            }
+            case 'B' -> {
+                return "<:cb:959981731539193966>";
+            }
+            case 'C' -> {
+                return "<:cc:959981731535003698>";
+            }
+            case 'D' -> {
+                return "<:cd:959981731522437130>";
+            }
+            case 'E' -> {
+                return "<:ce:959981731635658772>";
+            }
+            case 'F' -> {
+                return "<:cf:959981731534995516>";
+            }
+            case 'G' -> {
+                return "<:cg:959981731677630524>";
+            }
+            case 'H' -> {
+                return "<:ch:959981731635683348>";
+            }
+            case 'I' -> {
+                return "<:ci:959981731409186897>";
+            }
+            case 'J' -> {
+                return "<:cj:959981731673436240>";
+            }
+            case 'K' -> {
+                return "<:ck:959981731635683378>";
+            }
+            case 'L' -> {
+                return "<:cl:959981731610501230>";
+            }
+            case 'M' -> {
+                return "<:cm:959981731656646656>";
+            }
+            case 'N' -> {
+                return "<:cn:959981731648245890>";
+            }
+            case 'O' -> {
+                return "<:co:959981731627282462>";
+            }
+            case 'P' -> {
+                return "<:cp:959981731727949874>";
+            }
+            case 'Q' -> {
+                return "<:cq:959981731614687283>";
+            }
+            case 'R' -> {
+                return "<:cr:959981731656646676>";
+            }
+            case 'S' -> {
+                return "<:cs:959981731673411654>";
+            }
+            case 'T' -> {
+                return "<:ct:959981731618910258>";
+            }
+            case 'U' -> {
+                return "<:cu:959981731639885854>";
+            }
+            case 'V' -> {
+                return "<:cv:959981731631497266>";
+            }
+            case 'W' -> {
+                return "<:cw:959981731740540978>";
+            }
+            case 'X' -> {
+                return "<:cx:959981731690209370>";
+            }
+            case 'Y' -> {
+                return "<:cy:959981731736330270>";
+            }
+            case 'Z' -> {
+                return "<:cz:959981731589529631>";
+            }
+        }
+
+        return String.valueOf(letter);
+    }
+
+    private String getInWordLetter(Character letter) {
+        switch (letter) {
+            case 'A' -> {
+                return "<:ia:1167158134964502529>";
+            }
+            case 'B' -> {
+                return "<:ib:1167158136134705212>";
+            }
+            case 'C' -> {
+                return "<:ic:1167158138458353674>";
+            }
+            case 'D' -> {
+                return "<:id:1167158139527901284>";
+            }
+            case 'E' -> {
+                return "<:ie:1167158141599879370>";
+            }
+            case 'F' -> {
+                return "<:if:1167158142845599854>";
+            }
+            case 'G' -> {
+                return "<:ig:1167158143994839161>";
+            }
+            case 'H' -> {
+                return "<:ih:1167158145756442724>";
+            }
+            case 'I' -> {
+                return "<:ii:1167158146557558815>";
+            }
+            case 'J' -> {
+                return "<:ij:1167158227365019698>";
+            }
+            case 'K' -> {
+                return "<:ik:1167158228551991327>";
+            }
+            case 'L' -> {
+                return "<:il:1167158149824905227>";
+            }
+            case 'M' -> {
+                return "<:im:1167158231240560800>";
+            }
+            case 'N' -> {
+                return "<:in:959981885025554462>";
+            }
+            case 'O' -> {
+                return "<:io:959981885071700078>";
+            }
+            case 'P' -> {
+                return "<:ip:959981884996223021>";
+            }
+            case 'Q' -> {
+                return "<:iq:959981885017161728>";
+            }
+            case 'R' -> {
+                return "<:ir:959981884979425320>";
+            }
+            case 'S' -> {
+                return "<:is:959981885000384612>";
+            }
+            case 'T' -> {
+                return "<:it:959981885029765160>";
+            }
+            case 'U' -> {
+                return "<:iu:959981884719398984>";
+            }
+            case 'V' -> {
+                return "<:iv:959981885008777226>";
+            }
+            case 'W' -> {
+                return "<:iw:959981885000400946>";
+            }
+            case 'X' -> {
+                return "<:ix:959981884992024586>";
+            }
+            case 'Y' -> {
+                return "<:iy:959981885063299113>";
+            }
+            case 'Z' -> {
+                return "<:iz:959981884987826176>";
+            }
+        }
+
+        return String.valueOf(letter);
+    }
+
+    private String getWrongLetter(Character letter) {
+        switch (letter) {
+            case 'A' -> {
+                return "<:wa:959981914196942949>";
+            }
+            case 'B' -> {
+                return "<:wb:959981914033381417>";
+            }
+            case 'C' -> {
+                return "<:wc:959981914272440330>";
+            }
+            case 'D' -> {
+                return "<:wd:959981914180186142>";
+            }
+            case 'E' -> {
+                return "<:we:959981913827860544>";
+            }
+            case 'F' -> {
+                return "<:wf:959981914222104616>";
+            }
+            case 'G' -> {
+                return "<:wg:959981914305990746>";
+            }
+            case 'H' -> {
+                return "<:wh:959981914238910524>";
+            }
+            case 'I' -> {
+                return "<:wi:959981914121465887>";
+            }
+            case 'J' -> {
+                return "<:wj:959981914213732362>";
+            }
+            case 'K' -> {
+                return "<:wk:959981914238898176>";
+            }
+            case 'L' -> {
+                return "<:wl:959981913953681460>";
+            }
+            case 'M' -> {
+                return "<:wm:959981914289225768>";
+            }
+            case 'N' -> {
+                return "<:wn:959981914054352947>";
+            }
+            case 'O' -> {
+                return "<:wo:959981914272456724>";
+            }
+            case 'P' -> {
+                return "<:wp:959981914448621588>";
+            }
+            case 'Q' -> {
+                return "<:wq:959981914360528956>";
+            }
+            case 'R' -> {
+                return "<:wr:959981914280849449>";
+            }
+            case 'S' -> {
+                return "<:ws:959981914335358986>";
+            }
+            case 'T' -> {
+                return "<:wt:959981914255654913>";
+            }
+            case 'U' -> {
+                return "<:wu:959981914280828968>";
+            }
+            case 'V' -> {
+                return "<:wv:959981914511511572>";
+            }
+            case 'W' -> {
+                return "<:ww:959981914268262400>";
+            }
+            case 'X' -> {
+                return "<:wx:959981914331164722>";
+            }
+            case 'Y' -> {
+                return "<:wy:959981914020790314>";
+            }
+            case 'Z' -> {
+                return "<:wz:959981914331152434>";
+            }
+        }
+
+        return String.valueOf(letter);
+    }
+
+    private String getNotGuessedLetter(Character letter) {
+        switch (letter) {
+            case 'A' -> {
+                return "<:na:960965057842384896>";
+            }
+            case 'B' -> {
+                return "<:nb:960965057737556008>";
+            }
+            case 'C' -> {
+                return "<:nc:960965057867546724>";
+            }
+            case 'D' -> {
+                return "<:nd:960965057536229387>";
+            }
+            case 'E' -> {
+                return "<:ne:960965057787863120>";
+            }
+            case 'F' -> {
+                return "<:nf:960965057892724828>";
+            }
+            case 'G' -> {
+                return "<:ng:960965057552973835>";
+            }
+            case 'H' -> {
+                return "<:nh:960965057800466472>";
+            }
+            case 'I' -> {
+                return "<:ni:960965057829822494>";
+            }
+            case 'J' -> {
+                return "<:nj:960965057678831617>";
+            }
+            case 'K' -> {
+                return "<:nk:960965057846595604>";
+            }
+            case 'L' -> {
+                return "<:nl:960965057821425735>";
+            }
+            case 'M' -> {
+                return "<:nm:960965057771102210>";
+            }
+            case 'N' -> {
+                return "<:nn:960965058173763614>";
+            }
+            case 'O' -> {
+                return "<:no:960965058307952700>";
+            }
+            case 'P' -> {
+                return "<:np:960965057909522432>";
+            }
+            case 'Q' -> {
+                return "<:nq:960965058467348570>";
+            }
+            case 'R' -> {
+                return "<:nr:960965058085666916>";
+            }
+            case 'S' -> {
+                return "<:ns:960965058110840852>";
+            }
+            case 'T' -> {
+                return "<:nt:960965058458972290>";
+            }
+            case 'U' -> {
+                return "<:nu:960965057620095098>";
+            }
+            case 'V' -> {
+                return "<:nv:960965057930493952>";
+            }
+            case 'W' -> {
+                return "<:nw:960965058047926303>";
+            }
+            case 'X' -> {
+                return "<:nx:960965058156982292>";
+            }
+            case 'Y' -> {
+                return "<:ny:960965057951453254>";
+            }
+            case 'Z' -> {
+                return "<:nz:960965058165358642>";
+            }
+        }
+
+        return String.valueOf(letter);
     }
 }
