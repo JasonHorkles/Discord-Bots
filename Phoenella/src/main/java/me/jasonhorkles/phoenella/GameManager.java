@@ -14,7 +14,7 @@ import java.util.ArrayList;
 @SuppressWarnings("DataFlowIssue")
 public class GameManager extends ListenerAdapter {
     public TextChannel createChannel(Game game, ArrayList<Member> players, boolean isDailyWordle) {
-        StringBuilder daily = new StringBuilder(43);
+        StringBuilder daily = new StringBuilder(50);
         if (isDailyWordle) daily.append("daily-");
 
         TextChannel channel = Phoenella.jda.getCategoryById(900747596245639238L)
