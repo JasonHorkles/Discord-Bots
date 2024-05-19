@@ -106,6 +106,7 @@ public class Events extends ListenerAdapter {
 
         if (event.getChannelType() == ChannelType.TEXT)
             if (event.getChannel().asTextChannel().getParentCategoryIdLong() == 390942438061113345L) {
+                //            if (event.getChannel().asTextChannel().getIdLong() == 421827334534856705L) {
                 if (!isStaff(event.getMember())) {
                     String message = event.getMessage().getContentStripped().toLowerCase().replace(" ", "");
                     List<String> plugins = Arrays.asList("entityclearer", "expensivedeaths", "filecleaner");
@@ -115,11 +116,11 @@ public class Events extends ListenerAdapter {
                             if (pluginStream2.anyMatch(plugin -> message.contains(":" + plugin + ":"))) {
                                 return;
                             }
-                        }
 
-                        event.getMessage().reply(
-                                "Please go to <#1226927981977403452> for plugin support under the Silverstone organization.")
-                            .mentionRepliedUser(true).queue();
+                            event.getMessage().reply(
+                                    "Please go to <#1226927981977403452> for plugin support under the Silverstone organization.")
+                                .mentionRepliedUser(true).queue();
+                        }
                     }
                 }
             }
@@ -307,6 +308,7 @@ public class Events extends ListenerAdapter {
 
     private boolean isStaff(Member member) {
         // Has helper role or manage threads permission
+        //        return false;
         return member.getRoles().contains(Polytrichopsida.jda.getGuildById(390942438061113344L)
             .getRoleById(606393401839190016L)) || member.hasPermission(Permission.MESSAGE_MANAGE);
     }
