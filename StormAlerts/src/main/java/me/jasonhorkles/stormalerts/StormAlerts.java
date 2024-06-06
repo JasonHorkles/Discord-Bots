@@ -122,6 +122,8 @@ public class StormAlerts extends ListenerAdapter {
                 else if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
                 else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
                 else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
+                else if (e.getMessage().contains("504")) reason = " (Gateway Timeout)";
+                else if (e.getMessage().contains("520")) reason = " (Catch-all error)";
 
                 System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
                 if (reason.isBlank()) {
@@ -157,8 +159,6 @@ public class StormAlerts extends ListenerAdapter {
                 if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
                 else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
                 else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
-                else if (e.getMessage().contains("504")) reason = " (Gateway Timeout)";
-                else if (e.getMessage().contains("520")) reason = " (Catch-all error)";
 
                 System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the visibility!" + reason);
                 if (reason.isBlank()) {
