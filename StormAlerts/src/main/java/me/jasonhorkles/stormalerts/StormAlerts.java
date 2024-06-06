@@ -90,6 +90,7 @@ public class StormAlerts extends ListenerAdapter {
         }
 
         // 1.5 mins
+        //noinspection resource
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
                 new Alerts().checkAlerts();
@@ -147,6 +148,7 @@ public class StormAlerts extends ListenerAdapter {
         }, 1, 90, TimeUnit.SECONDS));
 
         // 6 mins
+        //noinspection resource
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
                 new Visibility().checkConditions();
@@ -155,6 +157,8 @@ public class StormAlerts extends ListenerAdapter {
                 if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
                 else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
                 else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
+                else if (e.getMessage().contains("504")) reason = " (Gateway Timeout)";
+                else if (e.getMessage().contains("520")) reason = " (Catch-all error)";
 
                 System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the visibility!" + reason);
                 if (reason.isBlank()) {
