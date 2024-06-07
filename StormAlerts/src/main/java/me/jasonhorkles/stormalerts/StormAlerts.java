@@ -124,6 +124,7 @@ public class StormAlerts extends ListenerAdapter {
                 else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
                 else if (e.getMessage().contains("504")) reason = " (Gateway Timeout)";
                 else if (e.getMessage().contains("520")) reason = " (Catch-all error)";
+                else if (e.getMessage().contains("524")) reason = " (Timeout)";
 
                 System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
                 if (reason.isBlank()) {
