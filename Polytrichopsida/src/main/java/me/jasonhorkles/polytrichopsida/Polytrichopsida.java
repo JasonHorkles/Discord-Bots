@@ -45,7 +45,7 @@ public class Polytrichopsida {
         //noinspection DataFlowIssue
         jda.getGuildById(390942438061113344L).updateCommands().addCommands(Commands
                 .slash("ecldebug", "EntityClearer debug")
-                .addOption(OptionType.MENTIONABLE, "replyto", "Who to reply to", false),
+                .addOption(OptionType.BOOLEAN, "replyop", "Reply to the OP", false),
             Commands.slash("faqs", "FAQs link").addOptions(plugins),
             Commands.slash("plgh", "Links to the plugins on GitHub"),
             Commands.slash("plugins", "Get a list of Jason's plugins"),

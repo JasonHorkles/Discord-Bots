@@ -40,12 +40,15 @@ public class Events extends ListenerAdapter {
         switch (event.getName().toLowerCase()) {
             case "ecldebug" -> {
                 String message = " run the command `/ecl debug` in-game.\nOnce everything has completed, send the link it provided to this channel.";
-                boolean isNull = event.getOption("replyto") == null;
-                if (!isNull) if (event.getOption("replyto").getAsMember() == null) isNull = true;
+                boolean replyOp;
+                if (event.getOption("replyop") == null) replyOp = false;
+                else replyOp = event.getOption("replyop").getAsBoolean();
 
-                if (isNull) event.reply("Please" + message).queue();
-                else event.reply(event.getOption("replyto").getAsMember()
-                    .getAsMention() + ", please" + message).queue();
+                if (!event.getChannel().getType().isThread()) replyOp = false;
+
+                if (replyOp) event.reply(getOP(event.getChannel()
+                    .asThreadChannel()).getAsMention() + ", please" + message).queue();
+                else event.reply("Please" + message).queue();
             }
 
             case "faqs" -> sendFAQs(event);
