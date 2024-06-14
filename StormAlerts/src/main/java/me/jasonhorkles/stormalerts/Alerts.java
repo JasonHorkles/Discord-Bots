@@ -29,11 +29,11 @@ import java.util.stream.Stream;
 @SuppressWarnings("DataFlowIssue")
 public class Alerts {
     private static final List<Long> dontDeleteMe = new ArrayList<>();
-    private final String fa = Secrets.Area.FA.getArea();
-    private final String ce = Secrets.Area.CE.getArea();
-    private final String ka = Secrets.Area.KA.getArea();
-    private final String nwf = Secrets.Area.NWF.getArea();
-    private final String da = Secrets.Area.DA.getArea();
+    private final String fa = Secrets.Area.FA.area();
+    private final String ce = Secrets.Area.CE.area();
+    private final String ka = Secrets.Area.KA.area();
+    private final String nwf = Secrets.Area.NWF.area();
+    private final String da = Secrets.Area.DA.area();
 
     public void checkAlerts() throws IOException, URISyntaxException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking alerts...");
@@ -45,7 +45,7 @@ public class Alerts {
             "StormAlerts/Tests/alerts-empty.json")));
         else {
             InputStream url = new URI(
-                "https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&zone=" + new Secrets().getAlertZone())
+                "https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&zone=" + new Secrets().alertZone())
                 .toURL().openStream();
             input = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();

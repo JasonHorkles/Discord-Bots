@@ -36,7 +36,7 @@ public class Pws {
         if (StormAlerts.testing) input = new JSONArray(Files.readString(Path.of(
             "StormAlerts/Tests/pwsweather.json"))).getJSONObject(0).getJSONObject("lastData");
         else {
-            InputStream url = new URI("https://api.ambientweather.net/v1/devices/?apiKey=" + new Secrets().getAwApiKey() + "&applicationKey=" + new Secrets().getAwAppKey())
+            InputStream url = new URI("https://api.ambientweather.net/v1/devices/?apiKey=" + new Secrets().awApiKey() + "&applicationKey=" + new Secrets().awAppKey())
                 .toURL().openStream();
             input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8)).getJSONObject(0)
                 .getJSONObject("lastData");

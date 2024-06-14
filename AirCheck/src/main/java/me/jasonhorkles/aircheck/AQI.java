@@ -21,7 +21,7 @@ public class AQI {
         if (AirCheck.testing) input = new JSONArray(Files.readString(Path.of("AirCheck/air.json")));
         else {
             InputStream url = new URI(
-                "https://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json&zipCode=" + new Secrets().getZip() + "&distance=25&API_KEY=" + new Secrets().getAqiApiKey())
+                "https://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json&zipCode=" + new Secrets().zip() + "&distance=25&API_KEY=" + new Secrets().aqiApiKey())
                 .toURL().openStream();
             input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();

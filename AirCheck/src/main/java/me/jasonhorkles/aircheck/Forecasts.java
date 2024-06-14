@@ -26,7 +26,7 @@ public class Forecasts {
         JSONArray input;
         if (AirCheck.testing) input = new JSONArray(Files.readString(Path.of("AirCheck/activities.json")));
         else {
-            InputStream url = new URI("http://dataservice.accuweather.com/indices/v1/daily/1day/" + new Secrets().getAccuLocationCode() + "?apikey=" + new Secrets().getAccuApiKey())
+            InputStream url = new URI("http://dataservice.accuweather.com/indices/v1/daily/1day/" + new Secrets().accuLocationCode() + "?apikey=" + new Secrets().accuApiKey())
                 .toURL().openStream();
             input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();

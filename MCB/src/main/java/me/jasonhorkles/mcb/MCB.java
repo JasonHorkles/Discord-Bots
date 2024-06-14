@@ -20,7 +20,7 @@ public class MCB {
     public static void main(String[] args) throws InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
-        JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
+        JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());
         builder.disableCache(CacheFlag.ACTIVITY, CacheFlag.VOICE_STATE);
         builder.enableIntents(GatewayIntent.GUILD_MESSAGES,
             GatewayIntent.GUILD_MEMBERS,

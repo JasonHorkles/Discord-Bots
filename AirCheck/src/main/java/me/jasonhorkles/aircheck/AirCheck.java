@@ -24,7 +24,7 @@ public class AirCheck {
     public static void main(String[] args) throws InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
-        JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
+        JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());
         builder.disableCache(CacheFlag.ACTIVITY,
             CacheFlag.CLIENT_STATUS,
             CacheFlag.ONLINE_STATUS,

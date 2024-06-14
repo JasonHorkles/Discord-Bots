@@ -39,7 +39,7 @@ public class Phoenella {
     public static void main(String[] args) throws InterruptedException, IOException, ParseException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
-        JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
+        JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());
         builder.disableCache(CacheFlag.ACTIVITY);
         builder.enableCache(CacheFlag.VOICE_STATE);
         builder.enableIntents(GatewayIntent.GUILD_MEMBERS,

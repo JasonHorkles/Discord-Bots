@@ -41,7 +41,7 @@ public class Weather extends ListenerAdapter {
         if (StormAlerts.testing) weather = Files.readString(Path.of("StormAlerts/Tests/weather.txt"));
         else {
             Connection conn = Jsoup
-                .connect("https://weather.com/weather/today/l/" + new Secrets().getWeatherCode()).timeout(
+                .connect("https://weather.com/weather/today/l/" + new Secrets().weatherCode()).timeout(
                     15000);
             try {
                 Document doc = conn.get();

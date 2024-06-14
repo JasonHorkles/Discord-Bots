@@ -75,8 +75,8 @@ public class Messages extends ListenerAdapter {
 
         if (text.equals("stop") || text.equals("shut down")) if (member.getIdLong() == 277291758503723010L) {
             message.reply("Shutting down...").mentionRepliedUser(false).queue();
-            PteroClient ptero = PteroBuilder.createClient(new Secrets().getPteroUrl(),
-                new Secrets().getPteroApiKey());
+            PteroClient ptero = PteroBuilder.createClient(new Secrets().pteroUrl(),
+                new Secrets().pteroApiKey());
             ptero.retrieveServerByIdentifier("5243694c").flatMap(ClientServer::stop).executeAsync();
             return;
         }

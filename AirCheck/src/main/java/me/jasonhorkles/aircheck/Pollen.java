@@ -20,7 +20,7 @@ public class Pollen {
         if (AirCheck.testing) input = Files.readString(Path.of("AirCheck/pollen.txt"));
         else {
             Connection conn = Jsoup
-                .connect("https://weather.com/forecast/allergy/l/" + new Secrets().getPollenLocationId())
+                .connect("https://weather.com/forecast/allergy/l/" + new Secrets().pollenLocationId())
                 .timeout(30000);
             Document doc = conn.get();
 

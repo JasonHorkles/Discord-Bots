@@ -26,7 +26,7 @@ public class Silverstone {
     public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
-        JDABuilder builder = JDABuilder.createDefault(new Secrets().getBotToken());
+        JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());
         builder.enableIntents(GatewayIntent.GUILD_PRESENCES,
             GatewayIntent.GUILD_MEMBERS,
             GatewayIntent.GUILD_MESSAGES,
