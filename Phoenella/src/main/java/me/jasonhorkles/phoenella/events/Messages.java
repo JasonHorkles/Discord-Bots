@@ -28,7 +28,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -239,7 +238,7 @@ public class Messages extends ListenerAdapter {
 
         channel.sendTyping().complete();
 
-        Random r = new SecureRandom();
+        Random r = new Random();
 
         if (text.isEmpty()) {
             msg = new Utils().getFirstName(member);

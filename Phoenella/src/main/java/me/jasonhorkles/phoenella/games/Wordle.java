@@ -26,7 +26,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -63,7 +62,7 @@ public class Wordle extends ListenerAdapter {
         words.close();
 
         if (answer == null || answer.equals("null")) {
-            Random r = new SecureRandom();
+            Random r = new Random();
             answer = wordList.get(r.nextInt(wordList.size()));
         }
 

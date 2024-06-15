@@ -19,7 +19,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -75,7 +74,7 @@ public class Utils {
     public void sendMessage(@Nullable TextChannel channel, @Nullable Message replyTo, String message, Boolean allCaps) {
         if (!message.startsWith("http")) if (allCaps) message = message.toUpperCase();
         else {
-            Random r = new SecureRandom();
+            Random r = new Random();
             if (r.nextBoolean()) message = message.toLowerCase();
         }
 
@@ -112,7 +111,7 @@ public class Utils {
         }
         words.close();
 
-        Random r = new SecureRandom();
+        Random r = new Random();
         String word = wordList.get(r.nextInt(wordList.size()));
 
         FileWriter daily = new FileWriter("Phoenella/Wordle/daily.txt", StandardCharsets.UTF_8, false);
