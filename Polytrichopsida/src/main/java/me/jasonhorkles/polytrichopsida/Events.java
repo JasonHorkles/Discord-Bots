@@ -108,17 +108,15 @@ public class Events extends ListenerAdapter {
         if (event.getAuthor().isBot()) return;
 
         if (event.getChannelType() == ChannelType.TEXT)
-            if (event.getChannel().asTextChannel().getParentCategoryIdLong() == 390942438061113345L) {
-                //            if (event.getChannel().asTextChannel().getIdLong() == 421827334534856705L) {
+            if (event.getChannel().asTextChannel().getParentCategoryIdLong() == 390942438061113345L)
                 if (!isStaff(event.getMember())) {
                     String message = event.getMessage().getContentStripped().toLowerCase().replace(" ", "");
                     List<String> plugins = Arrays.asList("entityclearer", "expensivedeaths", "filecleaner");
 
                     try (Stream<String> pluginStream1 = plugins.stream(); Stream<String> pluginStream2 = plugins.stream()) {
                         if (pluginStream1.anyMatch(message::contains)) {
-                            if (pluginStream2.anyMatch(plugin -> message.contains(":" + plugin + ":"))) {
+                            if (pluginStream2.anyMatch(plugin -> message.contains(":" + plugin + ":")))
                                 return;
-                            }
 
                             event.getMessage().reply(
                                     "Please go to <#1226927981977403452> for plugin support under the Silverstone organization.")
@@ -126,7 +124,6 @@ public class Events extends ListenerAdapter {
                         }
                     }
                 }
-            }
 
         // Plugin support thread
         if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD) if (isPluginSupport(event
@@ -303,17 +300,14 @@ public class Events extends ListenerAdapter {
     }
 
     private boolean isPluginSupport(ThreadChannel channel, Member member) {
-        // Plugin support channel and has helper role or manage threads permission
-        return channel.getParentChannel().getIdLong() == 1226927981977403452L && (member.getRoles().contains(
-            Polytrichopsida.jda.getGuildById(390942438061113344L)
-                .getRoleById(606393401839190016L)) || member.hasPermission(Permission.MANAGE_THREADS));
+        // Plugin support channel and is considered staff
+        return channel.getParentChannel().getIdLong() == 1226927981977403452L && (isStaff(member));
     }
 
     private boolean isStaff(Member member) {
-        // Has helper role or manage threads permission
-        //        return false;
+        // Has helper role or kick permission
         return member.getRoles().contains(Polytrichopsida.jda.getGuildById(390942438061113344L)
-            .getRoleById(606393401839190016L)) || member.hasPermission(Permission.MESSAGE_MANAGE);
+            .getRoleById(606393401839190016L)) || member.hasPermission(Permission.KICK_MEMBERS);
     }
 
     private ThreadMember getOP(ThreadChannel channel) {
