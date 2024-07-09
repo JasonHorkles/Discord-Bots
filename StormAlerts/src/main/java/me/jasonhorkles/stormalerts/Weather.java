@@ -158,7 +158,7 @@ public class Weather extends ListenerAdapter {
                     }, "Snow Message").start();
                 }
 
-            } else if (weather.equals("RAIN") && Pws.temperature >= 30) {
+            } /*else if (weather.equals("RAIN") && Pws.temperature >= 30) {
                 String ping = "";
                 if (new Utils().shouldIPing(rainChannel)) ping = "<@&843956362059841596>\n";
 
@@ -201,7 +201,7 @@ public class Weather extends ListenerAdapter {
                 }
 
                 previousTypeChannel = rainChannel;
-            }
+            }*/
         }
 
         // Weather is no longer exciting, so cancel any existing scheduled snow
