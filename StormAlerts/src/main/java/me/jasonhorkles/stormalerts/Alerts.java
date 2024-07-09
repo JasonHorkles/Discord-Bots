@@ -78,15 +78,22 @@ public class Alerts {
                 "- ### .*\\.\\.\\.",
                 "").replaceAll("(?<=[A-Z])\\.{3}", "\n").replace(" - ", "\n- "));
 
-            String id = alert.getString("id").replaceFirst("urn:oid:", "");
-
-            if (!description.toLowerCase().contains(fa.toLowerCase()) && !description.toLowerCase().contains(
-                ce.toLowerCase()) && !description.toLowerCase().contains(ka.toLowerCase()) && !description
-                .toLowerCase().contains(nwf.toLowerCase())) continue;
+            String area = alert.getString("areaDesc");
+            // Ignore alerts for (irrelevant) places outside of the region
+            String[] locations = {fa, ce, ka, nwf, da};
+            boolean irrelevantLoc = true;
+            for (String location : locations)
+                if (description.toLowerCase().contains(location.toLowerCase()) || area.toLowerCase().contains(
+                    location.toLowerCase())) {
+                    irrelevantLoc = false;
+                    break;
+                }
+            if (irrelevantLoc) continue;
 
             String alertType = alert.getString("messageType");
             if (!alertType.equals("Alert") && !alertType.equals("Update")) continue;
 
+            String id = alert.getString("id").replaceFirst("urn:oid:", "");
             // For each message in the channel
             List<Message> messages = alertsChannel.getIterableHistory().complete();
             boolean sameAlert = false;
@@ -138,7 +145,7 @@ public class Alerts {
 
             long sent = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString("sent")))
                 .toEpochMilli() / 1000;
-            String area = boldAreas(alert.getString("areaDesc"));
+            String boldArea = boldAreas(area);
             String certainty = alert.getString("certainty");
             String event = alert.getString("event");
             String instruction;
@@ -176,7 +183,7 @@ public class Alerts {
 
             switch (alertType) {
                 case "Alert" -> {
-                    String message = "<@&850471646191812700>\n**[" + severity.toUpperCase() + "] " + event + "** for " + area;
+                    String message = "<@&850471646191812700>\n**[" + severity.toUpperCase() + "] " + event + "** for " + boldArea;
                     if (severity.equalsIgnoreCase("Extreme")) message = message.replaceFirst(
                         "<@&850471646191812700>\n",
                         "<@&850471646191812700>\n<a:weewoo:1083615022455992382> ");
@@ -208,7 +215,7 @@ public class Alerts {
                     fields.set(0, new MessageEmbed.Field("Instruction", newInstruction, false));
                     for (MessageEmbed.Field field : fields) embed.addField(field);
 
-                    String message = "<@&850471690093854810>\n**[" + severity.toUpperCase() + "] " + event + "** for " + area;
+                    String message = "<@&850471690093854810>\n**[" + severity.toUpperCase() + "] " + event + "** for " + boldArea;
                     if (severity.equalsIgnoreCase("Extreme")) message = message.replaceFirst(
                         "<@&850471690093854810>\n",
                         "<@&850471690093854810>\n<a:weewoo:1083615022455992382> ");
