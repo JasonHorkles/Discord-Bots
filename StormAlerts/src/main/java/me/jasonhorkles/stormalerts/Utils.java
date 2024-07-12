@@ -20,11 +20,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public final class Utils {
-    // Private constructor to avoid unnecessary instantiation of the class
-    private Utils() {
-    }
-
+public class Utils {
     public enum LogColor {
         RED("\u001B[31m"), YELLOW("\u001B[33m"), GREEN("\u001B[32m");
 
@@ -39,7 +35,7 @@ public final class Utils {
         }
     }
 
-    public static String getTime(@Nullable LogColor logColor) {
+    public String getTime(@Nullable LogColor logColor) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm:ss a", Locale.US);
         String time = "[" + dtf.format(LocalDateTime.now()) + "] ";
 
@@ -47,24 +43,24 @@ public final class Utils {
         return logColor.getLogColor() + time;
     }
 
-    public static CompletableFuture<List<Message>> getMessages(MessageChannel channel, int count) {
+    public CompletableFuture<List<Message>> getMessages(MessageChannel channel, int count) {
         return channel.getIterableHistory().takeAsync(count).thenApply(ArrayList::new);
     }
 
-    public static boolean shouldIPing(TextChannel channel) {
+    public boolean shouldIPing(TextChannel channel) {
         if (StormAlerts.testing) return false;
 
         try {
-            Message message = getMessages(channel, 1).get(30, TimeUnit.SECONDS).getFirst();
+            Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).getFirst();
 
             if (message.isEdited()) //noinspection DataFlowIssue
                 return message.getTimeEdited().isBefore(OffsetDateTime.now().minusHours(12));
             else return message.getTimeCreated().isBefore(OffsetDateTime.now().minusHours(12));
 
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            System.out.print(getTime(LogColor.RED));
+            System.out.print(new Utils().getTime(LogColor.RED));
             e.printStackTrace();
-            logError(e);
+            new Utils().logError(e);
             return true;
 
         } catch (IndexOutOfBoundsException ignored) {
@@ -72,21 +68,21 @@ public final class Utils {
         }
     }
 
-    public static boolean shouldIBeSilent(TextChannel channel) {
+    public boolean shouldIBeSilent(TextChannel channel) {
         if (StormAlerts.testing) return true;
 
         // Set whether or not the message should be silent (e.g. right after a restart)
         try {
-            Message message = getMessages(channel, 1).get(30, TimeUnit.SECONDS).getFirst();
+            Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).getFirst();
 
             // If edited/sent within the last hour, send silently
             if (message.isEdited()) //noinspection DataFlowIssue
                 return message.getTimeEdited().isAfter(OffsetDateTime.now().minusHours(1));
             else return message.getTimeCreated().isAfter(OffsetDateTime.now().minusHours(1));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            System.out.print(getTime(LogColor.RED));
+            System.out.print(new Utils().getTime(LogColor.RED));
             e.printStackTrace();
-            logError(e);
+            new Utils().logError(e);
             return false;
 
         } catch (IndexOutOfBoundsException ignored) {
@@ -95,50 +91,50 @@ public final class Utils {
     }
 
     @SuppressWarnings("DataFlowIssue")
-    public static void updateVoiceChannel(long id, String name) {
+    public void updateVoiceChannel(long id, String name) {
         VoiceChannel voiceChannel = StormAlerts.jda.getVoiceChannelById(id);
         if (!voiceChannel.getName().equals(name)) voiceChannel.getManager().setName(name).queue();
     }
 
-    public static void updateNow(@Nullable SlashCommandInteractionEvent event) {
+    public void updateNow(@Nullable SlashCommandInteractionEvent event) {
         String error = "Done!";
         boolean isSlash = event != null;
 
         if (isSlash) event.deferReply(true).complete();
 
         // Alerts
-        System.out.println(getTime(Utils.LogColor.YELLOW) + "Force checking alerts...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Force checking alerts...");
         if (isSlash) event.getHook().editOriginal("Checking alerts...").complete();
         try {
             new Alerts().checkAlerts();
         } catch (Exception e) {
-            System.out.println(getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!");
+            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!");
             e.printStackTrace();
-            logError(e);
+            new Utils().logError(e);
             error = "Couldn't get the alerts!";
         }
 
         // PWS / Rain
-        System.out.println(getTime(Utils.LogColor.YELLOW) + "Force checking PWS conditions...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Force checking PWS conditions...");
         if (isSlash) event.getHook().editOriginal("Checking PWS conditions...").complete();
         try {
             new Pws().checkConditions();
         } catch (Exception e) {
-            System.out.println(getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!");
+            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!");
             e.printStackTrace();
-            logError(e);
+            new Utils().logError(e);
             error = "Couldn't get the PWS conditions!";
         }
 
         // Weather
-        System.out.println(getTime(Utils.LogColor.YELLOW) + "Force checking weather conditions...");
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Force checking weather conditions...");
         if (isSlash) event.getHook().editOriginal("Checking weather conditions...").complete();
         try {
             new Weather().checkConditions();
         } catch (Exception e) {
-            System.out.println(getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
+            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
             e.printStackTrace();
-            logError(e);
+            new Utils().logError(e);
             error = "Couldn't get the weather conditions!";
             StormAlerts.jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
             StormAlerts.jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
@@ -147,7 +143,7 @@ public final class Utils {
         if (isSlash) event.getHook().editOriginal(error).complete();
     }
 
-    public static void logError(Exception e) {
+    public void logError(Exception e) {
         StringBuilder error = new StringBuilder("```accesslog\n");
         error.append(getTime(null)).append(e);
         for (StackTraceElement element : e.getStackTrace())
