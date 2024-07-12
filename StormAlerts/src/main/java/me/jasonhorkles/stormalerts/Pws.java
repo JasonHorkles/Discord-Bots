@@ -30,13 +30,13 @@ public class Pws {
 
     @SuppressWarnings("DataFlowIssue")
     public void checkConditions() throws IOException, URISyntaxException {
-        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking PWS conditions...");
+        System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "Checking PWS conditions...");
 
         JSONObject input;
         if (StormAlerts.testing) input = new JSONArray(Files.readString(Path.of(
             "StormAlerts/Tests/pwsweather.json"))).getJSONObject(0).getJSONObject("lastData");
         else {
-            InputStream url = new URI("https://api.ambientweather.net/v1/devices/?apiKey=" + new Secrets().awApiKey() + "&applicationKey=" + new Secrets().awAppKey())
+            InputStream url = new URI("https://api.ambientweather.net/v1/devices/?apiKey=" + Secrets.awApiKey() + "&applicationKey=" + Secrets.awAppKey())
                 .toURL().openStream();
             input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8)).getJSONObject(0)
                 .getJSONObject("lastData");

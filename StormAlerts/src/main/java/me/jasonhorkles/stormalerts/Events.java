@@ -18,7 +18,7 @@ import java.util.List;
 public class Events extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember()
+        System.out.println(Utils.getTime(Utils.LogColor.GREEN) + event.getMember()
             .getEffectiveName() + " used the /" + event.getName() + " command");
 
         switch (event.getName().toLowerCase()) {
@@ -104,12 +104,12 @@ public class Events extends ListenerAdapter {
                     for (SelectOption option : event.getSelectedOptions()) {
                         Role role = guild.getRoleById(option.getValue());
                         if (member.getRoles().contains(role)) {
-                            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Removing " + role
+                            System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "Removing " + role
                                 .getName().toLowerCase() + " role from '" + member.getEffectiveName() + "'");
                             guild.removeRoleFromMember(member, role).complete();
 
                         } else {
-                            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Adding " + role
+                            System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "Adding " + role
                                 .getName().toLowerCase() + " role to '" + member.getEffectiveName() + "'");
                             guild.addRoleToMember(member, role).complete();
                         }

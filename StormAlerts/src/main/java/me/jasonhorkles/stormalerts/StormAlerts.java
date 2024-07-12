@@ -36,9 +36,9 @@ public class StormAlerts extends ListenerAdapter {
     public static JDA jda;
 
     public static void main(String[] args) throws InterruptedException, ParseException {
-        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
+        System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "Starting...");
 
-        JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());
+        JDABuilder builder = JDABuilder.createDefault(Secrets.botToken());
         builder.disableCache(CacheFlag.ACTIVITY,
             CacheFlag.CLIENT_STATUS,
             CacheFlag.ONLINE_STATUS,
@@ -75,18 +75,18 @@ public class StormAlerts extends ListenerAdapter {
                     .replaceFirst(" mph.*", ""));
             }
         } catch (ExecutionException | TimeoutException e) {
-            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            System.out.print(Utils.getTime(Utils.LogColor.RED));
             e.printStackTrace();
-            new Utils().logError(e);
+            Utils.logError(e);
         }
 
         // Schedule records announcement and cache current records
         try {
             new Records().scheduleRecordCheck();
         } catch (Exception e) {
-            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Error grabbing the records!");
+            System.out.println(Utils.getTime(Utils.LogColor.RED) + "Error grabbing the records!");
             e.printStackTrace();
-            new Utils().logError(e);
+            Utils.logError(e);
         }
 
         // 1.5 mins
@@ -99,11 +99,11 @@ public class StormAlerts extends ListenerAdapter {
                 else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
                 else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
 
-                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!" + reason);
+                System.out.println(Utils.getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!" + reason);
                 if (reason.isBlank()) {
-                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                    System.out.print(Utils.getTime(Utils.LogColor.RED));
                     e.printStackTrace();
-                    new Utils().logError(e);
+                    Utils.logError(e);
                 }
             }
 
@@ -125,11 +125,11 @@ public class StormAlerts extends ListenerAdapter {
                 else if (e.getMessage().contains("520")) reason = " (Catch-all error)";
                 else if (e.getMessage().contains("524")) reason = " (Timeout)";
 
-                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
+                System.out.println(Utils.getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
                 if (reason.isBlank()) {
-                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                    System.out.print(Utils.getTime(Utils.LogColor.RED));
                     e.printStackTrace();
-                    new Utils().logError(e);
+                    Utils.logError(e);
                 }
             }
 
@@ -141,11 +141,11 @@ public class StormAlerts extends ListenerAdapter {
             try {
                 new Weather().checkConditions();
             } catch (Exception e) {
-                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
+                System.out.println(Utils.getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
                 e.printStackTrace();
                 jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
                 jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
-                new Utils().logError(e);
+                Utils.logError(e);
             }
         }, 1, 90, TimeUnit.SECONDS));
 
@@ -159,11 +159,11 @@ public class StormAlerts extends ListenerAdapter {
                 else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
                 else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
 
-                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the visibility!" + reason);
+                System.out.println(Utils.getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the visibility!" + reason);
                 if (reason.isBlank()) {
-                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                    System.out.print(Utils.getTime(Utils.LogColor.RED));
                     e.printStackTrace();
-                    new Utils().logError(e);
+                    Utils.logError(e);
                 }
                 new Utils().updateVoiceChannel(899872710233051178L, "Visibility | ERROR");
             }
@@ -204,9 +204,9 @@ public class StormAlerts extends ListenerAdapter {
                     .setMaxValues(selectOptions.size()).build()).addActionRow(Button.secondary("viewroles",
                     "Your Roles")).queue();
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            System.out.print(Utils.getTime(Utils.LogColor.RED));
             e.printStackTrace();
-            new Utils().logError(e);
+            Utils.logError(e);
         }
 
         // Add shutdown hooks
@@ -225,23 +225,23 @@ public class StormAlerts extends ListenerAdapter {
         }, "Console Input");
         input.start();
 
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
+        System.out.println(Utils.getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }
 
     public void shutdown() {
-        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
+        System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "Shutting down...");
 
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Dumping record data...");
+        System.out.println(Utils.getTime(Utils.LogColor.GREEN) + "Dumping record data...");
         try {
             FileWriter recordsToday = saveRecords();
             recordsToday.close();
 
         } catch (IOException e) {
-            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Unable to write to records file! Dumping to DMs...");
+            System.out.println(Utils.getTime(Utils.LogColor.RED) + "Unable to write to records file! Dumping to DMs...");
 
-            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            System.out.print(Utils.getTime(Utils.LogColor.RED));
             e.printStackTrace();
-            new Utils().logError(e);
+            Utils.logError(e);
 
             jda.openPrivateChannelById(277291758503723010L).flatMap(channel -> channel.sendMessage(
                 MessageFormat.format(
@@ -272,9 +272,9 @@ public class StormAlerts extends ListenerAdapter {
                 Thread.sleep(500);
 
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                System.out.print(Utils.getTime(Utils.LogColor.RED));
                 e.printStackTrace();
-                new Utils().logError(e);
+                Utils.logError(e);
             }
 
             if (!message.getContentRaw().contains("Ended") && !message.getContentRaw().contains("restarted"))

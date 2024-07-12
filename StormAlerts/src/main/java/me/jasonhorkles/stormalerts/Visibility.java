@@ -12,13 +12,13 @@ import java.nio.file.Path;
 
 public class Visibility {
     public void checkConditions() throws IOException, URISyntaxException {
-        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking visibility...");
+        System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "Checking visibility...");
 
         JSONObject input;
         if (StormAlerts.testing) input = new JSONObject(Files.readString(Path.of(
             "StormAlerts/Tests/visibility.json")));
         else {
-            InputStream url = new URI("https://api.weather.gov/stations/" + new Secrets().nwsStation() + "/observations/latest")
+            InputStream url = new URI("https://api.weather.gov/stations/" + Secrets.nwsStation() + "/observations/latest")
                 .toURL().openStream();
             input = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();

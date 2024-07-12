@@ -35,19 +35,19 @@ public class Weather extends ListenerAdapter {
     private static String weatherName;
 
     public void checkConditions() throws IOException, ExecutionException, InterruptedException, TimeoutException {
-        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking weather...");
+        System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "Checking weather...");
 
         String weather = "Unavailable";
         if (StormAlerts.testing) weather = Files.readString(Path.of("StormAlerts/Tests/weather.txt"));
         else {
-            Connection conn = Jsoup
-                .connect("https://weather.com/weather/today/l/" + new Secrets().weatherCode()).timeout(15000);
+            Connection conn = Jsoup.connect("https://weather.com/weather/today/l/" + Secrets.weatherCode())
+                .timeout(15000);
             try {
                 Document doc = conn.get();
                 weather = doc.select("[class*=\"CurrentConditions--phraseValue--\"]").first().text();
             } catch (IOException e) {
-                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Failed to check weather! Stacktrace:");
-                System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                System.out.println(Utils.getTime(Utils.LogColor.RED) + "Failed to check weather! Stacktrace:");
+                System.out.print(Utils.getTime(Utils.LogColor.RED));
                 e.printStackTrace();
             }
         }
@@ -95,7 +95,7 @@ public class Weather extends ListenerAdapter {
             trimmedWeatherName = trimmedWeatherName();
 
             if (weatherName.equals(previousWeatherName)) {
-                System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "The weather hasn't changed!");
+                System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "The weather hasn't changed!");
                 sendAlerts = false;
             }
         }
@@ -140,9 +140,9 @@ public class Weather extends ListenerAdapter {
                     }
 
                 } catch (Exception e) {
-                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                    System.out.print(Utils.getTime(Utils.LogColor.RED));
                     e.printStackTrace();
-                    new Utils().logError(e);
+                    Utils.logError(e);
                 }
 
                 // Send the snow message after 30 minutes IF it's still snowing by then
@@ -185,7 +185,7 @@ public class Weather extends ListenerAdapter {
                         message = ping + "☂️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)";
 
                     default ->
-                        System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] It's raining, but there's no valid intensity! (" + rainIntensity + ")");
+                        System.out.println(Utils.getTime(Utils.LogColor.RED) + "[ERROR] It's raining, but there's no valid intensity! (" + rainIntensity + ")");
                 }
 
                 if (acceptRainForDay || notSnowMelt)
@@ -226,14 +226,14 @@ public class Weather extends ListenerAdapter {
 
         } else if (weather.equals("RAIN")) {
             StormAlerts.jda.getPresence().setActivity(Activity.watching("the rain @ " + rainRate + " in/hr"));
-            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Raining @ " + rainRate + " in/hr");
+            System.out.println(Utils.getTime(Utils.LogColor.GREEN) + "Raining @ " + rainRate + " in/hr");
 
         } else StormAlerts.jda.getPresence()
             .setActivity(Activity.customStatus("It's " + weatherName + " (" + weather + ")"));
 
         previousWeatherName = weatherName;
 
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Weather: " + weather);
+        System.out.println(Utils.getTime(Utils.LogColor.GREEN) + "Weather: " + weather);
     }
 
     // Rain confirmation stuff
@@ -310,9 +310,9 @@ public class Weather extends ListenerAdapter {
             if (!latestMessages.isEmpty())
                 for (Message messageToDelete : latestMessages) messageToDelete.delete().queue();
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            System.out.print(Utils.getTime(Utils.LogColor.RED));
             e.printStackTrace();
-            new Utils().logError(e);
+            Utils.logError(e);
         }
 
         channel.sendMessage(message).setActionRow(Button.success("acceptrain", "Accept for the day")
