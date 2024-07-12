@@ -90,12 +90,9 @@ public class StormAlerts extends ListenerAdapter {
         }
 
         // 1.5 mins
-        Alerts alerts = new Alerts();
-        Pws pws = new Pws();
-        Weather weather = new Weather();
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
-                alerts.checkAlerts();
+                new Alerts().checkAlerts();
             } catch (Exception e) {
                 String reason = "";
                 if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
@@ -117,7 +114,7 @@ public class StormAlerts extends ListenerAdapter {
 
             //todo https://ambientweather.docs.apiary.io/#reference/ambient-realtime-api instead
             try {
-                pws.checkConditions();
+                new Pws().checkConditions();
             } catch (Exception e) {
                 String reason = "";
                 if (e.getMessage().contains("401")) reason = " (Unauthorized)";
@@ -142,7 +139,7 @@ public class StormAlerts extends ListenerAdapter {
             }
 
             try {
-                weather.checkConditions();
+                new Weather().checkConditions();
             } catch (Exception e) {
                 System.out.println(Utils.getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
                 e.printStackTrace();
@@ -153,10 +150,9 @@ public class StormAlerts extends ListenerAdapter {
         }, 1, 90, TimeUnit.SECONDS));
 
         // 6 mins
-        Visibility visibility = new Visibility();
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
-                visibility.checkConditions();
+                new Visibility().checkConditions();
             } catch (Exception e) {
                 String reason = "";
                 if (e.getMessage().contains("500")) reason = " (Internal Server Error)";

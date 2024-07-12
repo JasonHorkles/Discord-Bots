@@ -40,8 +40,8 @@ public class Weather extends ListenerAdapter {
         String weather = "Unavailable";
         if (StormAlerts.testing) weather = Files.readString(Path.of("StormAlerts/Tests/weather.txt"));
         else {
-            Connection conn = Jsoup
-                .connect("https://weather.com/weather/today/l/" + Secrets.weatherCode()).timeout(15000);
+            Connection conn = Jsoup.connect("https://weather.com/weather/today/l/" + Secrets.weatherCode())
+                .timeout(15000);
             try {
                 Document doc = conn.get();
                 weather = doc.select("[class*=\"CurrentConditions--phraseValue--\"]").first().text();
@@ -50,7 +50,6 @@ public class Weather extends ListenerAdapter {
                 System.out.print(Utils.getTime(Utils.LogColor.RED));
                 e.printStackTrace();
             }
-
         }
 
         weatherName = null;
@@ -148,12 +147,10 @@ public class Weather extends ListenerAdapter {
                 // Send the snow message after 30 minutes IF it's still snowing by then
                 if (scheduleMessage) {
                     String finalWeather = weather;
-                    new Thread(() -> {
-                        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                            scheduledSnowMessage = executor.schedule(() -> sendSnowMessage(snowChannel,
-                                finalWeather), 30, TimeUnit.MINUTES);
-                        }
-                    }, "Snow Message").start();
+                    try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                        scheduledSnowMessage = executor.schedule(() -> sendSnowMessage(snowChannel,
+                            finalWeather), 30, TimeUnit.MINUTES);
+                    }
                 }
 
             } /*else if (weather.equals("RAIN") && Pws.temperature >= 30) {
