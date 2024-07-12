@@ -68,6 +68,7 @@ public class Alerts {
         }
 
         boolean hasUpdated = false;
+        boolean isDifferentDesc = false;
         // For each alert
         for (Object object : alerts) {
             JSONObject alert = new JSONObject(object.toString());
@@ -202,10 +203,13 @@ public class Alerts {
                         .replaceOriginalLinefeedInChangesWithSpaces(true).oldTag(f -> "||").newTag(f -> "__")
                         .build();
 
+                    String oldDescription = alertMessage.getEmbeds().getFirst().getDescription();
+
+                    // Check if the description has actually changed
+                    if (!oldDescription.equals(description)) isDifferentDesc = true;
+
                     // Calculate diffs for description
-                    String newDescription = applyDiffs(generator,
-                        alertMessage.getEmbeds().getFirst().getDescription(),
-                        description);
+                    String newDescription = applyDiffs(generator, oldDescription, description);
                     embed.setDescription(newDescription);
 
                     // Calculate diffs for instruction field
@@ -245,8 +249,10 @@ public class Alerts {
                 msg.delete().queue();
             });
 
-        if (hasUpdated) alertsChannel.sendMessage("<@&850471690093854810>").queue(del -> del.delete()
-            .queueAfter(250, TimeUnit.MILLISECONDS));
+        // Alert if any alert has been updated and the description actually changed
+        if (hasUpdated && isDifferentDesc)
+            alertsChannel.sendMessage("<@&850471690093854810>").queue(del -> del.delete()
+                .queueAfter(250, TimeUnit.MILLISECONDS));
     }
 
     private String boldAreas(String input) {
