@@ -26,7 +26,7 @@ public class Traffic {
             if (StormAlerts.testing) input = new JSONObject(Files.readString(Path.of(
                 "StormAlerts/Tests/traffic.json"))).getJSONArray("results");
             else {
-                InputStream url = new URI("https://data.traffic.hereapi.com/v7/flow?in=circle:" + new Secrets().trafficCoords() + ";r=10&locationReferencing=none&apiKey=" + new Secrets().trafficApiKey())
+                InputStream url = new URI("https://data.traffic.hereapi.com/v7/flow?in=circle:" + Secrets.trafficCoords() + ";r=10&locationReferencing=none&apiKey=" + Secrets.trafficApiKey())
                     .toURL().openStream();
                 JSONObject obj = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
                 url.close();
@@ -36,7 +36,7 @@ public class Traffic {
 
             // Find the correct direction
             JSONObject traffic = new JSONObject();
-            String direction = new Secrets().apiRoadName(north);
+            String direction = Secrets.apiRoadName(north);
             for (int i = 0; i < input.length(); i++) {
                 JSONObject obj = input.getJSONObject(i);
                 if (obj.getJSONObject("location").getString("description").equals(direction)) {
@@ -50,21 +50,21 @@ public class Traffic {
                 .getDouble("speedUncapped") * 2.23694));
             double jamFactor = traffic.getJSONObject("currentFlow").getDouble("jamFactor");
 
-            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + new Secrets().roadName(north) + " is currently ~" + currentSpeed + " mph with a jam factor of " + jamFactor);
+            System.out.println(Utils.getTime(Utils.LogColor.GREEN) + Secrets.roadName(north) + " is currently ~" + currentSpeed + " mph with a jam factor of " + jamFactor);
 
             if (currentSpeed <= 55 && currentSpeed >= 40) StormAlerts.jda.openPrivateChannelById(
-                    277291758503723010L).flatMap(channel -> channel.sendMessage("**" + new Secrets().roadName(
-                    north) + "** has a slowdown @ **" + currentSpeed + " mph**!\nJam factor: **" + jamFactor + "/10.0** :yellow_circle:"))
+                    277291758503723010L)
+                .flatMap(channel -> channel.sendMessage("**" + Secrets.roadName(north) + "** has a slowdown @ **" + currentSpeed + " mph**!\nJam factor: **" + jamFactor + "/10.0** :yellow_circle:"))
                 .queue();
 
             else if (currentSpeed < 40) StormAlerts.jda.openPrivateChannelById(277291758503723010L).flatMap(
-                    channel -> channel.sendMessage("**" + new Secrets().roadName(north) + "** has a slowdown @ **" + currentSpeed + " mph**!\nJam factor: **" + jamFactor + "/10.0** :red_circle:"))
+                    channel -> channel.sendMessage("**" + Secrets.roadName(north) + "** has a slowdown @ **" + currentSpeed + " mph**!\nJam factor: **" + jamFactor + "/10.0** :red_circle:"))
                 .queue();
 
         } catch (Exception e) {
-            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            System.out.print(Utils.getTime(Utils.LogColor.RED));
             e.printStackTrace();
-            new Utils().logError(e);
+            Utils.logError(e);
 
             StormAlerts.jda.openPrivateChannelById(277291758503723010L)
                 .flatMap(channel -> channel.sendMessage("**Failed to check traffic!** :warning:")).queue();
@@ -85,7 +85,7 @@ public class Traffic {
                     StormAlerts.scheduledTimers.add(executor.schedule(() -> new Traffic().checkTraffic(toWork),
                         delay,
                         TimeUnit.MILLISECONDS));
-                    System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Scheduled traffic check in " + Math.round(
+                    System.out.println(Utils.getTime(Utils.LogColor.GREEN) + "Scheduled traffic check in " + Math.round(
                         delay / 3600000.0) + " hours.");
                 }
             }, "Traffic Check").start();

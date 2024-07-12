@@ -38,7 +38,7 @@ public class Records {
         JSONObject recordsToday = new JSONObject(Files.readString(Path.of("StormAlerts/records-today.json")));
 
         if (recordsToday.isEmpty()) {
-            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "No records today found! Populating...");
+            System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "No records today found! Populating...");
             resetValues();
         } else {
             // Stats
@@ -71,13 +71,13 @@ public class Records {
                     delay,
                     TimeUnit.SECONDS));
 
-                System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Scheduled record check in " + delay / 3600 + " hours.");
+                System.out.println(Utils.getTime(Utils.LogColor.GREEN) + "Scheduled record check in " + delay / 3600 + " hours.");
             }
         }, "Record Check").start();
     }
 
     public void checkRecords() {
-        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking records...");
+        System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "Checking records...");
 
         String totalFilePath = "StormAlerts/records.json";
         try {
@@ -159,27 +159,26 @@ public class Records {
             recordsFile.write(records.toString());
             recordsFile.close();
 
-            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Updating record channels...");
+            System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "Updating record channels...");
 
-            new Utils().updateVoiceChannel(1059213663506006066L,
+            Utils.updateVoiceChannel(1059213663506006066L,
                 "Temp Low | " + records.getDouble("lowTemp") + "°");
-            new Utils().updateVoiceChannel(1059213632531091548L,
+            Utils.updateVoiceChannel(1059213632531091548L,
                 "Temp High | " + records.getDouble("highTemp") + "°");
-            new Utils().updateVoiceChannel(1059213828015013948L,
+            Utils.updateVoiceChannel(1059213828015013948L,
                 "Rain | " + records.getDouble("maxRainRate") + " in/hr");
-            new Utils().updateVoiceChannel(1059213790333382796L,
+            Utils.updateVoiceChannel(1059213790333382796L,
                 "Daily Rain | " + records.getDouble("maxRainAmount") + " in");
-            new Utils().updateVoiceChannel(1059213855164747796L,
-                "Wind | " + records.getInt("maxWind") + " mph");
-            new Utils().updateVoiceChannel(1059213581675155507L,
+            Utils.updateVoiceChannel(1059213855164747796L, "Wind | " + records.getInt("maxWind") + " mph");
+            Utils.updateVoiceChannel(1059213581675155507L,
                 "Lightning | " + records.getInt("highLightningRate") + "/hr");
-            new Utils().updateVoiceChannel(1059213753494798396L,
+            Utils.updateVoiceChannel(1059213753494798396L,
                 "Daily Lightning | " + records.getInt("maxLightning"));
 
         } catch (Exception e) {
-            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            System.out.print(Utils.getTime(Utils.LogColor.RED));
             e.printStackTrace();
-            new Utils().logError(e);
+            Utils.logError(e);
         }
 
         // Reset the values for new day
@@ -189,7 +188,7 @@ public class Records {
     private void sendRecordMessage(String recordType, String newRecord, long newTimeStamp, String oldRecord, long oldTimeStamp) {
         TextChannel channel = StormAlerts.jda.getTextChannelById(1007060910050914304L);
         String ping = "";
-        if (new Utils().shouldIPing(channel)) ping = "<@&1046149064519073813>\n";
+        if (Utils.shouldIPing(channel)) ping = "<@&1046149064519073813>\n";
 
         // 📊
         //noinspection DataFlowIssue
@@ -215,6 +214,6 @@ public class Records {
         maxRainRateTime = 0;
         maxWindTime = 0;
 
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Record values reset!");
+        System.out.println(Utils.getTime(Utils.LogColor.GREEN) + "Record values reset!");
     }
 }

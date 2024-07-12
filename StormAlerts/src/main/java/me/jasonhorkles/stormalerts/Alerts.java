@@ -36,7 +36,7 @@ public class Alerts {
     private final String da = Secrets.Area.DA.area();
 
     public void checkAlerts() throws IOException, URISyntaxException {
-        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking alerts...");
+        System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "Checking alerts...");
 
         dontDeleteMe.clear();
 
@@ -45,7 +45,7 @@ public class Alerts {
             "StormAlerts/Tests/alerts-empty.json")));
         else {
             InputStream url = new URI(
-                "https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&zone=" + new Secrets().alertZone())
+                "https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&zone=" + Secrets.alertZone())
                 .toURL().openStream();
             input = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();
@@ -74,10 +74,9 @@ public class Alerts {
             JSONObject alert = new JSONObject(object.toString());
 
             String description = boldAreas(alert.getString("description").replace("\n", "§").replaceAll(" {2,}",
-                " ").replace("§§", "\n").replace("§", " ").replaceAll("\\s{2}(?=\\b[A-Z]{2,}\\.\\.\\.)",
-                "\n### ").replace("* ", "### ").replaceAll(
-                "- ### .*\\.\\.\\.",
-                "").replaceAll("(?<=[A-Z])\\.{3}", "\n").replace(" - ", "\n- "));
+                    " ").replace("§§", "\n").replace("§", " ").replaceAll("\\s{2}(?=\\b[A-Z]{2,}\\.\\.\\.)",
+                    "\n### ").replace("* ", "### ").replaceAll("- ### .*\\.\\.\\.", "")
+                .replaceAll("(?<=[A-Z])\\.{3}", "\n").replace(" - ", "\n- "));
 
             String area = alert.getString("areaDesc");
             // Ignore alerts for (irrelevant) places outside of the region
@@ -157,9 +156,9 @@ public class Alerts {
             String urgency = alert.getString("urgency");
 
             if (alertMessage == null)
-                System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got an alert! " + event);
+                System.out.println(Utils.getTime(Utils.LogColor.GREEN) + "Got an alert! " + event);
             else
-                System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got an update for the \"" + event + "\" alert!");
+                System.out.println(Utils.getTime(Utils.LogColor.GREEN) + "Got an update for the \"" + event + "\" alert!");
 
             EmbedBuilder embed = new EmbedBuilder();
             embed.setAuthor(sender,
@@ -244,7 +243,7 @@ public class Alerts {
         // Delete the remaining to-delete messages
         for (Long id : deleteTheseMessages)
             alertsChannel.retrieveMessageById(id).queue(msg -> {
-                System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Deleted \"" + msg
+                System.out.println(Utils.getTime(Utils.LogColor.GREEN) + "Deleted \"" + msg
                     .getContentStripped().replaceFirst(".*\n.*] ", "") + "\" alert as it no longer exists.");
                 msg.delete().queue();
             });
@@ -260,12 +259,10 @@ public class Alerts {
             .replace(nwf, "**" + nwf + "**").replace(da, "**" + da + "**")
 
             .replace(fa.toUpperCase(), "**" + fa.toUpperCase() + "**").replace(ce.toUpperCase(),
-                "**" + ce.toUpperCase() + "**").replace(
-                ka.toUpperCase(),
-                "**" + ka.toUpperCase() + "**").replace(nwf.toUpperCase(), "**" + nwf.toUpperCase() + "**")
+                "**" + ce.toUpperCase() + "**").replace(ka.toUpperCase(), "**" + ka.toUpperCase() + "**")
             .replace(
-                da.toUpperCase(),
-                "**" + da.toUpperCase() + "**");
+                nwf.toUpperCase(),
+                "**" + nwf.toUpperCase() + "**").replace(da.toUpperCase(), "**" + da.toUpperCase() + "**");
     }
 
     private String applyDiffs(DiffRowGenerator generator, String originalText, String newText) {
