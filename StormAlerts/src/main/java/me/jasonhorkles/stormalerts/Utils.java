@@ -35,7 +35,7 @@ public class Utils {
         }
     }
 
-    public static String getTime(@Nullable LogColor logColor) {
+    public String getTime(@Nullable LogColor logColor) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm:ss a", Locale.US);
         String time = "[" + dtf.format(LocalDateTime.now()) + "] ";
 
@@ -143,7 +143,7 @@ public class Utils {
         if (isSlash) event.getHook().editOriginal(error).complete();
     }
 
-    public static void logError(Exception e) {
+    public void logError(Exception e) {
         StringBuilder error = new StringBuilder("```accesslog\n");
         error.append(getTime(null)).append(e);
         for (StackTraceElement element : e.getStackTrace())

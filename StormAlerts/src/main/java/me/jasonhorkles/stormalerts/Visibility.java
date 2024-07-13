@@ -12,7 +12,8 @@ import java.nio.file.Path;
 
 public class Visibility {
     public void checkConditions() throws IOException, URISyntaxException {
-        System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "Checking visibility...");
+        Utils utils = new Utils();
+        System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Checking visibility...");
 
         JSONObject input;
         if (StormAlerts.testing) input = new JSONObject(Files.readString(Path.of(
@@ -22,11 +23,10 @@ public class Visibility {
                 .toURL().openStream();
             input = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();
-
         }
 
         String visibility = String.valueOf((int) Math.round(input.getJSONObject("properties")
             .getJSONObject("visibility").getInt("value") / 1609.0d));
-        new Utils().updateVoiceChannel(899872710233051178L, "Visibility | " + visibility + " mi");
+        utils.updateVoiceChannel(899872710233051178L, "Visibility | " + visibility + " mi");
     }
 }

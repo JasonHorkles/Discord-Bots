@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Traffic {
     public void checkTraffic(boolean north) {
+        Utils utils = new Utils();
         try {
             Secrets secrets = new Secrets();
             JSONArray input;
@@ -50,7 +51,7 @@ public class Traffic {
                 .getDouble("speedUncapped") * 2.23694));
             double jamFactor = traffic.getJSONObject("currentFlow").getDouble("jamFactor");
 
-            System.out.println(Utils.getTime(Utils.LogColor.GREEN) + secrets.roadName(north) + " is currently ~" + currentSpeed + " mph with a jam factor of " + jamFactor);
+            System.out.println(utils.getTime(Utils.LogColor.GREEN) + secrets.roadName(north) + " is currently ~" + currentSpeed + " mph with a jam factor of " + jamFactor);
 
             if (currentSpeed <= 55 && currentSpeed >= 40) StormAlerts.jda.openPrivateChannelById(
                     277291758503723010L)
@@ -62,9 +63,9 @@ public class Traffic {
                 .queue();
 
         } catch (Exception e) {
-            System.out.print(Utils.getTime(Utils.LogColor.RED));
+            System.out.print(utils.getTime(Utils.LogColor.RED));
             e.printStackTrace();
-            Utils.logError(e);
+            utils.logError(e);
 
             StormAlerts.jda.openPrivateChannelById(277291758503723010L)
                 .flatMap(channel -> channel.sendMessage("**Failed to check traffic!** :warning:")).queue();
@@ -83,7 +84,7 @@ public class Traffic {
             if (delay >= 0) new Thread(() -> {
                 StormAlerts.scheduledTimers.add(Executors.newSingleThreadScheduledExecutor()
                     .schedule(() -> new Traffic().checkTraffic(toWork), delay, TimeUnit.MILLISECONDS));
-                System.out.println(Utils.getTime(Utils.LogColor.GREEN) + "Scheduled traffic check in " + Math.round(
+                System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Scheduled traffic check in " + Math.round(
                     delay / 3600000.0) + " hours.");
             }, "Traffic Check").start();
         }

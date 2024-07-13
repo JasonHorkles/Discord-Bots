@@ -29,7 +29,8 @@ public class Pws {
 
     @SuppressWarnings("DataFlowIssue")
     public void checkConditions() throws IOException, URISyntaxException {
-        System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "Checking PWS conditions...");
+        Utils utils = new Utils();
+        System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Checking PWS conditions...");
 
         JSONObject input;
         if (StormAlerts.testing) input = new JSONArray(Files.readString(Path.of(
@@ -93,25 +94,25 @@ public class Pws {
         }
 
         if (notRateLimited) {
-            new Utils().updateVoiceChannel(879099218302746694L, "Temperature | " + temperature + "°");
-            new Utils().updateVoiceChannel(927585852396294164L, "Feels Like | " + feelsLike + "°");
-            new Utils().updateVoiceChannel(879099369587081226L, "UV Index | " + uv);
-            new Utils().updateVoiceChannel(879099159574089809L, "Humidity | " + humidity + "%");
-            new Utils().updateVoiceChannel(879098793876934676L, "Daily | " + rainDaily + " in");
-            new Utils().updateVoiceChannel(879098898193449000L, "Weekly | " + rainWeekly + " in");
-            new Utils().updateVoiceChannel(879098953470205972L, "Monthly | " + rainMonthly + " in");
-            new Utils().updateVoiceChannel(879099010420457482L, "Yearly | " + rainYearly + " in");
-            new Utils().updateVoiceChannel(879097601750884423L, "Current | " + wind + " mph");
-            new Utils().updateVoiceChannel(889226727266594876L, "Gusts | " + windGust + " mph");
-            new Utils().updateVoiceChannel(879097671070121995L, "Max Today | " + windMax + " mph");
-            new Utils().updateVoiceChannel(923433184132210698L, "Strikes | " + strikesPerHour + "/hr");
-            new Utils().updateVoiceChannel(923432597789503568L, "Nearby Today | " + lightningToday);
+            utils.updateVoiceChannel(879099218302746694L, "Temperature | " + temperature + "°");
+            utils.updateVoiceChannel(927585852396294164L, "Feels Like | " + feelsLike + "°");
+            utils.updateVoiceChannel(879099369587081226L, "UV Index | " + uv);
+            utils.updateVoiceChannel(879099159574089809L, "Humidity | " + humidity + "%");
+            utils.updateVoiceChannel(879098793876934676L, "Daily | " + rainDaily + " in");
+            utils.updateVoiceChannel(879098898193449000L, "Weekly | " + rainWeekly + " in");
+            utils.updateVoiceChannel(879098953470205972L, "Monthly | " + rainMonthly + " in");
+            utils.updateVoiceChannel(879099010420457482L, "Yearly | " + rainYearly + " in");
+            utils.updateVoiceChannel(879097601750884423L, "Current | " + wind + " mph");
+            utils.updateVoiceChannel(889226727266594876L, "Gusts | " + windGust + " mph");
+            utils.updateVoiceChannel(879097671070121995L, "Max Today | " + windMax + " mph");
+            utils.updateVoiceChannel(923433184132210698L, "Strikes | " + strikesPerHour + "/hr");
+            utils.updateVoiceChannel(923432597789503568L, "Nearby Today | " + lightningToday);
 
             DateTimeFormatter timeUpdatedFormat = DateTimeFormatter.ofPattern("h:mm a", Locale.US);
             Instant timeUpdatedRaw = Instant.ofEpochMilli(input.getLong("dateutc"));
             String timeUpdated = timeUpdatedFormat.format(ZonedDateTime.ofInstant(timeUpdatedRaw,
                 ZoneId.of("America/Denver")));
-            new Utils().updateVoiceChannel(941791190704062545L, "Stats Updated: " + timeUpdated);
+            utils.updateVoiceChannel(941791190704062545L, "Stats Updated: " + timeUpdated);
 
             notRateLimited = false;
             Executors.newSingleThreadScheduledExecutor().schedule(() -> {
@@ -126,13 +127,13 @@ public class Pws {
             boolean pingOverride = windMax >= (lastAlertedWindGust + 5);
 
             String ping = "";
-            if (new Utils().shouldIPing(windChannel) || pingOverride) ping = "<@&1046148944108978227>\n";
+            if (utils.shouldIPing(windChannel) || pingOverride) ping = "<@&1046148944108978227>\n";
 
             String message = ping + "🍃 Wind gust of **" + windMax + " mph** *(" + windMaxFps + " ft/s)* detected!";
             if (windMax >= 50) message += " <a:weewoo:1083615022455992382>";
 
-            windChannel.sendMessage(message).setSuppressedNotifications(new Utils().shouldIBeSilent(
-                windChannel) && !pingOverride).queue();
+            windChannel.sendMessage(message)
+                .setSuppressedNotifications(utils.shouldIBeSilent(windChannel) && !pingOverride).queue();
             lastAlertedWindGust = windMax;
         }
 
@@ -153,7 +154,7 @@ public class Pws {
             TextChannel lightningChannel = StormAlerts.jda.getTextChannelById(899876734999089192L);
 
             String ping = "";
-            if (new Utils().shouldIPing(lightningChannel)) ping = "<@&896877424824954881>\n";
+            if (utils.shouldIPing(lightningChannel)) ping = "<@&896877424824954881>\n";
 
             String message = ping + "🌩️ Lightning detected **~" + lightningDistance + " mile" + s + "** from Eastern Farmington <t:" + (lightningTime / 1000) + ":R>!";
             if (lightningDistance <= 2) message += " <a:weewoo:1083615022455992382>";
@@ -161,7 +162,7 @@ public class Pws {
             // Always send silent if lightning is more than 15 miles away
             if (lightningDistance > 15)
                 lightningChannel.sendMessage(message).setSuppressedNotifications(true).queue();
-            else lightningChannel.sendMessage(message).setSuppressedNotifications(new Utils().shouldIBeSilent(
+            else lightningChannel.sendMessage(message).setSuppressedNotifications(utils.shouldIBeSilent(
                 lightningChannel)).queue();
         }
 

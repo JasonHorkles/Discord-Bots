@@ -33,11 +33,12 @@ public class Records {
     public static long maxWindTime;
 
     public void scheduleRecordCheck() throws IOException {
+        Utils utils = new Utils();
         // Populate the variables
         JSONObject recordsToday = new JSONObject(Files.readString(Path.of("StormAlerts/records-today.json")));
 
         if (recordsToday.isEmpty()) {
-            System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "No records today found! Populating...");
+            System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "No records today found! Populating...");
             resetValues();
         } else {
             // Stats
@@ -67,11 +68,12 @@ public class Records {
         StormAlerts.scheduledTimers.add(Executors.newSingleThreadScheduledExecutor()
             .schedule(this::checkRecords, delay, TimeUnit.SECONDS));
 
-        System.out.println(Utils.getTime(Utils.LogColor.GREEN) + "Scheduled record check in " + delay / 3600 + " hours.");
+        System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Scheduled record check in " + delay / 3600 + " hours.");
     }
 
     public void checkRecords() {
-        System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "Checking records...");
+        Utils utils = new Utils();
+        System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Checking records...");
 
         String totalFilePath = "StormAlerts/records.json";
         try {
@@ -153,33 +155,32 @@ public class Records {
             recordsFile.write(records.toString());
             recordsFile.close();
 
-            System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "Updating record channels...");
+            System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Updating record channels...");
 
-            new Utils().updateVoiceChannel(
+            utils.updateVoiceChannel(
                 1059213663506006066L,
                 "Temp Low | " + records.getDouble("lowTemp") + "°");
-            new Utils().updateVoiceChannel(
+            utils.updateVoiceChannel(
                 1059213632531091548L,
                 "Temp High | " + records.getDouble("highTemp") + "°");
-            new Utils().updateVoiceChannel(
+            utils.updateVoiceChannel(
                 1059213828015013948L,
                 "Rain | " + records.getDouble("maxRainRate") + " in/hr");
-            new Utils().updateVoiceChannel(
+            utils.updateVoiceChannel(
                 1059213790333382796L,
                 "Daily Rain | " + records.getDouble("maxRainAmount") + " in");
-            new Utils().updateVoiceChannel(1059213855164747796L,
-                "Wind | " + records.getInt("maxWind") + " mph");
-            new Utils().updateVoiceChannel(
+            utils.updateVoiceChannel(1059213855164747796L, "Wind | " + records.getInt("maxWind") + " mph");
+            utils.updateVoiceChannel(
                 1059213581675155507L,
                 "Lightning | " + records.getInt("highLightningRate") + "/hr");
-            new Utils().updateVoiceChannel(
+            utils.updateVoiceChannel(
                 1059213753494798396L,
                 "Daily Lightning | " + records.getInt("maxLightning"));
 
         } catch (Exception e) {
-            System.out.print(Utils.getTime(Utils.LogColor.RED));
+            System.out.print(utils.getTime(Utils.LogColor.RED));
             e.printStackTrace();
-            Utils.logError(e);
+            utils.logError(e);
         }
 
         // Reset the values for new day
@@ -215,6 +216,6 @@ public class Records {
         maxRainRateTime = 0;
         maxWindTime = 0;
 
-        System.out.println(Utils.getTime(Utils.LogColor.GREEN) + "Record values reset!");
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Record values reset!");
     }
 }

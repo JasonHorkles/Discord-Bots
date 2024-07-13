@@ -36,7 +36,8 @@ public class Alerts {
     private final String da = Secrets.Area.DA.area();
 
     public void checkAlerts() throws IOException, URISyntaxException {
-        System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "Checking alerts...");
+        Utils utils = new Utils();
+        System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Checking alerts...");
 
         dontDeleteMe.clear();
 
@@ -73,10 +74,11 @@ public class Alerts {
         for (Object object : alerts) {
             JSONObject alert = new JSONObject(object.toString());
 
-            String description = boldAreas(alert.getString("description").replace("\n", "§").replaceAll(" {2,}",
-                    " ").replace("§§", "\n").replace("§", " ").replaceAll("\\s{2}(?=\\b[A-Z]{2,}\\.\\.\\.)",
-                    "\n### ").replace("* ", "### ").replaceAll("- ### .*\\.\\.\\.", "")
-                .replaceAll("(?<=[A-Z])\\.{3}", "\n").replace(" - ", "\n- "));
+            String description = boldAreas(alert.getString("description").replace("\n", "§")
+                .replaceAll(" " + "{2,}", " ").replace("§§", "\n").replace("§", " ")
+                .replaceAll("\\s{2}" + "(?=\\b[A-Z]{2,}\\.\\.\\.)", "\n### ").replace("* ", "### ")
+                .replaceAll("- ### .*\\.\\.\\.", "").replaceAll("(?<=[A-Z])\\.{3}", "\n")
+                .replace(" - ", "\n- "));
 
             String area = alert.getString("areaDesc");
             // Ignore alerts for (irrelevant) places outside of the region
@@ -156,9 +158,9 @@ public class Alerts {
             String urgency = alert.getString("urgency");
 
             if (alertMessage == null)
-                System.out.println(Utils.getTime(Utils.LogColor.GREEN) + "Got an alert! " + event);
+                System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Got an alert! " + event);
             else
-                System.out.println(Utils.getTime(Utils.LogColor.GREEN) + "Got an update for the \"" + event + "\" alert!");
+                System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Got an update for the \"" + event + "\" alert!");
 
             EmbedBuilder embed = new EmbedBuilder();
             embed.setAuthor(sender,
@@ -243,7 +245,7 @@ public class Alerts {
         // Delete the remaining to-delete messages
         for (Long id : deleteTheseMessages)
             alertsChannel.retrieveMessageById(id).queue(msg -> {
-                System.out.println(Utils.getTime(Utils.LogColor.GREEN) + "Deleted \"" + msg
+                System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Deleted \"" + msg
                     .getContentStripped().replaceFirst(".*\n.*] ", "") + "\" alert as it no longer exists.");
                 msg.delete().queue();
             });
@@ -255,15 +257,10 @@ public class Alerts {
     }
 
     private String boldAreas(String input) {
-        return input.replace(fa, "**" + fa + "**").replace(ce, "**" + ce + "**").replace(ka, "**" + ka + "**")
-            .replace(nwf, "**" + nwf + "**").replace(da, "**" + da + "**")
-
-            .replace(fa.toUpperCase(), "**" + fa.toUpperCase() + "**").replace(ce.toUpperCase(),
-                "**" + ce.toUpperCase() + "**").replace(ka.toUpperCase(), "**" + ka.toUpperCase() + "**")
-            .replace(
-                nwf.toUpperCase(), "**" + nwf.toUpperCase() + "**").replace(
-                da.toUpperCase(),
-                "**" + da.toUpperCase() + "**");
+        List<String> areas = List.of(fa, ce, ka, nwf, da);
+        // Replace all areas with bolded areas, including the uppercase version
+        return areas.stream().flatMap(area -> Stream.of(area, area.toUpperCase())).reduce(input,
+            (result, area) -> result.replace(area, "**" + area + "**"));
     }
 
     private String applyDiffs(DiffRowGenerator generator, String originalText, String newText) {
