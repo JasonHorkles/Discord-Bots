@@ -166,9 +166,10 @@ public class StormAlerts extends ListenerAdapter {
         }, 3, 360, TimeUnit.SECONDS));
 
         // Schedule traffic checks
-        new Traffic().scheduleTrafficCheck("2:37 PM", true);
-        new Traffic().scheduleTrafficCheck("5:50 PM", false);
-        new Traffic().scheduleTrafficCheck("6:00 PM", false);
+        Traffic traffic = new Traffic();
+        traffic.scheduleTrafficCheck("2:37 PM", true);
+        traffic.scheduleTrafficCheck("5:50 PM", false);
+        traffic.scheduleTrafficCheck("6:00 PM", false);
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new StormAlerts().shutdown(), "Shutdown Hook"));
