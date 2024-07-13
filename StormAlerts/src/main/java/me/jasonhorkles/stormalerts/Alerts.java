@@ -85,8 +85,7 @@ public class Alerts {
             String[] locations = {fa, ce, ka, nwf, da};
             boolean irrelevantLoc = true;
             for (String location : locations)
-                if (description.toLowerCase().contains(location.toLowerCase()) || area.toLowerCase().contains(
-                    location.toLowerCase())) {
+                if (description.toLowerCase().contains(location.toLowerCase())) {
                     irrelevantLoc = false;
                     break;
                 }
