@@ -23,6 +23,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -50,7 +52,6 @@ public class Alerts {
                 .toURL().openStream();
             input = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();
-
         }
 
         JSONArray alerts = new JSONArray();
@@ -73,15 +74,21 @@ public class Alerts {
         // For each alert
         for (Object object : alerts) {
             JSONObject alert = new JSONObject(object.toString());
+            String description = alert.getString("description");
 
-            String description = boldAreas(alert.getString("description").replace("\n", "§").replaceAll(" {2,}",
-                    " ").replace("§§", "\n").replace("§", " ").replaceAll(
-                    "\\s+(?=[A-Z]{2,}\\.\\.\\.)",
-                    "\n### ").replace("* ", "### ").replaceAll("- ### .*\\.\\.\\.", "")
-                .replaceAll("(?<=[A-Z])\\.{3}", "\n").replace(" - ", "\n- "));
+            // Replace extra spaces with a single space
+            description = description.replaceAll(" {2,}", " ");
 
+            // Format newlines
+            // Step 1: Replace double newlines with a temporary placeholder (§)
+            description = description.replace("\n\n", "§");
+            // Step 2: Replace newlines with a space
+            description = description.replace("\n", " ");
+            // Step 3: Replace the temporary placeholder with a single newline
+            description = description.replace("§", "\n");
+
+            // Ignore alerts for (irrelevant) places outside of the region before we format everything else
             String area = alert.getString("areaDesc");
-            // Ignore alerts for (irrelevant) places outside of the region
             String[] locations = {fa, ce, ka, nwf, da};
             boolean irrelevantLoc = true;
             for (String location : locations)
@@ -90,6 +97,42 @@ public class Alerts {
                     break;
                 }
             if (irrelevantLoc) continue;
+
+            // Format small headers
+            // Seen NWS formats for headers:
+            // * HEADER A...
+            // HEADER B...
+            Pattern pattern = Pattern.compile("(^|\\n)\\*? ?([A-Z ]+\\.\\.\\.)");
+            Matcher matcher = pattern.matcher(description);
+
+            // Replace all occurrences using StringBuffer
+            StringBuilder result = new StringBuilder();
+            // Append the matched group with the new format, removing the '* ' if it exists
+            while (matcher.find()) matcher.appendReplacement(result,
+                matcher.group(1) + "## " + matcher.group(2));
+            matcher.appendTail(result);
+            description = result.toString();
+
+            // Format "* Locations impacted include"
+            description = description.replaceAll("(\\* )?Locations impacted include",
+                "### Locations impacted include");
+
+            // Format "This includes the following highways"
+            description = description.replace("This includes the following highways",
+                "### This includes the following highways");
+
+            // Replace ... with a newline
+            description = description.replace("...", "\n");
+
+            // Format bullet points
+            // ' - ' -> '\n- '
+            description = description.replace(" - ", "\n- ");
+
+            // Format indentations
+            description = description.replace("\n ", "\n- ");
+
+            // Finally, bold the relevant areas
+            description = boldAreas(description);
 
             String alertType = alert.getString("messageType");
             if (!alertType.equals("Alert") && !alertType.equals("Update")) continue;
