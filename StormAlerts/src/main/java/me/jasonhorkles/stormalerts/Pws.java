@@ -93,7 +93,7 @@ public class Pws {
             Records.maxWindTime = System.currentTimeMillis() / 1000;
         }
 
-        if (notRateLimited) {
+        if (notRateLimited && !StormAlerts.testing) {
             utils.updateVoiceChannel(879099218302746694L, "Temperature | " + temperature + "°");
             utils.updateVoiceChannel(927585852396294164L, "Feels Like | " + feelsLike + "°");
             utils.updateVoiceChannel(879099369587081226L, "UV Index | " + uv);
