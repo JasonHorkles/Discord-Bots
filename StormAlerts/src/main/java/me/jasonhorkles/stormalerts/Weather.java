@@ -40,8 +40,8 @@ public class Weather extends ListenerAdapter {
         String weather = "Unavailable";
         if (StormAlerts.testing) weather = Files.readString(Path.of("StormAlerts/Tests/weather.txt"));
         else {
-            Connection conn = Jsoup.connect("https://weather.com/weather/today/l/" + Secrets.weatherCode())
-                .timeout(15000);
+            Connection conn = Jsoup
+                .connect("https://weather.com/weather/today/l/" + new Secrets().weatherCode()).timeout(15000);
             try {
                 Document doc = conn.get();
                 weather = doc.select("[class*=\"CurrentConditions--phraseValue--\"]").first().text();

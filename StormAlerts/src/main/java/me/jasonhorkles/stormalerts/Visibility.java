@@ -18,7 +18,7 @@ public class Visibility {
         if (StormAlerts.testing) input = new JSONObject(Files.readString(Path.of(
             "StormAlerts/Tests/visibility.json")));
         else {
-            InputStream url = new URI("https://api.weather.gov/stations/" + Secrets.nwsStation() + "/observations/latest")
+            InputStream url = new URI("https://api.weather.gov/stations/" + new Secrets().nwsStation() + "/observations/latest")
                 .toURL().openStream();
             input = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();

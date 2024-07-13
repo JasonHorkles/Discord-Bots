@@ -18,7 +18,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Pws {
@@ -36,7 +35,8 @@ public class Pws {
         if (StormAlerts.testing) input = new JSONArray(Files.readString(Path.of(
             "StormAlerts/Tests/pwsweather.json"))).getJSONObject(0).getJSONObject("lastData");
         else {
-            InputStream url = new URI("https://api.ambientweather.net/v1/devices/?apiKey=" + Secrets.awApiKey() + "&applicationKey=" + Secrets.awAppKey())
+            Secrets secrets = new Secrets();
+            InputStream url = new URI("https://api.ambientweather.net/v1/devices/?apiKey=" + secrets.awApiKey() + "&applicationKey=" + secrets.awAppKey())
                 .toURL().openStream();
             input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8)).getJSONObject(0)
                 .getJSONObject("lastData");
@@ -114,13 +114,9 @@ public class Pws {
             new Utils().updateVoiceChannel(941791190704062545L, "Stats Updated: " + timeUpdated);
 
             notRateLimited = false;
-            new Thread(() -> {
-                try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                    executor.schedule(() -> {
-                        notRateLimited = true;
-                    }, 6, TimeUnit.MINUTES);
-                }
-            }, "Rate Limit").start();
+            Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+                notRateLimited = true;
+            }, 6, TimeUnit.MINUTES);
         }
 
         // Wind alerts

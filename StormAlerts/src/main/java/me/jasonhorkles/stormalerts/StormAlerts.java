@@ -38,7 +38,7 @@ public class StormAlerts extends ListenerAdapter {
     public static void main(String[] args) throws InterruptedException, ParseException {
         System.out.println(Utils.getTime(Utils.LogColor.YELLOW) + "Starting...");
 
-        JDABuilder builder = JDABuilder.createDefault(Secrets.botToken());
+        JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());
         builder.disableCache(CacheFlag.ACTIVITY,
             CacheFlag.CLIENT_STATUS,
             CacheFlag.ONLINE_STATUS,

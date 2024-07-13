@@ -45,7 +45,7 @@ public class Alerts {
             "StormAlerts/Tests/alerts-empty.json")));
         else {
             InputStream url = new URI(
-                "https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&zone=" + Secrets.alertZone())
+                "https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&zone=" + new Secrets().alertZone())
                 .toURL().openStream();
             input = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();
