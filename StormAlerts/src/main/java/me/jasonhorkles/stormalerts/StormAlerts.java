@@ -5,13 +5,8 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -174,41 +169,6 @@ public class StormAlerts extends ListenerAdapter {
         new Traffic().scheduleTrafficCheck("2:37 PM", true);
         new Traffic().scheduleTrafficCheck("5:50 PM", false);
         new Traffic().scheduleTrafficCheck("6:00 PM", false);
-
-        // Send select menu message if needed
-        try {
-            TextChannel channel = jda.getTextChannelById(843919716677582891L);
-            List<SelectOption> selectOptions = new ArrayList<>();
-
-            selectOptions.add(SelectOption.of("New NWS Alerts", "850471646191812700")
-                .withEmoji(Emoji.fromUnicode("⚠️")));
-            selectOptions.add(SelectOption.of("NWS Alert Updates", "850471690093854810")
-                .withEmoji(Emoji.fromUnicode("📝")));
-            selectOptions.add(SelectOption.of("New Records", "1046149064519073813")
-                .withEmoji(Emoji.fromUnicode("📊")));
-            selectOptions.add(SelectOption.of("Snow", "845055624165064734")
-                .withEmoji(Emoji.fromUnicode("🌨️")));
-            selectOptions.add(SelectOption.of("Hail", "845055784156397608")
-                .withEmoji(Emoji.fromUnicode("🧊")));
-            selectOptions.add(SelectOption.of("Rain", "843956362059841596")
-                .withEmoji(Emoji.fromUnicode("🌦️")));
-            selectOptions.add(SelectOption.of("Heavy Rain", "843956325690900503")
-                .withEmoji(Emoji.fromUnicode("🌧️")));
-            selectOptions.add(SelectOption.of("High Wind", "1046148944108978227")
-                .withEmoji(Emoji.fromUnicode("🍃")));
-            selectOptions.add(SelectOption.of("Lightning Info", "896877424824954881")
-                .withEmoji(Emoji.fromUnicode("⚡")));
-
-            if (new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).isEmpty()) channel.sendMessage(
-                    "**Select your desired notifications below:**\n*Each selection acts as a toggle*")
-                .addActionRow(StringSelectMenu.create("role-select").addOptions(selectOptions).setMinValues(0)
-                    .setMaxValues(selectOptions.size()).build()).addActionRow(Button.secondary("viewroles",
-                    "Your Roles")).queue();
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            System.out.print(utils.getTime(Utils.LogColor.RED));
-            e.printStackTrace();
-            utils.logError(e);
-        }
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new StormAlerts().shutdown(), "Shutdown Hook"));

@@ -1,14 +1,13 @@
 package me.jasonhorkles.stormalerts;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -33,33 +32,8 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
+        //noinspection SwitchStatementWithTooFewBranches
         switch (event.getComponentId()) {
-            case "viewroles" -> {
-                event.deferReply(true).queue();
-
-                StringBuilder roleList = new StringBuilder();
-                StringBuilder notRoleList = new StringBuilder();
-                for (SelectOption option : ((StringSelectMenu) event.getMessage().getActionRows().getFirst()
-                    .getComponents().getFirst()).getOptions()) {
-                    Role role = event.getGuild().getRoleById(option.getValue());
-
-                    if (event.getMember().getRoles().contains(role))
-                        roleList.append(role.getAsMention()).append("\n");
-                    else notRoleList.append(role.getAsMention()).append("\n");
-                }
-
-                if (roleList.isEmpty()) roleList.append("None");
-                if (notRoleList.isEmpty()) notRoleList.append("None");
-
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.addField("You have", roleList.toString(), true);
-                embed.addBlankField(true);
-                embed.addField("You don't have", notRoleList.toString(), true);
-                embed.setColor(new Color(43, 45, 49));
-
-                event.getHook().editOriginalEmbeds(embed.build()).queue();
-            }
-
             case "viewchanges" -> {
                 event.deferReply(true).queue();
 
@@ -83,63 +57,6 @@ public class Events extends ListenerAdapter {
                 for (MessageEmbed.Field field : fields) embed.addField(field);
 
                 event.getHook().editOriginalEmbeds(embed.build()).queue();
-            }
-        }
-    }
-
-    @Override
-    public void onStringSelectInteraction(StringSelectInteractionEvent event) {
-        //noinspection SwitchStatementWithTooFewBranches
-        switch (event.getComponentId()) {
-            case "role-select" -> {
-                if (event.getSelectedOptions().isEmpty()) {
-                    event.deferEdit().queue();
-                    return;
-                }
-
-                event.deferReply(true).queue();
-                Guild guild = event.getGuild();
-                Member member = event.getMember();
-
-                new Thread(() -> {
-                    Utils utils = new Utils();
-                    for (SelectOption option : event.getSelectedOptions()) {
-                        Role role = guild.getRoleById(option.getValue());
-                        if (member.getRoles().contains(role)) {
-                            System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Removing " + role
-                                .getName().toLowerCase() + " role from '" + member.getEffectiveName() + "'");
-                            guild.removeRoleFromMember(member, role).complete();
-
-                        } else {
-                            System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Adding " + role
-                                .getName().toLowerCase() + " role to '" + member.getEffectiveName() + "'");
-                            guild.addRoleToMember(member, role).complete();
-                        }
-                    }
-
-                    // Show user's roles
-                    StringBuilder roleList = new StringBuilder();
-                    StringBuilder notRoleList = new StringBuilder();
-                    for (SelectOption option : ((StringSelectMenu) event.getMessage().getActionRows()
-                        .getFirst().getComponents().getFirst()).getOptions()) {
-                        Role role = event.getGuild().getRoleById(option.getValue());
-
-                        if (event.getMember().getRoles().contains(role))
-                            roleList.append(role.getAsMention()).append("\n");
-                        else notRoleList.append(role.getAsMention()).append("\n");
-                    }
-
-                    if (roleList.isEmpty()) roleList.append("None");
-                    if (notRoleList.isEmpty()) notRoleList.append("None");
-
-                    EmbedBuilder embed = new EmbedBuilder();
-                    embed.addField("You have", roleList.toString(), true);
-                    embed.addBlankField(true);
-                    embed.addField("You don't have", notRoleList.toString(), true);
-                    embed.setColor(new Color(43, 45, 49));
-
-                    event.getHook().editOriginalEmbeds(embed.build()).queue();
-                }, "Add Roles - " + member.getEffectiveName()).start();
             }
         }
     }
