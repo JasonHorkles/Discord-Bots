@@ -74,11 +74,11 @@ public class Alerts {
         for (Object object : alerts) {
             JSONObject alert = new JSONObject(object.toString());
 
-            String description = boldAreas(alert.getString("description").replace("\n", "§")
-                .replaceAll(" " + "{2,}", " ").replace("§§", "\n").replace("§", " ")
-                .replaceAll("\\s{2}" + "(?=\\b[A-Z]{2,}\\.\\.\\.)", "\n### ").replace("* ", "### ")
-                .replaceAll("- ### .*\\.\\.\\.", "").replaceAll("(?<=[A-Z])\\.{3}", "\n")
-                .replace(" - ", "\n- "));
+            String description = boldAreas(alert.getString("description").replace("\n", "§").replaceAll(" {2,}",
+                    " ").replace("§§", "\n").replace("§", " ").replaceAll(
+                    "\\s+(?=[A-Z]{2,}\\.\\.\\.)",
+                    "\n### ").replace("* ", "### ").replaceAll("- ### .*\\.\\.\\.", "")
+                .replaceAll("(?<=[A-Z])\\.{3}", "\n").replace(" - ", "\n- "));
 
             String area = alert.getString("areaDesc");
             // Ignore alerts for (irrelevant) places outside of the region
