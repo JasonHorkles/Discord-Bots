@@ -1,6 +1,8 @@
 package me.jasonhorkles.polytrichopsida;
 
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.ThreadMember;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 
 import java.time.LocalDateTime;
@@ -32,5 +34,9 @@ public class Utils {
 
     public CompletableFuture<List<Message>> getMessages(MessageChannel channel, int count) {
         return channel.getIterableHistory().takeAsync(count).thenApply(ArrayList::new);
+    }
+
+    public ThreadMember getThreadOP(ThreadChannel channel) {
+        return channel.retrieveThreadMemberById(channel.getOwnerIdLong()).complete();
     }
 }

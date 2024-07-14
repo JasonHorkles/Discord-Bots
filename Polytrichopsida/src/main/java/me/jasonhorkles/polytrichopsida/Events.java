@@ -46,8 +46,8 @@ public class Events extends ListenerAdapter {
 
                 if (!event.getChannel().getType().isThread()) replyOp = false;
 
-                if (replyOp) event.reply(getOP(event.getChannel()
-                    .asThreadChannel()).getAsMention() + ", please" + message).queue();
+                if (replyOp) event.reply(new Utils().getThreadOP(event.getChannel().asThreadChannel())
+                    .getAsMention() + ", please" + message).queue();
                 else event.reply("Please" + message).queue();
             }
 
@@ -78,7 +78,7 @@ public class Events extends ListenerAdapter {
                     // In plugin support thread and has helper role or manage threads permission
                     if (isPluginSupport(event.getChannel().asThreadChannel(), event.getMember()))
                         sendThankYouMsg(event.getChannel().asThreadChannel(),
-                            getOP(event.getChannel().asThreadChannel()),
+                            new Utils().getThreadOP(event.getChannel().asThreadChannel()),
                             event);
                     else event.reply("Command not available.").setEphemeral(true).queue();
                 else event.reply("Command not available.").setEphemeral(true).queue();
@@ -133,7 +133,7 @@ public class Events extends ListenerAdapter {
             // Thanks for coming :)
             if (message.getContentStripped().toLowerCase().startsWith("np")) {
                 sendThankYouMsg(event.getChannel().asThreadChannel(),
-                    getOP(event.getChannel().asThreadChannel()),
+                    new Utils().getThreadOP(event.getChannel().asThreadChannel()),
                     null);
                 return;
             }
@@ -147,7 +147,7 @@ public class Events extends ListenerAdapter {
                 OffsetDateTime fiveMinsAgo = OffsetDateTime.now().minusMinutes(5);
                 if (messages.get(1).getTimeCreated().isAfter(fiveMinsAgo)) return;
 
-                ThreadMember op = getOP(event.getChannel().asThreadChannel());
+                ThreadMember op = new Utils().getThreadOP(event.getChannel().asThreadChannel());
                 if (op == null) return;
 
                 User author = messages.get(1).getAuthor();
@@ -310,9 +310,5 @@ public class Events extends ListenerAdapter {
         // Has helper role or kick permission
         return member.getRoles().contains(Polytrichopsida.jda.getGuildById(390942438061113344L)
             .getRoleById(606393401839190016L)) || member.hasPermission(Permission.KICK_MEMBERS);
-    }
-
-    private ThreadMember getOP(ThreadChannel channel) {
-        return channel.retrieveThreadMemberById(channel.getOwnerIdLong()).complete();
     }
 }

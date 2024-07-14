@@ -13,7 +13,9 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class Polytrichopsida {
     public static JDA jda;
@@ -67,6 +69,12 @@ public class Polytrichopsida {
             }
         }, "Console Input");
         input.start();
+
+        try {
+            new CloseStale().closeStale();
+        } catch (ExecutionException | TimeoutException e) {
+            throw new RuntimeException(e);
+        }
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }
