@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.ThreadMember;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -75,8 +76,8 @@ public class Events extends ListenerAdapter {
 
             case "close" -> {
                 if (event.getChannelType() == ChannelType.GUILD_PUBLIC_THREAD)
-                    // In plugin support thread and has helper role or manage threads permission
-                    if (isPluginSupport(event.getChannel().asThreadChannel(), event.getMember()))
+                    // In plugin support thread and is staff
+                    if (isSupportChannel(event.getChannel().asThreadChannel()) && isStaff(event.getMember()))
                         sendThankYouMsg(event.getChannel().asThreadChannel(),
                             new Utils().getThreadOP(event.getChannel().asThreadChannel()),
                             event);
@@ -111,23 +112,29 @@ public class Events extends ListenerAdapter {
             if (event.getChannel().asTextChannel().getParentCategoryIdLong() == 390942438061113345L)
                 if (!isStaff(event.getMember())) {
                     String message = event.getMessage().getContentStripped().toLowerCase().replace(" ", "");
-                    List<String> plugins = Arrays.asList("entityclearer", "expensivedeaths", "filecleaner");
+                    List<String> plugins = Arrays.asList("entityclearer", "expensivedeath", "filecleaner");
 
                     try (Stream<String> pluginStream1 = plugins.stream(); Stream<String> pluginStream2 = plugins.stream()) {
                         if (pluginStream1.anyMatch(message::contains)) {
                             if (pluginStream2.anyMatch(plugin -> message.contains(":" + plugin + ":")))
                                 return;
 
-                            event.getMessage().reply(
-                                    "Please go to <#1226927981977403452> for plugin support under the Silverstone organization.")
+                            if (message.contains("entityclearer")) event.getMessage().reply(
+                                    "Please go to <#1226927981977403452> if looking for EntityClearer support.")
+                                .mentionRepliedUser(true).queue();
+                            else if (message.contains("expensivedeaths")) event.getMessage().reply(
+                                    "Please go to <#1264700031819059340> if looking for ExpensiveDeaths support.")
+                                .mentionRepliedUser(true).queue();
+                            else if (message.contains("filecleaner")) event.getMessage().reply(
+                                    "Please go to <#1264699977293107242> if looking for FileCleaner support.")
                                 .mentionRepliedUser(true).queue();
                         }
                     }
                 }
 
         // Plugin support thread
-        if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD) if (isPluginSupport(event
-            .getChannel().asThreadChannel(), event.getMember())) {
+        if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD) if (isSupportChannel(event
+            .getChannel().asThreadChannel()) && isStaff(event.getMember())) {
             Message message = event.getMessage();
 
             // Thanks for coming :)
@@ -169,12 +176,14 @@ public class Events extends ListenerAdapter {
     public void onChannelCreate(ChannelCreateEvent event) {
         if (event.getChannelType() != ChannelType.GUILD_PUBLIC_THREAD) return;
         ThreadChannel post = event.getChannel().asThreadChannel();
-        if (post.getParentChannel().getIdLong() != 1226927981977403452L) return;
+        if (!isSupportChannel(post.getParentChannel())) return;
 
-        post.sendMessage("<@277291758503723010>").queue(del -> del.delete().queueAfter(100,
+        post.sendMessage("<@277291758503723010>").queueAfter(500,
             TimeUnit.MILLISECONDS,
-            null,
-            new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
+            del -> del.delete().queueAfter(100,
+                TimeUnit.MILLISECONDS,
+                null,
+                new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
     }
 
     // When recent chatter leaves
@@ -186,21 +195,22 @@ public class Events extends ListenerAdapter {
         OffsetDateTime thirtyMinsAgo = OffsetDateTime.now().minusMinutes(30);
         OffsetDateTime threeDaysAgo = OffsetDateTime.now().minusDays(3);
 
-        for (ThreadChannel thread : event.getGuild().getChannelById(ForumChannel.class, 1226927981977403452L)
-            .getThreadChannels()) {
-            if (thread.isArchived()) continue;
+        for (long channelIds : Polytrichopsida.supportThreads)
+            for (ThreadChannel thread : event.getGuild().getChannelById(ForumChannel.class, channelIds)
+                .getThreadChannels()) {
+                if (thread.isArchived()) continue;
 
-            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking post '" + thread.getName() + "'");
+                System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking post '" + thread.getName() + "'");
 
-            if (thread.getOwnerIdLong() == event.getUser().getIdLong()) {
-                sendOPLeaveMsg(thread, event.getUser());
-                continue;
+                if (thread.getOwnerIdLong() == event.getUser().getIdLong()) {
+                    sendOPLeaveMsg(thread, event.getUser());
+                    continue;
+                }
+
+                // If the user that left sent the latest or a recent message, say so
+                if (checkIfFromUser(thirtyMinsAgo, threeDaysAgo, thread, event.getUser().getIdLong()))
+                    sendRecentLeaveMsg(thread, event.getUser());
             }
-
-            // If the user that left sent the latest or a recent message, say so
-            if (checkIfFromUser(thirtyMinsAgo, threeDaysAgo, thread, event.getUser().getIdLong()))
-                sendRecentLeaveMsg(thread, event.getUser());
-        }
 
         Long[] textChannels = {1226927642117410960L};
         for (long channelId : textChannels) {
@@ -267,15 +277,15 @@ public class Events extends ListenerAdapter {
     private void sendThankYouMsg(ThreadChannel channel, ThreadMember op, @Nullable SlashCommandInteractionEvent slashEvent) {
         String resourceName;
         String resourceSpigotId;
+        long channelId = channel.getParentChannel().getIdLong();
 
-        String tags = channel.getAppliedTags().toString();
-        if (tags.contains("EntityClearer")) {
+        if (channelId == 1226927981977403452L) {
             resourceName = "EntityClearer";
             resourceSpigotId = "90802";
-        } else if (tags.contains("ExpensiveDeaths")) {
+        } else if (channelId == 1264700031819059340L) {
             resourceName = "ExpensiveDeaths";
             resourceSpigotId = "96065";
-        } else if (tags.contains("FileCleaner")) {
+        } else if (channelId == 1264699977293107242L) {
             resourceName = "FileCleaner";
             resourceSpigotId = "93372";
         } else {
@@ -301,9 +311,14 @@ public class Events extends ListenerAdapter {
             new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
     }
 
-    private boolean isPluginSupport(ThreadChannel channel, Member member) {
-        // Plugin support channel and is considered staff
-        return channel.getParentChannel().getIdLong() == 1226927981977403452L && (isStaff(member));
+    private boolean isSupportChannel(Channel channel) {
+        boolean isSupportChannel = false;
+        for (long channelId : Polytrichopsida.supportThreads)
+            if (channel.getIdLong() == channelId) {
+                isSupportChannel = true;
+                break;
+            }
+        return isSupportChannel;
     }
 
     private boolean isStaff(Member member) {
