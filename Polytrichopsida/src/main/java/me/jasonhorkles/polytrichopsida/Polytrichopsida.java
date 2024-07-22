@@ -19,8 +19,6 @@ import java.util.concurrent.TimeoutException;
 
 public class Polytrichopsida {
     public static JDA jda;
-    // EntityClearer, ExpensiveDeaths, FileCleaner
-    public static final long[] supportThreads = {1226927981977403452L, 1264700031819059340L, 1264699977293107242L};
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");

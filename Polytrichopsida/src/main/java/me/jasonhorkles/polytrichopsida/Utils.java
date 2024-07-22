@@ -39,4 +39,11 @@ public class Utils {
     public ThreadMember getThreadOP(ThreadChannel channel) {
         return channel.retrieveThreadMemberById(channel.getOwnerIdLong()).complete();
     }
+
+    // EntityClearer, ExpensiveDeaths, FileCleaner
+    private final long[] supportChannels = {1226927981977403452L, 1264700031819059340L, 1264699977293107242L};
+
+    public long[] getSupportIds() {
+        return supportChannels;
+    }
 }

@@ -77,10 +77,11 @@ public class Events extends ListenerAdapter {
             case "close" -> {
                 if (event.getChannelType() == ChannelType.GUILD_PUBLIC_THREAD)
                     // In plugin support thread and is staff
-                    if (isSupportChannel(event.getChannel().asThreadChannel()) && isStaff(event.getMember()))
-                        sendThankYouMsg(event.getChannel().asThreadChannel(),
-                            new Utils().getThreadOP(event.getChannel().asThreadChannel()),
-                            event);
+                    if (isSupportChannel(event.getChannel().asThreadChannel().getParentChannel()) && isStaff(
+                        event.getMember())) sendThankYouMsg(
+                        event.getChannel().asThreadChannel(),
+                        new Utils().getThreadOP(event.getChannel().asThreadChannel()),
+                        event);
                     else event.reply("Command not available.").setEphemeral(true).queue();
                 else event.reply("Command not available.").setEphemeral(true).queue();
             }
@@ -134,7 +135,7 @@ public class Events extends ListenerAdapter {
 
         // Plugin support thread
         if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD) if (isSupportChannel(event
-            .getChannel().asThreadChannel()) && isStaff(event.getMember())) {
+            .getChannel().asThreadChannel().getParentChannel()) && isStaff(event.getMember())) {
             Message message = event.getMessage();
 
             // Thanks for coming :)
@@ -195,7 +196,7 @@ public class Events extends ListenerAdapter {
         OffsetDateTime thirtyMinsAgo = OffsetDateTime.now().minusMinutes(30);
         OffsetDateTime threeDaysAgo = OffsetDateTime.now().minusDays(3);
 
-        for (long channelIds : Polytrichopsida.supportThreads)
+        for (long channelIds : new Utils().getSupportIds())
             for (ThreadChannel thread : event.getGuild().getChannelById(ForumChannel.class, channelIds)
                 .getThreadChannels()) {
                 if (thread.isArchived()) continue;
@@ -313,7 +314,7 @@ public class Events extends ListenerAdapter {
 
     private boolean isSupportChannel(Channel channel) {
         boolean isSupportChannel = false;
-        for (long channelId : Polytrichopsida.supportThreads)
+        for (long channelId : new Utils().getSupportIds())
             if (channel.getIdLong() == channelId) {
                 isSupportChannel = true;
                 break;
