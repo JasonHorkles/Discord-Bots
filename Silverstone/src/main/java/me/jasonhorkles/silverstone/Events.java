@@ -63,7 +63,7 @@ public class Events extends ListenerAdapter {
             String message = event.getMessage().getContentStripped().toLowerCase().replace(" ", "");
             if (message.contains("entityclearer") || message.contains("expensivedeaths") || message.contains(
                 "filecleaner")) event.getMessage().reply(
-                    "This server is no longer dedicated to plugin support. Please go to https://discord.gg/4wRHMyrTgv if you need help with Jason's plugins.")
+                    "This server is no longer dedicated to plugin support. Please go to https://discord.gg/5XFBx8uZVN if you need help with Jason's plugins.")
                 .mentionRepliedUser(true).queue();
         }
 
