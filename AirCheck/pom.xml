@@ -32,7 +32,7 @@
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <outputDirectory>D:\Intellij Outputs\Bots</outputDirectory>
+                    <outputDirectory>C:\Intellij Outputs\Bots</outputDirectory>
                 </configuration>
                 <executions>
                     <execution>
