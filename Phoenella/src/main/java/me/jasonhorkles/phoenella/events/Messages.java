@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -42,6 +43,7 @@ public class Messages extends ListenerAdapter {
         if (!event.isFromGuild()) return;
         if (event.getGuild().getIdLong() != 729083627308056597L) return;
         if (event.getAuthor().isBot()) return;
+        if (event.getChannelType() != ChannelType.TEXT) return;
 
         Member member = event.getMember();
         TextChannel channel = event.getChannel().asTextChannel();
