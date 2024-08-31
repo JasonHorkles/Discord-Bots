@@ -164,7 +164,7 @@ public class SlashCommands extends ListenerAdapter {
 
                     EmbedBuilder embed = new EmbedBuilder();
                     embed.setColor(new Color(43, 45, 49));
-                    embed.setTitle("Wordle Leaderboard");
+                    embed.setTitle("Wordle Monthly Leaderboard");
                     embed.setFooter("User-generated words are not counted");
                     embed.setDescription(finalLeaderboard);
 
