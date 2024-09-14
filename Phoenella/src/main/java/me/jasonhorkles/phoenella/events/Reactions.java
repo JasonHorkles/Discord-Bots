@@ -92,14 +92,7 @@ public class Reactions extends ListenerAdapter {
                         String word = message.getContentStripped().replaceAll(".*: ", "").toUpperCase();
                         fileWriter.write(word + "\n");
                         fileWriter.close();
-
-                    } else if (message.getContentStripped().contains("Word report")) {
-                        FileWriter fileWriter = fileWriter(file, message);
-                        fileWriter.close();
                     }
-
-                    message.delete().queue();
-
                 } catch (IOException e) {
                     message.reply("Failed to write word! See console for details.").queue(msg -> msg.delete()
                         .queueAfter(5, TimeUnit.SECONDS));
@@ -110,9 +103,34 @@ public class Reactions extends ListenerAdapter {
             return;
         }
 
-        // Delete message
-        if (event.getReaction().getEmoji().getName().equals("❌") && event.getChannel().asTextChannel()
-            .getParentCategoryIdLong() != 900747596245639238L) {
+        // Word report accept
+        if (event.getReaction().getEmoji().getName().equals("🗑️")) {
+            Message message = event.retrieveMessage().complete();
+            if (message.getContentStripped().contains("Word report")) try {
+                // Remove the word from the pool
+                File file = new File("Phoenella/Wordle/words.txt");
+                FileWriter fileWriter = removeFromFile(file, message);
+                fileWriter.close();
+
+                // Don't suggest adding the word back
+                file = new File("Phoenella/Wordle/banned-requests.txt");
+                fileWriter = new FileWriter(file, StandardCharsets.UTF_8, true);
+                fileWriter.write(message.getContentStripped().replaceAll(".*: ", "").toUpperCase() + "\n");
+                fileWriter.close();
+
+                message.delete().queue();
+            } catch (IOException e) {
+                message.reply("Failed to write word! See console for details.").queue(msg -> msg.delete()
+                    .queueAfter(5, TimeUnit.SECONDS));
+                System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                e.printStackTrace();
+            }
+        }
+
+        // Delete message if an ❌ is reacted or 👌 if in private Wordle channel
+        if ((event.getReaction().getEmoji().getName().equals("❌") && event.getChannel().asTextChannel()
+            .getParentCategoryIdLong() != 900747596245639238L) || (event.getReaction().getEmoji().getName()
+            .equals("👌") && event.getChannel().getIdLong() == 960213547944661042L)) {
             event.retrieveMessage().queue(message -> {
                 if (message.getAuthor().equals(Phoenella.jda.getSelfUser())) message.delete().queue();
             });
@@ -150,7 +168,7 @@ public class Reactions extends ListenerAdapter {
     }
 
     @NotNull
-    private FileWriter fileWriter(File file, Message message) throws IOException {
+    private FileWriter removeFromFile(File file, Message message) throws IOException {
         Scanner words = new Scanner(file, StandardCharsets.UTF_8);
         List<String> wordList = new ArrayList<>();
 

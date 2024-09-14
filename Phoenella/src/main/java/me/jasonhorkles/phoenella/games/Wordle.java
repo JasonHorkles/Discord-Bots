@@ -484,8 +484,8 @@ public class Wordle extends ListenerAdapter {
             event.getJDA().getTextChannelById(960213547944661042L)
                 .sendMessage(":warning: Word report from " + new Utils().getFullName(event.getMember()) + ": **" + word + "**")
                 .setActionRow(Button.primary("defineword:" + word, "Define word")
-                    .withEmoji(Emoji.fromUnicode("❔"))).queue(msg -> msg.addReaction(Emoji.fromUnicode("✅"))
-                    .queue(na -> msg.addReaction(Emoji.fromUnicode("❌")).queue()));
+                    .withEmoji(Emoji.fromUnicode("❔"))).queue(msg -> msg.addReaction(Emoji.fromUnicode("👌"))
+                    .queue(na -> msg.addReaction(Emoji.fromUnicode("🗑️")).queue()));
         }
 
         if (event.getComponentId().startsWith("defineword:")) {
