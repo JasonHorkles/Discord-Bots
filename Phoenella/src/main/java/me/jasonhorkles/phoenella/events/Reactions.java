@@ -92,6 +92,8 @@ public class Reactions extends ListenerAdapter {
                         String word = message.getContentStripped().replaceAll(".*: ", "").toUpperCase();
                         fileWriter.write(word + "\n");
                         fileWriter.close();
+                        
+                        message.delete().queue();
                     }
                 } catch (IOException e) {
                     message.reply("Failed to write word! See console for details.").queue(msg -> msg.delete()
