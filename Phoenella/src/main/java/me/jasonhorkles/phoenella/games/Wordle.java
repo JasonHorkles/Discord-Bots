@@ -44,6 +44,7 @@ public class Wordle extends ListenerAdapter {
     private static final HashMap<TextChannel, Message> keyboard = new HashMap<>();
     private static final Map<TextChannel, ScheduledFuture<?>> deleteChannel = new HashMap<>();
     private static final HashMap<TextChannel, String> answers = new HashMap<>();
+    private static final ArrayList<Long> wonDaily = new ArrayList<>();
 
     public @Nullable TextChannel startGame(Member player, @Nullable String answer, boolean isUserGenerated, boolean isDaily, @Nullable Integer tries) throws IOException {
         // Scan for too many channels
@@ -320,9 +321,9 @@ public class Wordle extends ListenerAdapter {
                 e.printStackTrace();
             }
 
-            sendRetryMsg(channel, "Well done!", answer);
-            if (daily.get(channel)) channel.sendMessage("Share score?").setActionRow(Button
-                .primary("sharewordlescore", "Yes!").withEmoji(Emoji.fromUnicode("✅"))).queue();
+            if (daily.get(channel)) wonDaily.add(event.getMember().getIdLong());
+
+            sendRetryMsg(channel, "Well done!", answer, false);
         }
 
         // Fail
@@ -346,10 +347,11 @@ public class Wordle extends ListenerAdapter {
                         }
                     });
 
-            sendRetryMsg(channel, "The word was **" + answer.toLowerCase() + "**!", answer);
+            sendRetryMsg(channel, "The word was **" + answer.toLowerCase() + "**!", answer, false);
         }
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @NotNull
     private static EmbedBuilder getEmbedBuilder(MessageEmbed embed, String embed1, String embed2, String fails) {
         EmbedBuilder newEmbed = new EmbedBuilder(embed);
@@ -368,7 +370,8 @@ public class Wordle extends ListenerAdapter {
 
                 sendRetryMsg(event.getChannel().asTextChannel(),
                     "The word was **" + answers.get(event.getChannel().asTextChannel()).toLowerCase() + "**!",
-                    answers.get(event.getChannel().asTextChannel()));
+                    answers.get(event.getChannel().asTextChannel()),
+                    true);
             }
 
             case "restartgame:wordle" -> {
@@ -401,17 +404,35 @@ public class Wordle extends ListenerAdapter {
                 }, "End Game-Wordle").start();
             }
 
-            case "sharewordlescore" -> {
-                Thread thread = new Thread(() -> {
-                    event.editButton(event.getButton().asDisabled()).complete();
+            case "sharewordlescore" -> new Thread(() -> {
+                TextChannel channel = event.getChannel().asTextChannel();
+                event.editButton(event.getButton().asDisabled()).complete();
+
+                StringBuilder attempts = new StringBuilder();
+                for (Message msg : messages.get(channel)) {
+                    String content = channel.retrieveMessageById(msg.getId()).complete().getContentRaw();
+                    if (content.startsWith("<:empty:1279501848780341399>")) break;
+                    attempts.append(content.replaceAll("[<>:0-9]", "").replaceAll(".(?= )|.$| ", "")
+                        .toUpperCase().replace("W", "<:wordle_incorrect:1284188510588506197>")
+                        .replace("I", "<:wordle_in_word:1284188488484392962>")
+                        .replace("C", "<:wordle_correct:1284188462706200647>")).append("\n");
+                }
+
+                // Testing channel
+                //                TextChannel winChannel = event.getGuild().getTextChannelById(960213547944661042L);
+                //noinspection DataFlowIssue
+                TextChannel winChannel = event.getGuild().getTextChannelById(956267174727671869L);
+                String name = "**" + new Utils().getFullName(event.getMember()) + "**";
+
+                if (wonDaily.contains(event.getUser().getIdLong())) {
                     //noinspection DataFlowIssue
-                    event.getGuild().getTextChannelById(956267174727671869L)
-                        .sendMessage("**" + new Utils().getFullName(event.getMember()) + "** just finished the daily Wordle in **" + attempt.get(
-                            event.getChannel().asTextChannel()) + "** tries!").complete();
-                    endGame(event.getChannel().asTextChannel());
-                }, "Share Wordle Score - " + new Utils().getFirstName(event.getMember()));
-                thread.start();
-            }
+                    winChannel.sendMessage(name + " just finished the daily Wordle in **" + attempt.get(
+                        channel) + "** tries!\n" + attempts).complete();
+                    wonDaily.remove(event.getUser().getIdLong());
+
+                } else //noinspection DataFlowIssue
+                    winChannel.sendMessage(name + " failed the daily Wordle!\n" + attempts).complete();
+            }, "Share Wordle Score - " + new Utils().getFirstName(event.getMember())).start();
         }
 
         if (event.getComponentId().startsWith("playwordle:")) {
@@ -500,7 +521,7 @@ public class Wordle extends ListenerAdapter {
         new GameManager().deleteGame(channel);
     }
 
-    private void sendRetryMsg(TextChannel channel, String message, String answer) {
+    private void sendRetryMsg(TextChannel channel, String message, String answer, boolean gaveUp) {
         channel.upsertPermissionOverride(players.get(channel)).setDenied(Permission.MESSAGE_SEND).queue();
 
         List<ItemComponent> buttons = new ArrayList<>();
@@ -511,16 +532,15 @@ public class Wordle extends ListenerAdapter {
                 .withEmoji(Emoji.fromUnicode("❔")));
         }
         buttons.add(Button.success("restartgame:wordle", "New word").withEmoji(Emoji.fromUnicode("🔁")));
+        if (daily.get(channel) && !gaveUp) buttons.add(Button.secondary("sharewordlescore", "Share score")
+            .withEmoji(Emoji.fromUnicode("📤")));
 
         channel.sendMessage(message).setActionRow(buttons).queue();
 
-        int delay;
-        if (daily.get(channel)) delay = 15;
-        else delay = 45;
         new Thread(() -> {
             try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
                 deleteChannel.put(channel,
-                    executor.schedule(() -> new Wordle().endGame(channel), delay, TimeUnit.SECONDS));
+                    executor.schedule(() -> new Wordle().endGame(channel), 45, TimeUnit.SECONDS));
             }
         }, "Delete Channel").start();
     }
