@@ -34,7 +34,6 @@ import java.util.concurrent.TimeUnit;
 
 public class Wordle extends ListenerAdapter {
     private static final ArrayList<String> wordList = new ArrayList<>();
-    private static final Map<TextChannel, ArrayList<Message>> messages = new HashMap<>();
     private static final HashMap<TextChannel, Boolean> daily = new HashMap<>();
     private static final HashMap<TextChannel, Boolean> isNonReal = new HashMap<>();
     private static final HashMap<TextChannel, Integer> attempt = new HashMap<>();
@@ -42,9 +41,10 @@ public class Wordle extends ListenerAdapter {
     private static final HashMap<TextChannel, Long> originalMessage = new HashMap<>();
     private static final HashMap<TextChannel, Member> players = new HashMap<>();
     private static final HashMap<TextChannel, Message> keyboard = new HashMap<>();
-    private static final Map<TextChannel, ScheduledFuture<?>> deleteChannel = new HashMap<>();
     private static final HashMap<TextChannel, String> answers = new HashMap<>();
-    private static final ArrayList<Long> wonDaily = new ArrayList<>();
+    private static final List<Long> wonDaily = new ArrayList<>();
+    private static final Map<TextChannel, ArrayList<Message>> messages = new HashMap<>();
+    private static final Map<TextChannel, ScheduledFuture<?>> deleteChannel = new HashMap<>();
 
     public @Nullable TextChannel startGame(Member player, @Nullable String answer, boolean isUserGenerated, boolean isDaily, @Nullable Integer tries) throws IOException {
         // Scan for too many channels
@@ -321,7 +321,13 @@ public class Wordle extends ListenerAdapter {
                 e.printStackTrace();
             }
 
-            if (daily.get(channel)) wonDaily.add(event.getMember().getIdLong());
+            if (daily.get(channel)) {
+                Long id = event.getMember().getIdLong();
+                wonDaily.add(id);
+                Executors.newSingleThreadScheduledExecutor().schedule(() -> wonDaily.remove(id),
+                    1,
+                    TimeUnit.MINUTES);
+            }
 
             sendRetryMsg(channel, "Well done!", answer, false);
         }
