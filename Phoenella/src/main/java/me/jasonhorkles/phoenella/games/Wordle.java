@@ -485,7 +485,7 @@ public class Wordle extends ListenerAdapter {
                 .sendMessage(":warning: Word report from " + new Utils().getFullName(event.getMember()) + ": **" + word + "**")
                 .setActionRow(Button.primary("defineword:" + word, "Define word")
                     .withEmoji(Emoji.fromUnicode("❔"))).queue(msg -> msg.addReaction(Emoji.fromUnicode("👌"))
-                    .queue(na -> msg.addReaction(Emoji.fromUnicode("🗑️")).queue()));
+                    .queue(na -> msg.addReaction(Emoji.fromUnicode("🗑️")).queueAfter(1, TimeUnit.SECONDS)));
         }
 
         if (event.getComponentId().startsWith("defineword:")) {
@@ -564,7 +564,7 @@ public class Wordle extends ListenerAdapter {
                 ":inbox_tray: Auto word request from " + new Utils().getFullName(member) + ": **" + word + "**")
             .setActionRow(Button.primary("defineword:" + word, "Define word")
                 .withEmoji(Emoji.fromUnicode("❔"))).queue((msg) -> msg.addReaction(Emoji.fromUnicode("✅"))
-                .queue(m -> msg.addReaction(Emoji.fromUnicode("⛔")).queue()));
+                .queue(m -> msg.addReaction(Emoji.fromUnicode("⛔")).queueAfter(1, TimeUnit.SECONDS)));
     }
 
     private enum LetterType {
