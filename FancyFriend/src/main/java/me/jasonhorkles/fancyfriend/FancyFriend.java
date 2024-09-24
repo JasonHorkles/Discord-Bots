@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 public class FancyFriend {
     public static JDA jda;
-    public static final long GUILD_ID = 288215803294253066L;
+    public static final long GUILD_ID = 1092507996166295644L;
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
