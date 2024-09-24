@@ -4,6 +4,8 @@ AirCheck/activities.json
 AirCheck/air.json
 AirCheck/pollen.txt
 AirCheck/src/main/java/me/jasonhorkles/aircheck/Secrets.java
+FancyFriend/ping-settings.json
+FancyFriend/src/main/java/me/jasonhorkles/fancyfriend/Secrets.java
 MCB.zip
 MusicMommy.zip
 Phoenella/channel-blacklist.txt
