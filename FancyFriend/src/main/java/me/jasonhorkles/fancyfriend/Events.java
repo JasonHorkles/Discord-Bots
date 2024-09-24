@@ -7,7 +7,11 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+import org.json.JSONObject;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -17,16 +21,45 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("DataFlowIssue")
 public class Events extends ListenerAdapter {
     private final Map<Long, Integer> warnings = new HashMap<>();
+    private final Path pingFilePath = Path.of("FancyFriend/ping-settings.json");
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember()
             .getEffectiveName() + " used the /" + event.getName() + " command");
 
-        //noinspection SwitchStatementWithTooFewBranches
-        switch (event.getName().toLowerCase()) {
-            case "noping" -> {
-                //todo: implement
+        if (event.getName().equalsIgnoreCase("noping")) {
+            if (!new Utils().isStaff(event.getMember())) {
+                event.reply("Invalid permissions!").setEphemeral(true).queue();
+                return;
+            }
+
+            try {
+                JSONObject pingSettings = new JSONObject(Files.readString(pingFilePath));
+
+                switch (event.getOption("option").getAsString()) {
+                    case "all" -> {
+                        pingSettings.remove(String.valueOf(event.getMember().getIdLong()));
+                        Files.writeString(pingFilePath, pingSettings.toString());
+                        event.reply("You are now protected from all pings.").setEphemeral(true).queue();
+                    }
+
+                    case "explicit" -> {
+                        pingSettings.put(String.valueOf(event.getMember().getIdLong()), 1);
+                        Files.writeString(pingFilePath, pingSettings.toString());
+                        event.reply("You are now protected from explicit pings only.").setEphemeral(true)
+                            .queue();
+                    }
+
+                    case "off" -> {
+                        pingSettings.put(String.valueOf(event.getMember().getIdLong()), 0);
+                        Files.writeString(pingFilePath, pingSettings.toString());
+                        event.reply("You are no longer protected from pings.").setEphemeral(true).queue();
+                    }
+                }
+            } catch (IOException e) {
+                System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                e.printStackTrace();
             }
         }
     }
@@ -38,13 +71,27 @@ public class Events extends ListenerAdapter {
         // Ping check
         if (!event.getMessage().getChannelType().isGuild()) return;
         // Let staff ping other staff
-        if (isStaff(event.getMember())) return;
+        if (new Utils().isStaff(event.getMember())) return;
 
         Long id = event.getAuthor().getIdLong();
 
         int count = 0;
+        // Iterate through each pinged member
         for (Member member : event.getMessage().getMentions().getMembers())
-            if (isStaff(member)) count++;
+            if (new Utils().isStaff(member)) try {
+                JSONObject pingSettings = new JSONObject(Files.readString(pingFilePath));
+                // Default to -1 if the user doesn't have a setting
+                if (pingSettings.has(String.valueOf(id))) {
+                    // -1: all | 0: off | 1: explicit
+                    int pingSetting = pingSettings.getInt(String.valueOf(id));
+                    if (pingSetting == 0) continue;
+                    if (pingSetting == 1 && event.getMessage().getMessageReference() != null) continue;
+                }
+                count++;
+            } catch (IOException e) {
+                System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                e.printStackTrace();
+            }
 
         if (count > 0) {
             warn(id, event, count);
@@ -62,7 +109,8 @@ public class Events extends ListenerAdapter {
 
             if (warnings.get(id) > 1) message.append("-# Warning ").append(warnings.get(id)).append("/3");
 
-            event.getMessage().reply(message).queue(message1 -> message1.delete().queueAfter(15,
+            event.getMessage().reply(message).queue(sentMsg -> sentMsg.delete().queueAfter(
+                15,
                 TimeUnit.MINUTES,
                 null,
                 new ErrorHandler().handle(ErrorResponse.UNKNOWN_MESSAGE,
@@ -113,12 +161,5 @@ public class Events extends ListenerAdapter {
             System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Removed ping warning from " + name + " - " + warnings.get(
                 id) + "/3");
         }
-    }
-
-    private boolean isStaff(Member member) {
-        // Moderator | Developer | Helpful
-        String roles = member.getRoles().toString();
-        return roles.contains("1134906027142299749") || roles.contains("1092512242127339610") || roles.contains(
-            "1198213765125128302");
     }
 }

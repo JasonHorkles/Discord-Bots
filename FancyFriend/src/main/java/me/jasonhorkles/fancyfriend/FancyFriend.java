@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 public class FancyFriend {
     public static JDA jda;
+    public static final long GUILD_ID = 288215803294253066L;
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
@@ -37,10 +38,7 @@ public class FancyFriend {
 
         // Cache members
         //noinspection DataFlowIssue
-        jda.getGuildById(288215803294253066L).loadMembers().get();
-
-        // Add all missing members to ping-settings file
-        //todo: implement
+        jda.getGuildById(GUILD_ID).loadMembers().get();
 
         OptionData options = new OptionData(OptionType.STRING,
             "option",
@@ -50,7 +48,7 @@ public class FancyFriend {
             new Command.Choice("Off", "off"));
 
         //noinspection DataFlowIssue
-        jda.getGuildById(288215803294253066L).updateCommands().addCommands(Commands
+        jda.getGuildById(GUILD_ID).updateCommands().addCommands(Commands
             .slash("noping", "Change the status of your ping protection").addOptions(options)).queue();
 
         // Add shutdown hooks
