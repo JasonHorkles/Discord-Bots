@@ -73,17 +73,16 @@ public class Events extends ListenerAdapter {
         // Let staff ping other staff
         if (new Utils().isStaff(event.getMember())) return;
 
-        Long id = event.getAuthor().getIdLong();
-
         int count = 0;
         // Iterate through each pinged member
         for (Member member : event.getMessage().getMentions().getMembers())
             if (new Utils().isStaff(member)) try {
+                Long staffId = member.getIdLong();
                 JSONObject pingSettings = new JSONObject(Files.readString(pingFilePath));
                 // Default to -1 if the user doesn't have a setting
-                if (pingSettings.has(String.valueOf(id))) {
+                if (pingSettings.has(String.valueOf(staffId))) {
                     // -1: all | 0: off | 1: explicit
-                    int pingSetting = pingSettings.getInt(String.valueOf(id));
+                    int pingSetting = pingSettings.getInt(String.valueOf(staffId));
                     if (pingSetting == 0) continue;
                     if (pingSetting == 1 && event.getMessage().getMessageReference() != null) continue;
                 }
@@ -93,8 +92,9 @@ public class Events extends ListenerAdapter {
                 e.printStackTrace();
             }
 
+        Long authorId = event.getAuthor().getIdLong();
         if (count > 0) {
-            warn(id, event, count);
+            warn(authorId, event, count);
             StringBuilder message = new StringBuilder("Hey " + event.getMember()
                 .getEffectiveName() + ", please don't ping staff members!");
 
@@ -107,7 +107,8 @@ public class Events extends ListenerAdapter {
             if (appendTicket) message.append(
                 "\nIf there's a problem, please make a ticket with <#1112486757359960175>");
 
-            if (warnings.get(id) > 1) message.append("-# Warning ").append(warnings.get(id)).append("/3");
+            if (warnings.get(authorId) > 1)
+                message.append("\n-# Warning ").append(warnings.get(authorId)).append("/3");
 
             event.getMessage().reply(message).queue(sentMsg -> sentMsg.delete().queueAfter(
                 15,
@@ -122,13 +123,16 @@ public class Events extends ListenerAdapter {
     public void warn(Long id, MessageReceivedEvent event, int count) {
         if (warnings.containsKey(id)) {
             warnings.put(id, warnings.get(id) + count);
+
             if (warnings.get(id) >= 3) event.getMember().timeoutFor(3, TimeUnit.HOURS).queue(
-                null,
-                (na) -> event.getChannel().sendMessage("<@277291758503723010>")
-                    .queue(del -> del.delete().queueAfter(15,
-                        TimeUnit.SECONDS,
-                        null,
-                        new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE))));
+                // Send a message to the staff channel
+                na -> FancyFriend.jda.getGuildById(FancyFriend.GUILD_ID).getTextChannelById(
+                        1195445607763030126L)
+                    .sendMessage("<@" + id + "> has been timed out for 3 hours for pinging staff members.")
+                    .queue(),
+                // Ping me if the timeout fails to apply
+                na -> event.getChannel().sendMessage("<@277291758503723010>").queue());
+
         } else warnings.put(id, count);
 
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Warned " + event.getMember()
