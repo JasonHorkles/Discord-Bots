@@ -122,7 +122,8 @@ public class Events extends ListenerAdapter {
     public void warn(Long id, MessageReceivedEvent event, int count) {
         if (warnings.containsKey(id)) {
             warnings.put(id, warnings.get(id) + count);
-            if (warnings.get(id) >= 3) event.getMember().timeoutFor(12, TimeUnit.HOURS).queue(null,
+            if (warnings.get(id) >= 3) event.getMember().timeoutFor(3, TimeUnit.HOURS).queue(
+                null,
                 (na) -> event.getChannel().sendMessage("<@277291758503723010>")
                     .queue(del -> del.delete().queueAfter(15,
                         TimeUnit.SECONDS,
