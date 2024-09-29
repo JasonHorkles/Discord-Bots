@@ -149,29 +149,23 @@ public class Events extends ListenerAdapter {
 
             // Ping OP
             if (message.getMessageReference() == null) try {
-                System.out.println("Ping 1");
                 List<Message> messages = new Utils().getMessages(event.getChannel(), 2).get(30,
                     TimeUnit.SECONDS);
                 if (messages.size() < 2) return;
-                System.out.println("Ping 2");
 
                 OffsetDateTime fiveMinsAgo = OffsetDateTime.now().minusMinutes(5);
                 if (messages.get(1).getTimeCreated().isAfter(fiveMinsAgo)) return;
-                System.out.println("Ping 3");
 
                 ThreadMember op = new Utils().getThreadOP(event.getChannel().asThreadChannel());
                 if (op == null) return;
-                System.out.println("Ping 4");
 
-                User author = messages.get(1).getAuthor();
-                if (author != op.getUser()) return;
-                System.out.println("Ping 5");
+                long authorId = messages.get(1).getAuthor().getIdLong();
+                if (authorId != op.getUser().getIdLong()) return;
 
                 event.getChannel().sendMessage(op.getAsMention()).queue(del -> del.delete().queueAfter(100,
                     TimeUnit.MILLISECONDS,
                     null,
                     new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
-                System.out.println("Ping success.");
 
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 System.out.print(new Utils().getTime(Utils.LogColor.RED));
