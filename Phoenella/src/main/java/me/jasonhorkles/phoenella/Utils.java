@@ -220,7 +220,7 @@ public class Utils {
     /* BAD WORD LIST BELOW */
 
     public boolean containsBadWord(String phrase) {
-        String[] badWords = {"\\bsex\\b", "\\bass\\b", "bitch", "fuck", "breast", "penis", "vagina", "dicks"};
+        String[] badWords = {"\\bsex\\b", "\\bass\\b", "bitch", "fuck", "breast", "penis", "vagina", "dicks", "ejaculate", "sperm"};
         for (String word : badWords) if (phrase.matches("(?si).*" + word + ".*")) return true;
         return false;
     }
