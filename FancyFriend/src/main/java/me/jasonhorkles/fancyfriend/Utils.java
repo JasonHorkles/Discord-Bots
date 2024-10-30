@@ -27,9 +27,9 @@ public class Utils {
     }
 
     public boolean isStaff(Member member) {
-        // Moderator | Developer | Helpful
+        // Moderator | Developer | Helpful | Contributor
         String roles = member.getRoles().toString();
         return roles.contains("1134906027142299749") || roles.contains("1092512242127339610") || roles.contains(
-            "1198213765125128302");
+            "1198213765125128302") || roles.contains("1092512359886622881");
     }
 }
