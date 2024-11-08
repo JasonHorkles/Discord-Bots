@@ -35,7 +35,7 @@ public class Events extends ListenerAdapter {
                 .queue();
 
             case "docs" -> event.reply(
-                "Here are the FancyPlugins docs: https://fancyplugins.de/docs/welcome.html").queue();
+                "Here are the FancyPlugins docs: <https://fancyplugins.de/docs/welcome.html>").queue();
 
             case "fixed" -> event.reply("""
                     To make a hologram not rotate, the billboarding must be set to FIXED.
