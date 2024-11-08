@@ -44,7 +44,7 @@ public class Events extends ListenerAdapter {
                 .queue();
 
             case "manual-holo" -> event.reply("""
-                To manually edit a hologram:
+                ### To manually edit a hologram:
                 1. Run `/fancyholograms save`
                 2. Back up the `holograms.yml` file in case something goes wrong
                 3. Edit your `holograms.yml` file as desired
