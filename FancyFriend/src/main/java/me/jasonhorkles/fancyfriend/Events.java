@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,39 +29,85 @@ public class Events extends ListenerAdapter {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember()
             .getEffectiveName() + " used the /" + event.getName() + " command");
 
-        if (event.getName().equalsIgnoreCase("noping")) {
-            if (!new Utils().isStaff(event.getMember())) {
-                event.reply("Invalid permissions!").setEphemeral(true).queue();
-                return;
-            }
+        switch (event.getName()) {
+            case "clickable" -> event.reply(
+                    "Holograms currently aren't clickable themselves, but [here's](<https://fancyplugins.de/docs/fh-clickable-holograms.html>) a workaround.")
+                .queue();
 
-            try {
-                JSONObject pingSettings = new JSONObject(Files.readString(pingFilePath));
+            case "docs" -> event.reply(
+                "Here are the FancyPlugins docs: https://fancyplugins.de/docs/welcome.html").queue();
 
-                switch (event.getOption("option").getAsString()) {
-                    case "all" -> {
-                        pingSettings.remove(String.valueOf(event.getMember().getIdLong()));
-                        Files.writeString(pingFilePath, pingSettings.toString());
-                        event.reply("You are now protected from all pings.").setEphemeral(true).queue();
-                    }
+            case "fixed" -> event.reply("""
+                    To make a hologram not rotate, the billboarding must be set to FIXED.
+                    Example: `/holo edit <hologram> billboard FIXED`
+                    Once complete, you must set the hologram's rotation with the `rotate` and `rotatepitch` commands.""")
+                .queue();
 
-                    case "explicit" -> {
-                        pingSettings.put(String.valueOf(event.getMember().getIdLong()), 1);
-                        Files.writeString(pingFilePath, pingSettings.toString());
-                        event.reply("You are now protected from explicit pings only.").setEphemeral(true)
-                            .queue();
-                    }
+            case "manual-holo" -> event.reply("""
+                To manually edit a hologram:
+                1. Run `/fancyholograms save`
+                2. Back up the `holograms.yml` file in case something goes wrong
+                3. Edit your `holograms.yml` file as desired
+                4. Run `/fancyholograms reload` after saving the file""").queue();
 
-                    case "off" -> {
-                        pingSettings.put(String.valueOf(event.getMember().getIdLong()), 0);
-                        Files.writeString(pingFilePath, pingSettings.toString());
-                        event.reply("You are no longer protected from pings.").setEphemeral(true).queue();
-                    }
+            case "multiline" -> event.reply(
+                    "See [here](<https://fancyplugins.de/docs/fn-multiple-lines.html>) on how to make an NPC name have multiple lines.")
+                .queue();
+
+            case "noping" -> noPing(event);
+
+            case "versions" -> {
+                JSONObject project = new Modrinth().getProjectInfo(event.getOption("plugin").getAsString());
+
+                List<Object> versionList = project.getJSONArray("game_versions").toList();
+                String versions = versionList.getFirst().toString() + " → " + versionList.getLast()
+                    .toString();
+
+                StringBuilder message = new StringBuilder("The **" + project.getString("title") + "** plugin supports Minecraft **" + versions + "** on the following software:");
+
+                for (Object loader : project.getJSONArray("loaders").toList()) {
+                    String name = loader.toString();
+                    // Capitalize the first letter of the loader name
+                    message.append("\n- ").append(name.substring(0, 1).toUpperCase())
+                        .append(name.substring(1));
                 }
-            } catch (IOException e) {
-                System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                e.printStackTrace();
+
+                event.reply(message.toString()).queue();
             }
+        }
+    }
+
+    private void noPing(SlashCommandInteractionEvent event) {
+        if (!new Utils().isStaff(event.getMember())) {
+            event.reply("Invalid permissions!").setEphemeral(true).queue();
+            return;
+        }
+
+        try {
+            JSONObject pingSettings = new JSONObject(Files.readString(pingFilePath));
+
+            switch (event.getOption("option").getAsString()) {
+                case "all" -> {
+                    pingSettings.remove(String.valueOf(event.getMember().getIdLong()));
+                    Files.writeString(pingFilePath, pingSettings.toString());
+                    event.reply("You are now protected from all pings.").setEphemeral(true).queue();
+                }
+
+                case "explicit" -> {
+                    pingSettings.put(String.valueOf(event.getMember().getIdLong()), 1);
+                    Files.writeString(pingFilePath, pingSettings.toString());
+                    event.reply("You are now protected from explicit pings only.").setEphemeral(true).queue();
+                }
+
+                case "off" -> {
+                    pingSettings.put(String.valueOf(event.getMember().getIdLong()), 0);
+                    Files.writeString(pingFilePath, pingSettings.toString());
+                    event.reply("You are no longer protected from pings.").setEphemeral(true).queue();
+                }
+            }
+        } catch (IOException e) {
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            e.printStackTrace();
         }
     }
 

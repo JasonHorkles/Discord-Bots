@@ -40,7 +40,8 @@ public class FancyFriend {
         //noinspection DataFlowIssue
         jda.getGuildById(GUILD_ID).loadMembers().get();
 
-        OptionData options = new OptionData(OptionType.STRING,
+        OptionData pingOptions = new OptionData(
+            OptionType.STRING,
             "option",
             "The ping protection method to use",
             true).addChoices(new Command.Choice("All Pings", "all"),
@@ -48,8 +49,15 @@ public class FancyFriend {
             new Command.Choice("Off", "off"));
 
         //noinspection DataFlowIssue
-        jda.getGuildById(GUILD_ID).updateCommands().addCommands(Commands
-            .slash("noping", "Change the status of your ping protection").addOptions(options)).queue();
+        jda.getGuildById(GUILD_ID).updateCommands().addCommands(Commands.slash("clickable",
+                "Clickable FancyHolograms tutorial"),
+            Commands.slash("docs", "Get the FancyPlugins documentation"),
+            Commands.slash("fixed", "Show how to set a hologram to fixed"),
+            Commands.slash("manual-holo", "How to manually edit a hologram properly"),
+            Commands.slash("multiline", "Make an NPC name have multiple lines"),
+            Commands.slash("noping", "Change the status of your ping protection").addOptions(pingOptions),
+            Commands.slash("versions", "Get a plugin's supported MC versions")
+                .addOptions(new Modrinth().getProjects())).queue();
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new FancyFriend().shutdown(), "Shutdown Hook"));
