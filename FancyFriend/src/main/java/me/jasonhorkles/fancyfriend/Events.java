@@ -1,6 +1,7 @@
 package me.jasonhorkles.fancyfriend;
 
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -113,16 +114,30 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        // Ignore bots
         if (event.getAuthor().isBot()) return;
-
-        // Ping check
+        // Make sure the channel's in a guild
         if (!event.getMessage().getChannelType().isGuild()) return;
-        // Let staff ping other staff
+        // Ignore staff
         if (new Utils().isStaff(event.getMember())) return;
 
+        Message message = event.getMessage();
+
+        String strippedMsg = message.getContentStripped().toLowerCase();
+        String spacelessMsg = strippedMsg.replace(" ", "");
+        // If someone asks if a plugin works with Via or Geyser
+        if (strippedMsg.contains("work") || strippedMsg.contains("support")) if (spacelessMsg.contains(
+            "viaversion") || spacelessMsg.contains("viabackwards")) message.reply(
+                "The plugin may not work properly with Via plugins as they are not officially supported. Additionally, display entities and other features don't even exist on older Minecraft versions.")
+            .queue();
+        else if (strippedMsg.contains("geyser")) message.reply(
+                "The plugin may not work properly with Geyser as it is not officially supported. Additionally, display entities and other features don't even exist on Bedrock Edition.")
+            .queue();
+
+        // Ping check
         int count = 0;
         // Iterate through each pinged member
-        for (Member member : event.getMessage().getMentions().getMembers())
+        for (Member member : message.getMentions().getMembers())
             if (new Utils().isStaff(member)) try {
                 Long staffId = member.getIdLong();
                 JSONObject pingSettings = new JSONObject(Files.readString(pingFilePath));
@@ -131,7 +146,7 @@ public class Events extends ListenerAdapter {
                     // -1: all | 0: off | 1: explicit
                     int pingSetting = pingSettings.getInt(String.valueOf(staffId));
                     if (pingSetting == 0) continue;
-                    if (pingSetting == 1 && event.getMessage().getMessageReference() != null) continue;
+                    if (pingSetting == 1 && message.getMessageReference() != null) continue;
                 }
                 count++;
             } catch (IOException e) {
@@ -142,25 +157,24 @@ public class Events extends ListenerAdapter {
         Long authorId = event.getAuthor().getIdLong();
         if (count > 0) {
             warn(authorId, event, count);
-            StringBuilder message = new StringBuilder("Hey " + event.getMember()
+            StringBuilder pingMessage = new StringBuilder("Hey " + event.getMember()
                 .getEffectiveName() + ", please don't ping staff members!");
 
             boolean appendTicket = true;
 
-            if (event.getMessage().getChannelType() == ChannelType.TEXT)
-                if (event.getMessage().getCategory().getIdLong() == 1112487038160220180L)
-                    appendTicket = false;
+            if (message.getChannelType() == ChannelType.TEXT)
+                if (message.getCategory().getIdLong() == 1112487038160220180L) appendTicket = false;
 
-            if (appendTicket) message.append(
+            if (appendTicket) pingMessage.append(
                 "\nIf there's a problem, please make a ticket with <#1112486757359960175>");
 
-            if (warnings.get(authorId) > 1 && event.getMessage().getMessageReference() != null)
-                message.append("\n-# Please [turn off](https://tenor.com/view/20411479) your reply pings.");
+            if (warnings.get(authorId) > 1 && message.getMessageReference() != null) pingMessage.append(
+                "\n-# Please [turn off](https://tenor.com/view/20411479) your reply pings.");
 
             if (warnings.get(authorId) > 1)
-                message.append("\n-# Warning ").append(warnings.get(authorId)).append("/3");
+                pingMessage.append("\n-# Warning ").append(warnings.get(authorId)).append("/3");
 
-            event.getMessage().reply(message).queue(sentMsg -> sentMsg.delete().queueAfter(
+            message.reply(pingMessage).queue(sentMsg -> sentMsg.delete().queueAfter(
                 15,
                 TimeUnit.MINUTES,
                 null,
