@@ -154,6 +154,9 @@ public class Events extends ListenerAdapter {
             if (appendTicket) message.append(
                 "\nIf there's a problem, please make a ticket with <#1112486757359960175>");
 
+            if (warnings.get(authorId) > 1 && event.getMessage().getMessageReference() != null)
+                message.append("\n-# Please [turn off](https://tenor.com/view/20411479) your pings.");
+
             if (warnings.get(authorId) > 1)
                 message.append("\n-# Warning ").append(warnings.get(authorId)).append("/3");
 
