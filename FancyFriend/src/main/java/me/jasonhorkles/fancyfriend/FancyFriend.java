@@ -53,11 +53,13 @@ public class FancyFriend {
                 "Clickable FancyHolograms tutorial"),
             Commands.slash("docs", "Get the FancyPlugins documentation"),
             Commands.slash("fixed", "Show how to set a hologram to fixed"),
+            Commands.slash("geyser", "Geyser not supported message"),
             Commands.slash("manual-holo", "How to manually edit a hologram properly"),
             Commands.slash("multiline", "Make an NPC name have multiple lines"),
             Commands.slash("noping", "Change the status of your ping protection").addOptions(pingOptions),
             Commands.slash("versions", "Get a plugin's supported MC versions")
-                .addOptions(new Modrinth().getProjects())).queue();
+                .addOptions(new Modrinth().getProjects()),
+            Commands.slash("via", "ViaVersion not supported message")).queue();
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new FancyFriend().shutdown(), "Shutdown Hook"));

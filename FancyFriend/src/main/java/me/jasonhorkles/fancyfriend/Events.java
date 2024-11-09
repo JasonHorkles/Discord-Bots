@@ -24,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 public class Events extends ListenerAdapter {
     private final Map<Long, Integer> warnings = new HashMap<>();
     private final Path pingFilePath = Path.of("FancyFriend/ping-settings.json");
+    private final String geyserMsg = "The plugin may not work properly with Geyser as it is not officially supported. Additionally, display entities and other features don't even exist on Bedrock Edition.";
+    private final String viaMsg = "The plugin may not work properly with Via plugins as they are not officially supported. Additionally, display entities and other features don't even exist on older Minecraft versions.";
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
@@ -43,6 +45,8 @@ public class Events extends ListenerAdapter {
                     Example: `/holo edit <hologram> billboard FIXED`
                     Once complete, you must set the hologram's rotation with the `rotate` and `rotatepitch` commands.""")
                 .queue();
+
+            case "geyser" -> event.reply(geyserMsg).queue();
 
             case "manual-holo" -> event.reply("""
                 ### To manually edit a hologram:
@@ -75,6 +79,8 @@ public class Events extends ListenerAdapter {
 
                 event.reply(message.toString()).queue();
             }
+
+            case "via" -> event.reply(viaMsg).queue();
         }
     }
 
@@ -127,12 +133,8 @@ public class Events extends ListenerAdapter {
         String spacelessMsg = strippedMsg.replace(" ", "");
         // If someone asks if a plugin works with Via or Geyser
         if (strippedMsg.contains("work") || strippedMsg.contains("support")) if (spacelessMsg.contains(
-            "viaversion") || spacelessMsg.contains("viabackwards")) message.reply(
-                "The plugin may not work properly with Via plugins as they are not officially supported. Additionally, display entities and other features don't even exist on older Minecraft versions.")
-            .queue();
-        else if (strippedMsg.contains("geyser")) message.reply(
-                "The plugin may not work properly with Geyser as it is not officially supported. Additionally, display entities and other features don't even exist on Bedrock Edition.")
-            .queue();
+            "viaversion") || spacelessMsg.contains("viabackwards")) message.reply(viaMsg).queue();
+        else if (strippedMsg.contains("geyser")) message.reply(geyserMsg).queue();
 
         // Ping check
         int count = 0;
