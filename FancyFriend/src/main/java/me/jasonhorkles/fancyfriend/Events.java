@@ -176,15 +176,16 @@ public class Events extends ListenerAdapter {
             if (warnings.get(authorId) > 1 && message.getMessageReference() != null) pingMessage.append(
                 "\n-# Please [turn off](https://tenor.com/view/20411479) your reply pings.");
 
+            // Save the message without the warning for later editing
+            String warningRemoved = pingMessage.toString();
+
             if (warnings.get(authorId) > 1)
                 pingMessage.append("\n-# Warning ").append(warnings.get(authorId)).append("/3");
 
-            message.reply(pingMessage).queue(sentMsg -> sentMsg.delete().queueAfter(
-                15,
-                TimeUnit.MINUTES,
-                null,
-                new ErrorHandler().handle(ErrorResponse.UNKNOWN_MESSAGE,
-                    (e) -> System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Unable to delete warning message."))));
+            message.reply(pingMessage).queue(sentMsg -> sentMsg.editMessage(warningRemoved)
+                .setSuppressEmbeds(true).queueAfter(15, TimeUnit.MINUTES, null, new ErrorHandler().handle(
+                    ErrorResponse.UNKNOWN_MESSAGE,
+                    (e) -> System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Unable to edit warning message."))));
         }
     }
 
