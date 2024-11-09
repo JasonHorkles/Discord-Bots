@@ -78,7 +78,7 @@ public class Events extends ListenerAdapter {
                 }
 
                 if (project.getString("status").equals("archived")) message.append(
-                    "\n\n*Note: This plugin is no longer maintained.*");
+                    "\n*Note: This plugin is no longer maintained.*");
 
                 event.reply(message.toString()).queue();
             }
