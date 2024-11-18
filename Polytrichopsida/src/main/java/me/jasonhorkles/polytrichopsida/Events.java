@@ -136,7 +136,6 @@ public class Events extends ListenerAdapter {
         // Plugin support thread
         if (event.getMessage().getChannelType() == ChannelType.GUILD_PUBLIC_THREAD) if (isSupportChannel(event
             .getChannel().asThreadChannel().getParentChannel()) && isStaff(event.getMember())) {
-            System.out.println("Ping 0");
             Message message = event.getMessage();
 
             // Thanks for coming :)
