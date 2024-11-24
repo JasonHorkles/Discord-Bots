@@ -120,7 +120,8 @@ public class Events extends ListenerAdapter {
                             if (pluginStream2.anyMatch(plugin -> message.contains(":" + plugin + ":")))
                                 return;
 
-                            if (message.contains("entityclearer")) event.getMessage().reply(
+                            if (message.contains("entityclearer") || message.contains("entitycleaner"))
+                                event.getMessage().reply(
                                     "Please go to <#1226927981977403452> if looking for EntityClearer support.")
                                 .mentionRepliedUser(true).queue();
                             else if (message.contains("expensivedeaths")) event.getMessage().reply(
