@@ -33,8 +33,15 @@ public class Events extends ListenerAdapter {
             .getEffectiveName() + " used the /" + event.getName() + " command");
 
         switch (event.getName()) {
+            case "blankline" ->
+                event.reply("To add a blank line in a hologram, use `<r>` on a new line.").queue();
+
             case "clickable" -> event.reply(
                     "Holograms currently aren't clickable themselves, but [here's](<https://fancyplugins.de/docs/fh-clickable-holograms.html>) a workaround.")
+                .queue();
+
+            case "converters" -> event.reply(
+                    "Converters are currently not available for Fancy plugins. You will need to manually convert your data.")
                 .queue();
 
             case "docs" -> event.reply(
@@ -60,6 +67,10 @@ public class Events extends ListenerAdapter {
                 .queue();
 
             case "noping" -> noPing(event);
+
+            case "per-line" -> event.reply(
+                    "Per-line settings (such as scale or background) are not supported in FancyHolograms due to a limitation with display entities. A separate hologram will need to be created for each line.")
+                .queue();
 
             case "versions" -> {
                 JSONObject project = new Modrinth().getProjectInfo(event.getOption("plugin").getAsString());
@@ -183,9 +194,10 @@ public class Events extends ListenerAdapter {
                 pingMessage.append("\n-# Warning ").append(warnings.get(authorId)).append("/3");
 
             message.reply(pingMessage).queue(sentMsg -> sentMsg.editMessage(warningRemoved)
-                .setSuppressEmbeds(true).queueAfter(15, TimeUnit.MINUTES, null, new ErrorHandler().handle(
-                    ErrorResponse.UNKNOWN_MESSAGE,
-                    (e) -> System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Unable to edit warning message."))));
+                .setSuppressEmbeds(true).queueAfter(
+                    15, TimeUnit.MINUTES, null, new ErrorHandler().handle(
+                        ErrorResponse.UNKNOWN_MESSAGE,
+                        (e) -> System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Unable to edit warning message."))));
         }
     }
 
@@ -220,11 +232,12 @@ public class Events extends ListenerAdapter {
     }
 
     public void scheduleWarningRemoval(Long id, String name) {
-        new Thread(() -> {
-            try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                executor.schedule(() -> takeWarning(id, name), 15, TimeUnit.MINUTES);
-            }
-        }, "Warning Removal").start();
+        new Thread(
+            () -> {
+                try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                    executor.schedule(() -> takeWarning(id, name), 15, TimeUnit.MINUTES);
+                }
+            }, "Warning Removal").start();
     }
 
     private void takeWarning(Long id, String name) {
