@@ -27,7 +27,7 @@ public class BotAnalytics {
 
         this.executor.scheduleAtFixedRate(() -> {
             client.getRecordService().createRecord(projectId, new Record("FancyFriend", projectId, System.currentTimeMillis(), new HashMap<>()));
-        }, 5, 5, TimeUnit.SECONDS);
+        }, 10, 30, TimeUnit.SECONDS);
     }
 
     public static BotAnalytics get() {
