@@ -1,5 +1,7 @@
 package me.jasonhorkles.fancyfriend;
 
+import de.oliver.fancyanalytics.sdk.events.Event;
+import me.jasonhorkles.fancyfriend.analytics.BotAnalytics;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -12,6 +14,7 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -73,6 +76,10 @@ public class FancyFriend {
                 while (true) {
                     String text = in.nextLine();
                     if (text.equalsIgnoreCase("stop")) {
+                        BotAnalytics.get().getClient().getEventService().createEvent(
+                                BotAnalytics.get().getProjectId(),
+                                new Event("BotStopped", new HashMap<>())
+                        );
                         in.close();
                         System.exit(0);
                     }
@@ -80,6 +87,10 @@ public class FancyFriend {
             }, "Console Input");
         input.start();
 
+        BotAnalytics.get().getClient().getEventService().createEvent(
+                BotAnalytics.get().getProjectId(),
+                new Event("BotStarted", new HashMap<>())
+        );
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }
 
@@ -97,5 +108,10 @@ public class FancyFriend {
             }
         } catch (NoClassDefFoundError | InterruptedException ignored) {
         }
+
+        BotAnalytics.get().getClient().getEventService().createEvent(
+                BotAnalytics.get().getProjectId(),
+                new Event("BotStopped", new HashMap<>())
+        );
     }
 }
