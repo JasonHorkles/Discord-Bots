@@ -79,6 +79,11 @@
             <name>m2-dv8tion</name>
             <url>https://m2.dv8tion.net/releases</url>
         </repository>
+        <repository>
+            <id>fancyplugins-releases</id>
+            <name>FancyPlugins Repository</name>
+            <url>https://repo.fancyplugins.de/releases</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -92,6 +97,12 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20240303</version>
+        </dependency>
+
+        <dependency>
+            <groupId>de.oliver.FancyAnalytics</groupId>
+            <artifactId>java-sdk</artifactId>
+            <version>0.0.1</version>
         </dependency>
     </dependencies>
 
