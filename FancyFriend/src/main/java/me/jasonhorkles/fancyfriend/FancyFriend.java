@@ -76,10 +76,6 @@ public class FancyFriend {
                 while (true) {
                     String text = in.nextLine();
                     if (text.equalsIgnoreCase("stop")) {
-                        BotAnalytics.get().getClient().getEventService().createEvent(
-                                BotAnalytics.get().getProjectId(),
-                                new Event("BotStopped", new HashMap<>())
-                        );
                         in.close();
                         System.exit(0);
                     }
