@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class Events extends ListenerAdapter {
     private final Map<Long, Integer> warnings = new HashMap<>();
     private final Path pingFilePath = Path.of("FancyFriend/ping-settings.json");
+    
     private final String geyserMsg = "The plugin may not work properly with Geyser as it is not officially supported. Additionally, display entities and other features don't even exist on Bedrock Edition.";
     private final String viaMsg = "The plugin may not work properly with Via plugins as they are not officially supported. Additionally, display entities and other features don't even exist on older Minecraft versions.";
 
@@ -35,9 +36,8 @@ public class Events extends ListenerAdapter {
             .getEffectiveName() + " used the /" + event.getName() + " command");
 
         BotAnalytics.get().getClient().getEventService().createEvent(
-                BotAnalytics.get().getProjectId(),
-                new Event("CommandExecuted", Map.of("command", event.getName()))
-        );
+            BotAnalytics.get().getProjectId(),
+            new Event("CommandExecuted", Map.of("command", event.getName())));
 
         switch (event.getName()) {
             case "blankline" ->

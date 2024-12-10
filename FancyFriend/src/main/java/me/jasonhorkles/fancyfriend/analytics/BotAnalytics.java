@@ -9,25 +9,30 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class BotAnalytics {
-
-    private final static BotAnalytics INSTANCE = new BotAnalytics();
+@SuppressWarnings("Singleton")
+public final class BotAnalytics {
     public final static String BASE_URL = "https://api.fancyanalytics.net";
+    public final String projectId;
 
     private final ApiClient client;
-    public final String projectId;
-    private final ScheduledExecutorService executor;
+    private final static BotAnalytics INSTANCE = new BotAnalytics();
 
     private BotAnalytics() {
         Secrets secrets = new Secrets();
-        this.projectId = secrets.analyticsProjectId();
+        projectId = secrets.analyticsProjectId();
 
-        this.client = new ApiClient(BASE_URL, "", secrets.analyticsApiToken());
-        this.executor = Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "FancyAnalytics"));
+        client = new ApiClient(BASE_URL, "", secrets.analyticsApiToken());
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(r -> new Thread(
+            r,
+            "FancyAnalytics"));
 
-        this.executor.scheduleAtFixedRate(() -> {
-            client.getRecordService().createRecord(projectId, new Record("FancyFriend", projectId, System.currentTimeMillis(), new HashMap<>()));
-        }, 10, 30, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(
+            () -> client.getRecordService().createRecord(
+                projectId,
+                new Record("FancyFriend", projectId, System.currentTimeMillis(), new HashMap<>())),
+            10,
+            30,
+            TimeUnit.SECONDS);
     }
 
     public static BotAnalytics get() {
@@ -40,9 +45,5 @@ public class BotAnalytics {
 
     public String getProjectId() {
         return projectId;
-    }
-
-    public ScheduledExecutorService getExecutor() {
-        return executor;
     }
 }

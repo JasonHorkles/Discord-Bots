@@ -46,8 +46,7 @@ public class FancyFriend {
 
         OptionData pingOptions = new OptionData(
             OptionType.STRING,
-            "option",
-            "The ping protection method to use", true).addChoices(
+            "option", "The ping protection method to use", true).addChoices(
             new Command.Choice("All Pings", "all"),
             new Command.Choice("Explicit Only (Ignore Replies)", "explicit"),
             new Command.Choice("Off", "off"));
@@ -84,9 +83,9 @@ public class FancyFriend {
         input.start();
 
         BotAnalytics.get().getClient().getEventService().createEvent(
-                BotAnalytics.get().getProjectId(),
-                new Event("BotStarted", new HashMap<>())
-        );
+            BotAnalytics.get().getProjectId(),
+            new Event("BotStarted", new HashMap<>()));
+
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }
 
@@ -106,8 +105,7 @@ public class FancyFriend {
         }
 
         BotAnalytics.get().getClient().getEventService().createEvent(
-                BotAnalytics.get().getProjectId(),
-                new Event("BotStopped", new HashMap<>())
-        );
+            BotAnalytics.get().getProjectId(),
+            new Event("BotStopped", new HashMap<>()));
     }
 }
