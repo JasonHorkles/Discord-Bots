@@ -1,5 +1,7 @@
 package me.jasonhorkles.fancyfriend;
 
+import de.oliver.fancyanalytics.sdk.events.Event;
+import me.jasonhorkles.fancyfriend.analytics.BotAnalytics;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -31,6 +33,11 @@ public class Events extends ListenerAdapter {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember()
             .getEffectiveName() + " used the /" + event.getName() + " command");
+
+        BotAnalytics.get().getClient().getEventService().createEvent(
+                BotAnalytics.get().getProjectId(),
+                new Event("CommandExecuted", Map.of("command", event.getName()))
+        );
 
         switch (event.getName()) {
             case "blankline" ->
