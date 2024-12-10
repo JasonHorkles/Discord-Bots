@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class Events extends ListenerAdapter {
     private final Map<Long, Integer> warnings = new HashMap<>();
     private final Path pingFilePath = Path.of("FancyFriend/ping-settings.json");
-    
+
     private final String geyserMsg = "The plugin may not work properly with Geyser as it is not officially supported. Additionally, display entities and other features don't even exist on Bedrock Edition.";
     private final String viaMsg = "The plugin may not work properly with Via plugins as they are not officially supported. Additionally, display entities and other features don't even exist on older Minecraft versions.";
 
@@ -35,47 +35,45 @@ public class Events extends ListenerAdapter {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember()
             .getEffectiveName() + " used the /" + event.getName() + " command");
 
-        BotAnalytics.get().getClient().getEventService().createEvent(
-            BotAnalytics.get().getProjectId(),
-            new Event("CommandExecuted", Map.of("command", event.getName())));
+        event.deferReply(event.getName().equalsIgnoreCase("noping")).queue();
 
         switch (event.getName()) {
-            case "blankline" ->
-                event.reply("To add a blank line in a hologram, use `<r>` on a new line.").queue();
+            case "blankline" -> event.getHook().editOriginal(
+                "To add a blank line in a hologram, use `<r>` on a new line.").queue();
 
-            case "clickable" -> event.reply(
+            case "clickable" -> event.getHook().editOriginal(
                     "Holograms currently aren't clickable themselves, but [here's](<https://fancyplugins.de/docs/fh-clickable-holograms.html>) a workaround.")
                 .queue();
 
-            case "converters" -> event.reply(
+            case "converters" -> event.getHook().editOriginal(
                     "Converters are currently not available for Fancy plugins. You will need to manually convert your data.")
                 .queue();
 
-            case "docs" -> event.reply(
+            case "docs" -> event.getHook().editOriginal(
                 "Here are the FancyPlugins docs: <https://fancyplugins.de/docs/welcome.html>").queue();
 
-            case "fixed" -> event.reply("""
+            case "fixed" -> event.getHook().editOriginal("""
                     To make a hologram not rotate, the billboarding must be set to FIXED.
                     Example: `/holo edit <hologram> billboard FIXED`
                     Once complete, you must set the hologram's rotation with the `rotate` and `rotatepitch` commands.""")
                 .queue();
 
-            case "geyser" -> event.reply(geyserMsg).queue();
+            case "geyser" -> event.getHook().editOriginal(geyserMsg).queue();
 
-            case "manual-holo" -> event.reply("""
+            case "manual-holo" -> event.getHook().editOriginal("""
                 ### To manually edit a hologram:
                 1. Run `/fancyholograms save`
                 2. Back up the `holograms.yml` file in case something goes wrong
                 3. Edit your `holograms.yml` file as desired
                 4. Run `/fancyholograms reload` after saving the file""").queue();
 
-            case "multiline" -> event.reply(
+            case "multiline" -> event.getHook().editOriginal(
                     "See [here](<https://fancyplugins.de/docs/fn-multiple-lines.html>) on how to make an NPC name have multiple lines.")
                 .queue();
 
             case "noping" -> noPing(event);
 
-            case "per-line" -> event.reply(
+            case "per-line" -> event.getHook().editOriginal(
                     "Per-line settings (such as scale or background) are not supported in FancyHolograms due to a limitation with display entities. A separate hologram will need to be created for each line.")
                 .queue();
 
@@ -98,16 +96,20 @@ public class Events extends ListenerAdapter {
                 if (project.getString("status").equals("archived")) message.append(
                     "\n*Note: This plugin is no longer maintained.*");
 
-                event.reply(message.toString()).queue();
+                event.getHook().editOriginal(message.toString()).queue();
             }
 
-            case "via" -> event.reply(viaMsg).queue();
+            case "via" -> event.getHook().editOriginal(viaMsg).queue();
         }
+
+        BotAnalytics.get().getClient().getEventService().createEvent(
+            BotAnalytics.get().getProjectId(),
+            new Event("CommandExecuted", Map.of("command", event.getName())));
     }
 
     private void noPing(SlashCommandInteractionEvent event) {
         if (!new Utils().isStaff(event.getMember())) {
-            event.reply("Invalid permissions!").setEphemeral(true).queue();
+            event.getHook().editOriginal("Invalid permissions!").queue();
             return;
         }
 
@@ -118,19 +120,19 @@ public class Events extends ListenerAdapter {
                 case "all" -> {
                     pingSettings.remove(String.valueOf(event.getMember().getIdLong()));
                     Files.writeString(pingFilePath, pingSettings.toString());
-                    event.reply("You are now protected from all pings.").setEphemeral(true).queue();
+                    event.getHook().editOriginal("You are now protected from all pings.").queue();
                 }
 
                 case "explicit" -> {
                     pingSettings.put(String.valueOf(event.getMember().getIdLong()), 1);
                     Files.writeString(pingFilePath, pingSettings.toString());
-                    event.reply("You are now protected from explicit pings only.").setEphemeral(true).queue();
+                    event.getHook().editOriginal("You are now protected from explicit pings only.").queue();
                 }
 
                 case "off" -> {
                     pingSettings.put(String.valueOf(event.getMember().getIdLong()), 0);
                     Files.writeString(pingFilePath, pingSettings.toString());
-                    event.reply("You are no longer protected from pings.").setEphemeral(true).queue();
+                    event.getHook().editOriginal("You are no longer protected from pings.").queue();
                 }
             }
         } catch (IOException e) {
