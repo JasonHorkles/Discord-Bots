@@ -28,7 +28,7 @@ public class Events extends ListenerAdapter {
     private final Path pingFilePath = Path.of("FancyFriend/ping-settings.json");
 
     private final String geyserMsg = "The plugin may not work properly with Geyser as it is not officially supported. Additionally, display entities and other features don't even exist on Bedrock Edition.";
-    private final String viaMsg = "The plugin may not work properly with Via plugins as they are not officially supported. Additionally, display entities and other features don't even exist on older Minecraft versions.";
+    private final String viaMsg = "The plugin may not work properly with Via plugins as they are not officially supported. Additionally, display entities and other features don't even exist on certain older Minecraft versions.";
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
