@@ -187,9 +187,14 @@ public class Events extends ListenerAdapter {
         ThreadChannel post = event.getChannel().asThreadChannel();
         if (!isSupportChannel(post.getParentChannel())) return;
 
+        // Send EntityClearer welcome message
+        if (post.getParentChannel().getIdLong() == 1226927981977403452L) post.sendMessage("Welcome, " + post
+                .getOwner()
+                .getAsMention() + "! Support will be with you momentarily.\nIn the meantime, please check that your question isn't already answered in the [FAQs](<https://github.com/SilverstoneMC/EntityClearer/wiki/FAQs>).\n\nIf you haven't already, please run the command `/ecl debug` in-game. Once everything has completed, send the link it provided to this channel.")
+            .queue();
+
         post.sendMessage("<@277291758503723010>").queueAfter(
-            500,
-            TimeUnit.MILLISECONDS, del -> del.delete().queueAfter(
+            500, TimeUnit.MILLISECONDS, del -> del.delete().queueAfter(
                 100,
                 TimeUnit.MILLISECONDS,
                 null,
