@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Stream;
 
 @SuppressWarnings("DataFlowIssue")
 public class Events extends ListenerAdapter {
@@ -102,36 +101,41 @@ public class Events extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         // Auto publish announcements in github-spam
         if (event.getChannel().getIdLong() == 1226929485895434271L) {
-            event.getMessage().crosspost().queue(null,
+            event.getMessage().crosspost().queue(
+                null,
                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE, ErrorResponse.ALREADY_CROSSPOSTED));
             return;
         }
 
         if (event.getAuthor().isBot()) return;
 
+        // Direct people to correct channel if a plugin is mentioned
         if (event.getChannelType() == ChannelType.TEXT)
             if (event.getChannel().asTextChannel().getParentCategoryIdLong() == 390942438061113345L)
                 if (!isStaff(event.getMember())) {
+                    List<String> plugins = Arrays.asList(
+                        "entityclearer",
+                        "entitycleaner",
+                        "expensivedeath",
+                        "filecleaner");
                     String message = event.getMessage().getContentStripped().toLowerCase().replace(" ", "");
-                    List<String> plugins = Arrays.asList("entityclearer", "expensivedeath", "filecleaner");
 
-                    try (Stream<String> pluginStream1 = plugins.stream(); Stream<String> pluginStream2 = plugins.stream()) {
-                        if (pluginStream1.anyMatch(message::contains)) {
-                            if (pluginStream2.anyMatch(plugin -> message.contains(":" + plugin + ":")))
-                                return;
+                    boolean containsPlugin = plugins.stream().anyMatch(plugin -> {
+                        // Ignore emoji names
+                        if (message.contains(plugin)) return !message.contains(":" + plugin + ":");
+                        return false;
+                    });
 
-                            if (message.contains("entityclearer") || message.contains("entitycleaner"))
-                                event.getMessage().reply(
-                                    "Please go to <#1226927981977403452> if looking for EntityClearer support.")
-                                .mentionRepliedUser(true).queue();
-                            else if (message.contains("expensivedeaths")) event.getMessage().reply(
-                                    "Please go to <#1264700031819059340> if looking for ExpensiveDeaths support.")
-                                .mentionRepliedUser(true).queue();
-                            else if (message.contains("filecleaner")) event.getMessage().reply(
-                                    "Please go to <#1264699977293107242> if looking for FileCleaner support.")
-                                .mentionRepliedUser(true).queue();
-                        }
-                    }
+                    if (containsPlugin) if (message.contains("entityclearer") || message.contains(
+                        "entitycleaner")) event.getMessage().reply(
+                            "Please go to <#1226927981977403452> if looking for EntityClearer support.")
+                        .mentionRepliedUser(true).queue();
+                    else if (message.contains("expensivedeaths")) event.getMessage().reply(
+                            "Please go to <#1264700031819059340> if looking for ExpensiveDeaths support.")
+                        .mentionRepliedUser(true).queue();
+                    else if (message.contains("filecleaner")) event.getMessage().reply(
+                            "Please go to <#1264699977293107242> if looking for FileCleaner support.")
+                        .mentionRepliedUser(true).queue();
                 }
 
         // Plugin support thread
@@ -141,7 +145,8 @@ public class Events extends ListenerAdapter {
 
             // Thanks for coming :)
             if (message.getContentStripped().toLowerCase().startsWith("np")) {
-                sendThankYouMsg(event.getChannel().asThreadChannel(),
+                sendThankYouMsg(
+                    event.getChannel().asThreadChannel(),
                     new Utils().getThreadOP(event.getChannel().asThreadChannel()),
                     null);
                 return;
@@ -149,7 +154,8 @@ public class Events extends ListenerAdapter {
 
             // Ping OP
             if (message.getMessageReference() == null) try {
-                List<Message> messages = new Utils().getMessages(event.getChannel(), 2).get(30,
+                List<Message> messages = new Utils().getMessages(event.getChannel(), 2).get(
+                    30,
                     TimeUnit.SECONDS);
                 if (messages.size() < 2) return;
 
@@ -162,7 +168,8 @@ public class Events extends ListenerAdapter {
                 long authorId = messages.get(1).getAuthor().getIdLong();
                 if (authorId != op.getUser().getIdLong()) return;
 
-                event.getChannel().sendMessage(op.getAsMention()).queue(del -> del.delete().queueAfter(100,
+                event.getChannel().sendMessage(op.getAsMention()).queue(del -> del.delete().queueAfter(
+                    100,
                     TimeUnit.MILLISECONDS,
                     null,
                     new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
@@ -180,9 +187,10 @@ public class Events extends ListenerAdapter {
         ThreadChannel post = event.getChannel().asThreadChannel();
         if (!isSupportChannel(post.getParentChannel())) return;
 
-        post.sendMessage("<@277291758503723010>").queueAfter(500,
-            TimeUnit.MILLISECONDS,
-            del -> del.delete().queueAfter(100,
+        post.sendMessage("<@277291758503723010>").queueAfter(
+            500,
+            TimeUnit.MILLISECONDS, del -> del.delete().queueAfter(
+                100,
                 TimeUnit.MILLISECONDS,
                 null,
                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
@@ -305,10 +313,12 @@ public class Events extends ListenerAdapter {
         String ping = op == null ? "dear user" : op.getAsMention();
         String message = "Thank you for coming, " + ping + ". If you enjoy the plugin and are happy with the support you received, please consider leaving a star on Hangar, a follow on Modrinth, or a review on Spigot :heart:";
 
-        if (slashEvent != null) slashEvent.reply(message).addEmbeds(embed.build()).queue(na -> channel
+        if (slashEvent != null) slashEvent.reply(message).addEmbeds(embed.build()).queue(
+            na -> channel
                 .getManager().setArchived(true).queueAfter(5, TimeUnit.MINUTES),
             new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
-        else channel.sendMessage(message).addEmbeds(embed.build()).queue(na -> channel.getManager()
+        else channel.sendMessage(message).addEmbeds(embed.build()).queue(
+            na -> channel.getManager()
                 .setArchived(true).queueAfter(5, TimeUnit.MINUTES),
             new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
     }
