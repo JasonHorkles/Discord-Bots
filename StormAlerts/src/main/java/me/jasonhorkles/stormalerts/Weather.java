@@ -38,20 +38,16 @@ public class Weather extends ListenerAdapter {
         Utils utils = new Utils();
         System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Checking weather...");
 
-        String weather = "Unavailable";
+        String weather;
         if (StormAlerts.testing) weather = Files.readString(Path.of("StormAlerts/Tests/weather.txt"));
         else {
             Connection conn = Jsoup
                 .connect("https://weather.com/weather/today/l/" + new Secrets().weatherCode()).timeout(15000);
-            try {
-                Document doc = conn.get();
-                weather = doc.select("[class*=\"CurrentConditions--phraseValue--\"]").first().text();
-            } catch (IOException e) {
-                System.out.println(utils.getTime(Utils.LogColor.RED) + "Failed to check weather! Stacktrace:");
-                System.out.print(utils.getTime(Utils.LogColor.RED));
-                e.printStackTrace();
-            }
+            Document doc = conn.get();
+            weather = doc.select("[class*=\"CurrentConditions--phraseValue--\"]").first().text();
         }
+
+        if (weather.isBlank()) throw new IOException("Weather type is blank");
 
         weatherName = null;
         if (weather.toLowerCase().contains("hail") || weather.toLowerCase().contains("sleet"))
@@ -149,8 +145,10 @@ public class Weather extends ListenerAdapter {
                 if (scheduleMessage) {
                     String finalWeather = weather;
                     try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                        scheduledSnowMessage = executor.schedule(() -> sendSnowMessage(snowChannel,
-                            finalWeather), 30, TimeUnit.MINUTES);
+                        scheduledSnowMessage = executor.schedule(
+                            () -> sendSnowMessage(
+                                snowChannel,
+                                finalWeather), 30, TimeUnit.MINUTES);
                     }
                 }
 
@@ -262,16 +260,18 @@ public class Weather extends ListenerAdapter {
                 Duration duration = Duration.between(now, nextRun);
                 long initalDelay = duration.getSeconds();
 
-                new Thread(() -> {
-                    try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                        executor.schedule(() -> acceptRainForDay = false, initalDelay, TimeUnit.SECONDS);
-                    }
-                }, "Accept Rain New Day").start();
+                new Thread(
+                    () -> {
+                        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                            executor.schedule(() -> acceptRainForDay = false, initalDelay, TimeUnit.SECONDS);
+                        }
+                    }, "Accept Rain New Day").start();
             }
 
             case "unsurerain" -> {
                 TextChannel rainChannel = StormAlerts.jda.getTextChannelById(900248256515285002L);
-                rainChannel.sendMessage(event.getMessage().getContentRaw().replaceFirst("\\[CONFIRMATION NEEDED] ",
+                rainChannel.sendMessage(event.getMessage().getContentRaw().replaceFirst(
+                        "\\[CONFIRMATION NEEDED] ",
                         "").replaceFirst("<@&843956362059841596>\n", "")
                     .replace("!", "! (May be snow melting in the rain gauge)")).queue();
                 event.deferEdit().queue(na -> event.getMessage().delete().queue());
@@ -285,11 +285,12 @@ public class Weather extends ListenerAdapter {
 
             case "denyrain" -> {
                 rainDenied = true;
-                new Thread(() -> {
-                    try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                        executor.schedule(() -> rainDenied = false, 1, TimeUnit.HOURS);
-                    }
-                }, "Deny Rain").start();
+                new Thread(
+                    () -> {
+                        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                            executor.schedule(() -> rainDenied = false, 1, TimeUnit.HOURS);
+                        }
+                    }, "Deny Rain").start();
                 event.deferEdit().queue(na -> event.getMessage().delete().queue());
             }
         }
@@ -316,11 +317,12 @@ public class Weather extends ListenerAdapter {
             utils.logError(e);
         }
 
-        channel.sendMessage(message).setActionRow(Button.success("acceptrain", "Accept for the day")
-                .withEmoji(Emoji.fromUnicode("✅")),
+        channel.sendMessage(message).setActionRow(
+            Button.success("acceptrain", "Accept for the day").withEmoji(Emoji.fromUnicode("✅")),
             Button.secondary("unsurerain", "Unsure").withEmoji(Emoji.fromUnicode("❔")),
             Button.danger("denyrain", "Deny for 1 hour").withEmoji(Emoji.fromUnicode("✖️"))).queue(del -> del
-            .delete().queueAfter(15,
+            .delete().queueAfter(
+                15,
                 TimeUnit.MINUTES,
                 null,
                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
