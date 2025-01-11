@@ -3,7 +3,6 @@ package me.jasonhorkles.stormalerts;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -134,7 +133,7 @@ public class StormAlerts extends ListenerAdapter {
             } catch (InterruptedException ignored) {
             }
 
-            try {
+            /*try {
                 new Weather().checkConditions();
             } catch (Exception e) {
                 System.out.println(utils.getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
@@ -142,7 +141,7 @@ public class StormAlerts extends ListenerAdapter {
                 jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
                 jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
                 utils.logError(e);
-            }
+            }*/
         }, 1, 90, TimeUnit.SECONDS));
 
         // 6 mins
