@@ -23,13 +23,14 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.concurrent.*;
 
+import static me.jasonhorkles.stormalerts.AmbientWeatherProcessor.currentRainRate;
+
 @SuppressWarnings("DataFlowIssue")
 public class Weather extends ListenerAdapter {
     public static TextChannel previousTypeChannel;
 
     private static boolean acceptRainForDay;
     private static boolean rainDenied;
-    private static double rainRate;
     private static ScheduledFuture<?> scheduledSnowMessage;
     private static String previousWeatherName;
     private static String weatherName;
@@ -54,25 +55,24 @@ public class Weather extends ListenerAdapter {
             weatherName = "hailing 🧊";
         else if (weather.toLowerCase().contains("snow")) weatherName = "snowing 🌨️";
 
-        rainRate = Pws.currentRainRate;
         String intensity = null;
         Integer rainIntensity = null;
-        if (weatherName == null) if (rainRate > 0) {
+        if (weatherName == null) if (currentRainRate > 0) {
             weather = "RAIN";
 
-            if (rainRate < 0.2) {
+            if (currentRainRate < 0.2) {
                 weatherName = "raining ☂️";
                 rainIntensity = 1;
                 // 🟩▫️▫️▫️
                 intensity = "\uD83D\uDFE9▫️▫️▫️";
 
-            } else if (rainRate < 0.3) {
+            } else if (currentRainRate < 0.3) {
                 weatherName = "moderately raining ☔";
                 rainIntensity = 2;
                 // 🟩🟨▫️▫️
                 intensity = "\uD83D\uDFE9\uD83D\uDFE8▫️▫️";
 
-            } else if (rainRate < 0.4) {
+            } else if (currentRainRate < 0.4) {
                 weatherName = "heavily raining 🌦️";
                 rainIntensity = 3;
                 // 🟩🟨🟧▫️
@@ -152,7 +152,7 @@ public class Weather extends ListenerAdapter {
                     }
                 }
 
-            } else if (weather.equals("RAIN") && Pws.temperature >= 30) {
+            } else if (weather.equals("RAIN") && AmbientWeatherProcessor.temperature >= 30) {
                 String ping = "";
                 if (utils.shouldIPing(rainChannel)) ping = "<@&843956362059841596>\n";
 
@@ -167,20 +167,20 @@ public class Weather extends ListenerAdapter {
                         if (utils.shouldIPing(heavyRainChannel)) heavyPing = "<@&843956325690900503>\n";
                         // 🌧️
                         heavyRainChannel
-                            .sendMessage(heavyPing + "\uD83C\uDF27️ It's " + trimmedWeatherName + "! (" + rainRate + " in/hr)")
+                            .sendMessage(heavyPing + "\uD83C\uDF27️ It's " + trimmedWeatherName + "! (" + currentRainRate + " in/hr)")
                             .queue();
 
-                        message = ping + "\uD83C\uDF27️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr) <a:weewoo:1083615022455992382>";
+                        message = ping + "\uD83C\uDF27️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + currentRainRate + " in/hr) <a:weewoo:1083615022455992382>";
                     }
 
                     case 3 -> // 🌦️
-                        message = ping + "\uD83C\uDF26️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)";
+                        message = ping + "\uD83C\uDF26️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + currentRainRate + " in/hr)";
 
                     case 2 ->
-                        message = ping + "☔ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)";
+                        message = ping + "☔ It's " + trimmedWeatherName + "!\n" + intensity + " (" + currentRainRate + " in/hr)";
 
                     case 1 ->
-                        message = ping + "☂️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + rainRate + " in/hr)";
+                        message = ping + "☂️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + currentRainRate + " in/hr)";
 
                     default ->
                         System.out.println(utils.getTime(Utils.LogColor.RED) + "[ERROR] It's raining, but there's no valid intensity! (" + rainIntensity + ")");
@@ -223,8 +223,9 @@ public class Weather extends ListenerAdapter {
             }
 
         } else if (weather.equals("RAIN")) {
-            StormAlerts.jda.getPresence().setActivity(Activity.watching("the rain @ " + rainRate + " in/hr"));
-            System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Raining @ " + rainRate + " in/hr");
+            StormAlerts.jda.getPresence()
+                .setActivity(Activity.watching("the rain @ " + currentRainRate + " in/hr"));
+            System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Raining @ " + currentRainRate + " in/hr");
 
         } else StormAlerts.jda.getPresence()
             .setActivity(Activity.customStatus("It's " + weatherName + " (" + weather + ")"));
@@ -248,7 +249,7 @@ public class Weather extends ListenerAdapter {
 
                 StormAlerts.jda.getPresence().setStatus(OnlineStatus.ONLINE);
                 StormAlerts.jda.getPresence()
-                    .setActivity(Activity.watching("the rain @ " + rainRate + " in/hr"));
+                    .setActivity(Activity.watching("the rain @ " + currentRainRate + " in/hr"));
                 previousWeatherName = weatherName;
                 previousTypeChannel = rainChannel;
 
@@ -278,7 +279,7 @@ public class Weather extends ListenerAdapter {
 
                 StormAlerts.jda.getPresence().setStatus(OnlineStatus.ONLINE);
                 StormAlerts.jda.getPresence()
-                    .setActivity(Activity.playing("it's possibly " + weatherName + " @ " + rainRate + " in/hr"));
+                    .setActivity(Activity.playing("it's possibly " + weatherName + " @ " + currentRainRate + " in/hr"));
                 previousWeatherName = weatherName;
                 previousTypeChannel = rainChannel;
             }

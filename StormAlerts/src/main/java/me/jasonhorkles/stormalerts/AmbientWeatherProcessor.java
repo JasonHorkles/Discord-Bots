@@ -1,14 +1,13 @@
 package me.jasonhorkles.stormalerts;
 
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,7 +19,7 @@ import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class Pws {
+public class AmbientWeatherProcessor {
     public static double currentRainRate;
     public static double lastAlertedWindGust = -1;
     public static double temperature = -1;
@@ -28,22 +27,15 @@ public class Pws {
     private static boolean notRateLimited = true;
 
     @SuppressWarnings("DataFlowIssue")
-    public void checkConditions() throws IOException, URISyntaxException {
+    public void processWeatherData(String data) throws IOException {
         Utils utils = new Utils();
-        System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Checking PWS conditions...");
+        System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Processing PWS conditions...");
 
         JSONObject input;
         if (StormAlerts.testing) input = new JSONArray(Files.readString(Path.of(
             "StormAlerts/Tests/pwsweather.json"))).getJSONObject(0).getJSONObject("lastData");
-        else {
-            Secrets secrets = new Secrets();
-            InputStream url = new URI("https://api.ambientweather.net/v1/devices/?apiKey=" + secrets.awApiKey() + "&applicationKey=" + secrets.awAppKey())
-                .toURL().openStream();
-            input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8)).getJSONObject(0)
-                .getJSONObject("lastData");
-            url.close();
 
-        }
+        else input = new JSONObject(data);
 
         currentRainRate = input.getDouble("hourlyrainin");
         temperature = input.getDouble("tempf");
@@ -110,14 +102,16 @@ public class Pws {
 
             DateTimeFormatter timeUpdatedFormat = DateTimeFormatter.ofPattern("h:mm a", Locale.US);
             Instant timeUpdatedRaw = Instant.ofEpochMilli(input.getLong("dateutc"));
-            String timeUpdated = timeUpdatedFormat.format(ZonedDateTime.ofInstant(timeUpdatedRaw,
+            String timeUpdated = timeUpdatedFormat.format(ZonedDateTime.ofInstant(
+                timeUpdatedRaw,
                 ZoneId.of("America/Denver")));
             utils.updateVoiceChannel(941791190704062545L, "Stats Updated: " + timeUpdated);
 
             notRateLimited = false;
-            Executors.newSingleThreadScheduledExecutor().schedule(() -> {
-                notRateLimited = true;
-            }, 6, TimeUnit.MINUTES);
+            Executors.newSingleThreadScheduledExecutor().schedule(
+                () -> {
+                    notRateLimited = true;
+                }, 6, TimeUnit.MINUTES);
         }
 
         // Wind alerts
@@ -141,12 +135,10 @@ public class Pws {
         long lightningTime = input.getLong("lightning_time");
         long prevLightningTime = Long.parseLong(Files.readString(Path.of("StormAlerts/lastlightningid.txt")));
 
-        // Ignore lightning if it's the same as the last one
-        if (prevLightningTime == lightningTime) return;
-        // Ignore lightning if it's more than 10 minutes old
-        if (lightningTime < System.currentTimeMillis() - 600000) return;
-
-        if (lightningToday > 1) {
+        // Send lightning alert if it's not the same as the last one,
+        // is less than 10 minutes old,
+        // and there have been more than 1 lightning strikes today
+        if (prevLightningTime != lightningTime && lightningTime > System.currentTimeMillis() - 600000 && lightningToday > 1) {
             int lightningDistance = Math.toIntExact(Math.round(input.getDouble("lightning_distance")));
             String s = "s";
             if (lightningDistance == 1) s = "";
@@ -164,10 +156,22 @@ public class Pws {
                 lightningChannel.sendMessage(message).setSuppressedNotifications(true).queue();
             else lightningChannel.sendMessage(message).setSuppressedNotifications(utils.shouldIBeSilent(
                 lightningChannel)).queue();
+
+            FileWriter fw = new FileWriter("StormAlerts/lastlightningid.txt", StandardCharsets.UTF_8, false);
+            fw.write(String.valueOf(lightningTime));
+            fw.close();
         }
 
-        FileWriter fw = new FileWriter("StormAlerts/lastlightningid.txt", StandardCharsets.UTF_8, false);
-        fw.write(String.valueOf(lightningTime));
-        fw.close();
+
+        // Check the weather conditions
+        try {
+            new Weather().checkConditions();
+        } catch (Exception e) {
+            System.out.println(utils.getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
+            e.printStackTrace();
+            StormAlerts.jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
+            StormAlerts.jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
+            utils.logError(e);
+        }
     }
 }

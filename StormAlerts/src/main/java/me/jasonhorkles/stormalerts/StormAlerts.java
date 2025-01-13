@@ -29,6 +29,8 @@ public class StormAlerts extends ListenerAdapter {
     public static final boolean testing = false;
     public static JDA jda;
 
+    private static AmbientWeatherSocket ambientWeatherSocket;
+
     public static void main(String[] args) throws InterruptedException, ParseException {
         Utils utils = new Utils();
         System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Starting...");
@@ -69,9 +71,9 @@ public class StormAlerts extends ListenerAdapter {
                     .withNano(0);
 
                 if (windMessage.getTimeCreated().isAfter(fiveHoursAgo) || windMessage.getTimeCreated()
-                    .isAfter(midnight)) Pws.lastAlertedWindGust = Integer.parseInt(windMessage
-                    .getContentStripped().replace("\n", " ").replaceFirst(".*of ", "")
-                    .replaceFirst(" mph.*", ""));
+                    .isAfter(midnight)) AmbientWeatherProcessor.lastAlertedWindGust = Integer.parseInt(
+                    windMessage.getContentStripped().replace("\n", " ").replaceFirst(".*of ", "")
+                        .replaceFirst(" mph.*", ""));
             }
         } catch (ExecutionException | TimeoutException e) {
             System.out.print(utils.getTime(Utils.LogColor.RED));
@@ -87,6 +89,10 @@ public class StormAlerts extends ListenerAdapter {
             e.printStackTrace();
             utils.logError(e);
         }
+
+        // Start listening for PWS messages
+        ambientWeatherSocket = new AmbientWeatherSocket();
+        ambientWeatherSocket.connect();
 
         // 1.5 mins
         // Alert checks
@@ -108,49 +114,6 @@ public class StormAlerts extends ListenerAdapter {
                     }
                 }
             }, 1, 90, TimeUnit.SECONDS));
-
-        // 1.5 mins
-        // Weather checks
-        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-            () -> {
-                //todo https://ambientweather.docs.apiary.io/#reference/ambient-realtime-api instead
-                try {
-                    new Pws().checkConditions();
-                } catch (Exception e) {
-                    String reason = "";
-                    if (e.getMessage().contains("401")) reason = " (Unauthorized)";
-                    else if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
-                    else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
-                    else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
-                    else if (e.getMessage().contains("504")) reason = " (Gateway Timeout)";
-                    else if (e.getMessage().contains("520")) reason = " (Catch-all error)";
-                    else if (e.getMessage().contains("524")) reason = " (Timeout)";
-
-                    System.out.println(utils.getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
-                    if (reason.isBlank()) {
-                        System.out.print(utils.getTime(Utils.LogColor.RED));
-                        e.printStackTrace();
-                        utils.logError(e);
-                    }
-
-                    /*try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ignored) {
-                    }*/
-
-                    // We don't want this on a new thread in case of a race condition
-                    // We want the PWS weather finalized before any other weather
-                    /*try {
-                new Weather().checkConditions();
-            } catch (Exception e) {
-                System.out.println(utils.getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
-                e.printStackTrace();
-                jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-                jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
-                utils.logError(e);
-            }*/
-                }
-            }, 2, 90, TimeUnit.SECONDS));
 
         // 6 mins
         // Visibility check
@@ -203,6 +166,8 @@ public class StormAlerts extends ListenerAdapter {
     public void shutdown() {
         Utils utils = new Utils();
         System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Shutting down...");
+
+        ambientWeatherSocket.disconnect();
 
         System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Dumping record data...");
         try {

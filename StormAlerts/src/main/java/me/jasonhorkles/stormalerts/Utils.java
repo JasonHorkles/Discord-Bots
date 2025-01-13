@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -63,7 +64,7 @@ public class Utils {
             logError(e);
             return true;
 
-        } catch (IndexOutOfBoundsException ignored) {
+        } catch (NoSuchElementException ignored) {
             return true;
         }
     }
@@ -79,13 +80,14 @@ public class Utils {
             if (message.isEdited()) //noinspection DataFlowIssue
                 return message.getTimeEdited().isAfter(OffsetDateTime.now().minusHours(1));
             else return message.getTimeCreated().isAfter(OffsetDateTime.now().minusHours(1));
+
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             System.out.print(getTime(LogColor.RED));
             e.printStackTrace();
             logError(e);
             return false;
 
-        } catch (IndexOutOfBoundsException ignored) {
+        } catch (NoSuchElementException ignored) {
             return false;
         }
     }
@@ -96,15 +98,14 @@ public class Utils {
         if (!voiceChannel.getName().equals(name)) voiceChannel.getManager().setName(name).queue();
     }
 
-    public void updateNow(@Nullable SlashCommandInteractionEvent event) {
+    public void updateNow(SlashCommandInteractionEvent event) {
         String error = "Done!";
-        boolean isSlash = event != null;
 
-        if (isSlash) event.deferReply(true).complete();
+        event.deferReply(true).complete();
 
         // Alerts
         System.out.println(getTime(Utils.LogColor.YELLOW) + "Force checking alerts...");
-        if (isSlash) event.getHook().editOriginal("Checking alerts...").complete();
+        event.getHook().editOriginal("Checking alerts...").complete();
         try {
             new Alerts().checkAlerts();
         } catch (Exception e) {
@@ -114,21 +115,9 @@ public class Utils {
             error = "Couldn't get the alerts!";
         }
 
-        // PWS / Rain
-        System.out.println(getTime(Utils.LogColor.YELLOW) + "Force checking PWS conditions...");
-        if (isSlash) event.getHook().editOriginal("Checking PWS conditions...").complete();
-        try {
-            new Pws().checkConditions();
-        } catch (Exception e) {
-            System.out.println(getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!");
-            e.printStackTrace();
-            logError(e);
-            error = "Couldn't get the PWS conditions!";
-        }
-
         // Weather
         System.out.println(getTime(Utils.LogColor.YELLOW) + "Force checking weather conditions...");
-        if (isSlash) event.getHook().editOriginal("Checking weather conditions...").complete();
+        event.getHook().editOriginal("Checking weather conditions...").complete();
         try {
             new Weather().checkConditions();
         } catch (Exception e) {
@@ -140,7 +129,7 @@ public class Utils {
             StormAlerts.jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
         }
 
-        if (isSlash) event.getHook().editOriginal(error).complete();
+        event.getHook().editOriginal(error).complete();
     }
 
     public void logError(Exception e) {
