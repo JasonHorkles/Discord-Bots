@@ -41,14 +41,15 @@ public class RPS extends ListenerAdapter {
 
         channel
             .sendMessage("__**Round 0/3**__\n\n**" + new Utils().getFirstName(playerList.get(0)) + ":** 0\n**" + new Utils().getFirstName(
-                playerList.get(1)) + ":** 0").setActionRow(Button.primary("rps:rock",
-                    Emoji.fromUnicode("\uD83E\uDEA8")),
+                playerList.get(1)) + ":** 0").setActionRow(
+                Button.primary("rps:rock", Emoji.fromUnicode("\uD83E\uDEA8")),
                 Button.primary("rps:paper", Emoji.fromUnicode("\uD83D\uDCDD")),
                 Button.primary("rps:scissors", Emoji.fromUnicode("✂️"))).queueAfter(5, TimeUnit.SECONDS);
 
         StringBuilder mentions = new StringBuilder(46);
         for (Member player : playerList) mentions.append(player.getAsMention());
-        channel.sendMessage(mentions).queue(del -> del.delete().queueAfter(100,
+        channel.sendMessage(mentions).queue(del -> del.delete().queueAfter(
+            100,
             TimeUnit.MILLISECONDS,
             null,
             new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
@@ -73,8 +74,8 @@ public class RPS extends ListenerAdapter {
             event.deferEdit().queue();
 
             if (player1Selection.containsKey(player1Local) && player2Selection.containsKey(player2Local)) {
-                event.getMessage().editMessageComponents(ActionRow.of(Button
-                        .primary("rps:rock", Emoji.fromUnicode("\uD83E\uDEA8")).asDisabled(),
+                event.getMessage().editMessageComponents(ActionRow.of(
+                    Button.primary("rps:rock", Emoji.fromUnicode("\uD83E\uDEA8")).asDisabled(),
                     Button.primary("rps:paper", Emoji.fromUnicode("\uD83D\uDCDD")).asDisabled(),
                     Button.primary("rps:scissors", Emoji.fromUnicode("✂️")).asDisabled())).complete();
 
@@ -117,17 +118,18 @@ public class RPS extends ListenerAdapter {
                             player1Local.getAsMention() + " wins!").queue();
                         else channel.sendMessage(player2Local.getAsMention() + " wins!").queue();
 
-                        new Thread(() -> {
-                            try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                                executor.schedule(() -> endGame(channel), 15, TimeUnit.SECONDS);
-                            }
-                        }, "End Game-RPS").start();
+                        new Thread(
+                            () -> {
+                                try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                                    executor.schedule(() -> endGame(channel), 15, TimeUnit.SECONDS);
+                                }
+                            }, "End Game-RPS").start();
 
                         return;
                     }
 
-                event.getMessage().editMessageComponents(ActionRow.of(Button.primary("rps:rock",
-                        Emoji.fromUnicode("\uD83E\uDEA8")),
+                event.getMessage().editMessageComponents(ActionRow.of(
+                    Button.primary("rps:rock", Emoji.fromUnicode("\uD83E\uDEA8")),
                     Button.primary("rps:paper", Emoji.fromUnicode("\uD83D\uDCDD")),
                     Button.primary("rps:scissors", Emoji.fromUnicode("✂️")))).queueAfter(1, TimeUnit.SECONDS);
             }

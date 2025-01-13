@@ -95,13 +95,14 @@ public class Nicknames extends ListenerAdapter {
                     if (daysLeft == 0) {
                         user.openPrivateChannel().flatMap(channel -> channel.sendMessage(
                                 "You have been kicked from the Phoenix Gaming server for not changing your nickname in time."))
-                            .queue(null,
-                                new ErrorHandler().handle(ErrorResponse.CANNOT_SEND_TO_USER, (na) -> {
-                                    //noinspection DataFlowIssue
-                                    guild.getTextChannelById(893184802084225115L).sendMessage(
-                                            ":warning: Couldn't message " + user.getAsMention() + " that they were kicked! Are their DMs off?")
-                                        .queue();
-                                }));
+                            .queue(
+                                null, new ErrorHandler().handle(
+                                    ErrorResponse.CANNOT_SEND_TO_USER, (na) -> {
+                                        //noinspection DataFlowIssue
+                                        guild.getTextChannelById(893184802084225115L).sendMessage(
+                                                ":warning: Couldn't message " + user.getAsMention() + " that they were kicked! Are their DMs off?")
+                                            .queue();
+                                    }));
                         member.kick().queueAfter(1, TimeUnit.SECONDS);
 
                         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Kicked " + user.getName() + " for not changing their nickname!");
@@ -138,13 +139,14 @@ public class Nicknames extends ListenerAdapter {
 
                     String s = daysLeft == 1 ? "" : "s";
                     String message = "Your nickname is not in the correct format in the Phoenix Gaming server! Please see https://discord.com/channels/729083627308056597/741088695498571786/1144702255996612628 and change it as soon as you can. If you're stuck, please DM <@277291758503723010>.\n\n*You will be kicked in " + daysLeft + " day" + s + " if you do not change your nickname.*";
-                    user.openPrivateChannel().flatMap(channel -> channel.sendMessage(message)).queue(null,
-                        new ErrorHandler().handle(ErrorResponse.CANNOT_SEND_TO_USER, (na) -> {
-                            //noinspection DataFlowIssue
-                            guild.getTextChannelById(893184802084225115L).sendMessage(
-                                    ":warning: Couldn't message " + member.getAsMention() + " to change their nickname! Are their DMs off?")
-                                .queue();
-                        }));
+                    user.openPrivateChannel().flatMap(channel -> channel.sendMessage(message)).queue(
+                        null, new ErrorHandler().handle(
+                            ErrorResponse.CANNOT_SEND_TO_USER, (na) -> {
+                                //noinspection DataFlowIssue
+                                guild.getTextChannelById(893184802084225115L).sendMessage(
+                                        ":warning: Couldn't message " + member.getAsMention() + " to change their nickname! Are their DMs off?")
+                                    .queue();
+                            }));
                     System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Messaged " + member.getEffectiveName() + " to change their nickname! (" + daysLeft + " days left)");
                 }
             }

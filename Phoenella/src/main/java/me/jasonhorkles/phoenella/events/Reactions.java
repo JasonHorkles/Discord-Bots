@@ -45,28 +45,34 @@ public class Reactions extends ListenerAdapter {
                     if (member.isTimedOut()) {
                         event.getChannel().sendMessage(event.getMember()
                             .getAsMention() + ", that person is already shushed!").queue((m) -> m.delete()
-                            .queueAfter(5,
+                            .queueAfter(
+                                5,
                                 TimeUnit.SECONDS,
                                 null,
                                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
                         return;
                     }
 
-                    member.timeoutFor(10, TimeUnit.MINUTES).queue((na) -> event.getChannel()
-                            .sendMessage(new Utils().getFirstName(member) + " just got shushed!").queue(del -> {
-                                del.delete().queueAfter(10,
+                    member.timeoutFor(10, TimeUnit.MINUTES).queue(
+                        (na) -> event.getChannel()
+                            .sendMessage(new Utils().getFirstName(member) + " just got shushed!")
+                            .queue(del -> {
+                                del.delete().queueAfter(
+                                    10,
                                     TimeUnit.MINUTES,
                                     null,
                                     new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
-                                event.getChannel().sendMessage("https://tenor.com/vfW7.gif").queue(del2 -> del2
-                                    .delete().queueAfter(10,
+                                event.getChannel().sendMessage("https://tenor.com/vfW7.gif")
+                                    .queue(del2 -> del2.delete().queueAfter(
+                                        10,
                                         TimeUnit.MINUTES,
                                         null,
                                         new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
                             }),
                         (na1) -> event.getChannel()
                             .sendMessage(event.getMember().getAsMention() + ", I can't shush that person!")
-                            .queue((del) -> del.delete().queueAfter(5,
+                            .queue((del) -> del.delete().queueAfter(
+                                5,
                                 TimeUnit.SECONDS,
                                 null,
                                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE))));
@@ -92,7 +98,7 @@ public class Reactions extends ListenerAdapter {
                         String word = message.getContentStripped().replaceAll(".*: ", "").toUpperCase();
                         fileWriter.write(word + "\n");
                         fileWriter.close();
-                        
+
                         message.delete().queue();
                     }
                 } catch (IOException e) {
@@ -193,7 +199,8 @@ public class Reactions extends ListenerAdapter {
         if (event.getReaction().getEmoji().getName().equalsIgnoreCase("kek")) event.retrieveMessage().queue(
             msg -> event.getReaction().retrieveUsers().queue(users -> {
                 if (users.size() == 1 && users.getFirst().equals(event.getJDA().getSelfUser()))
-                    msg.removeReaction(event.getGuild().getEmojiById("841681203278774322"),
+                    msg.removeReaction(
+                        event.getGuild().getEmojiById("841681203278774322"),
                         event.getJDA().getSelfUser()).queue();
             }));
     }

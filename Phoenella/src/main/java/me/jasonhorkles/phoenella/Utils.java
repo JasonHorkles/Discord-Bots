@@ -47,7 +47,8 @@ public class Utils {
 
     public String lookUp(String message, String name) {
         try {
-            String page = "https://api.wolframalpha.com/v1/result?i=" + URLEncoder.encode(message,
+            String page = "https://api.wolframalpha.com/v1/result?i=" + URLEncoder.encode(
+                message,
                 StandardCharsets.UTF_8) + "&appid=2T7PHK-JPX3QAR42E";
             Connection conn = Jsoup.connect(page);
             Document doc = conn.get();
@@ -88,7 +89,8 @@ public class Utils {
             FileWriter daily = fileWriter();
             daily.close();
 
-            FileWriter plays = new FileWriter("Phoenella/Wordle/played-daily.txt",
+            FileWriter plays = new FileWriter(
+                "Phoenella/Wordle/played-daily.txt",
                 StandardCharsets.UTF_8,
                 false);
             plays.close();
@@ -134,7 +136,8 @@ public class Utils {
                 return embed.build();
             }
 
-            JSONObject obj = new JSONArray(new String(url.readAllBytes(),
+            JSONObject obj = new JSONArray(new String(
+                url.readAllBytes(),
                 StandardCharsets.UTF_8)).getJSONObject(0);
             url.close();
 

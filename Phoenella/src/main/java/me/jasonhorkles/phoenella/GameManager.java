@@ -42,7 +42,8 @@ public class GameManager extends ListenerAdapter {
 
     public void deleteGame(TextChannel channel) {
         if (channel.getParentCategory() != null)
-            if (channel.getParentCategoryIdLong() == 900747596245639238L) channel.delete().queue(null,
+            if (channel.getParentCategoryIdLong() == 900747596245639238L) channel.delete().queue(
+                null,
                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
     }
 }

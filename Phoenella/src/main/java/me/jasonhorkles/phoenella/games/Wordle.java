@@ -75,7 +75,8 @@ public class Wordle extends ListenerAdapter {
             if (entry.getValue() == player) if (Objects.equals(entry.getKey().getTopic(), obfuscatedAnswer))
                 return null;
 
-        TextChannel channel = new GameManager().createChannel(GameManager.Game.WORDLE,
+        TextChannel channel = new GameManager().createChannel(
+            GameManager.Game.WORDLE,
             new ArrayList<>(Collections.singleton(player)),
             isDaily);
 
@@ -85,49 +86,69 @@ public class Wordle extends ListenerAdapter {
         attempt.put(channel, 0);
         daily.put(channel, isDaily);
 
-        channel.getManager().setTopic(obfuscatedAnswer).queue(null,
+        channel.getManager().setTopic(obfuscatedAnswer).queue(
+            null,
             new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
 
         if (tries == null) maxTries.put(channel, 6);
         else maxTries.put(channel, tries);
 
-        Thread game = new Thread(() -> {
-            ArrayList<Message> lines = new ArrayList<>();
-            StringBuilder empties = new StringBuilder(140);
-            empties.append("<:empty:1279501848780341399> ".repeat(answers.get(channel).length()));
-            try {
-                for (int x = 0; x < maxTries.get(channel); x++)
-                    lines.add(channel.sendMessage(empties).complete());
-                messages.put(channel, lines);
+        Thread game = new Thread(
+            () -> {
+                ArrayList<Message> lines = new ArrayList<>();
+                StringBuilder empties = new StringBuilder(140);
+                empties.append("<:empty:1279501848780341399> ".repeat(answers.get(channel).length()));
+                try {
+                    for (int x = 0; x < maxTries.get(channel); x++)
+                        lines.add(channel.sendMessage(empties).complete());
+                    messages.put(channel, lines);
 
-                keyboard.put(channel,
-                    channel.sendMessage("~~==========================~~\n    " + getLetter('Q',
-                        LetterType.NOT_GUESSED) + getLetter('W', LetterType.NOT_GUESSED) + getLetter('E',
-                        LetterType.NOT_GUESSED) + getLetter('R', LetterType.NOT_GUESSED) + getLetter('T',
-                        LetterType.NOT_GUESSED) + getLetter('Y', LetterType.NOT_GUESSED) + getLetter('U',
-                        LetterType.NOT_GUESSED) + getLetter('I', LetterType.NOT_GUESSED) + getLetter('O',
-                        LetterType.NOT_GUESSED) + getLetter('P',
-                        LetterType.NOT_GUESSED) + "\n       " + getLetter('A',
-                        LetterType.NOT_GUESSED) + getLetter('S', LetterType.NOT_GUESSED) + getLetter('D',
-                        LetterType.NOT_GUESSED) + getLetter('F', LetterType.NOT_GUESSED) + getLetter('G',
-                        LetterType.NOT_GUESSED) + getLetter('H', LetterType.NOT_GUESSED) + getLetter('J',
-                        LetterType.NOT_GUESSED) + getLetter('K', LetterType.NOT_GUESSED) + getLetter('L',
-                        LetterType.NOT_GUESSED) + "\n             " + getLetter('Z',
-                        LetterType.NOT_GUESSED) + getLetter('X', LetterType.NOT_GUESSED) + getLetter('C',
-                        LetterType.NOT_GUESSED) + getLetter('V', LetterType.NOT_GUESSED) + getLetter('B',
-                        LetterType.NOT_GUESSED) + getLetter('N', LetterType.NOT_GUESSED) + getLetter('M',
-                        LetterType.NOT_GUESSED)).complete());
+                    keyboard.put(
+                        channel,
+                        channel.sendMessage("~~==========================~~\n    " + getLetter(
+                            'Q',
+                            LetterType.NOT_GUESSED) + getLetter('W', LetterType.NOT_GUESSED) + getLetter(
+                            'E',
+                            LetterType.NOT_GUESSED) + getLetter('R', LetterType.NOT_GUESSED) + getLetter(
+                            'T',
+                            LetterType.NOT_GUESSED) + getLetter('Y', LetterType.NOT_GUESSED) + getLetter(
+                            'U',
+                            LetterType.NOT_GUESSED) + getLetter('I', LetterType.NOT_GUESSED) + getLetter(
+                            'O',
+                            LetterType.NOT_GUESSED) + getLetter(
+                            'P',
+                            LetterType.NOT_GUESSED) + "\n       " + getLetter(
+                            'A',
+                            LetterType.NOT_GUESSED) + getLetter('S', LetterType.NOT_GUESSED) + getLetter(
+                            'D',
+                            LetterType.NOT_GUESSED) + getLetter('F', LetterType.NOT_GUESSED) + getLetter(
+                            'G',
+                            LetterType.NOT_GUESSED) + getLetter('H', LetterType.NOT_GUESSED) + getLetter(
+                            'J',
+                            LetterType.NOT_GUESSED) + getLetter('K', LetterType.NOT_GUESSED) + getLetter(
+                            'L',
+                            LetterType.NOT_GUESSED) + "\n             " + getLetter(
+                            'Z',
+                            LetterType.NOT_GUESSED) + getLetter('X', LetterType.NOT_GUESSED) + getLetter(
+                            'C',
+                            LetterType.NOT_GUESSED) + getLetter('V', LetterType.NOT_GUESSED) + getLetter(
+                            'B',
+                            LetterType.NOT_GUESSED) + getLetter('N', LetterType.NOT_GUESSED) + getLetter(
+                            'M',
+                            LetterType.NOT_GUESSED)).complete());
 
-                channel.sendMessage(player.getAsMention()).queue(del -> del.delete().queueAfter(100,
-                    TimeUnit.MILLISECONDS,
-                    null,
-                    new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
+                    channel.sendMessage(player.getAsMention()).queue(del -> del.delete().queueAfter(
+                        100,
+                        TimeUnit.MILLISECONDS,
+                        null,
+                        new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
 
-                channel.upsertPermissionOverride(player).setAllowed(Permission.MESSAGE_SEND,
-                    Permission.VIEW_CHANNEL).queue();
-            } catch (ErrorResponseException ignored) {
-            }
-        }, "Create Wordle - " + new Utils().getFirstName(player));
+                    channel.upsertPermissionOverride(player).setAllowed(
+                        Permission.MESSAGE_SEND,
+                        Permission.VIEW_CHANNEL).queue();
+                } catch (ErrorResponseException ignored) {
+                }
+            }, "Create Wordle - " + new Utils().getFirstName(player));
         game.start();
 
         return channel;
@@ -201,7 +222,8 @@ public class Wordle extends ListenerAdapter {
                 String letter = getLetter(inputChars.get(index), LetterType.CORRECT);
 
                 // Replace dark gray and yellow keys
-                newKeyboard = newKeyboard.replace(getLetter(inputChars.get(index), LetterType.IN_WORD),
+                newKeyboard = newKeyboard.replace(
+                    getLetter(inputChars.get(index), LetterType.IN_WORD),
                     letter).replace(getLetter(inputChars.get(index), LetterType.NOT_GUESSED), letter);
 
                 output.set(index, letter);
@@ -216,7 +238,8 @@ public class Wordle extends ListenerAdapter {
                 String letter = getLetter(inputChars.get(index), LetterType.IN_WORD);
 
                 // Replace dark gray keys
-                newKeyboard = newKeyboard.replace(getLetter(inputChars.get(index), LetterType.NOT_GUESSED),
+                newKeyboard = newKeyboard.replace(
+                    getLetter(inputChars.get(index), LetterType.NOT_GUESSED),
                     letter);
 
                 output.set(index, letter);
@@ -231,7 +254,8 @@ public class Wordle extends ListenerAdapter {
             String letter = getLetter(inputChars.get(index), LetterType.WRONG);
 
             // Replace dark gray keys
-            newKeyboard = newKeyboard.replace(getLetter(inputChars.get(index), LetterType.NOT_GUESSED),
+            newKeyboard = newKeyboard.replace(
+                getLetter(inputChars.get(index), LetterType.NOT_GUESSED),
                 letter);
         }
 
@@ -248,7 +272,8 @@ public class Wordle extends ListenerAdapter {
         attempt.put(channel, attempt.get(channel) + 1);
         String finalNewKeyboard = newKeyboard;
         Thread updateKeyboard = new Thread(
-            () -> keyboard.put(channel,
+            () -> keyboard.put(
+                channel,
                 keyboard.get(channel).editMessage(finalNewKeyboard).timeout(15, TimeUnit.SECONDS).complete()),
             "Update Wordle Keyboard - " + new Utils().getFirstName(players.get(channel)));
         updateKeyboard.start();
@@ -266,7 +291,8 @@ public class Wordle extends ListenerAdapter {
                             //noinspection DataFlowIssue
                             int wins = Integer.parseInt(embed.getFields().get(1).getValue()) + 1;
 
-                            EmbedBuilder newEmbed = getEmbedBuilder(embed,
+                            EmbedBuilder newEmbed = getEmbedBuilder(
+                                embed,
                                 embed.getFields().get(0).getValue(),
                                 String.valueOf(wins),
                                 embed.getFields().get(2).getValue());
@@ -324,7 +350,8 @@ public class Wordle extends ListenerAdapter {
             if (daily.get(channel)) {
                 Long id = event.getMember().getIdLong();
                 wonDaily.add(id);
-                Executors.newSingleThreadScheduledExecutor().schedule(() -> wonDaily.remove(id),
+                Executors.newSingleThreadScheduledExecutor().schedule(
+                    () -> wonDaily.remove(id),
                     1,
                     TimeUnit.MINUTES);
             }
@@ -344,7 +371,8 @@ public class Wordle extends ListenerAdapter {
                             //noinspection DataFlowIssue
                             int fails = Integer.parseInt(embed.getFields().get(2).getValue()) + 1;
 
-                            EmbedBuilder newEmbed = getEmbedBuilder(embed,
+                            EmbedBuilder newEmbed = getEmbedBuilder(
+                                embed,
                                 embed.getFields().get(0).getValue(),
                                 embed.getFields().get(1).getValue(),
                                 String.valueOf(fails));
@@ -374,7 +402,8 @@ public class Wordle extends ListenerAdapter {
             case "endgame:wordle" -> {
                 event.editButton(event.getButton().asDisabled()).queue();
 
-                sendRetryMsg(event.getChannel().asTextChannel(),
+                sendRetryMsg(
+                    event.getChannel().asTextChannel(),
                     "The word was **" + answers.get(event.getChannel().asTextChannel()).toLowerCase() + "**!",
                     answers.get(event.getChannel().asTextChannel()),
                     true);
@@ -384,7 +413,8 @@ public class Wordle extends ListenerAdapter {
                 event.deferReply().queue();
 
                 try {
-                    TextChannel gameChannel = new Wordle().startGame(event.getMember(),
+                    TextChannel gameChannel = new Wordle().startGame(
+                        event.getMember(),
                         null,
                         false,
                         false,
@@ -401,44 +431,47 @@ public class Wordle extends ListenerAdapter {
                     e.printStackTrace();
                 }
 
-                new Thread(() -> {
-                    try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                        executor.schedule(() -> endGame(event.getChannel().asTextChannel()),
-                            10,
-                            TimeUnit.SECONDS);
-                    }
-                }, "End Game-Wordle").start();
+                new Thread(
+                    () -> {
+                        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                            executor.schedule(
+                                () -> endGame(event.getChannel().asTextChannel()),
+                                10,
+                                TimeUnit.SECONDS);
+                        }
+                    }, "End Game-Wordle").start();
             }
 
-            case "sharewordlescore" -> new Thread(() -> {
-                TextChannel channel = event.getChannel().asTextChannel();
-                event.editButton(event.getButton().asDisabled()).complete();
+            case "sharewordlescore" -> new Thread(
+                () -> {
+                    TextChannel channel = event.getChannel().asTextChannel();
+                    event.editButton(event.getButton().asDisabled()).complete();
 
-                StringBuilder attempts = new StringBuilder();
-                for (Message msg : messages.get(channel)) {
-                    String content = channel.retrieveMessageById(msg.getId()).complete().getContentRaw();
-                    if (content.startsWith("<:empty:1279501848780341399>")) break;
-                    attempts.append(content.replaceAll("[<>:0-9]", "").replaceAll(".(?= )|.$| ", "")
-                        .toUpperCase().replace("W", "<:wordle_incorrect:1284188510588506197>")
-                        .replace("I", "<:wordle_in_word:1284188488484392962>")
-                        .replace("C", "<:wordle_correct:1284188462706200647>")).append("\n");
-                }
+                    StringBuilder attempts = new StringBuilder();
+                    for (Message msg : messages.get(channel)) {
+                        String content = channel.retrieveMessageById(msg.getId()).complete().getContentRaw();
+                        if (content.startsWith("<:empty:1279501848780341399>")) break;
+                        attempts.append(content.replaceAll("[<>:0-9]", "").replaceAll(".(?= )|.$| ", "")
+                            .toUpperCase().replace("W", "<:wordle_incorrect:1284188510588506197>")
+                            .replace("I", "<:wordle_in_word:1284188488484392962>")
+                            .replace("C", "<:wordle_correct:1284188462706200647>")).append("\n");
+                    }
 
-                // Testing channel
-                //                TextChannel winChannel = event.getGuild().getTextChannelById(960213547944661042L);
-                //noinspection DataFlowIssue
-                TextChannel winChannel = event.getGuild().getTextChannelById(956267174727671869L);
-                String name = "**" + new Utils().getFullName(event.getMember()) + "**";
-
-                if (wonDaily.contains(event.getUser().getIdLong())) {
+                    // Testing channel
+                    //                TextChannel winChannel = event.getGuild().getTextChannelById(960213547944661042L);
                     //noinspection DataFlowIssue
-                    winChannel.sendMessage(name + " just finished the daily Wordle in **" + attempt.get(
-                        channel) + "** tries!\n" + attempts).complete();
-                    wonDaily.remove(event.getUser().getIdLong());
+                    TextChannel winChannel = event.getGuild().getTextChannelById(956267174727671869L);
+                    String name = "**" + new Utils().getFullName(event.getMember()) + "**";
 
-                } else //noinspection DataFlowIssue
-                    winChannel.sendMessage(name + " failed the daily Wordle!\n" + attempts).complete();
-            }, "Share Wordle Score - " + new Utils().getFirstName(event.getMember())).start();
+                    if (wonDaily.contains(event.getUser().getIdLong())) {
+                        //noinspection DataFlowIssue
+                        winChannel.sendMessage(name + " just finished the daily Wordle in **" + attempt.get(
+                            channel) + "** tries!\n" + attempts).complete();
+                        wonDaily.remove(event.getUser().getIdLong());
+
+                    } else //noinspection DataFlowIssue
+                        winChannel.sendMessage(name + " failed the daily Wordle!\n" + attempts).complete();
+                }, "Share Wordle Score - " + new Utils().getFirstName(event.getMember())).start();
         }
 
         if (event.getComponentId().startsWith("playwordle:")) {
@@ -461,7 +494,8 @@ public class Wordle extends ListenerAdapter {
                         //noinspection DataFlowIssue
                         int plays = Integer.parseInt(message.getFields().get(0).getValue()) + 1;
 
-                        EmbedBuilder embed = getEmbedBuilder(message,
+                        EmbedBuilder embed = getEmbedBuilder(
+                            message,
                             String.valueOf(plays),
                             message.getFields().get(1).getValue(),
                             message.getFields().get(2).getValue());
@@ -543,18 +577,21 @@ public class Wordle extends ListenerAdapter {
 
         channel.sendMessage(message).setActionRow(buttons).queue();
 
-        new Thread(() -> {
-            try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                deleteChannel.put(channel,
-                    executor.schedule(() -> new Wordle().endGame(channel), 45, TimeUnit.SECONDS));
-            }
-        }, "Delete Channel").start();
+        new Thread(
+            () -> {
+                try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                    deleteChannel.put(
+                        channel,
+                        executor.schedule(() -> new Wordle().endGame(channel), 45, TimeUnit.SECONDS));
+                }
+            }, "Delete Channel").start();
     }
 
     private void wordRequest(String word, Member member) {
         List<String> words = new ArrayList<>();
         try {
-            Scanner fileScanner = new Scanner(new File("Phoenella/Wordle/banned-requests.txt"),
+            Scanner fileScanner = new Scanner(
+                new File("Phoenella/Wordle/banned-requests.txt"),
                 StandardCharsets.UTF_8);
             while (fileScanner.hasNextLine()) words.add(fileScanner.nextLine());
             fileScanner.close();

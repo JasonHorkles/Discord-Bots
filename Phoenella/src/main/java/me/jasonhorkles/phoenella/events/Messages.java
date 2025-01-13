@@ -76,7 +76,8 @@ public class Messages extends ListenerAdapter {
 
         if (text.equals("stop") || text.equals("shut down")) if (member.getIdLong() == 277291758503723010L) {
             message.reply("Shutting down...").mentionRepliedUser(false).queue();
-            PteroClient ptero = PteroBuilder.createClient(new Secrets().pteroUrl(),
+            PteroClient ptero = PteroBuilder.createClient(
+                new Secrets().pteroUrl(),
                 new Secrets().pteroApiKey());
             ptero.retrieveServerByIdentifier("5243694c").flatMap(ClientServer::stop).executeAsync();
             return;
@@ -110,7 +111,8 @@ public class Messages extends ListenerAdapter {
 
             try {
                 disabledChannels.remove(channel.getId());
-                FileWriter fileWriter = new FileWriter("Phoenella/channel-blacklist.txt",
+                FileWriter fileWriter = new FileWriter(
+                    "Phoenella/channel-blacklist.txt",
                     StandardCharsets.UTF_8,
                     false);
                 for (String channels : disabledChannels) fileWriter.write(channels + "\n");
@@ -133,7 +135,8 @@ public class Messages extends ListenerAdapter {
 
             try {
                 disabledChannels.add(channel.getId());
-                FileWriter fileWriter = new FileWriter("Phoenella/channel-blacklist.txt",
+                FileWriter fileWriter = new FileWriter(
+                    "Phoenella/channel-blacklist.txt",
                     StandardCharsets.UTF_8,
                     false);
                 for (String channels : disabledChannels) fileWriter.write(channels + "\n");
@@ -360,7 +363,8 @@ public class Messages extends ListenerAdapter {
 
         if (text.startsWith("search ")) {
             String search = text.replaceFirst("search ", "");
-            String page = "https://www.google.com/search?q=" + URLEncoder.encode(search,
+            String page = "https://www.google.com/search?q=" + URLEncoder.encode(
+                search,
                 StandardCharsets.UTF_8).strip();
 
             try {
