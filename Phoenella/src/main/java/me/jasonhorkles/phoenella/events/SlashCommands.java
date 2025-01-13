@@ -2,6 +2,7 @@ package me.jasonhorkles.phoenella.events;
 
 import me.jasonhorkles.phoenella.Phoenella;
 import me.jasonhorkles.phoenella.Utils;
+import me.jasonhorkles.phoenella.games.RPS;
 import me.jasonhorkles.phoenella.games.Wordle;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -26,9 +27,18 @@ public class SlashCommands extends ListenerAdapter {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + new Utils().getFullName(event.getMember()) + " used the /" + event.getName() + " command");
 
-        //noinspection SwitchStatementWithTooFewBranches
         switch (event.getName().toLowerCase()) {
             case "wordle" -> wordleCommand(event);
+            case "rps" -> {
+                event.deferReply(true).queue();
+
+                ArrayList<Member> players = new ArrayList<>();
+                players.add(event.getMember());
+                players.add(event.getOption("player").getAsMember());
+
+                TextChannel gameChannel = new RPS().startGame(players);
+                event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
+            }
         }
     }
 
@@ -50,7 +60,8 @@ public class SlashCommands extends ListenerAdapter {
             case "play" -> {
                 event.reply("Creating a game...").setEphemeral(true).queue();
                 try {
-                    TextChannel gameChannel = new Wordle().startGame(event.getMember(),
+                    TextChannel gameChannel = new Wordle().startGame(
+                        event.getMember(),
                         null,
                         false,
                         false,
@@ -96,7 +107,8 @@ public class SlashCommands extends ListenerAdapter {
                     fw.write(event.getMember().getId() + "\n");
                     fw.close();
 
-                    TextChannel gameChannel = new Wordle().startGame(event.getMember(),
+                    TextChannel gameChannel = new Wordle().startGame(
+                        event.getMember(),
                         word,
                         false,
                         true,
@@ -127,7 +139,8 @@ public class SlashCommands extends ListenerAdapter {
 
                     Scanner leaderboard = null;
                     try {
-                        leaderboard = new Scanner(new File("Phoenella/Wordle/leaderboard.txt"),
+                        leaderboard = new Scanner(
+                            new File("Phoenella/Wordle/leaderboard.txt"),
                             StandardCharsets.UTF_8);
                     } catch (IOException e) {
                         System.out.print(new Utils().getTime(Utils.LogColor.RED));

@@ -69,16 +69,17 @@ public class Phoenella {
         // Cache members
         jda.getGuildById(729083627308056597L).loadMembers().get();
 
-        jda.getGuildById(729083627308056597L).updateCommands().addCommands(Commands.slash("wordle", "Wordle!")
-            .addSubcommands(
+        jda.getGuildById(729083627308056597L).updateCommands().addCommands(
+            Commands.slash("wordle", "Wordle!").addSubcommands(
                 new SubcommandData("play", "Play with a random word"),
                 new SubcommandData("create", "Create a Wordle for others to play"),
                 new SubcommandData("leaderboard", "View the Wordle leaderboard").addOption(
                     OptionType.BOOLEAN,
                     "show",
                     "Show the leaderboard message publicly?",
-                    false),
-                new SubcommandData("daily", "Play the daily Wordle"))).queue();
+                    false), new SubcommandData("daily", "Play the daily Wordle")),
+            Commands.slash("rps", "Rock, Paper, Scissors")
+                .addOption(OptionType.USER, "player", "Player 2", true)).queue();
 
         // Guild nickname check
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Starting nickname check...");
