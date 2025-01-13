@@ -34,11 +34,13 @@ public class StormAlerts extends ListenerAdapter {
         System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());
-        builder.disableCache(CacheFlag.ACTIVITY,
+        builder.disableCache(
+            CacheFlag.ACTIVITY,
             CacheFlag.CLIENT_STATUS,
             CacheFlag.ONLINE_STATUS,
             CacheFlag.VOICE_STATE);
-        builder.enableIntents(GatewayIntent.GUILD_MESSAGES,
+        builder.enableIntents(
+            GatewayIntent.GUILD_MESSAGES,
             GatewayIntent.MESSAGE_CONTENT,
             GatewayIntent.GUILD_MEMBERS);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
@@ -51,7 +53,9 @@ public class StormAlerts extends ListenerAdapter {
         jda.awaitReady();
 
         //noinspection DataFlowIssue
-        jda.getGuildById(843919716677582888L).updateCommands().addCommands(Commands.slash("checknow",
+        jda.getGuildById(843919716677582888L).updateCommands().addCommands(
+            Commands.slash(
+                "checknow",
                 "Force all checks (except records)"),
             Commands.slash("updaterecords", "Force the record checks")).queue();
 
@@ -85,55 +89,58 @@ public class StormAlerts extends ListenerAdapter {
         }
 
         // 1.5 mins
-        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            try {
-                new Alerts().checkAlerts();
-            } catch (Exception e) {
-                String reason = "";
-                if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
-                else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
-                else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
+        // Alert checks
+        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+            () -> {
+                try {
+                    new Alerts().checkAlerts();
+                } catch (Exception e) {
+                    String reason = "";
+                    if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
+                    else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
+                    else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
 
-                System.out.println(utils.getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!" + reason);
-                if (reason.isBlank()) {
-                    System.out.print(utils.getTime(Utils.LogColor.RED));
-                    e.printStackTrace();
-                    utils.logError(e);
+                    System.out.println(utils.getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the alerts!" + reason);
+                    if (reason.isBlank()) {
+                        System.out.print(utils.getTime(Utils.LogColor.RED));
+                        e.printStackTrace();
+                        utils.logError(e);
+                    }
                 }
-            }
+            }, 1, 90, TimeUnit.SECONDS));
 
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ignored) {
-            }
+        // 1.5 mins
+        // Weather checks
+        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+            () -> {
+                //todo https://ambientweather.docs.apiary.io/#reference/ambient-realtime-api instead
+                try {
+                    new Pws().checkConditions();
+                } catch (Exception e) {
+                    String reason = "";
+                    if (e.getMessage().contains("401")) reason = " (Unauthorized)";
+                    else if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
+                    else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
+                    else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
+                    else if (e.getMessage().contains("504")) reason = " (Gateway Timeout)";
+                    else if (e.getMessage().contains("520")) reason = " (Catch-all error)";
+                    else if (e.getMessage().contains("524")) reason = " (Timeout)";
 
-            //todo https://ambientweather.docs.apiary.io/#reference/ambient-realtime-api instead
-            try {
-                new Pws().checkConditions();
-            } catch (Exception e) {
-                String reason = "";
-                if (e.getMessage().contains("401")) reason = " (Unauthorized)";
-                else if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
-                else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
-                else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
-                else if (e.getMessage().contains("504")) reason = " (Gateway Timeout)";
-                else if (e.getMessage().contains("520")) reason = " (Catch-all error)";
-                else if (e.getMessage().contains("524")) reason = " (Timeout)";
+                    System.out.println(utils.getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
+                    if (reason.isBlank()) {
+                        System.out.print(utils.getTime(Utils.LogColor.RED));
+                        e.printStackTrace();
+                        utils.logError(e);
+                    }
 
-                System.out.println(utils.getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
-                if (reason.isBlank()) {
-                    System.out.print(utils.getTime(Utils.LogColor.RED));
-                    e.printStackTrace();
-                    utils.logError(e);
-                }
-            }
+                    /*try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ignored) {
+                    }*/
 
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ignored) {
-            }
-
-            /*try {
+                    // We don't want this on a new thread in case of a race condition
+                    // We want the PWS weather finalized before any other weather
+                    /*try {
                 new Weather().checkConditions();
             } catch (Exception e) {
                 System.out.println(utils.getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
@@ -142,27 +149,30 @@ public class StormAlerts extends ListenerAdapter {
                 jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
                 utils.logError(e);
             }*/
-        }, 1, 90, TimeUnit.SECONDS));
+                }
+            }, 2, 90, TimeUnit.SECONDS));
 
         // 6 mins
-        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            try {
-                new Visibility().checkConditions();
-            } catch (Exception e) {
-                String reason = "";
-                if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
-                else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
-                else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
+        // Visibility check
+        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+            () -> {
+                try {
+                    new Visibility().checkConditions();
+                } catch (Exception e) {
+                    String reason = "";
+                    if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
+                    else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
+                    else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
 
-                System.out.println(utils.getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the visibility!" + reason);
-                if (reason.isBlank()) {
-                    System.out.print(utils.getTime(Utils.LogColor.RED));
-                    e.printStackTrace();
-                    utils.logError(e);
+                    System.out.println(utils.getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the visibility!" + reason);
+                    if (reason.isBlank()) {
+                        System.out.print(utils.getTime(Utils.LogColor.RED));
+                        e.printStackTrace();
+                        utils.logError(e);
+                    }
+                    new Utils().updateVoiceChannel(899872710233051178L, "Visibility | ERROR");
                 }
-                new Utils().updateVoiceChannel(899872710233051178L, "Visibility | ERROR");
-            }
-        }, 3, 360, TimeUnit.SECONDS));
+            }, 4, 360, TimeUnit.SECONDS));
 
         // Schedule traffic checks
         Traffic traffic = new Traffic();
@@ -172,18 +182,19 @@ public class StormAlerts extends ListenerAdapter {
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new StormAlerts().shutdown(), "Shutdown Hook"));
-        Thread input = new Thread(() -> {
-            Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
-            while (true) {
-                String text = in.nextLine();
-                if (text.equalsIgnoreCase("stop")) {
-                    in.close();
-                    System.exit(0);
+        Thread input = new Thread(
+            () -> {
+                Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
+                while (true) {
+                    String text = in.nextLine();
+                    if (text.equalsIgnoreCase("stop")) {
+                        in.close();
+                        System.exit(0);
+                    }
+                    if (text.equalsIgnoreCase("n")) new Traffic().checkTraffic(true);
+                    if (text.equalsIgnoreCase("s")) new Traffic().checkTraffic(false);
                 }
-                if (text.equalsIgnoreCase("n")) new Traffic().checkTraffic(true);
-                if (text.equalsIgnoreCase("s")) new Traffic().checkTraffic(false);
-            }
-        }, "Console Input");
+            }, "Console Input");
         input.start();
 
         System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Done starting up!");
@@ -250,7 +261,8 @@ public class StormAlerts extends ListenerAdapter {
             // Initating the shutdown, this closes the gateway connection and subsequently closes the requester queue
             jda.shutdown();
             // Allow at most 10 seconds for remaining requests to finish
-            if (!jda.awaitShutdown(10,
+            if (!jda.awaitShutdown(
+                10,
                 TimeUnit.SECONDS)) { // returns true if shutdown is graceful, false if timeout exceeded
                 jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
                 jda.awaitShutdown(); // Wait until shutdown is complete (indefinitely)

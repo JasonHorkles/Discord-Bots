@@ -42,7 +42,7 @@ public class Weather extends ListenerAdapter {
         if (StormAlerts.testing) weather = Files.readString(Path.of("StormAlerts/Tests/weather.txt"));
         else {
             Connection conn = Jsoup
-                .connect("https://weather.com/weather/today/l/" + new Secrets().weatherCode()).timeout(15000);
+                .connect("https://weather.com/weather/today/l/" + new Secrets().weatherCode()).timeout(30000);
             Document doc = conn.get();
             weather = doc.select("[class*=\"CurrentConditions--phraseValue--\"]").first().text();
         }
