@@ -48,6 +48,7 @@ public class AmbientWeatherProcessor {
         int windGust = Math.toIntExact(Math.round(input.getDouble("windgustmph")));
         int windMax = Math.toIntExact(Math.round(input.getDouble("maxdailygust")));
         int windMaxFps = Math.toIntExact(Math.round(windMax * 1.46667));
+        double windDir = input.getDouble("winddir");
         double rainDaily = input.getDouble("dailyrainin");
         double rainWeekly = input.getDouble("weeklyrainin");
         double rainMonthly = input.getDouble("monthlyrainin");
@@ -120,10 +121,17 @@ public class AmbientWeatherProcessor {
 
             boolean pingOverride = windMax >= (lastAlertedWindGust + 5);
 
+            // Convert wind direction to 16-point cardinal direction
+            int index = (int) ((windDir + 22.5) / 45) % 8;
+            String[] cardinal = {"North", "Northeast", "East", "Southeast", "South", "Southwest", "West", "Northwest"};
+            String[] directions = {"⬇️", "↙️", "⬅️", "↖️", "⬆️", "↗️", "➡️", "↘️"};
+            String windDirStr = cardinal[index];
+            String windDirEmote = directions[index];
+
             String ping = "";
             if (utils.shouldIPing(windChannel) || pingOverride) ping = "<@&1046148944108978227>\n";
 
-            String message = ping + "🍃 Wind gust of **" + windMax + " mph** *(" + windMaxFps + " ft/s)* detected!";
+            String message = ping + "🍃 " + windDirStr + "ern wind gust of **" + windMax + " mph** *(" + windMaxFps + " ft/s)* detected! " + windDirEmote;
             if (windMax >= 50) message += " <a:weewoo:1083615022455992382>";
 
             windChannel.sendMessage(message)
