@@ -26,10 +26,26 @@ public class AmbientWeatherSocket {
                 socket.emit("subscribe", subscribeData);
             });
 
+        socket.on("data", args -> processWeatherDataAsync(args[0].toString()));
+
         socket.on(
-            "data", args -> {
+            "subscribed",
+            args -> System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Connected to Ambient Weather API."));
+
+        socket.on(
+            Socket.EVENT_DISCONNECT,
+            args -> System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Disconnected from Ambient Weather API."));
+
+        socket.on(
+            Socket.EVENT_CONNECT_ERROR,
+            args -> System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Connection error! " + args[0]));
+    }
+
+    private void processWeatherDataAsync(String data) {
+        new Thread(
+            () -> {
                 try {
-                    new AmbientWeatherProcessor().processWeatherData(args[0].toString());
+                    new AmbientWeatherProcessor().processWeatherData(data);
                 } catch (Exception e) {
                     String reason = "";
                     /*if (e.getMessage().contains("401")) reason = " (Unauthorized)";
@@ -47,19 +63,7 @@ public class AmbientWeatherSocket {
                         new Utils().logError(e);
                     }
                 }
-            });
-
-        socket.on(
-            "subscribed",
-            args -> System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Connected to Ambient Weather API."));
-
-        socket.on(
-            Socket.EVENT_DISCONNECT,
-            args -> System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Disconnected from Ambient Weather API."));
-
-        socket.on(
-            Socket.EVENT_CONNECT_ERROR,
-            args -> System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Connection error! " + args[0]));
+            }, "AmbientWeatherProcessor").start();
     }
 
     public void connect() {
