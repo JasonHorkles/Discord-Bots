@@ -42,7 +42,8 @@ public class Phoenella {
         JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());
         builder.disableCache(CacheFlag.ACTIVITY);
         builder.enableCache(CacheFlag.VOICE_STATE);
-        builder.enableIntents(GatewayIntent.GUILD_MEMBERS,
+        builder.enableIntents(
+            GatewayIntent.GUILD_MEMBERS,
             GatewayIntent.GUILD_MESSAGES,
             GatewayIntent.GUILD_VOICE_STATES,
             GatewayIntent.MESSAGE_CONTENT);
@@ -50,7 +51,8 @@ public class Phoenella {
         builder.setEnableShutdownHook(false);
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.playing("Wordle"));
-        builder.addEventListeners(new Buttons(),
+        builder.addEventListeners(
+            new Buttons(),
             new Messages(),
             new GameManager(),
             new Modals(),
@@ -68,9 +70,11 @@ public class Phoenella {
         jda.getGuildById(729083627308056597L).loadMembers().get();
 
         jda.getGuildById(729083627308056597L).updateCommands().addCommands(Commands.slash("wordle", "Wordle!")
-            .addSubcommands(new SubcommandData("play", "Play with a random word"),
+            .addSubcommands(
+                new SubcommandData("play", "Play with a random word"),
                 new SubcommandData("create", "Create a Wordle for others to play"),
-                new SubcommandData("leaderboard", "View the Wordle leaderboard").addOption(OptionType.BOOLEAN,
+                new SubcommandData("leaderboard", "View the Wordle leaderboard").addOption(
+                    OptionType.BOOLEAN,
                     "show",
                     "Show the leaderboard message publicly?",
                     false),
@@ -187,15 +191,17 @@ public class Phoenella {
 
         long delay = future.getTimeInMillis() - System.currentTimeMillis();
 
-        if (delay >= 0) new Thread(() -> {
-            try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                schedules.add(executor.schedule(() -> new Utils().updateDailyWordle(),
-                    delay,
-                    TimeUnit.MILLISECONDS));
-                System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Scheduled new daily Wordle in " + Math.round(
-                    delay / 3600000.0) + " hours.");
-            }
-        }, "Daily Wordle").start();
+        if (delay >= 0) new Thread(
+            () -> {
+                try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                    schedules.add(executor.schedule(
+                        () -> new Utils().updateDailyWordle(),
+                        delay,
+                        TimeUnit.MILLISECONDS));
+                    System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Scheduled new daily Wordle in " + Math.round(
+                        delay / 3600000.0) + " hours.");
+                }
+            }, "Daily Wordle").start();
 
         // Delete game channels
         for (TextChannel channel : jda.getCategoryById(900747596245639238L).getTextChannels())
@@ -203,17 +209,18 @@ public class Phoenella {
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new Phoenella().shutdown(), "Shutdown Hook"));
-        new Thread(() -> {
-            Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
-            while (true) {
-                String text = in.nextLine();
-                if (text.equalsIgnoreCase("stop")) {
-                    in.close();
-                    System.exit(0);
+        new Thread(
+            () -> {
+                Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
+                while (true) {
+                    String text = in.nextLine();
+                    if (text.equalsIgnoreCase("stop")) {
+                        in.close();
+                        System.exit(0);
+                    }
+                    if (text.equalsIgnoreCase("dailywordle")) new Utils().updateDailyWordle();
                 }
-                if (text.equalsIgnoreCase("dailywordle")) new Utils().updateDailyWordle();
-            }
-        }, "Console Input").start();
+            }, "Console Input").start();
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }
@@ -231,7 +238,8 @@ public class Phoenella {
             // Initating the shutdown, this closes the gateway connection and subsequently closes the requester queue
             jda.shutdown();
             // Allow at most 10 seconds for remaining requests to finish
-            if (!jda.awaitShutdown(10,
+            if (!jda.awaitShutdown(
+                10,
                 TimeUnit.SECONDS)) { // returns true if shutdown is graceful, false if timeout exceeded
                 jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
                 jda.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
