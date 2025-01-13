@@ -12,8 +12,8 @@ public class AmbientWeatherSocket {
 
     public AmbientWeatherSocket() {
         URI uri = URI.create("https://rt2.ambientweather.net/?api=1&applicationKey=" + new Secrets().awAppKey());
-        IO.Options options = IO.Options.builder().setTransports(new String[]{"websocket"}).setReconnection(
-            false).setReconnectionDelayMax(60000).build();
+        IO.Options options = IO.Options.builder().setTransports(new String[]{"websocket"})
+            .setReconnectionDelayMax(60000).build();
         socket = IO.socket(uri, options);
 
         socket.on(
@@ -55,7 +55,7 @@ public class AmbientWeatherSocket {
 
         socket.on(
             Socket.EVENT_DISCONNECT,
-            args -> System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Disconnected from Ambient Weather API."));
+            args -> System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Disconnected from Ambient Weather API."));
 
         socket.on(
             Socket.EVENT_CONNECT_ERROR,
