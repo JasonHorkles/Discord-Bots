@@ -135,7 +135,7 @@ public class StormAlerts extends ListenerAdapter {
                     }
                     new Utils().updateVoiceChannel(899872710233051178L, "Visibility | ERROR");
                 }
-            }, 4, 360, TimeUnit.SECONDS));
+            }, 2, 360, TimeUnit.SECONDS));
 
         // Schedule traffic checks
         Traffic traffic = new Traffic();
