@@ -45,9 +45,17 @@ public class Events extends ListenerAdapter {
                     "Holograms currently aren't clickable themselves, but [here's](<https://fancyplugins.de/docs/fh-clickable-holograms.html>) a workaround.")
                 .queue();
 
-            case "converters" -> event.getHook().editOriginal(
-                    "Converters are currently not available for Fancy plugins. You will need to manually convert your data.")
-                .queue();
+            case "converters" -> {
+                String fhMessage = "As of FancyHolograms v2.4.2, holograms can be converted from DecentHolograms using `/fancyholograms convert DecentHolograms *`";
+                String npcMessage = "NPC converters currently are not available. You will need to manually convert your data for the time being.";
+
+                String message;
+                if (event.getChannel().getName().contains("holograms")) message = fhMessage;
+                else if (event.getChannel().getName().contains("npcs")) message = npcMessage;
+                else message = fhMessage + "\n\n" + npcMessage;
+
+                event.getHook().editOriginal(message).queue();
+            }
 
             case "docs" -> event.getHook().editOriginal(
                 "Here are the FancyPlugins docs: <https://fancyplugins.de/docs/welcome.html>").queue();
