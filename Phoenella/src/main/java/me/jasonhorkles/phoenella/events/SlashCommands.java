@@ -4,7 +4,6 @@ import me.jasonhorkles.phoenella.Phoenella;
 import me.jasonhorkles.phoenella.Utils;
 import me.jasonhorkles.phoenella.games.RPS;
 import me.jasonhorkles.phoenella.games.Wordle;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -13,12 +12,9 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 
-import java.awt.*;
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 @SuppressWarnings("DataFlowIssue")
 public class SlashCommands extends ListenerAdapter {
@@ -97,52 +93,7 @@ public class SlashCommands extends ListenerAdapter {
                             ephemeral = !event.getOption("show").getAsBoolean();
 
                     event.deferReply(ephemeral).queue();
-
-                    Scanner leaderboard = null;
-                    try {
-                        leaderboard = new Scanner(
-                            new File("Phoenella/Wordle/leaderboard.txt"),
-                            StandardCharsets.UTF_8);
-                    } catch (IOException e) {
-                        System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                        e.printStackTrace();
-                    }
-                    Map<Member, Integer> lines = new HashMap<>();
-
-                    while (leaderboard.hasNextLine()) try {
-                        String line = leaderboard.nextLine();
-                        long id = Long.parseLong(line.replaceFirst(":.*", ""));
-                        int score = Integer.parseInt(line.replaceFirst(".*:", ""));
-                        Member member = event.getGuild().getMemberById(id);
-                        lines.put(member, score);
-                    } catch (NoSuchElementException ignored) {
-                    }
-
-                    leaderboard.close();
-
-                    LinkedHashMap<Member, Integer> sortedLeaderboard = new LinkedHashMap<>();
-                    Stream<Map.Entry<Member, Integer>> leaderboardItems = lines.entrySet().stream();
-                    leaderboardItems.sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                        .forEachOrdered(x -> sortedLeaderboard.put(x.getKey(), x.getValue()));
-
-                    StringBuilder finalLeaderboard = new StringBuilder("```\n");
-                    int index = 1;
-                    for (Map.Entry<Member, Integer> entry : sortedLeaderboard.entrySet()) {
-                        if (index > 10) break;
-                        finalLeaderboard.append(index).append(". ")
-                            .append(new Utils().getFullName(entry.getKey())).append(" | ")
-                            .append(entry.getValue()).append("\n");
-                        index++;
-                    }
-                    finalLeaderboard.append("```");
-
-                    EmbedBuilder embed = new EmbedBuilder();
-                    embed.setColor(new Color(43, 45, 49));
-                    embed.setTitle("Wordle Monthly Leaderboard");
-                    embed.setFooter("User-generated words are not counted");
-                    embed.setDescription(finalLeaderboard);
-
-                    event.getHook().editOriginalEmbeds(embed.build()).queue();
+                    event.getHook().editOriginalEmbeds(new Wordle().getLeaderboard(event.getGuild())).queue();
                 }
             }
         }

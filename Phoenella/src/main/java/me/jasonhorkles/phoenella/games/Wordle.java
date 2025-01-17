@@ -5,6 +5,7 @@ import me.jasonhorkles.phoenella.Phoenella;
 import me.jasonhorkles.phoenella.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -22,16 +23,19 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 public class Wordle extends ListenerAdapter {
     private static final ArrayList<String> wordList = new ArrayList<>();
@@ -652,6 +656,52 @@ public class Wordle extends ListenerAdapter {
             .setActionRow(Button.primary("defineword:" + word, "Define word")
                 .withEmoji(Emoji.fromUnicode("❔"))).queue((msg) -> msg.addReaction(Emoji.fromUnicode("✅"))
                 .queue(m -> msg.addReaction(Emoji.fromUnicode("⛔")).queueAfter(1, TimeUnit.SECONDS)));
+    }
+
+    public MessageEmbed getLeaderboard(Guild guild) {
+        Scanner leaderboard = null;
+        try {
+            leaderboard = new Scanner(new File("Phoenella/Wordle/leaderboard.txt"), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            e.printStackTrace();
+        }
+        Map<Member, Integer> lines = new HashMap<>();
+
+        //noinspection DataFlowIssue
+        while (leaderboard.hasNextLine()) try {
+            String line = leaderboard.nextLine();
+            long id = Long.parseLong(line.replaceFirst(":.*", ""));
+            int score = Integer.parseInt(line.replaceFirst(".*:", ""));
+            Member member = guild.getMemberById(id);
+            lines.put(member, score);
+        } catch (NoSuchElementException ignored) {
+        }
+
+        leaderboard.close();
+
+        LinkedHashMap<Member, Integer> sortedLeaderboard = new LinkedHashMap<>();
+        Stream<Map.Entry<Member, Integer>> leaderboardItems = lines.entrySet().stream();
+        leaderboardItems.sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+            .forEachOrdered(x -> sortedLeaderboard.put(x.getKey(), x.getValue()));
+
+        StringBuilder finalLeaderboard = new StringBuilder("```\n");
+        int index = 1;
+        for (Map.Entry<Member, Integer> entry : sortedLeaderboard.entrySet()) {
+            if (index > 10) break;
+            finalLeaderboard.append(index).append(". ").append(new Utils().getFullName(entry.getKey()))
+                .append(" | ").append(entry.getValue()).append("\n");
+            index++;
+        }
+        finalLeaderboard.append("```");
+
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setColor(new Color(43, 45, 49));
+        embed.setTitle("Wordle Monthly Leaderboard");
+        embed.setFooter("User-generated words are not counted");
+        embed.setDescription(finalLeaderboard);
+
+        return embed.build();
     }
 
     private enum LetterType {

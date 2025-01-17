@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -24,6 +25,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.format.TextStyle;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -67,17 +70,18 @@ public class Phoenella {
         jda.addEventListener(new Nicknames());
 
         // Cache members
-        jda.getGuildById(729083627308056597L).loadMembers().get();
+        Guild guild = jda.getGuildById(729083627308056597L);
+        guild.loadMembers().get();
 
-        jda.getGuildById(729083627308056597L).updateCommands().addCommands(
+        guild.updateCommands().addCommands(
             Commands.slash("wordle", "Wordle!").addSubcommands(
                 new SubcommandData("play", "Play with a random word"),
                 new SubcommandData("create", "Create a Wordle for others to play"),
                 new SubcommandData("leaderboard", "View the Wordle leaderboard").addOption(
                     OptionType.BOOLEAN,
                     "show",
-                    "Show the leaderboard message publicly?",
-                    false), new SubcommandData("daily", "Play the daily Wordle")),
+                    "Show the leaderboard message publicly?", false),
+                new SubcommandData("daily", "Play the daily Wordle")),
             Commands.slash("rps", "Rock, Paper, Scissors")
                 .addOption(OptionType.USER, "player", "Player 2", true)).queue();
 
@@ -111,6 +115,10 @@ public class Phoenella {
                 Scanner lastClearedScanner = new Scanner(lastClearedFile, StandardCharsets.UTF_8);
                 int month = lastClearedScanner.nextInt();
                 if (month != LocalDate.now().getMonthValue()) {
+                    guild.getTextChannelById(956267174727671869L).sendMessage("## " + Month.of(month)
+                            .getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH) + "'s Leaderboard")
+                        .addEmbeds(new Wordle().getLeaderboard(guild)).queue();
+
                     FileWriter lastCleared = new FileWriter(lastClearedFile, StandardCharsets.UTF_8, false);
                     lastCleared.write(String.valueOf(LocalDate.now().getMonthValue()));
                     lastCleared.close();
@@ -126,7 +134,7 @@ public class Phoenella {
             if (doCheck) {
                 for (String line : lines) {
                     long id = Long.parseLong(line.replaceFirst(":.*", ""));
-                    Member member = jda.getGuildById(729083627308056597L).getMemberById(id);
+                    Member member = guild.getMemberById(id);
                     if (member == null) {
                         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Removing user with ID " + id);
                         continue;
