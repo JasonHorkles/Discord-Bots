@@ -3,7 +3,6 @@ package me.jasonhorkles.stormalerts;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.FileWriter;
@@ -32,9 +31,8 @@ public class AmbientWeatherProcessor {
         System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Processing PWS conditions...");
 
         JSONObject input;
-        if (StormAlerts.testing) input = new JSONArray(Files.readString(Path.of(
-            "StormAlerts/Tests/pwsweather.json"))).getJSONObject(0).getJSONObject("lastData");
-
+        if (StormAlerts.testing) input = new JSONObject(Files.readString(Path.of(
+            "StormAlerts/Tests/pwsweather.json")));
         else input = new JSONObject(data);
 
         currentRainRate = input.getDouble("hourlyrainin");
