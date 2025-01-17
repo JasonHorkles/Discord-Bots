@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.ErrorResponse;
@@ -45,6 +46,42 @@ public class Wordle extends ListenerAdapter {
     private static final List<Long> wonDaily = new ArrayList<>();
     private static final Map<TextChannel, ArrayList<Message>> messages = new HashMap<>();
     private static final Map<TextChannel, ScheduledFuture<?>> deleteChannel = new HashMap<>();
+
+    public String startDailyWordle(Member member) {
+        File dailyFile = new File("Phoenella/Wordle/played-daily.txt");
+        try {
+            Scanner dailyPlays = new Scanner(dailyFile, StandardCharsets.UTF_8);
+            ArrayList<String> plays = new ArrayList<>();
+            while (dailyPlays.hasNextLine()) plays.add(dailyPlays.nextLine());
+            dailyPlays.close();
+
+            if (plays.toString().contains(member.getId())) return "You've already played today's Wordle!";
+        } catch (IOException e) {
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            e.printStackTrace();
+        }
+
+        try {
+            File dailyWord = new File("Phoenella/Wordle/daily.txt");
+            Scanner input = new Scanner(dailyWord, StandardCharsets.UTF_8);
+            String word = input.next();
+            input.close();
+
+            FileWriter fw = new FileWriter(dailyFile, StandardCharsets.UTF_8, true);
+            fw.write(member.getId() + "\n");
+            fw.close();
+
+            TextChannel gameChannel = startGame(member, word, false, true, null);
+            if (gameChannel == null)
+                return "Either you already have an ongoing game with that word or you have too many games active at once!";
+            else return "Game created in " + gameChannel.getAsMention();
+
+        } catch (IOException e) {
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            e.printStackTrace();
+            return "Couldn't generate a random word! Please try again later.";
+        }
+    }
 
     public @Nullable TextChannel startGame(Member player, @Nullable String answer, boolean isUserGenerated, boolean isDaily, @Nullable Integer tries) throws IOException {
         // Scan for too many channels
@@ -265,10 +302,7 @@ public class Wordle extends ListenerAdapter {
             builder.append(" ");
         }
 
-        try {
-            messages.get(channel).get(attempt.get(channel)).editMessage(builder).queue();
-        } catch (IndexOutOfBoundsException ignored) {
-        }
+        messages.get(channel).get(attempt.get(channel)).editMessage(builder).queue();
         attempt.put(channel, attempt.get(channel) + 1);
         String finalNewKeyboard = newKeyboard;
         Thread updateKeyboard = new Thread(
@@ -463,15 +497,25 @@ public class Wordle extends ListenerAdapter {
                     TextChannel winChannel = event.getGuild().getTextChannelById(956267174727671869L);
                     String name = "**" + new Utils().getFullName(event.getMember()) + "**";
 
+                    Button button = Button.secondary("dailywordle", "Play daily Wordle")
+                        .withEmoji(Emoji.fromUnicode("📅"));
+
                     if (wonDaily.contains(event.getUser().getIdLong())) {
                         //noinspection DataFlowIssue
                         winChannel.sendMessage(name + " just finished the daily Wordle in **" + attempt.get(
-                            channel) + "** tries!\n" + attempts).complete();
+                                channel) + "** tries!\n" + attempts).addComponents(ActionRow.of(button))
+                            .complete();
                         wonDaily.remove(event.getUser().getIdLong());
 
                     } else //noinspection DataFlowIssue
-                        winChannel.sendMessage(name + " failed the daily Wordle!\n" + attempts).complete();
+                        winChannel.sendMessage(name + " failed the daily Wordle!\n" + attempts).addComponents(
+                            ActionRow.of(button)).complete();
                 }, "Share Wordle Score - " + new Utils().getFirstName(event.getMember())).start();
+
+            case "dailywordle" -> {
+                event.deferReply(true).queue();
+                event.getHook().editOriginal(startDailyWordle(event.getMember())).queue();
+            }
         }
 
         if (event.getComponentId().startsWith("playwordle:")) {

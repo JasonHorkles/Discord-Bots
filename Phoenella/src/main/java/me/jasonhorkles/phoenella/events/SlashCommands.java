@@ -15,7 +15,6 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 
 import java.awt.*;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -46,7 +45,7 @@ public class SlashCommands extends ListenerAdapter {
         }
     }
 
-    private static void wordleCommand(SlashCommandInteractionEvent event) {
+    private void wordleCommand(SlashCommandInteractionEvent event) {
         switch (event.getSubcommandName()) {
             case "create" -> {
                 TextInput word = TextInput.create("word", "Word", TextInputStyle.SHORT).setPlaceholder(
@@ -84,50 +83,8 @@ public class SlashCommands extends ListenerAdapter {
             }
 
             case "daily" -> {
-                File daily = new File("Phoenella/Wordle/played-daily.txt");
-                try {
-                    Scanner dailyPlays = new Scanner(daily, StandardCharsets.UTF_8);
-                    ArrayList<String> plays = new ArrayList<>();
-                    while (dailyPlays.hasNextLine()) plays.add(dailyPlays.nextLine());
-                    dailyPlays.close();
-
-                    if (plays.toString().contains(event.getMember().getId())) {
-                        event.reply("You've already played today's Wordle!").setEphemeral(true).queue();
-                        return;
-                    }
-                } catch (IOException e) {
-                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                    e.printStackTrace();
-                }
-
-                event.reply("Creating a game...").setEphemeral(true).queue();
-                try {
-                    File dailyWord = new File("Phoenella/Wordle/daily.txt");
-                    Scanner input = new Scanner(dailyWord, StandardCharsets.UTF_8);
-                    String word = input.next();
-                    input.close();
-
-                    FileWriter fw = new FileWriter(daily, StandardCharsets.UTF_8, true);
-                    fw.write(event.getMember().getId() + "\n");
-                    fw.close();
-
-                    TextChannel gameChannel = new Wordle().startGame(
-                        event.getMember(),
-                        word,
-                        false,
-                        true,
-                        null);
-                    if (gameChannel == null) event.getHook().editOriginal(
-                            "Either you already have an ongoing game with that word or you have too many games active at once!")
-                        .queue();
-                    else
-                        event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
-                } catch (IOException e) {
-                    event.getHook().editOriginal("Couldn't generate a random word! Please try again later.")
-                        .queue();
-                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                    e.printStackTrace();
-                }
+                event.deferReply(true).queue();
+                event.getHook().editOriginal(new Wordle().startDailyWordle(event.getMember())).queue();
             }
 
             case "leaderboard" -> {
