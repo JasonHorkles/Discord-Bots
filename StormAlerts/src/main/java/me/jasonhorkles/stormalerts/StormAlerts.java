@@ -26,7 +26,7 @@ import java.util.concurrent.*;
 @SuppressWarnings({"DataFlowIssue"})
 public class StormAlerts extends ListenerAdapter {
     public static final List<ScheduledFuture<?>> scheduledTimers = new ArrayList<>();
-    public static final boolean testing = false;
+    public static final boolean testing = true;
     public static JDA jda;
 
     private static AmbientWeatherSocket ambientWeatherSocket;
@@ -94,7 +94,7 @@ public class StormAlerts extends ListenerAdapter {
         ambientWeatherSocket = new AmbientWeatherSocket();
         ambientWeatherSocket.connect();
 
-        // 1.5 mins
+        // 1 min
         // Alert checks
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
             () -> {
@@ -113,7 +113,7 @@ public class StormAlerts extends ListenerAdapter {
                         utils.logError(e);
                     }
                 }
-            }, 1, 90, TimeUnit.SECONDS));
+            }, 1, 60, TimeUnit.SECONDS));
 
         // 6 mins
         // Visibility check
