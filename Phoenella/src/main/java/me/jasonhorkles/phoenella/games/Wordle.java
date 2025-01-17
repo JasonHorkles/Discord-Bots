@@ -502,7 +502,7 @@ public class Wordle extends ListenerAdapter {
                     String name = "**" + new Utils().getFullName(event.getMember()) + "**";
 
                     Button button = Button.secondary("dailywordle", "Play daily Wordle")
-                        .withEmoji(Emoji.fromUnicode("📅"));
+                        .withEmoji(Emoji.fromUnicode("🗓️"));
 
                     if (wonDaily.contains(event.getUser().getIdLong())) {
                         //noinspection DataFlowIssue
