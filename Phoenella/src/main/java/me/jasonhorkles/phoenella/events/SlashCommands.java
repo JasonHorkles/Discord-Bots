@@ -32,11 +32,15 @@ public class SlashCommands extends ListenerAdapter {
             case "rps" -> {
                 event.deferReply(true).queue();
 
-                ArrayList<Member> players = new ArrayList<>();
-                players.add(event.getMember());
-                players.add(event.getOption("player").getAsMember());
+                Member player2 = event.getOption("player").getAsMember();
+                if (player2 == event.getMember() || player2.getUser().isBot()) {
+                    event.getHook().editOriginal("Invalid opponent!").queue();
+                    return;
+                }
 
-                TextChannel gameChannel = new RPS().startGame(players);
+                TextChannel gameChannel = new RPS().startGame(new ArrayList<>(Arrays.asList(
+                    event.getMember(),
+                    player2)));
                 event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
             }
         }

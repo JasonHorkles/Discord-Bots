@@ -36,17 +36,17 @@ public class RPS extends ListenerAdapter {
         points.put(playerList.get(1), 0);
 
         channel.sendMessage(
-                "__**How to play:**__\nBeat your opponent, win 2/3 times\n\n*The game will start in 5 seconds...*")
+                "## How to play:\nBeat your opponent, win 2/3 times\n\n*The game will start in 5 seconds...*")
             .queue(del -> del.delete().queueAfter(5, TimeUnit.SECONDS));
 
         channel
-            .sendMessage("__**Round 0/3**__\n\n**" + new Utils().getFirstName(playerList.get(0)) + ":** 0\n**" + new Utils().getFirstName(
+            .sendMessage("## Round 0/3\n\n**" + new Utils().getFirstName(playerList.get(0)) + ":** 0\n**" + new Utils().getFirstName(
                 playerList.get(1)) + ":** 0").setActionRow(
                 Button.primary("rps:rock", Emoji.fromUnicode("\uD83E\uDEA8")),
                 Button.primary("rps:paper", Emoji.fromUnicode("\uD83D\uDCDD")),
                 Button.primary("rps:scissors", Emoji.fromUnicode("✂️"))).queueAfter(5, TimeUnit.SECONDS);
 
-        StringBuilder mentions = new StringBuilder(46);
+        StringBuilder mentions = new StringBuilder();
         for (Member player : playerList) mentions.append(player.getAsMention());
         channel.sendMessage(mentions).queue(del -> del.delete().queueAfter(
             100,
@@ -104,7 +104,7 @@ public class RPS extends ListenerAdapter {
                 player2Selection.remove(player2Local);
 
                 event.getMessage()
-                    .editMessage("__**Round " + round.get(channel) + "/3**__\n\n**" + new Utils().getFirstName(
+                    .editMessage("## Round " + round.get(channel) + "/3\n\n**" + new Utils().getFirstName(
                         player1Local) + ":** " + points.get(player1Local) + "\n**" + new Utils().getFirstName(
                         player2Local) + ":** " + points.get(player2Local)).queue();
 

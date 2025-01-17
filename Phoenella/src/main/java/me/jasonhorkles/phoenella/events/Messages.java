@@ -7,7 +7,6 @@ import me.jasonhorkles.phoenella.Nicknames;
 import me.jasonhorkles.phoenella.Phoenella;
 import me.jasonhorkles.phoenella.Secrets;
 import me.jasonhorkles.phoenella.Utils;
-import me.jasonhorkles.phoenella.games.RPS;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -19,15 +18,11 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
 import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.*;
@@ -168,27 +163,6 @@ public class Messages extends ListenerAdapter {
         boolean allCaps = message.getContentStripped().equals(message.getContentStripped().toUpperCase());
 
         String msg = "Well dadgum, something went wrong!";
-
-        if (text.contains("play rock paper scissors") || text.contains("play rps")) {
-            channel.sendTyping().complete();
-
-            if (message.getMentions().getMembers().isEmpty() || message.getMentions().getMembers()
-                .getFirst() == member || message.getMentions().getMembers().getFirst().getUser().isBot()) {
-                message.reply("You must ping an opponent in your message!").queue();
-                return;
-
-            } else {
-                ArrayList<Member> players = new ArrayList<>();
-                players.add(member);
-                players.add(message.getMentions().getMembers().getFirst());
-
-                TextChannel gameChannel = new RPS().startGame(players);
-                message.addReaction(Emoji.fromUnicode("👍")).queue();
-                message.reply("Game created in " + gameChannel.getAsMention()).queue(del -> del.delete()
-                    .queueAfter(15, TimeUnit.SECONDS));
-            }
-            return;
-        }
 
         if ((text.length() == 3 || text.length() == 4) && !text.equals("ily")) return;
 
@@ -355,39 +329,9 @@ public class Messages extends ListenerAdapter {
         }
 
         if (text.contains("game list")) {
-            msg = "Rock Paper Scissors (RPS)\nWordle";
+            msg = "1. Rock Paper Scissors (</rps:1328257507394584617>)\n2. Wordle (</wordle play:960007688580919306>)";
 
             channel.sendMessage(msg).queue();
-            return;
-        }
-
-        if (text.startsWith("search ")) {
-            String search = text.replaceFirst("search ", "");
-            String page = "https://www.google.com/search?q=" + URLEncoder.encode(
-                search,
-                StandardCharsets.UTF_8).strip();
-
-            try {
-                Connection conn = Jsoup.connect(page).timeout(15000);
-                Document doc = conn.get();
-                msg = doc.body().getElementsByClass("ILfuVd").getFirst().text();
-
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setTitle(search.toUpperCase(), page);
-                embed.setColor(new Color(15, 157, 88));
-                embed.setDescription(msg);
-
-                message.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
-
-            } catch (IOException e) {
-                message.reply(e.toString()).mentionRepliedUser(false).queue();
-                System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                e.printStackTrace();
-
-            } catch (IndexOutOfBoundsException ignored) {
-                message.reply("I couldn't find a result for that!\n<" + page + ">").mentionRepliedUser(false)
-                    .queue();
-            }
             return;
         }
 
