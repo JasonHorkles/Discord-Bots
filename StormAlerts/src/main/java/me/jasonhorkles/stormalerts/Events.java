@@ -2,7 +2,6 @@ package me.jasonhorkles.stormalerts;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -10,8 +9,9 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @SuppressWarnings("DataFlowIssue")
 public class Events extends ListenerAdapter {
@@ -38,23 +38,25 @@ public class Events extends ListenerAdapter {
                 event.deferReply(true).queue();
 
                 Message message = event.getMessage();
-                if (message.getEmbeds().isEmpty()) {
-                    event.getHook().editOriginal("There are no changes to view!").queue();
+                EmbedBuilder embed = new EmbedBuilder(message.getEmbeds().getFirst());
+
+                Path historyPath = Path.of(Alerts.historyDir + "/" + message.getId() + ".txt");
+                if (!Files.exists(historyPath)) {
+                    event.getHook().editOriginal("No description changes have been made to this alert.")
+                        .queue();
                     return;
                 }
 
-                MessageEmbed oldEmbed = message.getEmbeds().getFirst();
-                EmbedBuilder embed = new EmbedBuilder(message.getEmbeds().getFirst());
-                embed.setDescription(oldEmbed.getDescription().replace("||", "~~"));
-
-                List<MessageEmbed.Field> fields = new ArrayList<>(oldEmbed.getFields());
-                fields.set(0, new MessageEmbed.Field(
-                    oldEmbed.getFields().getFirst().getName(),
-                    oldEmbed.getFields().getFirst().getValue().replace("||", "~~"),
-                    false));
-
+                // Remove data that isn't compared
+                embed.setTitle(null);
                 embed.clearFields();
-                for (MessageEmbed.Field field : fields) embed.addField(field);
+
+                // Set the description based on its file
+                try {
+                    embed.setDescription(Files.readString(historyPath));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
 
                 event.getHook().editOriginalEmbeds(embed.build()).queue();
             }

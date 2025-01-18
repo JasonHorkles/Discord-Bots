@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -21,6 +22,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -30,6 +32,8 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("DataFlowIssue")
 public class Alerts {
+    public static final String historyDir = "StormAlerts/Alert History";
+
     private static final List<Long> dontDeleteMe = new ArrayList<>();
     private final String fa = Secrets.Area.FA.area();
     private final String ce = Secrets.Area.CE.area();
@@ -66,6 +70,11 @@ public class Alerts {
 
         if (alerts.isEmpty()) {
             alertsChannel.purgeMessages(alertsChannel.getIterableHistory().complete());
+
+            // Delete the alert file history
+            List<File> files = Arrays.stream(new File(historyDir).listFiles()).toList();
+            for (File file : files) //noinspection ResultOfMethodCallIgnored
+                file.delete();
             return;
         }
 
@@ -105,20 +114,23 @@ public class Alerts {
             Pattern pattern = Pattern.compile("(^|\\n)\\*? ?([A-Z ]+\\.\\.\\.)");
             Matcher matcher = pattern.matcher(description);
 
-            // Replace all occurrences using StringBuffer
+            // Replace all occurrences of the above pattern
             StringBuilder result = new StringBuilder();
             // Append the matched group with the new format, removing the '* ' if it exists
-            while (matcher.find()) matcher.appendReplacement(result,
+            while (matcher.find()) matcher.appendReplacement(
+                result,
                 matcher.group(1) + "## " + matcher.group(2));
             matcher.appendTail(result);
             description = result.toString();
 
             // Format "* Locations impacted include"
-            description = description.replaceAll("(\\* )?Locations impacted include",
+            description = description.replaceAll(
+                "(\\* )?Locations impacted include",
                 "### Locations impacted include");
 
             // Format "This includes the following highways"
-            description = description.replace("This includes the following highways",
+            description = description.replace(
+                "This includes the following highways",
                 "### This includes the following highways");
 
             // Replace ... with a newline
@@ -205,7 +217,8 @@ public class Alerts {
                 System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Got an update for the \"" + event + "\" alert!");
 
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setAuthor(sender,
+            embed.setAuthor(
+                sender,
                 null,
                 "https://pbs.twimg.com/profile_images/1076936762377814016/AOf7ktiH.jpg");
             embed.setTitle("Issued <t:" + sent + ":F>\nEnds <t:" + ends + ":F>");
@@ -225,6 +238,9 @@ public class Alerts {
                 default -> embed.setColor(new Color(50, 55, 61));
             }
 
+            embed.setDescription(description);
+            for (MessageEmbed.Field field : fields) embed.addField(field);
+
             switch (alertType) {
                 case "Alert" -> {
                     String message = "<@&850471646191812700>\n**[" + severity.toUpperCase() + "] " + event + "** for " + boldArea;
@@ -232,35 +248,39 @@ public class Alerts {
                         "<@&850471646191812700>\n",
                         "<@&850471646191812700>\n<a:weewoo:1083615022455992382> ");
 
-                    embed.setDescription(description);
-                    for (MessageEmbed.Field field : fields) embed.addField(field);
-
                     dontDeleteMe.add(alertsChannel.sendMessage(message).setEmbeds(embed.build()).complete()
                         .getIdLong());
                 }
 
                 case "Update" -> {
-                    // Create a diff checker
-                    DiffRowGenerator generator = DiffRowGenerator.create().showInlineDiffs(true)
-                        .mergeOriginalRevised(true).inlineDiffByWord(true)
-                        .replaceOriginalLinefeedInChangesWithSpaces(true).oldTag(f -> "||").newTag(f -> "__")
-                        .build();
-
-                    String oldDescription = alertMessage.getEmbeds().getFirst().getDescription();
-
                     // Check if the description has actually changed
-                    if (!oldDescription.equals(description)) isDifferentDesc = true;
+                    String oldDescription = alertMessage.getEmbeds().getFirst().getDescription();
+                    if (!oldDescription.equalsIgnoreCase(description)) isDifferentDesc = true;
 
-                    // Calculate diffs for description
-                    String newDescription = applyDiffs(generator, oldDescription, description);
-                    embed.setDescription(newDescription);
+                    if (isDifferentDesc) {
+                        // Create a diff checker
+                        DiffRowGenerator generator = DiffRowGenerator.create().showInlineDiffs(true)
+                            .mergeOriginalRevised(true).inlineDiffByWord(true)
+                            .replaceOriginalLinefeedInChangesWithSpaces(false).oldTag(f -> "~~")
+                            .newTag(f -> "__").build();
 
-                    // Calculate diffs for instruction field
-                    String newInstruction = applyDiffs(generator,
-                        alertMessage.getEmbeds().getFirst().getFields().getFirst().getValue(),
-                        instruction);
-                    fields.set(0, new MessageEmbed.Field("Instruction", newInstruction, false));
-                    for (MessageEmbed.Field field : fields) embed.addField(field);
+                        // Generate diffs
+                        List<DiffRow> diff = generator.generateDiffRows(
+                            List.of(oldDescription),
+                            List.of(description));
+
+                        // Get the updated text with the diff formatting applied
+                        Stream<DiffRow> diffStream = diff.stream();
+                        // Add a space after strikethrough for better readability
+                        String diffText = diffStream.map(DiffRow::getOldLine)
+                            .collect(Collectors.joining("\n")).replace("~~__", "~~ __");
+                        diffStream.close();
+
+                        // Save diffs in a file
+                        String fileName = alertMessage.getId() + ".txt";
+                        Path path = Path.of(historyDir, fileName);
+                        Files.writeString(path, diffText, StandardCharsets.UTF_8);
+                    }
 
                     String message = "<@&850471690093854810>\n**[" + severity.toUpperCase() + "] " + event + "** for " + boldArea;
                     if (severity.equalsIgnoreCase("Extreme")) message = message.replaceFirst(
@@ -270,7 +290,7 @@ public class Alerts {
                     embed.setTimestamp(Instant.now());
 
                     dontDeleteMe.add(alertMessage.editMessage(message).setEmbeds(embed.build()).setActionRow(
-                        Button.secondary("viewchanges", "View all changes")).complete().getIdLong());
+                        Button.secondary("viewchanges", "View changes")).complete().getIdLong());
                     hasUpdated = true;
                 }
             }
@@ -290,6 +310,11 @@ public class Alerts {
                 System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Deleted \"" + msg
                     .getContentStripped().replaceFirst(".*\n.*] ", "") + "\" alert as it no longer exists.");
                 msg.delete().queue();
+
+                // Delete the alert file
+                File file = new File(historyDir + "/" + id + ".txt");
+                if (file.exists()) //noinspection ResultOfMethodCallIgnored
+                    file.delete();
             });
 
         // Alert if any alert has been updated and the description actually changed
@@ -301,22 +326,9 @@ public class Alerts {
     private String boldAreas(String input) {
         List<String> areas = List.of(fa, ce, ka, nwf, da);
         // Replace all areas with bolded areas, including the uppercase version
-        return areas.stream().flatMap(area -> Stream.of(area, area.toUpperCase())).reduce(input,
+        return areas.stream().flatMap(area -> Stream.of(area, area.toUpperCase())).reduce(
+            input,
             (result, area) -> result.replace(area, "**" + area + "**"));
-    }
-
-    private String applyDiffs(DiffRowGenerator generator, String originalText, String newText) {
-        // Remove previous text and strip updated text formatting, then generate diffs
-        List<DiffRow> diff = generator.generateDiffRows(List.of(originalText
-                .replaceAll("\\|\\|\\s*(.*?)\\s*\\|\\| ?", "").replace("__", "")),
-            List.of(newText));
-
-        // Return the updated text with the diff formatting applied
-        Stream<DiffRow> diffStream = diff.stream();
-        String diffText = diffStream.map(DiffRow::getOldLine).collect(Collectors.joining("\n")).replaceAll("\\|\\|_",
-            "|| _");
-        diffStream.close();
-        return diffText;
     }
 
     private String getThumbnailImage(String event) {
