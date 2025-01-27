@@ -45,8 +45,7 @@ public class FancyFriend {
         jda.getGuildById(GUILD_ID).loadMembers().get();
 
         OptionData pingOptions = new OptionData(
-            OptionType.STRING,
-            "option", "The ping protection method to use", true).addChoices(
+            OptionType.STRING, "option", "The ping protection method to use", true).addChoices(
             new Command.Choice("All Pings", "all"),
             new Command.Choice("Explicit Only (Ignore Replies)", "explicit"),
             new Command.Choice("Off", "off"));
