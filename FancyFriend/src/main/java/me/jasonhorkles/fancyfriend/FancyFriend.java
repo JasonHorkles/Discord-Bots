@@ -55,7 +55,7 @@ public class FancyFriend {
         jda.getGuildById(GUILD_ID).updateCommands().addCommands(
             Commands.slash("blankline", "How to add a blank line in a hologram"),
             Commands.slash("clickable", "Clickable FancyHolograms tutorial"),
-            Commands.slash("converters", "Converters not available message"),
+            Commands.slash("converters", "FH & FN converter messages"),
             Commands.slash("docs", "Get the FancyPlugins documentation"),
             Commands.slash("fixed", "Show how to set a hologram to fixed"),
             Commands.slash("geyser", "Geyser not supported message"),
