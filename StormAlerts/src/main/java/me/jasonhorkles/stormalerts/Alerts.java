@@ -2,10 +2,10 @@ package me.jasonhorkles.stormalerts;
 
 import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
+import me.jasonhorkles.stormalerts.Utils.LogUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -30,7 +30,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@SuppressWarnings("DataFlowIssue")
+import static me.jasonhorkles.stormalerts.Utils.ChannelUtils.alertChannel;
+
 public class Alerts {
     public static final String historyDir = "StormAlerts/Alert History";
 
@@ -42,8 +43,8 @@ public class Alerts {
     private final String da = Secrets.Area.DA.area();
 
     public void checkAlerts() throws IOException, URISyntaxException {
-        Utils utils = new Utils();
-        System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Checking alerts...");
+        LogUtils logUtils = new LogUtils();
+        System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Checking alerts...");
 
         dontDeleteMe.clear();
 
@@ -66,12 +67,11 @@ public class Alerts {
         else for (Object feature : input.getJSONArray("features"))
             alerts.put(new JSONObject(feature.toString()).getJSONObject("properties"));
 
-        TextChannel alertsChannel = StormAlerts.jda.getTextChannelById(850442466775662613L);
-
         if (alerts.isEmpty()) {
-            alertsChannel.purgeMessages(alertsChannel.getIterableHistory().complete());
+            alertChannel.purgeMessages(alertChannel.getIterableHistory().complete());
 
             // Delete the alert file history
+            //noinspection DataFlowIssue - It should exist
             List<File> files = Arrays.stream(new File(historyDir).listFiles()).toList();
             for (File file : files) //noinspection ResultOfMethodCallIgnored
                 file.delete();
@@ -151,7 +151,7 @@ public class Alerts {
 
             String id = alert.getString("id").replaceFirst("urn:oid:", "");
             // For each message in the channel
-            List<Message> messages = alertsChannel.getIterableHistory().complete();
+            List<Message> messages = alertChannel.getIterableHistory().complete();
             boolean sameAlert = false;
             for (Message message : messages) {
                 // If the message has no embeds, delete it and continue
@@ -161,6 +161,7 @@ public class Alerts {
                 }
 
                 // If the ID is the same, don't send an update
+                //noinspection DataFlowIssue - Every embed will have fields
                 if (message.getEmbeds().getFirst().getFields().get(3).getValue().equals(id)) {
                     sameAlert = true;
                     dontDeleteMe.add(message.getIdLong());
@@ -182,6 +183,7 @@ public class Alerts {
                             .replaceFirst("urn:oid:", "");
 
                         // Compare if the footer has that ID
+                        //noinspection DataFlowIssue - Every embed will have fields
                         if (message.getEmbeds().getFirst().getFields().get(3).getValue().equals(identifier)) {
                             alertMessage = message;
                             idFound = true;
@@ -212,9 +214,9 @@ public class Alerts {
             String urgency = alert.getString("urgency");
 
             if (alertMessage == null)
-                System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Got an alert! " + event);
+                System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Got an alert! " + event);
             else
-                System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Got an update for the \"" + event + "\" alert!");
+                System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Got an update for the \"" + event + "\" alert!");
 
             EmbedBuilder embed = new EmbedBuilder();
             embed.setAuthor(
@@ -248,13 +250,14 @@ public class Alerts {
                         "<@&850471646191812700>\n",
                         "<@&850471646191812700>\n<a:weewoo:1083615022455992382> ");
 
-                    dontDeleteMe.add(alertsChannel.sendMessage(message).setEmbeds(embed.build()).complete()
+                    dontDeleteMe.add(alertChannel.sendMessage(message).setEmbeds(embed.build()).complete()
                         .getIdLong());
                 }
 
                 case "Update" -> {
                     // Check if the description has actually changed
                     String oldDescription = alertMessage.getEmbeds().getFirst().getDescription();
+                    //noinspection DataFlowIssue - Every embed will have a description
                     if (!oldDescription.equalsIgnoreCase(description)) isDifferentDesc = true;
 
                     if (isDifferentDesc) {
@@ -279,7 +282,7 @@ public class Alerts {
                         // Save diffs in a file
                         String fileName = alertMessage.getId() + ".txt";
                         Path path = Path.of(historyDir, fileName);
-                        Files.writeString(path, diffText, StandardCharsets.UTF_8);
+                        Files.writeString(path, diffText);
                     }
 
                     String message = "<@&850471690093854810>\n**[" + severity.toUpperCase() + "] " + event + "** for " + boldArea;
@@ -297,7 +300,7 @@ public class Alerts {
         }
 
         // Delete inactive alerts
-        Stream<Message> history = alertsChannel.getIterableHistory().complete().stream();
+        Stream<Message> history = alertChannel.getIterableHistory().complete().stream();
         List<Long> deleteTheseMessages = history.map(Message::getIdLong).collect(Collectors.toCollection(
             ArrayList::new));
         history.close();
@@ -306,8 +309,8 @@ public class Alerts {
 
         // Delete the remaining to-delete messages
         for (Long id : deleteTheseMessages)
-            alertsChannel.retrieveMessageById(id).queue(msg -> {
-                System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Deleted \"" + msg
+            alertChannel.retrieveMessageById(id).queue(msg -> {
+                System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Deleted \"" + msg
                     .getContentStripped().replaceFirst(".*\n.*] ", "") + "\" alert as it no longer exists.");
                 msg.delete().queue();
 
@@ -318,9 +321,8 @@ public class Alerts {
             });
 
         // Alert if any alert has been updated and the description actually changed
-        if (hasUpdated && isDifferentDesc)
-            alertsChannel.sendMessage("<@&850471690093854810>").queue(del -> del.delete()
-                .queueAfter(250, TimeUnit.MILLISECONDS));
+        if (hasUpdated && isDifferentDesc) alertChannel.sendMessage("<@&850471690093854810>").queue(del -> del
+            .delete().queueAfter(250, TimeUnit.MILLISECONDS));
     }
 
     private String boldAreas(String input) {

@@ -1,5 +1,7 @@
 package me.jasonhorkles.stormalerts;
 
+import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
+import me.jasonhorkles.stormalerts.Utils.LogUtils;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -12,8 +14,7 @@ import java.nio.file.Path;
 
 public class Visibility {
     public void checkConditions() throws IOException, URISyntaxException {
-        Utils utils = new Utils();
-        System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Checking visibility...");
+        System.out.println(new LogUtils().getTime(LogUtils.LogColor.YELLOW) + "Checking visibility...");
 
         JSONObject input;
         if (StormAlerts.testing) input = new JSONObject(Files.readString(Path.of(
@@ -27,6 +28,6 @@ public class Visibility {
 
         String visibility = String.valueOf((int) Math.round(input.getJSONObject("properties")
             .getJSONObject("visibility").getInt("value") / 1609.0d));
-        utils.updateVoiceChannel(899872710233051178L, "Visibility | " + visibility + " mi");
+        new ChannelUtils().updateVoiceChannel(899872710233051178L, "Visibility | " + visibility + " mi");
     }
 }

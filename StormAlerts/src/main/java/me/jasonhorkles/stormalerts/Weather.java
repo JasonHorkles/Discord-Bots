@@ -1,13 +1,14 @@
 package me.jasonhorkles.stormalerts;
 
+import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
+import me.jasonhorkles.stormalerts.Utils.LogUtils;
+import me.jasonhorkles.stormalerts.Utils.MessageUtils;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import org.jsoup.Connection;
@@ -17,329 +18,366 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-import static me.jasonhorkles.stormalerts.AmbientWeatherProcessor.currentRainRate;
+import static me.jasonhorkles.stormalerts.Utils.ChannelUtils.*;
 
-@SuppressWarnings("DataFlowIssue")
-public class Weather extends ListenerAdapter {
-    public static TextChannel previousTypeChannel;
+public class Weather {
+    public static boolean rainDenied;
+    public static WeatherType previousWeatherType;
 
-    private static boolean acceptRainForDay;
-    private static boolean rainDenied;
-    private static ScheduledFuture<?> scheduledSnowMessage;
-    private static String previousWeatherName;
-    private static String weatherName;
+    private static RainLevel previousRainLevel;
+    private static Long allowedSnowTime;
 
-    public void checkConditions() throws IOException, ExecutionException, InterruptedException, TimeoutException {
-        Utils utils = new Utils();
-        System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Checking weather...");
+    public void checkConditions(double currentRainRate, double temperature) throws IOException, ExecutionException, InterruptedException, TimeoutException {
+        LogUtils logUtils = new LogUtils();
+        System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Checking weather...");
 
-        String weather;
-        if (StormAlerts.testing) weather = Files.readString(Path.of("StormAlerts/Tests/weather.txt"));
+        String rawWeatherType;
+        if (StormAlerts.testing) rawWeatherType = Files.readString(Path.of("StormAlerts/Tests/weather.txt"));
         else {
             Connection conn = Jsoup
                 .connect("https://weather.com/weather/today/l/" + new Secrets().weatherCode()).timeout(30000);
             Document doc = conn.get();
-            weather = doc.select("[class*=\"CurrentConditions--phraseValue--\"]").first().text();
+            //noinspection DataFlowIssue
+            rawWeatherType = doc.select("[class*=\"CurrentConditions--phraseValue--\"]").first().text();
         }
 
-        if (weather.isBlank()) throw new IOException("Weather type is blank");
+        if (rawWeatherType.isBlank()) throw new IOException("Weather type is blank");
 
-        weatherName = null;
-        if (weather.toLowerCase().contains("hail") || weather.toLowerCase().contains("sleet"))
-            weatherName = "hailing 🧊";
-        else if (weather.toLowerCase().contains("snow")) weatherName = "snowing 🌨️";
+        // Won't be null here or later if the weather is something we care about
+        WeatherType weatherType = null;
+        if (rawWeatherType.toLowerCase().contains("hail") || rawWeatherType.toLowerCase().contains("sleet"))
+            weatherType = WeatherType.HAIL;
+        else if (rawWeatherType.toLowerCase().contains("snow")) weatherType = WeatherType.SNOW;
 
-        String intensity = null;
-        Integer rainIntensity = null;
-        if (weatherName == null) if (currentRainRate > 0) {
-            weather = "RAIN";
+        // Check if the weather has changed since last time (excluding rain levels)
+        // Previous type will be null if not exciting and will be set at the end of everything
+        boolean weatherIsDifferent = previousWeatherType != weatherType;
 
-            if (currentRainRate < 0.2) {
-                weatherName = "raining ☂️";
-                rainIntensity = 1;
-                // 🟩▫️▫️▫️
-                intensity = "\uD83D\uDFE9▫️▫️▫️";
+        MessageUtils messageUtils = new MessageUtils();
 
-            } else if (currentRainRate < 0.3) {
-                weatherName = "moderately raining ☔";
-                rainIntensity = 2;
-                // 🟩🟨▫️▫️
-                intensity = "\uD83D\uDFE9\uD83D\uDFE8▫️▫️";
+        // If snow is queued but not yet sent, don't cancel the snow message later on
+        //noinspection BooleanVariableAlwaysNegated
+        boolean snowQueued = false;
 
-            } else if (currentRainRate < 0.4) {
-                weatherName = "heavily raining 🌦️";
-                rainIntensity = 3;
-                // 🟩🟨🟧▫️
-                intensity = "\uD83D\uDFE9\uD83D\uDFE8\uD83D\uDFE7▫️";
+        // If the weather is still exciting, we'll want to update at least the bot status
+        // If the weather has also changed since then, we'll want to send a message too
+        if (weatherType != null) switch (weatherType) {
+            case HAIL -> {
+                StormAlerts.jda.getPresence().setPresence(
+                    OnlineStatus.ONLINE,
+                    Activity.customStatus("It's " + getWeatherText(
+                        WeatherType.HAIL,
+                        true) + " (" + rawWeatherType + ")"));
 
-            } else {
-                weatherName = "pouring 🌧️";
-                rainIntensity = 4;
-                // 🟩🟨🟧🟥
-                intensity = "\uD83D\uDFE9\uD83D\uDFE8\uD83D\uDFE7\uD83D\uDFE5";
-            }
-        }
+                if (!weatherIsDifferent) break;
 
-        String trimmedWeatherName = null;
-        boolean sendAlerts = true;
-        if (weatherName != null) {
-            trimmedWeatherName = trimmedWeatherName();
+                String ping = messageUtils.shouldIPing(hailChannel) ? "<@&845055784156397608>\n" : "";
 
-            if (weatherName.equals(previousWeatherName)) {
-                System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "The weather hasn't changed!");
-                sendAlerts = false;
-            }
-        }
-
-        TextChannel heavyRainChannel = StormAlerts.jda.getTextChannelById(843955756596461578L);
-        TextChannel rainChannel = StormAlerts.jda.getTextChannelById(900248256515285002L);
-        TextChannel snowChannel = StormAlerts.jda.getTextChannelById(845010495865618503L);
-        TextChannel hailChannel = StormAlerts.jda.getTextChannelById(845010798367473736L);
-
-        boolean idle = false;
-
-        // If the weather is something we care about, it won't be null
-        if (weatherName != null && sendAlerts) {
-            // If not snowing, cancel any pending snow messages
-            if (!weatherName.startsWith("snowing")) if (scheduledSnowMessage != null) {
-                scheduledSnowMessage.cancel(true);
-                scheduledSnowMessage = null;
-            }
-
-            if (weatherName.startsWith("hailing")) {
-                String ping = "";
-                if (utils.shouldIPing(hailChannel)) ping = "<@&845055784156397608>\n";
                 // 🧊
-                hailChannel
-                    .sendMessage(ping + "\uD83E\uDDCA It's " + trimmedWeatherName + "! (" + weather + ")")
-                    .setSuppressedNotifications(utils.shouldIBeSilent(hailChannel)).queue();
-                previousTypeChannel = hailChannel;
+                hailChannel.sendMessage(ping + "\uD83E\uDDCA It's " + getWeatherText(
+                        WeatherType.HAIL,
+                        false) + "! (" + rawWeatherType + ")")
+                    .setSuppressedNotifications(messageUtils.shouldIBeSilent(hailChannel)).queue();
+            }
 
-            } else if (weatherName.startsWith("snowing")) {
-                boolean scheduleMessage = true;
+            case SNOW -> {
+                System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Snow detected.");
+
+                Message message = messageUtils.getMessages(snowChannel, 1).get(30, TimeUnit.SECONDS)
+                    .getFirst();
 
                 // If the bot had just restarted, send snow message instantly and silently
-                try {
-                    Message message = utils.getMessages(snowChannel, 1).get(30, TimeUnit.SECONDS).getFirst();
+                // If the message was edited within the last 3 minutes and it contains the restart message
+                boolean canScheduleMessage = true;
+                if (message.isEdited()) //noinspection DataFlowIssue - We assume there are already messages in the channel
+                    if (message.getTimeEdited().isAfter(OffsetDateTime.now().minusMinutes(3)) && message
+                        .getContentRaw().contains("(Bot restarted at")) {
+                        // Set the allowed time to now to prevent it from scheduling on the next check
+                        allowedSnowTime = System.currentTimeMillis();
 
-                    // If the message was edited within the last 3 minutes and it contains the restart message
-                    if (message.isEdited()) if (message.getTimeEdited().isAfter(OffsetDateTime.now()
-                        .minusMinutes(3)) && message.getContentRaw().contains("(Bot restarted at")) {
-                        scheduleMessage = false;
-                        sendSnowMessage(snowChannel, weather);
+                        canScheduleMessage = false;
+                        sendSnowMessage(snowChannel, rawWeatherType, weatherIsDifferent, messageUtils);
                     }
 
-                } catch (Exception e) {
-                    System.out.print(utils.getTime(Utils.LogColor.RED));
-                    e.printStackTrace();
-                    utils.logError(e);
-                }
+                // We'll want to send the snow message after 30 minutes IF it's still snowing by then
+                // First check if we can even schedule the message
+                if (canScheduleMessage)
+                    // If the allowed snow time is null, set it to 30 minutes in advance
+                    if (allowedSnowTime == null) { //noinspection NonThreadSafeLazyInitialization - There shouldn't be any case where the thread runs more than once per minute or so
+                        allowedSnowTime = System.currentTimeMillis() + 1800000;
+                        System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Allowing snow messages in 30 minutes.");
 
-                // Send the snow message after 30 minutes IF it's still snowing by then
-                if (scheduleMessage) {
-                    String finalWeather = weather;
-                    try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                        scheduledSnowMessage = executor.schedule(
-                            () -> sendSnowMessage(
-                                snowChannel,
-                                finalWeather), 30, TimeUnit.MINUTES);
-                    }
-                }
-
-            } else if (weather.equals("RAIN") && AmbientWeatherProcessor.temperature >= 30) {
-                String ping = "";
-                if (utils.shouldIPing(rainChannel)) ping = "<@&843956362059841596>\n";
-
-                // If it has NOT snowed in the last 3 days
-                boolean notSnowMelt = utils.getMessages(snowChannel, 1).get(30, TimeUnit.SECONDS).getFirst()
-                    .getTimeCreated().isBefore(OffsetDateTime.now().minusDays(5));
-
-                String message = null;
-                switch (rainIntensity) {
-                    case 4 -> {
-                        String heavyPing = "";
-                        if (utils.shouldIPing(heavyRainChannel)) heavyPing = "<@&843956325690900503>\n";
-                        // 🌧️
-                        heavyRainChannel
-                            .sendMessage(heavyPing + "\uD83C\uDF27️ It's " + trimmedWeatherName + "! (" + currentRainRate + " in/hr)")
-                            .queue();
-
-                        message = ping + "\uD83C\uDF27️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + currentRainRate + " in/hr) <a:weewoo:1083615022455992382>";
+                        snowQueued = true;
+                        weatherType = null;
+                        weatherIsDifferent = previousWeatherType != null;
                     }
 
-                    case 3 -> // 🌦️
-                        message = ping + "\uD83C\uDF26️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + currentRainRate + " in/hr)";
+                    // Otherwise, if it has already passed, send the snow message
+                    else if (System.currentTimeMillis() >= allowedSnowTime) sendSnowMessage(
+                        snowChannel,
+                        rawWeatherType,
+                        weatherIsDifferent,
+                        messageUtils);
 
-                    case 2 ->
-                        message = ping + "☔ It's " + trimmedWeatherName + "!\n" + intensity + " (" + currentRainRate + " in/hr)";
-
-                    case 1 ->
-                        message = ping + "☂️ It's " + trimmedWeatherName + "!\n" + intensity + " (" + currentRainRate + " in/hr)";
-
-                    default ->
-                        System.out.println(utils.getTime(Utils.LogColor.RED) + "[ERROR] It's raining, but there's no valid intensity! (" + rainIntensity + ")");
-                }
-
-                if (acceptRainForDay || notSnowMelt)
-                    rainChannel.sendMessage(message).setSuppressedNotifications(utils.shouldIBeSilent(
-                        rainChannel)).queue();
-                else {
-                    sendConfirmationMessage("[CONFIRMATION NEEDED] " + message);
-                    idle = true;
-                }
-
-                previousTypeChannel = rainChannel;
+                    else { // Finally, if the snow is still waiting, set the weatherType to null
+                        System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "We're still waiting, though.");
+                        snowQueued = true;
+                        weatherType = null;
+                        weatherIsDifferent = previousWeatherType != null;
+                    }
             }
         }
 
-        // Weather is no longer exciting, so cancel any existing scheduled snow
-        if (weatherName == null) {
-            if (scheduledSnowMessage != null) {
-                scheduledSnowMessage.cancel(true);
-                scheduledSnowMessage = null;
+        // If it's currently snowing or hailing, don't start to check the rain
+        if (weatherType == null) {
+            RainLevel rainLevel = null;
+            boolean isRaining = false;
+
+            // If we know it's raining and it's not blocked
+            // We need to get a level for the enum
+            if (currentRainRate > 0 && !rainDenied && temperature >= 30) {
+                weatherType = WeatherType.RAIN;
+                rainLevel = getRainLevel(currentRainRate);
+                isRaining = true;
             }
-            idle = true;
+
+            if (isRaining) {
+                // Set weatherIsDifferent again now that we know it's raining
+                weatherIsDifferent = previousWeatherType != weatherType;
+                rawWeatherType = "RAIN";
+
+                // Send the rain message if further checks have passed and the rain level has changed
+                processRain(rainLevel, previousRainLevel != rainLevel, currentRainRate, messageUtils);
+                previousRainLevel = rainLevel;
+            }
         }
 
-        if (!idle) StormAlerts.jda.getPresence().setStatus(OnlineStatus.ONLINE);
+        // Determine if the weather has changed since our last alert
+        if (!weatherIsDifferent)
+            System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "The weather hasn't changed!");
 
-        if (idle) {
-            StormAlerts.jda.getPresence().setActivity(Activity.watching("for gnarly weather"));
-            StormAlerts.jda.getPresence().setStatus(OnlineStatus.IDLE);
+        // If not snowing, reset the allowed snow time
+        if (weatherType != WeatherType.SNOW && !snowQueued) if (allowedSnowTime != null) {
+            allowedSnowTime = null;
+            System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Snow stopped - resetting allowed time");
+        }
 
-            if (previousTypeChannel != null) {
-                Message message = utils.getMessages(previousTypeChannel, 1).get(30, TimeUnit.SECONDS)
-                    .getFirst();
-                if (!message.getContentRaw().contains("Ended") && !message.getContentRaw().contains(
-                    "restarted")) message.editMessage(message.getContentRaw()
+        // If not raining, reset the last rain level
+        if (weatherType != WeatherType.RAIN) if (previousRainLevel != null) previousRainLevel = null;
+
+        // If the previous weather was something we cared about and it's not the same as the current type
+        if (previousWeatherType != null && weatherIsDifferent) {
+            // Update the previous weather's message
+            Message message = messageUtils.getMessages(
+                new ChannelUtils().getWeatherChannel(
+                    previousWeatherType), 1).get(30, TimeUnit.SECONDS).getFirst();
+
+            // Only if the message hasn't already been updated
+            if (!message.getContentRaw().contains("Ended") && !message.getContentRaw().contains("restarted"))
+                message.editMessage(message.getContentRaw()
                     .replace("!", "! (Ended at <t:" + System.currentTimeMillis() / 1000 + ":t>)")).queue();
-                previousTypeChannel = null;
-            }
+        }
 
-        } else if (weather.equals("RAIN")) {
-            StormAlerts.jda.getPresence()
-                .setActivity(Activity.watching("the rain @ " + currentRainRate + " in/hr"));
-            System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Raining @ " + currentRainRate + " in/hr");
+        if (weatherType == null) StormAlerts.jda.getPresence().setPresence(
+            OnlineStatus.IDLE,
+            Activity.watching("for gnarly weather"));
 
-        } else StormAlerts.jda.getPresence()
-            .setActivity(Activity.customStatus("It's " + weatherName + " (" + weather + ")"));
+        previousWeatherType = weatherType;
 
-        previousWeatherName = weatherName;
-
-        System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Weather: " + weather);
+        System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Raw weather: " + rawWeatherType);
     }
 
-    // Rain confirmation stuff
-    @Override
-    public void onButtonInteraction(ButtonInteractionEvent event) {
-        switch (event.getComponentId()) {
-            case "acceptrain" -> {
-                acceptRainForDay = true;
+    private void sendSnowMessage(TextChannel snowChannel, String rawWeatherType, boolean weatherIsDifferent, MessageUtils messageUtils) {
+        StormAlerts.jda.getPresence().setPresence(
+            OnlineStatus.ONLINE,
+            Activity.customStatus("It's " + getWeatherText(
+                WeatherType.SNOW,
+                true) + " (" + rawWeatherType + ")"));
 
-                TextChannel rainChannel = StormAlerts.jda.getTextChannelById(900248256515285002L);
-                rainChannel.sendMessage(event.getMessage().getContentRaw()
-                    .replaceFirst("\\[CONFIRMATION NEEDED] ", "")).queue();
-                event.deferEdit().queue(na -> event.getMessage().delete().queue());
+        if (!weatherIsDifferent) return;
 
-                StormAlerts.jda.getPresence().setStatus(OnlineStatus.ONLINE);
-                StormAlerts.jda.getPresence()
-                    .setActivity(Activity.watching("the rain @ " + currentRainRate + " in/hr"));
-                previousWeatherName = weatherName;
-                previousTypeChannel = rainChannel;
+        String ping = messageUtils.shouldIPing(snowChannel) ? "<@&845055624165064734>\n" : "";
 
-                // Schedule a task to reset the acceptRainForDay variable at midnight
-                ZonedDateTime now = ZonedDateTime.now();
-                ZonedDateTime nextRun = now.withHour(0).withMinute(0).withSecond(0);
-                if (now.compareTo(nextRun) > 0) nextRun = nextRun.plusDays(1);
+        // 🌨️
+        snowChannel.sendMessage(ping + "\uD83C\uDF28️ It's " + getWeatherText(
+            WeatherType.SNOW,
+            false) + "! (" + rawWeatherType + ")").setSuppressedNotifications(messageUtils.shouldIBeSilent(
+            snowChannel)).queue();
+    }
 
-                Duration duration = Duration.between(now, nextRun);
-                long initalDelay = duration.getSeconds();
+    // This will never be called if the rainDenied boolean is true
+    private void processRain(RainLevel rainLevel, boolean levelChanged, double currentRainRate, MessageUtils messageUtils) throws IOException, ExecutionException, InterruptedException, TimeoutException {
+        // If it has NOT snowed in the last 5 days
+        boolean hasNotSnowed = messageUtils.getMessages(snowChannel, 1).get(30, TimeUnit.SECONDS).getFirst()
+            .getTimeCreated().isBefore(OffsetDateTime.now().minusDays(5));
 
-                new Thread(
-                    () -> {
-                        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                            executor.schedule(() -> acceptRainForDay = false, initalDelay, TimeUnit.SECONDS);
-                        }
-                    }, "Accept Rain New Day").start();
+        // If the rain has been accepted since the last snow or it hasn't snowed in the last 5 days
+        if (rainAcceptedSinceSnow(snowChannel) || hasNotSnowed) {
+            // Update the presence
+            StormAlerts.jda.getPresence().setPresence(
+                OnlineStatus.ONLINE,
+                Activity.watching("the rain @ " + currentRainRate + " in/hr"));
+
+            System.out.println(new LogUtils().getTime(LogUtils.LogColor.GREEN) + "Raining @ " + currentRainRate + " in/hr");
+
+            // If the level hasn't actually changed then that's all we needed to do
+            if (!levelChanged) return;
+
+            String ping = messageUtils.shouldIPing(rainChannel) ? "<@&843956362059841596>\n" : "";
+
+            // Calculate what the rain message should be
+            String message = "";
+            switch (rainLevel) {
+                case L1 -> // 🟩▫️▫️▫️
+                    message = ping + "☂️ It's " + getWeatherText(
+                        RainLevel.L1,
+                        false) + "!\n\uD83D\uDFE9▫️▫️▫️ (" + currentRainRate + " in/hr)";
+
+                case L2 -> // 🟩🟨▫️▫️
+                    message = ping + "☔ It's " + getWeatherText(
+                        RainLevel.L2,
+                        false) + "!\n\uD83D\uDFE9\uD83D\uDFE8▫️▫️ (" + currentRainRate + " in/hr)";
+
+                case L3 -> // 🟩🟨🟧▫️
+                    // 🌦️
+                    message = ping + "\uD83C\uDF26️ It's " + getWeatherText(
+                        RainLevel.L3,
+                        false) + "!\n\uD83D\uDFE9\uD83D\uDFE8\uD83D\uDFE7▫️ (" + currentRainRate + " in/hr)";
+
+                case L4 -> // 🟩🟨🟧🟥
+                    // 🌧️
+                    message = ping + "\uD83C\uDF27️ It's " + getWeatherText(
+                        RainLevel.L4,
+                        false) + "!\n\uD83D\uDFE9\uD83D\uDFE8\uD83D\uDFE7\uD83D\uDFE5 (" + currentRainRate + " in/hr) <a:weewoo:1083615022455992382>";
             }
 
-            case "unsurerain" -> {
-                TextChannel rainChannel = StormAlerts.jda.getTextChannelById(900248256515285002L);
-                rainChannel.sendMessage(event.getMessage().getContentRaw().replaceFirst(
-                        "\\[CONFIRMATION NEEDED] ",
-                        "").replaceFirst("<@&843956362059841596>\n", "")
-                    .replace("!", "! (May be snow melting in the rain gauge)")).queue();
-                event.deferEdit().queue(na -> event.getMessage().delete().queue());
+            // Regular rain message
+            rainChannel.sendMessage(message).setSuppressedNotifications(messageUtils.shouldIBeSilent(
+                rainChannel)).queue();
 
-                StormAlerts.jda.getPresence().setStatus(OnlineStatus.ONLINE);
-                StormAlerts.jda.getPresence()
-                    .setActivity(Activity.playing("it's possibly " + weatherName + " @ " + currentRainRate + " in/hr"));
-                previousWeatherName = weatherName;
-                previousTypeChannel = rainChannel;
+            // Heavy rain message
+            if (rainLevel == RainLevel.L4) {
+                String heavyPing = messageUtils.shouldIPing(heavyRainChannel) ? "<@&843956325690900503>\n" : "";
+                heavyRainChannel.sendMessage(heavyPing + "\uD83C\uDF27️ It's " + getWeatherText(
+                    RainLevel.L4,
+                    false) + "! (" + currentRainRate + " in/hr)").queue();
             }
 
-            case "denyrain" -> {
-                rainDenied = true;
-                new Thread(
-                    () -> {
-                        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                            executor.schedule(() -> rainDenied = false, 1, TimeUnit.HOURS);
-                        }
-                    }, "Deny Rain").start();
-                event.deferEdit().queue(na -> event.getMessage().delete().queue());
-            }
+        } else { // Has snowed and rain hasn't been accepted since latest snow
+            sendConfirmationMessage();
+            StormAlerts.jda.getPresence().setPresence(
+                OnlineStatus.IDLE,
+                Activity.playing("it's maybe " + getWeatherText(
+                    rainLevel,
+                    true) + " @ " + currentRainRate + " in/hr"));
         }
     }
 
-    private String trimmedWeatherName() {
-        return weatherName.strip().replaceAll("\\s+\\S*$", "");
+
+    // Returns true if the latest snow message id = the id in the file
+    // If it doesn't match, then it's assumed to have snowed since the last rain confirmation
+    private boolean rainAcceptedSinceSnow(TextChannel snowChannel) throws ExecutionException, InterruptedException, TimeoutException, IOException {
+        Long latestId = new MessageUtils().getMessages(snowChannel, 1).get(30, TimeUnit.SECONDS).getFirst()
+            .getIdLong();
+        Long savedId = Long.parseLong(Files.readString(Path.of("StormAlerts/accepted-snow.txt")));
+
+        return latestId.equals(savedId);
     }
 
-    private void sendConfirmationMessage(String message) {
-        if (rainDenied) return;
+    private void sendConfirmationMessage() throws ExecutionException, InterruptedException, TimeoutException {
+        // Delete the message if it's older than 5 hours
+        List<Message> latestMessage = new MessageUtils().getMessages(rainConfirmationChannel, 1).get(
+            30,
+            TimeUnit.SECONDS);
+        boolean shouldSendMessage = true;
 
-        TextChannel channel = StormAlerts.jda.getTextChannelById(921113488464695386L);
-        Utils utils = new Utils();
-
-        // Delete any old messages
-        try {
-            List<Message> latestMessages = utils.getMessages(channel, 6).get(30, TimeUnit.SECONDS);
-            if (!latestMessages.isEmpty())
-                for (Message messageToDelete : latestMessages) messageToDelete.delete().queue();
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            System.out.print(utils.getTime(Utils.LogColor.RED));
-            e.printStackTrace();
-            utils.logError(e);
+        if (!latestMessage.isEmpty()) {
+            Message message = latestMessage.getFirst();
+            if (message.getTimeCreated().isBefore(OffsetDateTime.now().minusHours(5)))
+                message.delete().queue();
+                // Don't send the message if a valid one is already there
+            else shouldSendMessage = false;
         }
 
-        channel.sendMessage(message).setActionRow(
-            Button.success("acceptrain", "Accept for the day").withEmoji(Emoji.fromUnicode("✅")),
-            Button.secondary("unsurerain", "Unsure").withEmoji(Emoji.fromUnicode("❔")),
-            Button.danger("denyrain", "Deny for 1 hour").withEmoji(Emoji.fromUnicode("✖️"))).queue(del -> del
+        if (shouldSendMessage) rainConfirmationChannel.sendMessage(
+            "<@277291758503723010>\n# PWS reports rain:").setActionRow(
+            Button
+                .success("acceptrain", "Accept since snow").withEmoji(Emoji.fromUnicode("✅")),
+            Button.danger("denyrain", "Deny for 5 hours").withEmoji(Emoji.fromUnicode("✖️"))).queue(del -> del
             .delete().queueAfter(
-                15,
+                60,
                 TimeUnit.MINUTES,
                 null,
                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
     }
 
-    private void sendSnowMessage(TextChannel snowChannel, String weather) {
-        // It should already be cancelled if it stopped snowing, but this is a failsafe
-        if (!weatherName.startsWith("snowing")) return;
+    public enum WeatherType {
+        RAIN, SNOW, HAIL
+    }
 
-        Utils utils = new Utils();
-        String ping = "";
-        if (utils.shouldIPing(snowChannel)) ping = "<@&845055624165064734>\n";
-        // 🌨️
-        snowChannel.sendMessage(ping + "\uD83C\uDF28️ It's " + trimmedWeatherName() + "! (" + weather + ")")
-            .setSuppressedNotifications(utils.shouldIBeSilent(snowChannel)).queue();
-        scheduledSnowMessage = null;
-        previousTypeChannel = snowChannel;
+    private enum RainLevel {
+        L1, L2, L3, L4
+    }
+
+    /**
+     * Rain levels should be retrieved with {@link #getWeatherText(RainLevel, boolean includeEmote)}
+     *
+     * @param weatherType  The weather type, excluding rain
+     * @param includeEmote If the emote should be included in the text
+     * @return The weather's name
+     */
+    private String getWeatherText(WeatherType weatherType, boolean includeEmote) {
+        switch (weatherType) {
+            case SNOW -> {
+                String name = "snowing";
+                return includeEmote ? name + " 🌨️" : name;
+            }
+
+            case HAIL -> {
+                String name = "hailing";
+                return includeEmote ? name + " 🧊" : name;
+            }
+
+            default -> throw new IllegalStateException("Unexpected weather value: " + weatherType);
+        }
+    }
+
+    private String getWeatherText(RainLevel rainLevel, boolean includeEmote) {
+        switch (rainLevel) {
+            case L1 -> {
+                String name = "raining";
+                return includeEmote ? name + " ☂️" : name;
+            }
+
+            case L2 -> {
+                String name = "moderately raining";
+                return includeEmote ? name + " ☔" : name;
+            }
+
+            case L3 -> {
+                String name = "heavily raining";
+                return includeEmote ? name + " 🌦️" : name;
+            }
+
+            case L4 -> {
+                String name = "pouring";
+                return includeEmote ? name + " 🌧️" : name;
+            }
+
+            default -> throw new IllegalStateException("Unexpected rain value: " + rainLevel);
+        }
+    }
+
+    private RainLevel getRainLevel(double currentRainRate) {
+        if (currentRainRate < 0.2) return RainLevel.L1;
+        else if (currentRainRate < 0.3) return RainLevel.L2;
+        else if (currentRainRate < 0.4) return RainLevel.L3;
+        else return RainLevel.L4;
     }
 }

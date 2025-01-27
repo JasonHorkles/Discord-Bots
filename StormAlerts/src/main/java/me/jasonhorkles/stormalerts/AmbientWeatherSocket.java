@@ -2,6 +2,7 @@ package me.jasonhorkles.stormalerts;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import me.jasonhorkles.stormalerts.Utils.LogUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -30,15 +31,15 @@ public class AmbientWeatherSocket {
 
         socket.on(
             "subscribed",
-            args -> System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Connected to Ambient Weather API."));
+            args -> System.out.println(new LogUtils().getTime(LogUtils.LogColor.GREEN) + "Connected to Ambient Weather API."));
 
         socket.on(
             Socket.EVENT_DISCONNECT,
-            args -> System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Disconnected from Ambient Weather API."));
+            args -> System.out.println(new LogUtils().getTime(LogUtils.LogColor.RED) + "Disconnected from Ambient Weather API."));
 
         socket.on(
             Socket.EVENT_CONNECT_ERROR,
-            args -> System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Connection error! " + args[0]));
+            args -> System.out.println(new LogUtils().getTime(LogUtils.LogColor.RED) + "Connection error! " + args[0]));
     }
 
     private void processWeatherDataAsync(String data) {
@@ -47,35 +48,23 @@ public class AmbientWeatherSocket {
                 try {
                     new AmbientWeatherProcessor().processWeatherData(data);
                 } catch (Exception e) {
-                    String reason = "";
-                    /*if (e.getMessage().contains("401")) reason = " (Unauthorized)";
-                    else if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
-                    else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
-                    else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
-                    else if (e.getMessage().contains("504")) reason = " (Gateway Timeout)";
-                    else if (e.getMessage().contains("520")) reason = " (Catch-all error)";
-                    else if (e.getMessage().contains("524")) reason = " (Timeout)";*/
-
-                    System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the PWS conditions!" + reason);
-                    if (reason.isBlank()) {
-                        System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                        e.printStackTrace();
-                        new Utils().logError(e);
-                    }
+                    System.out.print(new LogUtils().getTime(LogUtils.LogColor.RED));
+                    e.printStackTrace();
+                    new LogUtils().logError(e);
                 }
             }, "AmbientWeatherProcessor").start();
     }
 
     public void connect() {
         if (socket != null && !socket.connected()) {
-            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Attempting to connect to Ambient Weather...");
+            System.out.println(new LogUtils().getTime(LogUtils.LogColor.YELLOW) + "Attempting to connect to Ambient Weather...");
             socket.connect();
         }
     }
 
     public void disconnect() {
         if (socket != null && socket.connected()) {
-            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Disconnecting from Ambient Weather...");
+            System.out.println(new LogUtils().getTime(LogUtils.LogColor.YELLOW) + "Disconnecting from Ambient Weather...");
             socket.disconnect();
         }
     }

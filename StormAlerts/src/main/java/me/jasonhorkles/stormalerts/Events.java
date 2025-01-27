@@ -1,10 +1,11 @@
 package me.jasonhorkles.stormalerts;
 
+import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
+import me.jasonhorkles.stormalerts.Utils.MessageUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -12,27 +13,14 @@ import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings("DataFlowIssue")
 public class Events extends ListenerAdapter {
     @Override
-    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        Utils utils = new Utils();
-        System.out.println(utils.getTime(Utils.LogColor.GREEN) + event.getMember()
-            .getEffectiveName() + " used the /" + event.getName() + " command");
-
-        switch (event.getName().toLowerCase()) {
-            case "checknow" -> utils.updateNow(event);
-            case "updaterecords" -> {
-                event.reply("Updating records...").setEphemeral(true).queue();
-                new Records().checkRecords();
-            }
-        }
-    }
-
-    @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        //noinspection SwitchStatementWithTooFewBranches
         switch (event.getComponentId()) {
             case "viewchanges" -> {
                 event.deferReply(true).queue();
@@ -60,6 +48,35 @@ public class Events extends ListenerAdapter {
 
                 event.getHook().editOriginalEmbeds(embed.build()).queue();
             }
+
+            // Rain confirmations
+
+            case "acceptrain" -> {
+                // Save latest snow message ID to a file
+                try {
+                    Path snowIdFile = Path.of("StormAlerts/accepted-snow.txt");
+                    String snowId = new MessageUtils().getMessages(ChannelUtils.snowChannel, 1).get()
+                        .getFirst().getId();
+                    Files.writeString(snowIdFile, snowId);
+                } catch (ExecutionException | InterruptedException | IOException e) {
+                    event.reply("An error occurred while saving the snow ID!").setEphemeral(true).queue();
+                    return;
+                }
+
+                event.deferEdit().queue(na -> event.getMessage().delete().queue());
+            }
+
+            case "denyrain" -> {
+                Weather.rainDenied = true;
+                new Thread(
+                    () -> {
+                        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+                            executor.schedule(() -> Weather.rainDenied = false, 5, TimeUnit.HOURS);
+                        }
+                    }, "Deny Rain").start();
+
+                event.deferEdit().queue(na -> event.getMessage().delete().queue());
+            }
         }
     }
 
@@ -74,6 +91,6 @@ public class Events extends ListenerAdapter {
         embed.setThumbnail(user.getAvatarUrl());
         embed.setColor(new Color(255, 200, 0));
 
-        event.getJDA().getTextChannelById(1093060038265950238L).sendMessageEmbeds(embed.build()).queue();
+        ChannelUtils.logChannel.sendMessageEmbeds(embed.build()).queue();
     }
 }
