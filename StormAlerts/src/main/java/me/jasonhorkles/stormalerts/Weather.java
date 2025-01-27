@@ -16,6 +16,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
@@ -42,9 +43,15 @@ public class Weather {
         else {
             Connection conn = Jsoup
                 .connect("https://weather.com/weather/today/l/" + new Secrets().weatherCode()).timeout(30000);
-            Document doc = conn.get();
-            //noinspection DataFlowIssue
-            rawWeatherType = doc.select("[class*=\"CurrentConditions--phraseValue--\"]").first().text();
+            // Don't do anything with timeouts - we'll just try again next time
+            try {
+                Document doc = conn.get();
+                //noinspection DataFlowIssue
+                rawWeatherType = doc.select("[class*=\"CurrentConditions--phraseValue--\"]").first().text();
+            } catch (SocketTimeoutException ignored) {
+                System.out.println(logUtils.getTime(LogUtils.LogColor.RED) + "Weather request timed out.");
+                return;
+            }
         }
 
         if (rawWeatherType.isBlank()) throw new IOException("Weather type is blank");
