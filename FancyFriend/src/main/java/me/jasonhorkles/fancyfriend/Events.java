@@ -15,16 +15,12 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("DataFlowIssue")
 public class Events extends ListenerAdapter {
-    private final Map<Long, Integer> warnings = new HashMap<>();
     private final Path pingFilePath = Path.of("FancyFriend/ping-settings.json");
 
     private final String geyserMsg = "The plugin may not work properly with Geyser as it is not officially supported. Additionally, display entities and other features don't even exist on Bedrock Edition.";
@@ -189,7 +185,7 @@ public class Events extends ListenerAdapter {
 
         Long authorId = event.getAuthor().getIdLong();
         if (count > 0) {
-            warn(authorId, event, count);
+            new PingWarnings().warn(authorId, event, count);
             StringBuilder pingMessage = new StringBuilder("Hey " + event.getMember()
                 .getEffectiveName() + ", please don't ping staff members!");
 
@@ -201,70 +197,20 @@ public class Events extends ListenerAdapter {
             if (appendTicket) pingMessage.append(
                 "\nIf there's a problem, please make a ticket with <#1112486757359960175>");
 
-            if (warnings.get(authorId) > 1 && message.getMessageReference() != null) pingMessage.append(
-                "\n-# Please [turn off](https://tenor.com/view/20411479) your reply pings.");
+            if (PingWarnings.warnings.get(authorId) > 1 && message.getMessageReference() != null)
+                pingMessage.append("\n-# Please [turn off](https://tenor.com/view/20411479) your reply pings.");
 
             // Save the message without the warning for later editing
             String warningRemoved = pingMessage.toString();
 
-            if (warnings.get(authorId) > 1)
-                pingMessage.append("\n-# Warning ").append(warnings.get(authorId)).append("/3");
+            if (PingWarnings.warnings.get(authorId) > 1) pingMessage.append("\n-# Warning ").append(
+                PingWarnings.warnings.get(authorId)).append("/3");
 
             message.reply(pingMessage).queue(sentMsg -> sentMsg.editMessage(warningRemoved)
                 .setSuppressEmbeds(true).queueAfter(
                     15, TimeUnit.MINUTES, null, new ErrorHandler().handle(
                         ErrorResponse.UNKNOWN_MESSAGE,
                         (e) -> System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Unable to edit warning message."))));
-        }
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    public void warn(Long id, MessageReceivedEvent event, int count) {
-        if (warnings.containsKey(id)) {
-            warnings.put(id, warnings.get(id) + count);
-
-            if (warnings.get(id) >= 3) event.getMember().timeoutFor(3, TimeUnit.HOURS).queue(
-                // Send a message to the staff channel
-                na -> FancyFriend.jda.getGuildById(FancyFriend.GUILD_ID).getTextChannelById(
-                        1195445607763030126L)
-                    .sendMessage("<@" + id + "> has been timed out for 3 hours for pinging staff members.")
-                    .queue(),
-                // Ping me if the timeout fails to apply
-                na -> event.getChannel().sendMessage("<@277291758503723010>").queue());
-
-        } else warnings.put(id, count);
-
-        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Warned " + event.getMember()
-            .getEffectiveName() + " for pinging - " + warnings.get(id) + "/3");
-
-        for (int x = count; x > 0; x--) {
-            scheduleWarningRemoval(id, event.getMember().getEffectiveName());
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void scheduleWarningRemoval(Long id, String name) {
-        new Thread(
-            () -> {
-                try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-                    executor.schedule(() -> takeWarning(id, name), 15, TimeUnit.MINUTES);
-                }
-            }, "Warning Removal").start();
-    }
-
-    private void takeWarning(Long id, String name) {
-        if (warnings.get(id) <= 1) {
-            warnings.remove(id);
-            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Removed ping warning from " + name + " - 0/3");
-        } else {
-            warnings.put(id, warnings.get(id) - 1);
-            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Removed ping warning from " + name + " - " + warnings.get(
-                id) + "/3");
         }
     }
 }
