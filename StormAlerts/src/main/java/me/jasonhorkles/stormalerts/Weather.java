@@ -190,7 +190,7 @@ public class Weather {
 
         previousWeatherType = weatherType;
 
-        System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Raw weather: " + rawWeatherType);
+        System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Raw weather: " + rawWeatherType + "\n");
     }
 
     private void sendSnowMessage(TextChannel snowChannel, String rawWeatherType, boolean weatherIsDifferent, MessageUtils messageUtils) {
