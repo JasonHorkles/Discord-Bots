@@ -11,10 +11,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class Records {
     // Stats
@@ -35,7 +31,7 @@ public class Records {
     public static long maxRainRateTime;
     public static long maxWindTime;
 
-    public void scheduleRecordCheck() throws IOException {
+    public void cacheRecordData() throws IOException {
         LogUtils logUtils = new LogUtils();
         // Populate the variables
         JSONObject recordsToday = new JSONObject(Files.readString(Path.of("StormAlerts/records-today.json")));
@@ -61,20 +57,10 @@ public class Records {
             maxRainAmountTime = recordsToday.getLong("maxRainAmountTime");
             maxRainRateTime = recordsToday.getLong("maxRainRateTime");
             maxWindTime = recordsToday.getLong("maxWindTime");
-
         }
-
-        LocalDateTime future = LocalDateTime.now().withHour(23).withMinute(59).withSecond(0);
-        long delay = Duration.between(LocalDateTime.now(), future).getSeconds();
-        if (delay < 0) return;
-
-        StormAlerts.scheduledTimers.add(Executors.newSingleThreadScheduledExecutor()
-            .schedule(this::checkRecords, delay, TimeUnit.SECONDS));
-
-        System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Scheduled record check in " + delay / 3600 + " hours.");
     }
 
-    private void checkRecords() {
+    public void checkRecords() {
         LogUtils logUtils = new LogUtils();
         System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Checking records...");
 

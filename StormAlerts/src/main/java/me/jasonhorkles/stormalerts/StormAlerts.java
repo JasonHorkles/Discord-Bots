@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.text.ParseException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,14 +81,34 @@ public class StormAlerts extends ListenerAdapter {
             logUtils.logError(e);
         }
 
-        // Schedule records announcement and cache current records
+        // Cache current records
         try {
-            new Records().scheduleRecordCheck();
+            new Records().cacheRecordData();
         } catch (Exception e) {
             System.out.println(logUtils.getTime(LogUtils.LogColor.RED) + "Error grabbing the records!");
             e.printStackTrace();
             logUtils.logError(e);
         }
+
+        // Schedule records announcement & wind var reset
+        LocalDateTime future = LocalDateTime.now().withHour(23).withMinute(59).withSecond(0);
+        long delay = Duration.between(LocalDateTime.now(), future).getSeconds();
+        if (delay < 0) return;
+
+        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().schedule(
+            () -> {
+                // Check for new records
+                new Records().checkRecords();
+
+                // Reset max wind gust 1 minute later
+                scheduledTimers.add(Executors.newSingleThreadScheduledExecutor()
+                    .schedule(
+                        () -> {AmbientWeatherProcessor.lastAlertedWindGust = -1;},
+                        1,
+                        TimeUnit.MINUTES));
+            }, delay, TimeUnit.SECONDS));
+
+        System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Scheduled record check & wind reset in " + delay / 3600 + " hours.");
 
         // Start listening for PWS messages
         ambientWeatherSocket = new AmbientWeatherSocket();
