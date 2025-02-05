@@ -279,8 +279,7 @@ public class Weather {
         } else { // Has snowed and rain hasn't been accepted since latest snow
             sendConfirmationMessage();
             StormAlerts.jda.getPresence().setPresence(
-                OnlineStatus.IDLE,
-                Activity.playing("it's maybe " + getWeatherText(
+                OnlineStatus.IDLE, Activity.customStatus("It's maybe " + getWeatherText(
                     rainLevel,
                     true) + " @ " + currentRainRate + " in/hr"));
         }

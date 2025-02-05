@@ -6,6 +6,7 @@ import me.jasonhorkles.stormalerts.Utils.MessageUtils;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -49,6 +50,7 @@ public class StormAlerts extends ListenerAdapter {
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setBulkDeleteSplittingEnabled(false);
         builder.setStatus(OnlineStatus.DO_NOT_DISTURB);
+        builder.setActivity(Activity.customStatus("Loading..."));
         builder.setEnableShutdownHook(false);
         builder.addEventListeners(new Events());
         jda = builder.build();
