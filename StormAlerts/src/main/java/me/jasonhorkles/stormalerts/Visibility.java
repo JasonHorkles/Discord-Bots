@@ -26,8 +26,9 @@ public class Visibility {
             url.close();
         }
 
-        String visibility = String.valueOf((int) Math.round(input.getJSONObject("properties")
-            .getJSONObject("visibility").getInt("value") / 1609.0d));
+        JSONObject rawVisibility = input.getJSONObject("properties").getJSONObject("visibility");
+        String visibility = rawVisibility.isNull("value") ? "N/A" : String.valueOf((int) Math.round(
+            rawVisibility.getInt("value") / 1609.0d));
         new ChannelUtils().updateVoiceChannel(899872710233051178L, "Visibility | " + visibility + " mi");
     }
 }
