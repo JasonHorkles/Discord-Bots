@@ -64,6 +64,10 @@ public class Events extends ListenerAdapter {
 
             case "geyser" -> event.getHook().editOriginal(geyserMsg).queue();
 
+            case "interactions" -> event.getHook().editOriginal(
+                    "See [this page](<https://fancyplugins.de/docs/fn-tutorials-new-interaction-system.html>) on how to add interactions to an NPC.")
+                .queue();
+
             case "manual-holo" -> event.getHook().editOriginal("""
                 ### To manually edit a hologram:
                 1. Run `/fancyholograms save`
@@ -72,7 +76,7 @@ public class Events extends ListenerAdapter {
                 4. Run `/fancyholograms reload` after saving the file""").queue();
 
             case "multiline" -> event.getHook().editOriginal(
-                    "See [here](<https://fancyplugins.de/docs/fn-multiple-lines.html>) on how to make an NPC name have multiple lines.")
+                    "See [this page](<https://fancyplugins.de/docs/fn-multiple-lines.html>) on how to make an NPC name have multiple lines.")
                 .queue();
 
             case "noping" -> noPing(event);
