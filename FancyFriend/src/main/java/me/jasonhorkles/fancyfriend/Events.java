@@ -195,7 +195,7 @@ public class Events extends ListenerAdapter {
                 if (message.getCategory().getIdLong() == 1112487038160220180L) appendTicket = false;
 
             if (appendTicket) pingMessage.append(
-                "\nIf there's a problem, please make a ticket with <#1112486757359960175>");
+                "\nIf there's something that must be addressed privately, please make a ticket with <#1112486757359960175>");
 
             if (PingWarnings.warnings.get(authorId) > 1 && message.getMessageReference() != null)
                 pingMessage.append("\n-# Please [turn off](https://tenor.com/view/20411479) your reply pings.");
