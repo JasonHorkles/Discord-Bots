@@ -56,6 +56,7 @@ public class FancyFriend {
             Commands.slash("clickable", "Clickable FancyHolograms tutorial"),
             Commands.slash("converters", "FH & FN converter messages"),
             Commands.slash("docs", "Get the FancyPlugins documentation"),
+            Commands.slash("dw", "Doesn't work message"),
             Commands.slash("fixed", "Show how to set a hologram to fixed"),
             Commands.slash("geyser", "Geyser not supported message"),
             Commands.slash("interactions", "How to add interactions to an NPC"),

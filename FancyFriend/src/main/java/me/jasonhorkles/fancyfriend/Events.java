@@ -56,6 +56,10 @@ public class Events extends ListenerAdapter {
             case "docs" -> event.getHook().editOriginal(
                 "Here are the FancyPlugins docs: <https://fancyplugins.de/docs/welcome.html>").queue();
 
+            case "dw" -> event.getHook().editOriginal(
+                    "\"Didn't/doesn't work\" explains almost nothing. Please provide info (screenshots, error messages, etc) for proper help.")
+                .queue();
+
             case "fixed" -> event.getHook().editOriginal("""
                     To make a hologram not rotate, the billboarding must be set to FIXED.
                     Example: `/holo edit <hologram> billboard FIXED`
