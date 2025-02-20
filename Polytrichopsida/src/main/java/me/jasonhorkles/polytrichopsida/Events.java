@@ -153,7 +153,8 @@ public class Events extends ListenerAdapter {
             }
 
             // Ping OP
-            if (message.getMessageReference() == null) try {
+            // But only if they're not already pinged
+            if (message.getMessageReference() == null && message.getMentions().getUsers().isEmpty()) try {
                 List<Message> messages = new Utils().getMessages(event.getChannel(), 2).get(
                     30,
                     TimeUnit.SECONDS);
@@ -166,7 +167,9 @@ public class Events extends ListenerAdapter {
                 if (op == null) return;
 
                 long authorId = messages.get(1).getAuthor().getIdLong();
-                if (authorId != op.getUser().getIdLong()) return;
+                // If the last message wasn't from the OP or the bot, don't ping them
+                if (authorId != op.getUser().getIdLong() && authorId != Polytrichopsida.jda.getSelfUser()
+                    .getIdLong()) return;
 
                 event.getChannel().sendMessage(op.getAsMention()).queue(del -> del.delete().queueAfter(
                     100,
