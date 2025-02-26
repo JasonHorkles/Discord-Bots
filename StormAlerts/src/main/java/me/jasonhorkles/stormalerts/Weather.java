@@ -49,7 +49,7 @@ public class Weather {
                 //noinspection DataFlowIssue
                 rawWeatherType = doc.select("[class*=\"CurrentConditions--phraseValue--\"]").first().text();
             } catch (SocketTimeoutException ignored) {
-                System.out.println(logUtils.getTime(LogUtils.LogColor.RED) + "Weather request timed out.");
+                System.out.println(logUtils.getTime(LogUtils.LogColor.RED) + "Weather request timed out.\n ");
                 return;
             }
         }
