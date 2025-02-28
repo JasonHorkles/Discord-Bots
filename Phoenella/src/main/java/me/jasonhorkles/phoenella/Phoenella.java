@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -79,8 +80,7 @@ public class Phoenella {
                 new SubcommandData("create", "Create a Wordle for others to play"),
                 new SubcommandData("leaderboard", "View the Wordle leaderboard").addOption(
                     OptionType.BOOLEAN,
-                    "show",
-                    "Show the leaderboard message publicly?", false),
+                    "show", "Show the leaderboard message publicly?", false),
                 new SubcommandData("daily", "Play the daily Wordle")),
             Commands.slash("rps", "Rock, Paper, Scissors")
                 .addOption(OptionType.USER, "player", "Player 2", true)).queue();
@@ -107,6 +107,9 @@ public class Phoenella {
         }
 
         if (!localWordleBoard) {
+            // Cache the leaderboard
+            MessageEmbed leaderboardEmbed = new Wordle().getLeaderboard(guild);
+
             FileWriter lbWriter = new FileWriter(leaderboardFile, StandardCharsets.UTF_8, false);
             boolean doCheck = true;
 
@@ -117,7 +120,7 @@ public class Phoenella {
                 if (month != LocalDate.now().getMonthValue()) {
                     guild.getTextChannelById(956267174727671869L).sendMessage("## " + Month.of(month)
                             .getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH) + "'s Leaderboard")
-                        .addEmbeds(new Wordle().getLeaderboard(guild)).queue();
+                        .addEmbeds(leaderboardEmbed).queue();
 
                     FileWriter lastCleared = new FileWriter(lastClearedFile, StandardCharsets.UTF_8, false);
                     lastCleared.write(String.valueOf(LocalDate.now().getMonthValue()));
