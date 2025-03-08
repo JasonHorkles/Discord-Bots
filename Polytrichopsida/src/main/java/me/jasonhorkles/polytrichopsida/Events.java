@@ -60,7 +60,7 @@ public class Events extends ListenerAdapter {
                 """).queue();
 
             case "plugins" -> event.reply(
-                    "See Jason's plugins on [Hangar](<https://hangar.papermc.io/Silverstone>) | [Modrinth](<https://modrinth.com/organization/silverstone> | [Spigot](<https://www.spigotmc.org/resources/authors/jasonhorkles.339646/>)")
+                    "See Jason's plugins on [Hangar](<https://hangar.papermc.io/Silverstone>) | [Modrinth](<https://modrinth.com/organization/silverstone>) | [Spigot](<https://www.spigotmc.org/resources/authors/jasonhorkles.339646/>)")
                 .queue();
 
             case "tutorials" -> event.reply(
