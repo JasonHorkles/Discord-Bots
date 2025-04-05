@@ -127,6 +127,7 @@ public class StormAlerts extends ListenerAdapter {
                     if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
                     else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
                     else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
+                    else if (e.getMessage().contains("504")) reason = " (Gateway Timeout)";
 
                     System.out.println(logUtils.getTime(LogUtils.LogColor.RED) + "[ERROR] Couldn't get the alerts!" + reason);
                     if (reason.isBlank()) {
