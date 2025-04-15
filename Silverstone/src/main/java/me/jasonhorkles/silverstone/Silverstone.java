@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -41,10 +40,6 @@ public class Silverstone {
         jda = builder.build();
 
         jda.awaitReady();
-
-        //noinspection DataFlowIssue
-        jda.getGuildById(455919765999976461L).updateCommands().addCommands(Commands.slash("moss",
-            "M.O.S.S. Discord invite"), Commands.slash("lp", "LuckPerms Discord invite")).queue();
 
         new Time().updateTime();
 
