@@ -28,35 +28,31 @@ public class SlashCommands extends ListenerAdapter {
 
                 switch (random) {
                     case 0 -> sendActionMessage(
-                        event,
-                        "{0} wraps their arms around **{1}** and refuses to let go. You live here now. 💞");
+                        event, "{0} wraps their arms around {1} and refuses to let go. You live here now. 💞");
                     case 1 -> sendActionMessage(
                         event,
-                        "{0} hugs **{1}** like a cleric who just rolled a Nat 20 on *Cure Wounds*. That’s the good stuff. 🛐");
+                        "{0} hugs {1} like a cleric who just rolled a Nat 20 on *Cure Wounds*. That’s the good stuff. 🛐");
                     case 2 -> sendActionMessage(
                         event,
-                        "{0} sneaks up behind **{1}** and hugs them like they mean it. No escape detected. 🤗");
+                        "{0} sneaks up behind {1} and hugs them like they mean it. No escape detected. 🤗");
                     case 3 -> sendActionMessage(
-                        event,
-                        "{0} uses *Hug*. It’s super effective! **{1}** regains 1d8 Emotional HP. 🎯");
+                        event, "{0} uses *Hug*. It’s super effective! {1} regains 1d8 Emotional HP. 🎯");
                     case 4 -> sendActionMessage(
-                        event,
-                        "{0} gives **{1}** a hug so warm, it's basically a Minecraft campfire buff. 🔥");
+                        event, "{0} gives {1} a hug so warm, it's basically a Minecraft campfire buff. 🔥");
                     case 5 -> sendActionMessage(
                         event,
-                        "{0} pulls **{1}** into a hug that lasts just long enough to make it awkward. You're welcome. 😏");
+                        "{0} pulls {1} into a hug that lasts just long enough to make it awkward. You're welcome. 😏");
                     case 6 -> sendActionMessage(
                         event,
-                        "{0} glomps **{1}** and now they share a Mind Link. Too bad it’s 98% affection and memes. 📡");
+                        "{0} glomps {1} and now they share a Mind Link. Too bad it’s 98% affection and memes. 📡");
                     case 7 -> sendActionMessage(
                         event,
-                        "{0} hugs **{1}** with all the commitment of placing obsidian. You ain’t breaking this easy. 🧱");
+                        "{0} hugs {1} with all the commitment of placing obsidian. You ain’t breaking this easy. 🧱");
                     case 8 -> sendActionMessage(
-                        event,
-                        "{0} snuggles into **{1}** like a blanket with abandonment issues. 🐾");
+                        event, "{0} snuggles into {1} like a blanket with abandonment issues. 🐾");
                     case 9 -> sendActionMessage(
                         event,
-                        "{0} activates Hug Protocol: full embrace, gentle squeeze, +2 to Charisma checks with **{1}** for the next hour. 💫");
+                        "{0} activates Hug Protocol: full embrace, gentle squeeze, +2 to Charisma checks with {1} for the next hour. 💫");
                 }
             }
             case "tackle" -> {
@@ -65,34 +61,31 @@ public class SlashCommands extends ListenerAdapter {
                 switch (random) {
                     case 0 -> sendActionMessage(
                         event,
-                        "{0} charges at **{1}** like a linebacker made of fluff. They’ve been taken down. 💥");
+                        "{0} charges at {1} like a linebacker made of fluff. They’ve been taken down. 💥");
                     case 1 -> sendActionMessage(
-                        event,
-                        "{0} tackles **{1}** straight to the ground. Cuddle combat has begun. 🛏");
+                        event, "{0} tackles {1} straight to the ground. Cuddle combat has begun. 🛏");
                     case 2 -> sendActionMessage(
                         event,
-                        "{0} pounces on **{1}** like a creeper that decided *exploding with love* is a vibe. 💚💣");
+                        "{0} pounces on {1} like a creeper that decided *exploding with love* is a vibe. 💚💣");
                     case 3 -> sendActionMessage(
                         event,
-                        "{0} hits **{1}** like an affectionate freight train. No survivors. Only snuggles. 🚂");
+                        "{0} hits {1} like an affectionate freight train. No survivors. Only snuggles. 🚂");
                     case 4 -> sendActionMessage(
-                        event,
-                        "{0} does a Nat 20 dive onto **{1}**. The floor fails its Dex save. 🎲");
+                        event, "{0} does a Nat 20 dive onto {1}. The floor fails its Dex save. 🎲");
                     case 5 -> sendActionMessage(
                         event,
-                        "{0} rolls across the server floor with **{1}** in tow. It’s not a fight. It’s a love story. \uD83C\uDFAC");
+                        "{0} rolls across the server floor with {1} in tow. It’s not a fight. It’s a love story. \uD83C\uDFAC");
                     case 6 -> sendActionMessage(
-                        event,
-                        "{0} flattens **{1}** like pancake batter on a Saturday morning. Tasty. 🥞");
+                        event, "{0} flattens {1} like pancake batter on a Saturday morning. Tasty. 🥞");
                     case 7 -> sendActionMessage(
                         event,
-                        "{0} lands a flying tackle and yells, \"Bonus action: *Hold Person*!\" **{1}** is grappled... emotionally. 🔒");
+                        "{0} lands a flying tackle and yells, \"Bonus action: *Hold Person*!\" {1} is grappled... emotionally. 🔒");
                     case 8 -> sendActionMessage(
                         event,
-                        "{0} suplexes **{1}** into the nearest hay bale. Minecraft physics not included. 🐄");
+                        "{0} suplexes {1} into the nearest hay bale. Minecraft physics not included. 🐄");
                     case 9 -> sendActionMessage(
                         event,
-                        "{0} yeets themself into **{1}** like they tripped over a redstone tripwire. Hug trap activated. ⚡");
+                        "{0} yeets themself into {1} like they tripped over a redstone tripwire. Hug trap activated. ⚡");
                 }
             }
             case "pillow" -> {
@@ -101,34 +94,33 @@ public class SlashCommands extends ListenerAdapter {
                 switch (random) {
                     case 0 -> sendActionMessage(
                         event,
-                        "{0} catapults a pillow across the server. It hits **{1}** and explodes in glitter. Fabulous. ✨");
+                        "{0} catapults a pillow across the server. It hits {1} and explodes in glitter. Fabulous. ✨");
                     case 1 -> sendActionMessage(
-                        event,
-                        "{0} bonks **{1}** right on the noggin. Pillow-based dominance established. 💢");
+                        event, "{0} bonks {1} right on the noggin. Pillow-based dominance established. 💢");
                     case 2 -> sendActionMessage(
                         event,
-                        "{0} throws a pillow enchanted with *Featherfall*. Unfortunately, **{1}** failed the save. 🍃");
+                        "{0} throws a pillow enchanted with *Featherfall*. Unfortunately, {1} failed the save. 🍃");
                     case 3 -> sendActionMessage(
                         event,
-                        "{0} smirks and hurls a glitter-filled pillow at **{1}**. Fluff and sass collide. 😏");
+                        "{0} smirks and hurls a glitter-filled pillow at {1}. Fluff and sass collide. 😏");
                     case 4 -> sendActionMessage(
                         event,
-                        "{0} whips out a Minecraft bed and slaps **{1}** with it. It’s bedtime. Fight it. 🛏");
+                        "{0} whips out a Minecraft bed and slaps {1} with it. It’s bedtime. Fight it. 🛏");
                     case 5 -> sendActionMessage(
                         event,
-                        "{0} sneak-attacks **{1}** with a pillow to the face. That’s what they get for being cute. 😼");
+                        "{0} sneak-attacks {1} with a pillow to the face. That’s what they get for being cute. 😼");
                     case 6 -> sendActionMessage(
                         event,
-                        "{0} bonks **{1}** with a pillow that’s suspiciously filled with nether bricks. Oops. 🧱");
+                        "{0} bonks {1} with a pillow that’s suspiciously filled with nether bricks. Oops. 🧱");
                     case 7 -> sendActionMessage(
                         event,
-                        "{0} dual-wields pillows and goes full Whirlwind Attack on **{1}**. It’s a flurry of fluff and fury. 🌀");
+                        "{0} dual-wields pillows and goes full Whirlwind Attack on {1}. It’s a flurry of fluff and fury. 🌀");
                     case 8 -> sendActionMessage(
                         event,
-                        "{0} tosses a pillow at **{1}** and shouts, \"FOR JUSTICE!\" No context given. ⚖️");
+                        "{0} tosses a pillow at {1} and shouts, \"FOR JUSTICE!\" No context given. ⚖️");
                     case 9 -> sendActionMessage(
                         event,
-                        "{0} drops a pillow from the rafters onto **{1}**. Surprise snuggle-strike successful. 🎯");
+                        "{0} drops a pillow from the rafters onto {1}. Surprise snuggle-strike successful. 🎯");
                 }
             }
         }
@@ -163,6 +155,7 @@ public class SlashCommands extends ListenerAdapter {
                 else mention = ((Role) receiver).getName();
         }
 
-        event.reply(MessageFormat.format(message, event.getMember().getAsMention(), mention)).queue();
+        event.reply(MessageFormat.format(message, event.getMember().getAsMention(), "**" + mention + "**"))
+            .queue();
     }
 }
