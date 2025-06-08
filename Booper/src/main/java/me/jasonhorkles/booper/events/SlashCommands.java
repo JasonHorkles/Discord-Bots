@@ -161,16 +161,18 @@ public class SlashCommands extends ListenerAdapter {
                 return;
             }
 
-            // Otherwise, check if the sender is allowed to mention the role/everyone
-            //noinspection BooleanVariableAlwaysNegated
-            boolean canMention = event.getMember().hasPermission(
-                event.getGuildChannel(),
-                Permission.MESSAGE_MENTION_EVERYONE);
+            // Never allow @everyone
+            if (mention.equalsIgnoreCase("@everyone")) mention = mention.replaceFirst("@", "");
+            else {
+                // Otherwise, check if the sender is allowed to mention the role
+                //noinspection BooleanVariableAlwaysNegated
+                boolean canMention = event.getMember().hasPermission(
+                    event.getGuildChannel(),
+                    Permission.MESSAGE_MENTION_EVERYONE);
 
-            // Fallback to just the name if they can't
-            if (!canMention && receiver instanceof Role)
-                if (mention.equalsIgnoreCase("@everyone")) mention = mention.replaceFirst("@", "");
-                else mention = ((Role) receiver).getName();
+                // Fallback to just the name if they can't
+                if (!canMention && receiver instanceof Role) mention = ((Role) receiver).getName();
+            }
         }
 
         event.reply(MessageFormat.format(message, event.getMember().getAsMention(), "**" + mention + "**"))
