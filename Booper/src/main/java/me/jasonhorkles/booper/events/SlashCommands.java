@@ -20,7 +20,6 @@ public class SlashCommands extends ListenerAdapter {
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + event.getMember()
             .getEffectiveName() + " used the /" + event.getName() + " command");
 
-        //todo implement streaks
         Random r = new Random();
         switch (event.getName().toLowerCase()) {
             case "hug" -> {
@@ -28,7 +27,8 @@ public class SlashCommands extends ListenerAdapter {
 
                 switch (random) {
                     case 0 -> sendActionMessage(
-                        event, "{0} wraps their arms around {1} and refuses to let go. You live here now. 💞");
+                        event,
+                        "{0} wraps their arms around {1} and refuses to let go. You live here now. 💞");
                     case 1 -> sendActionMessage(
                         event,
                         "{0} hugs {1} like a cleric who just rolled a Nat 20 on *Cure Wounds*. That’s the good stuff. 🛐");
@@ -36,9 +36,11 @@ public class SlashCommands extends ListenerAdapter {
                         event,
                         "{0} sneaks up behind {1} and hugs them like they mean it. No escape detected. 🤗");
                     case 3 -> sendActionMessage(
-                        event, "{0} uses *Hug*. It’s super effective! {1} regains 1d8 Emotional HP. 🎯");
+                        event,
+                        "{0} uses *Hug*. It’s super effective! {1} regains 1d8 Emotional HP. 🎯");
                     case 4 -> sendActionMessage(
-                        event, "{0} gives {1} a hug so warm, it's basically a Minecraft campfire buff. 🔥");
+                        event,
+                        "{0} gives {1} a hug so warm, it's basically a Minecraft campfire buff. 🔥");
                     case 5 -> sendActionMessage(
                         event,
                         "{0} pulls {1} into a hug that lasts just long enough to make it awkward. You're welcome. 😏");
@@ -49,21 +51,24 @@ public class SlashCommands extends ListenerAdapter {
                         event,
                         "{0} hugs {1} with all the commitment of placing obsidian. You ain’t breaking this easy. 🧱");
                     case 8 -> sendActionMessage(
-                        event, "{0} snuggles into {1} like a blanket with abandonment issues. 🐾");
+                        event,
+                        "{0} snuggles into {1} like a blanket with abandonment issues. 🐾");
                     case 9 -> sendActionMessage(
                         event,
                         "{0} activates Hug Protocol: full embrace, gentle squeeze, +2 to Charisma checks with {1} for the next hour. 💫");
                 }
             }
+
             case "tackle" -> {
-                int random = r.nextInt(10);
+                int random = r.nextInt(11);
 
                 switch (random) {
                     case 0 -> sendActionMessage(
                         event,
                         "{0} charges at {1} like a linebacker made of fluff. They’ve been taken down. 💥");
                     case 1 -> sendActionMessage(
-                        event, "{0} tackles {1} straight to the ground. Cuddle combat has begun. 🛏");
+                        event,
+                        "{0} tackles {1} straight to the ground. Cuddle combat has begun. 🛏");
                     case 2 -> sendActionMessage(
                         event,
                         "{0} pounces on {1} like a creeper that decided *exploding with love* is a vibe. 💚💣");
@@ -71,12 +76,14 @@ public class SlashCommands extends ListenerAdapter {
                         event,
                         "{0} hits {1} like an affectionate freight train. No survivors. Only snuggles. 🚂");
                     case 4 -> sendActionMessage(
-                        event, "{0} does a Nat 20 dive onto {1}. The floor fails its Dex save. 🎲");
+                        event,
+                        "{0} does a Nat 20 dive onto {1}. The floor fails its Dex save. 🎲");
                     case 5 -> sendActionMessage(
                         event,
                         "{0} rolls across the server floor with {1} in tow. It’s not a fight. It’s a love story. \uD83C\uDFAC");
                     case 6 -> sendActionMessage(
-                        event, "{0} flattens {1} like pancake batter on a Saturday morning. Tasty. 🥞");
+                        event,
+                        "{0} flattens {1} like pancake batter on a Saturday morning. Tasty. 🥞");
                     case 7 -> sendActionMessage(
                         event,
                         "{0} lands a flying tackle and yells, \"Bonus action: *Hold Person*!\" {1} is grappled... emotionally. 🔒");
@@ -86,17 +93,22 @@ public class SlashCommands extends ListenerAdapter {
                     case 9 -> sendActionMessage(
                         event,
                         "{0} yeets themself into {1} like they tripped over a redstone tripwire. Hug trap activated. ⚡");
+                    case 10 -> sendActionMessage(
+                        event,
+                        "{0} calls in an orbital tackle strike on {1}. Impact detected: maximum snuggle velocity achieved! 🚀💥");
                 }
             }
+
             case "pillow" -> {
-                int random = r.nextInt(10);
+                int random = r.nextInt(12);
 
                 switch (random) {
                     case 0 -> sendActionMessage(
                         event,
                         "{0} catapults a pillow across the server. It hits {1} and explodes in glitter. Fabulous. ✨");
                     case 1 -> sendActionMessage(
-                        event, "{0} bonks {1} right on the noggin. Pillow-based dominance established. 💢");
+                        event,
+                        "{0} bonks {1} right on the noggin. Pillow-based dominance established. 💢");
                     case 2 -> sendActionMessage(
                         event,
                         "{0} throws a pillow enchanted with *Featherfall*. Unfortunately, {1} failed the save. 🍃");
@@ -121,6 +133,12 @@ public class SlashCommands extends ListenerAdapter {
                     case 9 -> sendActionMessage(
                         event,
                         "{0} drops a pillow from the rafters onto {1}. Surprise snuggle-strike successful. 🎯");
+                    case 10 -> sendActionMessage(
+                        event,
+                        "{0} sends a meteor shower of pillows at {1}. Pillow fight level: *Epic*. 🌠");
+                    case 11 -> sendActionMessage(
+                        event,
+                        "{0} launches an orbital pillow strike on {1}. Pillows rain down from the sky, and there is no escape. 🌌🛏️");
                 }
             }
         }
