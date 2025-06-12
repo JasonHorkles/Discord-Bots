@@ -31,25 +31,23 @@ public class SlashCommands extends ListenerAdapter {
                         "{0} wraps their arms around {1} and refuses to let go. You live here now. 💞");
                     case 1 -> sendActionMessage(
                         event,
-                        "{0} hugs {1} like a cleric who just rolled a Nat 20 on *Cure Wounds*. That’s the good stuff. 🛐");
+                        "{0} hugs {1} like a cleric who just rolled a Nat 20 on *Cure Wounds*. That''s the good stuff. 🛐");
                     case 2 -> sendActionMessage(
                         event,
                         "{0} sneaks up behind {1} and hugs them like they mean it. No escape detected. 🤗");
                     case 3 -> sendActionMessage(
-                        event,
-                        "{0} uses *Hug*. It’s super effective! {1} regains 1d8 Emotional HP. 🎯");
+                        event, "{0} uses *Hug*. It''s super effective! {1} regains 1d8 Emotional HP. 🎯");
                     case 4 -> sendActionMessage(
-                        event,
-                        "{0} gives {1} a hug so warm, it's basically a Minecraft campfire buff. 🔥");
+                        event, "{0} gives {1} a hug so warm, it''s basically a Minecraft campfire buff. 🔥");
                     case 5 -> sendActionMessage(
                         event,
-                        "{0} pulls {1} into a hug that lasts just long enough to make it awkward. You're welcome. 😏");
+                        "{0} pulls {1} into a hug that lasts just long enough to make it awkward. You''re welcome. 😏");
                     case 6 -> sendActionMessage(
                         event,
-                        "{0} glomps {1} and now they share a Mind Link. Too bad it’s 98% affection and memes. 📡");
+                        "{0} glomps {1} and now they share a Mind Link. Too bad it''s 98% affection and memes. 📡");
                     case 7 -> sendActionMessage(
                         event,
-                        "{0} hugs {1} with all the commitment of placing obsidian. You ain’t breaking this easy. 🧱");
+                        "{0} hugs {1} with all the commitment of placing obsidian. You ain''t breaking this easy. 🧱");
                     case 8 -> sendActionMessage(
                         event,
                         "{0} snuggles into {1} like a blanket with abandonment issues. 🐾");
@@ -65,7 +63,7 @@ public class SlashCommands extends ListenerAdapter {
                 switch (random) {
                     case 0 -> sendActionMessage(
                         event,
-                        "{0} charges at {1} like a linebacker made of fluff. They’ve been taken down. 💥");
+                        "{0} charges at {1} like a linebacker made of fluff. They''ve been taken down. 💥");
                     case 1 -> sendActionMessage(
                         event,
                         "{0} tackles {1} straight to the ground. Cuddle combat has begun. 🛏");
@@ -80,7 +78,7 @@ public class SlashCommands extends ListenerAdapter {
                         "{0} does a Nat 20 dive onto {1}. The floor fails its Dex save. 🎲");
                     case 5 -> sendActionMessage(
                         event,
-                        "{0} rolls across the server floor with {1} in tow. It’s not a fight. It’s a love story. \uD83C\uDFAC");
+                        "{0} rolls across the server floor with {1} in tow. It''s not a fight. It''s a love story. \uD83C\uDFAC");
                     case 6 -> sendActionMessage(
                         event,
                         "{0} flattens {1} like pancake batter on a Saturday morning. Tasty. 🥞");
@@ -117,16 +115,16 @@ public class SlashCommands extends ListenerAdapter {
                         "{0} smirks and hurls a glitter-filled pillow at {1}. Fluff and sass collide. 😏");
                     case 4 -> sendActionMessage(
                         event,
-                        "{0} whips out a Minecraft bed and slaps {1} with it. It’s bedtime. Fight it. 🛏");
+                        "{0} whips out a Minecraft bed and slaps {1} with it. It''s bedtime. Fight it. 🛏");
                     case 5 -> sendActionMessage(
                         event,
-                        "{0} sneak-attacks {1} with a pillow to the face. That’s what they get for being cute. 😼");
+                        "{0} sneak-attacks {1} with a pillow to the face. That''s what they get for being cute. 😼");
                     case 6 -> sendActionMessage(
                         event,
-                        "{0} bonks {1} with a pillow that’s suspiciously filled with nether bricks. Oops. 🧱");
+                        "{0} bonks {1} with a pillow that''s suspiciously filled with nether bricks. Oops. 🧱");
                     case 7 -> sendActionMessage(
                         event,
-                        "{0} dual-wields pillows and goes full Whirlwind Attack on {1}. It’s a flurry of fluff and fury. 🌀");
+                        "{0} dual-wields pillows and goes full Whirlwind Attack on {1}. It''s a flurry of fluff and fury. 🌀");
                     case 8 -> sendActionMessage(
                         event,
                         "{0} tosses a pillow at {1} and shouts, \"FOR JUSTICE!\" No context given. ⚖️");
