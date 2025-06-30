@@ -319,7 +319,7 @@ public class Events extends ListenerAdapter {
         embed.setFooter("This post will now be closed. Send a message to re-open it.");
 
         String ping = op == null ? "dear user" : op.getAsMention();
-        String message = "Thank you for coming, " + ping + ". If you enjoy the plugin and are happy with the support you received, please consider leaving a star on Hangar, a follow on Modrinth, or a review on Spigot :heart:";
+        String message = "Thank you for coming, " + ping + ". If you enjoy the plugin and are happy with the support you received, please consider leaving a star on Hangar or a follow on Modrinth :heart:";
 
         if (slashEvent != null) slashEvent.reply(message).addEmbeds(embed.build()).queue(
             na -> channel
