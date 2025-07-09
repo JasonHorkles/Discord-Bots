@@ -21,8 +21,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 
 //@SuppressWarnings("DataFlowIssue")
 public class Utils {
@@ -223,7 +223,22 @@ public class Utils {
     /* BAD WORD LIST BELOW */
 
     public boolean containsBadWord(String phrase) {
-        String[] badWords = {"\\bsex\\b", "\\bass\\b", "bitch", "fuck", "breast", "penis", "vagina", "dicks", "ejaculate", "sperm", "sexual", "seduce", "seduct"};
+        String[] badWords = {
+            "\\bsex\\b",
+            "\\bass\\b",
+            "bitch",
+            "fuck",
+            "breast",
+            "penis",
+            "vagina",
+            "dicks",
+            "ejaculate",
+            "sperm",
+            "sexual",
+            "seduce",
+            "seduct",
+            "slur"
+        };
         for (String word : badWords) if (phrase.matches("(?si).*" + word + ".*")) return true;
         return false;
     }
