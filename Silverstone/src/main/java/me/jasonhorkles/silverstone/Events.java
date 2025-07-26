@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 
 import java.awt.*;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -48,8 +49,12 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        // github-spam, minigame-status
+        List<Long> excludeAutoPublish = List.of(885627082116317244L, 1395537310694641704L);
+
         // Auto publish announcements
-        if (event.getChannelType() == ChannelType.NEWS) {
+        if (event.getChannelType() == ChannelType.NEWS && !excludeAutoPublish.contains(event.getChannel()
+            .getIdLong())) {
             event.getMessage().crosspost().queue(
                 null,
                 new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE, ErrorResponse.ALREADY_CROSSPOSTED));
@@ -111,7 +116,10 @@ public class Events extends ListenerAdapter {
         OffsetDateTime thirtyMinsAgo = OffsetDateTime.now().minusMinutes(30);
         OffsetDateTime threeDaysAgo = OffsetDateTime.now().minusDays(3);
 
-        Long[] textChannels = {592208420602380328L, 456108521210118146L};
+        Long[] textChannels = {
+            592208420602380328L,
+            456108521210118146L
+        };
         for (long channelId : textChannels) {
             TextChannel channel = event.getGuild().getTextChannelById(channelId);
             System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking #" + channel.getName());
