@@ -20,7 +20,6 @@ import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -41,19 +40,17 @@ public class Weather {
 
         String rawWeatherType;
         if (StormAlerts.testing) rawWeatherType = Files.readString(Path.of("StormAlerts/Tests/weather.txt"));
-        else {
-            // Don't do anything with timeouts - we'll just try again next time
+        else try {
             Connection conn = Jsoup
-                .connect("https://weather.com/weather/today/l/" + new Secrets().weatherCode()).timeout(30000)
-                .cookies(new HashMap<>()).cookieStore(null);
-            try {
-                Document doc = conn.get();
-                //noinspection DataFlowIssue
-                rawWeatherType = doc.select("[class*=\"CurrentConditions--phraseValue--\"]").first().text();
-            } catch (SocketTimeoutException ignored) {
-                System.out.println(logUtils.getTime(LogUtils.LogColor.RED) + "Weather request timed out.\n ");
-                return;
-            }
+                .connect("https://weather.com/weather/today/l/" + new Secrets().weatherCode()).timeout(30000);
+            Document doc = conn.get();
+            //noinspection DataFlowIssue
+            rawWeatherType = doc.select("[class*=\"CurrentConditions--phraseValue--\"]").first().text();
+
+        } catch (SocketTimeoutException ignored) {
+            // Don't do anything with timeouts - we'll just try again next time
+            System.out.println(logUtils.getTime(LogUtils.LogColor.RED) + "Weather request timed out.\n ");
+            return;
         }
 
         if (rawWeatherType.isBlank()) throw new IOException("Weather type is blank");
