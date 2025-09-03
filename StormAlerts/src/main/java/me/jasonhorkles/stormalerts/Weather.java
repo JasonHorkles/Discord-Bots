@@ -41,9 +41,10 @@ public class Weather {
         String rawWeatherType;
         if (StormAlerts.testing) rawWeatherType = Files.readString(Path.of("StormAlerts/Tests/weather.txt"));
         else {
-            Connection conn = Jsoup
-                .connect("https://weather.com/weather/today/l/" + new Secrets().weatherCode()).timeout(30000);
             // Don't do anything with timeouts - we'll just try again next time
+            Connection conn = Jsoup
+                .connect("https://weather.com/weather/today/l/" + new Secrets().weatherCode()).timeout(30000)
+                .cookieStore(null);
             try {
                 Document doc = conn.get();
                 //noinspection DataFlowIssue
@@ -324,11 +325,16 @@ public class Weather {
     }
 
     public enum WeatherType {
-        RAIN, SNOW, HAIL
+        RAIN,
+        SNOW,
+        HAIL
     }
 
     private enum RainLevel {
-        L1, L2, L3, L4
+        L1,
+        L2,
+        L3,
+        L4
     }
 
     /**

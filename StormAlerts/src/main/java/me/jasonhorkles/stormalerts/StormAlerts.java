@@ -11,7 +11,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
-import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -37,12 +36,7 @@ public class StormAlerts extends ListenerAdapter {
         LogUtils logUtils = new LogUtils();
         System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Starting...");
 
-        JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());
-        builder.disableCache(
-            CacheFlag.ACTIVITY,
-            CacheFlag.CLIENT_STATUS,
-            CacheFlag.ONLINE_STATUS,
-            CacheFlag.VOICE_STATE);
+        JDABuilder builder = JDABuilder.createLight(new Secrets().botToken());
         builder.enableIntents(
             GatewayIntent.GUILD_MESSAGES,
             GatewayIntent.MESSAGE_CONTENT,
