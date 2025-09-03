@@ -20,6 +20,7 @@ import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -44,7 +45,7 @@ public class Weather {
             // Don't do anything with timeouts - we'll just try again next time
             Connection conn = Jsoup
                 .connect("https://weather.com/weather/today/l/" + new Secrets().weatherCode()).timeout(30000)
-                .cookieStore(null);
+                .cookies(new HashMap<>()).cookieStore(null);
             try {
                 Document doc = conn.get();
                 //noinspection DataFlowIssue
