@@ -34,7 +34,7 @@ public class SlashCommands extends ListenerAdapter {
                 List<String> messages = new ArrayList<>();
 
                 try (Scanner fileScanner = new Scanner(
-                    Path.of("Booper/" + fileName),
+                    Path.of("Booper/Messages/" + fileName),
                     StandardCharsets.UTF_8)) {
 
                     while (fileScanner.hasNextLine()) {
