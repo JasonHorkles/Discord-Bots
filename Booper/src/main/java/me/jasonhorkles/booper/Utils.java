@@ -65,9 +65,9 @@ public class Utils {
                 "twitch");
 
             // Get custom message if it exists, otherwise get a random default message
-            String message;
+            String message = "";
             if (customMessages.has(usernameOrId)) message = customMessages.getString(usernameOrId);
-            else {
+            if (message.equals("DEFAULT") || message.isBlank()) {
                 List<String> defaultMessages = new ArrayList<>();
 
                 try (Scanner fileScanner = new Scanner(

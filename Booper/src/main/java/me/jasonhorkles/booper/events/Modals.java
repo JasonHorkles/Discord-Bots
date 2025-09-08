@@ -42,6 +42,7 @@ public class Modals extends ListenerAdapter {
         JSONObject originalData = new Utils().getJsonFromFile("live-msgs.json");
         JSONObject platformData = originalData.getJSONObject(platform);
 
+        if (message.isBlank()) message = "DEFAULT";
         platformData.put(usernameOrId, message);
         originalData.put(platform, platformData);
 
