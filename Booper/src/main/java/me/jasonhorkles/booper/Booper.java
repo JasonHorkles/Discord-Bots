@@ -1,31 +1,53 @@
 package me.jasonhorkles.booper;
 
-import me.jasonhorkles.booper.events.SlashCommands;
+import com.github.philippheuer.credentialmanager.identityprovider.OAuth2IdentityProvider;
+import com.github.twitch4j.TwitchClient;
+import com.github.twitch4j.TwitchClientBuilder;
+import me.jasonhorkles.booper.events.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.json.JSONObject;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class Booper {
     public static JDA jda;
+    public static TwitchClient twitch;
+    public static String authToken;
+    public static final Long TWITCH_CHANNEL_ID = 1412864377270571018L;
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());
-        builder.disableCache(CacheFlag.ACTIVITY, CacheFlag.VOICE_STATE);
-        builder.setEnableShutdownHook(false);
+        builder.enableIntents(
+            GatewayIntent.GUILD_PRESENCES,
+            GatewayIntent.GUILD_MESSAGES,
+            GatewayIntent.GUILD_MEMBERS);
+        builder.disableCache(CacheFlag.VOICE_STATE);
+        builder.enableCache(CacheFlag.ACTIVITY);
+        builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.customStatus("Booper Booping"));
-        builder.addEventListeners(new SlashCommands());
+        builder.addEventListeners(new SlashCommands(), new Buttons(), new SelectMenus(), new Modals());
+        builder.setEnableShutdownHook(false);
         jda = builder.build();
 
         jda.awaitReady();
@@ -40,10 +62,88 @@ public class Booper {
         guild.updateCommands().addCommands(
             Commands.slash("hug", "Give someone a hug!")
                 .addOption(OptionType.MENTIONABLE, "hug", "Who do you want to hug?", true),
+
             Commands.slash("tackle", "Tackle someone!")
                 .addOption(OptionType.MENTIONABLE, "tackle", "Who do you want to tackle?", true),
+
             Commands.slash("pillow", "Smack someone with a pillow!")
-                .addOption(OptionType.MENTIONABLE, "pillow", "Who do you want to pillow?", true)).queue();
+                .addOption(OptionType.MENTIONABLE, "pillow", "Who do you want to pillow?", true),
+
+            Commands.slash("livemsg", "Set custom live messages")
+                .addSubcommands(
+                    new SubcommandData("set", "Add/update a user's custom live message"),
+                    new SubcommandData("reset", "Reset a user's custom live message to default"))).queue();
+
+        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Logging into Twitch...");
+
+        // Create Twitch client
+        TwitchClientBuilder twitchClientBuilder = TwitchClientBuilder.builder().withEnableHelix(true)
+            .withClientId("bal4gvuoblzs09ry4wxuurl1du5kqp")
+            .withClientSecret(new Secrets().twitchClientSecret());
+        twitch = twitchClientBuilder.build();
+
+        // Get OAuth token
+        Optional<OAuth2IdentityProvider> provider = twitchClientBuilder.getCredentialManager()
+            .getOAuth2IdentityProviderByName("twitch");
+        if (provider.isPresent()) {
+            authToken = provider.get().getAppAccessToken().getAccessToken();
+            System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Twitch login successful!");
+        } else {
+            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Twitch login failed!");
+            authToken = "null";
+        }
+
+        // Cache already live users from file
+        new Thread(
+            () -> {
+                JSONObject liveUsers = new Utils().getJsonFromFile("live-users.json");
+                JSONObject discordUsers = liveUsers.getJSONObject("discord");
+                JSONObject twitchUsers = liveUsers.getJSONObject("twitch");
+
+                TextChannel channel = guild.getTextChannelById(TWITCH_CHANNEL_ID);
+                if (channel == null) {
+                    System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Twitch text channel not found!");
+                    return;
+                }
+
+                // Discord users
+                for (String memberId : discordUsers.keySet()) {
+                    Member member;
+                    Message message;
+
+                    member = guild.getMemberById(memberId);
+                    message = channel.retrieveMessageById(discordUsers.getLong(memberId)).complete();
+
+                    if (message == null) continue;
+                    if (member == null) {
+                        System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Failed to cache live user with ID: " + memberId);
+                        continue;
+                    }
+
+                    LiveDiscord.liveMembers.put(member, message);
+                    System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Cached live Discord user: " + member.getEffectiveName());
+                    new LiveDiscord().checkIfLive(member);
+                }
+
+                // Twitch users
+                    /*for (String username : twitchUsers.keySet()) {
+                        Message message = channel.retrieveMessageById(twitchUsers.getLong(username)).complete();
+
+                        if (message == null) continue;
+                        //todo use Twitch API
+                        if (member == null) {
+                            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Failed to cache live user with ID: " + username);
+                            continue;
+                        }
+
+                        LiveTwitch.liveMembers.put(username, message);
+                        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Cached live Twitch user: " + username);
+                        new LiveTwitch().checkIfLive(username);
+                    }*/
+
+                jda.addEventListener(new LiveDiscord());
+                //                jda.addEventListener(new LiveTwitch());
+            }, "Cache Live Users").start();
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new Booper().shutdown(), "Shutdown Hook"));
@@ -64,6 +164,28 @@ public class Booper {
 
     public void shutdown() {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
+        twitch.close();
+
+        // Dump live users to file
+        try {
+            FileWriter file = new FileWriter("Booper/Data/live-users.json", StandardCharsets.UTF_8, false);
+
+            JSONObject liveDiscordMembers = new JSONObject();
+            for (var entry : LiveDiscord.liveMembers.entrySet())
+                liveDiscordMembers.put(entry.getKey().getId(), entry.getValue().getId());
+
+            JSONObject liveTwitchMembers = new JSONObject();
+            for (var entry : LiveTwitch.liveMembers.entrySet())
+                liveTwitchMembers.put(entry.getKey(), entry.getValue().getId());
+
+            file.write(new JSONObject().put("discord", liveDiscordMembers).put("twitch", liveTwitchMembers)
+                .toString(2));
+            file.close();
+        } catch (IOException e) {
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            e.printStackTrace();
+        }
+
         try {
             // Initating the shutdown, this closes the gateway connection and subsequently closes the requester queue
             jda.shutdown();

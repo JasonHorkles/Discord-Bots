@@ -9,6 +9,8 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -49,7 +51,19 @@ public class SlashCommands extends ListenerAdapter {
                 }
             }
 
-            default -> event.reply("Unknown command!").setEphemeral(true).queue();
+            case "livemsg" -> {
+                switch (event.getSubcommandName().toLowerCase()) {
+                    case "set" -> event.reply(
+                        "Which type of user would you like to **SET** a live message for?").addActionRow(
+                        getLiveMessageButtons("set")).setEphemeral(true).queue();
+
+                    case "reset" -> event.reply(
+                        "Which type of user's live message would you like to **RESET**?").addActionRow(
+                        getLiveMessageButtons("reset")).setEphemeral(true).queue();
+                }
+            }
+
+            default -> event.reply("Unknown command (" + event.getName() + ")!").setEphemeral(true).queue();
         }
     }
 
@@ -86,5 +100,11 @@ public class SlashCommands extends ListenerAdapter {
 
         event.reply(MessageFormat.format(message, event.getMember().getAsMention(), "**" + mention + "**"))
             .queue();
+    }
+
+    private List<ItemComponent> getLiveMessageButtons(String type) {
+        return List.of(
+            Button.success("live-msg-discord-" + type, "Discord User"),
+            Button.primary("live-msg-twitch-" + type, "Twitch User"));
     }
 }
