@@ -95,14 +95,21 @@ public class SelectMenus extends ListenerAdapter {
 
     private Modal getSetModal(String usernameOrId, String platform) {
         JSONObject customMessage = new Utils().getJsonFromFile("live-msgs.json").getJSONObject(platform);
-        String prePopulated = customMessage.has(usernameOrId) ? customMessage.getString(usernameOrId) : null;
+
+        // Pre-populate with existing message if it exists, otherwise set null if blank (for default msgs)
+        String prePopulated = null;
+        if (customMessage.has(usernameOrId)) {
+            String custom = customMessage.getString(usernameOrId);
+            if (!custom.isBlank()) prePopulated = custom;
+        }
+
+        String placeholderDefault = platform.equalsIgnoreCase("discord") ? "" : "Leave blank for the default message. ";
 
         TextInput messageInput = TextInput.create(
                 "custom-message",
-                "Custom Message",
-                TextInputStyle.PARAGRAPH).setPlaceholder(
-                "Leave blank for the default message. Use {NAME} for the person's username")
-            .setValue(prePopulated).setRequired(false).build();
+                "Custom Message", TextInputStyle.PARAGRAPH)
+            .setPlaceholder(placeholderDefault + "Use {NAME} for the person's username")
+            .setValue(prePopulated).setRequired(platform.equalsIgnoreCase("discord")).build();
 
         return Modal.create("custom-" + platform + "-live-" + usernameOrId, "Set Custom Live Message")
             .addActionRow(messageInput).build();

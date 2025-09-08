@@ -42,7 +42,6 @@ public class Modals extends ListenerAdapter {
         JSONObject originalData = new Utils().getJsonFromFile("live-msgs.json");
         JSONObject platformData = originalData.getJSONObject(platform);
 
-        if (message.isBlank()) message = "DEFAULT";
         platformData.put(usernameOrId, message);
         originalData.put(platform, platformData);
 
@@ -52,7 +51,9 @@ public class Modals extends ListenerAdapter {
             file.close();
 
             String name = platform.equals("discord") ? "<@" + usernameOrId + ">" : "**" + usernameOrId + "**";
-            hook.editOriginal("Successfully set " + name + "'s live message to:\n" + message).queue();
+            hook
+                .editOriginal("Successfully set " + name + "'s live message to:\n" + (message.isBlank() ? "DEFAULT" : message))
+                .queue();
 
         } catch (IOException e) {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));

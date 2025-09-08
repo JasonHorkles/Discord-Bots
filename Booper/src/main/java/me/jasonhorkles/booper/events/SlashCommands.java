@@ -58,8 +58,8 @@ public class SlashCommands extends ListenerAdapter {
                         getLiveMessageButtons("set")).setEphemeral(true).queue();
 
                     case "reset" -> event.reply(
-                        "Which type of user's live message would you like to **RESET**?").addActionRow(
-                        getLiveMessageButtons("reset")).setEphemeral(true).queue();
+                            "Which type of user's live message would you like to **RESET**?\n-# Selecting Twitch will disable notifications for that user entirely.")
+                        .addActionRow(getLiveMessageButtons("reset")).setEphemeral(true).queue();
                 }
             }
 
