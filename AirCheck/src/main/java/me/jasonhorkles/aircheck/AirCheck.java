@@ -25,7 +25,8 @@ public class AirCheck {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());
-        builder.disableCache(CacheFlag.ACTIVITY,
+        builder.disableCache(
+            CacheFlag.ACTIVITY,
             CacheFlag.CLIENT_STATUS,
             CacheFlag.ONLINE_STATUS,
             CacheFlag.VOICE_STATE);
@@ -38,56 +39,59 @@ public class AirCheck {
         jda.awaitReady();
 
         // Air Quality
-        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            try {
-                new AQI().checkAir();
-            } catch (Exception e) {
-                String reason = "";
-                if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
-                else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
-                else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
+        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+            () -> {
+                try {
+                    new AQI().checkAir();
+                } catch (Exception e) {
+                    String reason = "";
+                    if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
+                    else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
+                    else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
 
-                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the air quality!" + reason);
-                if (reason.isBlank()) {
-                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                    e.printStackTrace();
-                    new Utils().logError(e);
+                    System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the air quality!" + reason);
+                    if (reason.isBlank()) {
+                        System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                        e.printStackTrace();
+                        new Utils().logError(e);
+                    }
+
+                    jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
+                    jda.getPresence().setActivity(Activity.customStatus("⚠ Error"));
                 }
-
-                jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-                jda.getPresence().setActivity(Activity.customStatus("⚠ Error"));
-            }
-        }, 1, 1800, TimeUnit.SECONDS));
+            }, 1, 1800, TimeUnit.SECONDS));
 
         // Pollen
-        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            try {
-                new Pollen().getPollen();
-            } catch (Exception e) {
-                String reason = "";
-                if (e.getMessage().contains("Read timed out")) reason = " (Read Timed Out)";
+        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+            () -> {
+                try {
+                    new Pollen().getPollen();
+                } catch (Exception e) {
+                    String reason = "";
+                    if (e.getMessage().contains("Read timed out")) reason = " (Read Timed Out)";
 
-                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the pollen!" + reason);
-                if (reason.isBlank()) {
-                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                    e.printStackTrace();
-                    new Utils().logError(e);
+                    System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the pollen!" + reason);
+                    if (reason.isBlank()) {
+                        System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                        e.printStackTrace();
+                        new Utils().logError(e);
+                    }
                 }
-            }
-        }, 2, 2700, TimeUnit.SECONDS));
+            }, 2, 2700, TimeUnit.SECONDS));
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new AirCheck().shutdown(), "Shutdown Hook"));
-        Thread input = new Thread(() -> {
-            Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
-            while (true) {
-                String text = in.nextLine();
-                if (text.equalsIgnoreCase("stop")) {
-                    in.close();
-                    System.exit(0);
+        Thread input = new Thread(
+            () -> {
+                Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
+                while (true) {
+                    String text = in.nextLine();
+                    if (text.equalsIgnoreCase("stop")) {
+                        in.close();
+                        System.exit(0);
+                    }
                 }
-            }
-        }, "Console Input");
+            }, "Console Input");
         input.start();
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
@@ -100,7 +104,8 @@ public class AirCheck {
             // Initating the shutdown, this closes the gateway connection and subsequently closes the requester queue
             jda.shutdown();
             // Allow at most 10 seconds for remaining requests to finish
-            if (!jda.awaitShutdown(10,
+            if (!jda.awaitShutdown(
+                10,
                 TimeUnit.SECONDS)) { // returns true if shutdown is graceful, false if timeout exceeded
                 jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
                 jda.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
