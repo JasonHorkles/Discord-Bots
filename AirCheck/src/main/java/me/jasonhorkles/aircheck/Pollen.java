@@ -26,7 +26,6 @@ public class Pollen {
 
             //noinspection DataFlowIssue
             input = doc.select("[class*=\"PollenBreakdown--body--\"]").first().text();
-
         }
 
         Map<String, String> pollenLevels = new HashMap<>();

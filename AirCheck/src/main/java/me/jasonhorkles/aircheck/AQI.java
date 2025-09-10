@@ -25,7 +25,6 @@ public class AQI {
                 .toURL().openStream();
             input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();
-
         }
 
         if (input.isEmpty()) {
