@@ -13,8 +13,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Pollen {
-    public String getPollen() throws IOException {
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking pollen...");
+    public void getPollen() throws IOException {
+        Utils utils = new Utils();
+        System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Checking pollen...");
 
         String input;
         if (AirCheck.testing) input = Files.readString(Path.of("AirCheck/pollen.txt"));
@@ -37,7 +38,8 @@ public class Pollen {
             String pollenType = matcher.group(1);
             String level = matcher.group(3);
 
-            pollenLevels.put(pollenType,
+            pollenLevels.put(
+                pollenType,
                 level.replace("VeryHigh", "Very High").replace("VeryLow", "Very Low"));
         }
 
@@ -45,12 +47,11 @@ public class Pollen {
         String weedLevel = pollenLevels.getOrDefault("Ragweed", "ERROR");
         String treeLevel = pollenLevels.getOrDefault("Tree", "ERROR");
 
-        String pollenForecasts = getColor(grassLevel) + "**Grass** → " + grassLevel + "\n" + getColor(
-            weedLevel) + "**Ragweed** → " + weedLevel + "\n" + getColor(treeLevel) + "**Tree** → " + treeLevel + "\n";
+        utils.updateVoiceChannel(1415457851849048094L, "Grass | " + getColor(grassLevel) + " " + grassLevel);
+        utils.updateVoiceChannel(1415453649479536751L, "Ragweed | " + getColor(weedLevel) + " " + weedLevel);
+        utils.updateVoiceChannel(1415457875098337380L, "Tree | " + getColor(treeLevel) + " " + treeLevel);
 
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got the pollen! (G:" + grassLevel + " W:" + weedLevel + " T:" + treeLevel + ")");
-
-        return pollenForecasts;
+        System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Got the pollen! (G:" + grassLevel + " W:" + weedLevel + " T:" + treeLevel + ")");
     }
 
     private String getColor(String value) {

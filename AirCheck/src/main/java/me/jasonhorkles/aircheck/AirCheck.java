@@ -59,15 +59,15 @@ public class AirCheck {
             }
         }, 1, 1800, TimeUnit.SECONDS));
 
-        // Forecasts
+        // Pollen
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
-                new Forecasts().updateForecasts();
+                new Pollen().getPollen();
             } catch (Exception e) {
                 String reason = "";
                 if (e.getMessage().contains("Read timed out")) reason = " (Read Timed Out)";
 
-                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the forecasts!" + reason);
+                System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the pollen!" + reason);
                 if (reason.isBlank()) {
                     System.out.print(new Utils().getTime(Utils.LogColor.RED));
                     e.printStackTrace();

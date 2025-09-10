@@ -1,15 +1,11 @@
 package me.jasonhorkles.aircheck;
 
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
 
 public class Utils {
     public enum LogColor {
@@ -34,8 +30,10 @@ public class Utils {
         return logColor.getLogColor() + time;
     }
 
-    public CompletableFuture<List<Message>> getMessages(MessageChannel channel, int count) {
-        return channel.getIterableHistory().takeAsync(count).thenApply(ArrayList::new);
+    @SuppressWarnings("DataFlowIssue")
+    public void updateVoiceChannel(long id, String name) {
+        VoiceChannel voiceChannel = AirCheck.jda.getVoiceChannelById(id);
+        if (!voiceChannel.getName().equals(name)) voiceChannel.getManager().setName(name).queue();
     }
 
     public void logError(Exception e) {
