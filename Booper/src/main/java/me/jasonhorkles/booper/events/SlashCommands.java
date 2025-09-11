@@ -84,7 +84,10 @@ public class SlashCommands extends ListenerAdapter {
                         embed.setTitle("Custom Live Messages");
                         embed.setColor(new Color(222, 133, 38));
                         embed.addField("Discord Users", discordList.toString(), true);
-                        embed.addField("Twitch Users", twitchList.toString(), true);
+                        embed.addField(
+                            "Twitch Users (Includes Default Messages)",
+                            twitchList.toString(),
+                            true);
 
                         event.getHook().editOriginalEmbeds(embed.build()).queue();
                     }
