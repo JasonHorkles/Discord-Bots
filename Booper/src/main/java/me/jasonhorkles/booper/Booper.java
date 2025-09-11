@@ -72,7 +72,8 @@ public class Booper {
             Commands.slash("livemsg", "Set custom live messages")
                 .addSubcommands(
                     new SubcommandData("set", "Add/update a user's custom live message"),
-                    new SubcommandData("reset", "Reset a user's custom live message to default"))).queue();
+                    new SubcommandData("reset", "Reset a user's custom live message to default"),
+                    new SubcommandData("list", "List all the users with custom live messages"))).queue();
 
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Logging into Twitch...");
 

@@ -1,6 +1,7 @@
 package me.jasonhorkles.booper.events;
 
 import me.jasonhorkles.booper.Utils;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
@@ -11,7 +12,9 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import org.json.JSONObject;
 
+import java.awt.*;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -60,6 +63,31 @@ public class SlashCommands extends ListenerAdapter {
                     case "reset" -> event.reply(
                             "Which type of user's live message would you like to **RESET**?\n-# Selecting Twitch will disable notifications for that user entirely.")
                         .addActionRow(getLiveMessageButtons("reset")).setEphemeral(true).queue();
+
+                    case "list" -> {
+                        event.deferReply(true).queue();
+
+                        StringBuilder discordList = new StringBuilder();
+                        StringBuilder twitchList = new StringBuilder();
+
+                        JSONObject liveUsers = new Utils().getJsonFromFile("live-msgs.json");
+                        JSONObject discordUsers = liveUsers.getJSONObject("discord");
+                        JSONObject twitchUsers = liveUsers.getJSONObject("twitch");
+
+                        for (String memberId : discordUsers.keySet())
+                            discordList.append("<@").append(memberId).append(">\n");
+
+                        for (String memberId : twitchUsers.keySet())
+                            twitchList.append(memberId).append("\n");
+
+                        EmbedBuilder embed = new EmbedBuilder();
+                        embed.setTitle("Custom Live Messages");
+                        embed.setColor(new Color(222, 133, 38));
+                        embed.addField("Discord Users", discordList.toString(), true);
+                        embed.addField("Twitch Users", twitchList.toString(), true);
+
+                        event.getHook().editOriginalEmbeds(embed.build()).queue();
+                    }
                 }
             }
 
