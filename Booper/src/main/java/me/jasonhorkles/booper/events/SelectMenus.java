@@ -1,5 +1,6 @@
 package me.jasonhorkles.booper.events;
 
+import me.jasonhorkles.booper.Booper;
 import me.jasonhorkles.booper.Utils;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
@@ -43,7 +44,10 @@ public class SelectMenus extends ListenerAdapter {
                         Member member = event.getGuild().getMemberById(user);
                         if (member == null) success.add(user);
                         else success.add(member.getEffectiveName());
-                    } else success.add(user);
+                    } else {
+                        Booper.twitch.getClientHelper().disableStreamEventListener(user);
+                        success.add(user);
+                    }
                     else failed.add(user);
 
                 originalData.put(platform, platformData);
@@ -106,8 +110,7 @@ public class SelectMenus extends ListenerAdapter {
         String placeholderDefault = platform.equalsIgnoreCase("discord") ? "" : "Leave blank for the default message. ";
 
         TextInput messageInput = TextInput.create(
-                "custom-message",
-                "Custom Message", TextInputStyle.PARAGRAPH)
+                "custom-message", "Custom Message", TextInputStyle.PARAGRAPH)
             .setPlaceholder(placeholderDefault + "Use {NAME} for the person's username")
             .setValue(prePopulated).setRequired(platform.equalsIgnoreCase("discord")).build();
 

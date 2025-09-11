@@ -3,6 +3,8 @@ package me.jasonhorkles.booper;
 import com.github.philippheuer.credentialmanager.identityprovider.OAuth2IdentityProvider;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
+import com.github.twitch4j.events.ChannelGoLiveEvent;
+import com.github.twitch4j.events.ChannelGoOfflineEvent;
 import me.jasonhorkles.booper.events.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -69,11 +71,10 @@ public class Booper {
             Commands.slash("pillow", "Smack someone with a pillow!")
                 .addOption(OptionType.MENTIONABLE, "pillow", "Who do you want to pillow?", true),
 
-            Commands.slash("livemsg", "Set custom live messages")
-                .addSubcommands(
-                    new SubcommandData("set", "Add/update a user's custom live message"),
-                    new SubcommandData("reset", "Reset a user's custom live message to default"),
-                    new SubcommandData("list", "List all the users with custom live messages"))).queue();
+            Commands.slash("livemsg", "Set custom live messages").addSubcommands(
+                new SubcommandData("set", "Add/update a user's custom live message"),
+                new SubcommandData("reset", "Reset a user's custom live message to default"),
+                new SubcommandData("list", "List all the users with custom live messages"))).queue();
 
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Logging into Twitch...");
 
@@ -127,23 +128,29 @@ public class Booper {
                 }
 
                 // Twitch users
-                    /*for (String username : twitchUsers.keySet()) {
-                        Message message = channel.retrieveMessageById(twitchUsers.getLong(username)).complete();
+                for (String username : twitchUsers.keySet()) {
+                    Message message = channel.retrieveMessageById(twitchUsers.getLong(username)).complete();
 
-                        if (message == null) continue;
-                        //todo use Twitch API
-                        if (member == null) {
-                            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Failed to cache live user with ID: " + username);
-                            continue;
-                        }
+                    if (message == null) continue;
 
-                        LiveTwitch.liveMembers.put(username, message);
-                        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Cached live Twitch user: " + username);
-                        new LiveTwitch().checkIfLive(username);
-                    }*/
+                    new LiveTwitch().checkIfLive(username, message);
+                }
 
                 jda.addEventListener(new LiveDiscord());
-                //                jda.addEventListener(new LiveTwitch());
+
+                // Get all twitch users to watch
+                JSONObject liveMessages = new Utils().getJsonFromFile("live-msgs.json");
+                JSONObject allTwitchUsers = liveMessages.getJSONObject("twitch");
+
+                for (String username : allTwitchUsers.keySet())
+                    twitch.getClientHelper().enableStreamEventListener(username);
+
+                twitch.getEventManager().onEvent(
+                    ChannelGoLiveEvent.class,
+                    event -> new LiveTwitch().channelLiveEvent(event));
+                twitch.getEventManager().onEvent(
+                    ChannelGoOfflineEvent.class,
+                    event -> new LiveTwitch().channelOfflineEvent(event));
             }, "Cache Live Users").start();
 
         // Add shutdown hooks
@@ -176,7 +183,7 @@ public class Booper {
                 liveDiscordMembers.put(entry.getKey().getId(), entry.getValue().getId());
 
             JSONObject liveTwitchMembers = new JSONObject();
-            for (var entry : LiveTwitch.liveMembers.entrySet())
+            for (var entry : LiveTwitch.liveUsers.entrySet())
                 liveTwitchMembers.put(entry.getKey(), entry.getValue().getId());
 
             file.write(new JSONObject().put("discord", liveDiscordMembers).put("twitch", liveTwitchMembers)

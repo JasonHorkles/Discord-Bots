@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.awt.*;
@@ -55,7 +56,7 @@ public class Utils {
     /**
      * @param usernameOrId Discord ID or Twitch username to fetch from custom messages
      */
-    public Message sendLiveMessage(String usernameOrId, String twitchUrl, String gameName, boolean isDiscord) {
+    public Message sendLiveMessage(String usernameOrId, String twitchUrl, @Nullable String streamTitle, String gameName, boolean isDiscord) {
         String twitchUsername = twitchUrl.replaceFirst(".*twitch\\.tv/", "");
 
         String liveMessageText;
@@ -92,18 +93,21 @@ public class Utils {
             liveMessageText = "ERROR GRABBING MESSAGE";
         }
 
-        String twitchId = Booper.twitch.getClientHelper().getTwitchHelix().getUsers(
-            Booper.authToken,
-            null,
-            Collections.singletonList(twitchUsername)).execute().getUsers().getFirst().getId();
-        String title = Booper.twitch.getClientHelper().getTwitchHelix()
-            .getChannelInformation(Booper.authToken, Collections.singletonList(twitchId)).execute()
-            .getChannels().getFirst().getTitle();
+        if (streamTitle == null) {
+            String twitchId = Booper.twitch.getClientHelper().getTwitchHelix().getUsers(
+                Booper.authToken,
+                null,
+                Collections.singletonList(twitchUsername)).execute().getUsers().getFirst().getId();
+
+            streamTitle = Booper.twitch.getClientHelper().getTwitchHelix()
+                .getChannelInformation(Booper.authToken, Collections.singletonList(twitchId)).execute()
+                .getChannels().getFirst().getTitle();
+        }
 
         String imageUrl = "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + twitchUsername + "-1920x1080.jpg?id=" + System.currentTimeMillis() / 1000;
 
         EmbedBuilder embed = new EmbedBuilder();
-        embed.setTitle(title);
+        embed.setTitle(streamTitle);
         embed.setDescription(gameName);
         embed.setImage(imageUrl);
         embed.setUrl(twitchUrl);

@@ -38,6 +38,7 @@ public class LiveDiscord extends ListenerAdapter {
             Message message = new Utils().sendLiveMessage(
                 member.getId(),
                 Objects.requireNonNullElse(activity.getUrl(), "https://twitch.tv/thischanneldoesnotexist"),
+                null,
                 activity.getState(),
                 true);
             liveMembers.put(member, message);

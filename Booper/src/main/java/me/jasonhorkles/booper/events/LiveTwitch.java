@@ -1,57 +1,71 @@
 package me.jasonhorkles.booper.events;
 
+import com.github.twitch4j.events.ChannelGoLiveEvent;
+import com.github.twitch4j.events.ChannelGoOfflineEvent;
+import com.github.twitch4j.helix.domain.Stream;
+import me.jasonhorkles.booper.Booper;
+import me.jasonhorkles.booper.Utils;
 import net.dv8tion.jda.api.entities.Message;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LiveTwitch {
     // twitch username, message
-    public static final Map<String, Message> liveMembers = new HashMap<>();
+    public static final Map<String, Message> liveUsers = new HashMap<>();
 
-    //todo create with Twitch API
-    /*@Override
-    public void onUserUpdateActivities(@NotNull UserUpdateActivitiesEvent event) {
-        if (event.getGuild().getIdLong() != 1299547538445307986L) return;
+    // Ensure the user is still live on startup and cache them
+    public void checkIfLive(String username, Message message) {
+        String twitchId = Booper.twitch.getClientHelper().getTwitchHelix().getUsers(
+            Booper.authToken,
+            null,
+            Collections.singletonList(username)).execute().getUsers().getFirst().getId();
 
-        System.out.println("Activity update for " + event.getMember().getEffectiveName() + ": " + event
-            .getMember().getActivities());
-        checkIfLive(event.getMember());
-    }
+        List<Stream> stream = Booper.twitch.getClientHelper().getTwitchHelix().getStreams(
+            Booper.authToken,
+            null,
+            null,
+            1,
+            null,
+            null,
+            Collections.singletonList(twitchId),
+            null).execute().getStreams();
 
-    public void checkIfLive(Member member) {
-        Activity activity = getLiveActivity(member);
-
-        // Member was live
-        if (liveMembers.containsKey(member)) {
-            if (activity != null) return;
-
-            liveMembers.get(member).delete().queue();
-            liveMembers.remove(member);
+        if (stream.isEmpty()) {
+            //debug
+            System.out.println("Twitch user " + username + " is not live, not caching");
+            return;
         }
 
-        // Member is now live
-        else if (activity != null) new Thread(() -> {
+        liveUsers.put(username, message);
+        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Cached live Twitch user: " + username);
+    }
+
+    public void channelLiveEvent(ChannelGoLiveEvent event) {
+        String username = event.getChannel().getName().toLowerCase();
+        //debug
+        System.out.println(event.getChannel().getName() + " is live!");
+        if (liveUsers.containsKey(username)) return;
+
+        new Thread(() -> {
             Message message = new Utils().sendLiveMessage(
-                member.getId(),
-                Objects.requireNonNullElse(activity.getUrl(), "https://twitch.tv/thischanneldoesnotexist"),
-                activity.getState(),
-                true);
-            liveMembers.put(member, message);
+                username,
+                "https://twitch.tv/" + username,
+                event.getStream().getTitle(),
+                event.getStream().getGameName(),
+                false);
+
+            liveUsers.put(username, message);
         }).start();
     }
 
-    @Nullable
-    private Activity getLiveActivity(Member member) {
-        Activity activity = null;
-        for (Activity activities : member.getActivities())
-            if (activities.getName().equalsIgnoreCase("Twitch")) {
-                activity = activities;
-                break;
-            }
-
-        if (activity == null) return null;
-        if (activity.getType() != Activity.ActivityType.STREAMING) return null;
-        return activity;
-    }*/
+    public void channelOfflineEvent(ChannelGoOfflineEvent event) {
+        //debug
+        System.out.println(event.getChannel().getName() + " is no longer live");
+        String username = event.getChannel().getName().toLowerCase();
+        liveUsers.get(username).delete().queue();
+        liveUsers.remove(username);
+    }
 }

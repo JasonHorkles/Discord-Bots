@@ -70,9 +70,9 @@ public class SlashCommands extends ListenerAdapter {
                         StringBuilder discordList = new StringBuilder();
                         StringBuilder twitchList = new StringBuilder();
 
-                        JSONObject liveUsers = new Utils().getJsonFromFile("live-msgs.json");
-                        JSONObject discordUsers = liveUsers.getJSONObject("discord");
-                        JSONObject twitchUsers = liveUsers.getJSONObject("twitch");
+                        JSONObject liveMessages = new Utils().getJsonFromFile("live-msgs.json");
+                        JSONObject discordUsers = liveMessages.getJSONObject("discord");
+                        JSONObject twitchUsers = liveMessages.getJSONObject("twitch");
 
                         for (String memberId : discordUsers.keySet())
                             discordList.append("<@").append(memberId).append(">\n");

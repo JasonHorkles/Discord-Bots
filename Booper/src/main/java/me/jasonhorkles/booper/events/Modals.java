@@ -1,5 +1,6 @@
 package me.jasonhorkles.booper.events;
 
+import me.jasonhorkles.booper.Booper;
 import me.jasonhorkles.booper.Utils;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -34,6 +35,7 @@ public class Modals extends ListenerAdapter {
 
                 event.deferReply(true).queue();
                 setLiveMessage("twitch", username, message, event.getHook());
+                Booper.twitch.getClientHelper().enableStreamEventListener(username);
             }
         }
     }
