@@ -120,10 +120,8 @@ public class Utils {
         Message liveMessage = channel.sendMessage(liveMessageText).setEmbeds(embed.build()).complete();
 
         // Update image after 10 minutes
-        //todo put back to 10 mins
         liveMessage.editMessageEmbeds(embed.setImage(imageUrl + "1").build()).queueAfter(
-            10,
-            TimeUnit.SECONDS,
+            10, TimeUnit.MINUTES,
             null,
             new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
 

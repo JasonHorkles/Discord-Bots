@@ -95,7 +95,7 @@ public class Booper {
             authToken = "null";
         }
 
-        // Cache already live users from file
+        // Cache already live users from file & set up listeners for new live users
         new Thread(
             () -> {
                 JSONObject liveUsers = new Utils().getJsonFromFile("live-users.json");
@@ -138,7 +138,7 @@ public class Booper {
 
                 jda.addEventListener(new LiveDiscord());
 
-                // Get all twitch users to watch
+                // Get all the twitch users to watch
                 JSONObject liveMessages = new Utils().getJsonFromFile("live-msgs.json");
                 JSONObject allTwitchUsers = liveMessages.getJSONObject("twitch");
 

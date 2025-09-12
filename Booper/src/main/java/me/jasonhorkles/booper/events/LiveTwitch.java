@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public class LiveTwitch {
-    // twitch username, message
+    // Twitch username, message
     public static final Map<String, Message> liveUsers = new HashMap<>();
 
     // Ensure the user is still live on startup and cache them
@@ -36,6 +36,7 @@ public class LiveTwitch {
         if (stream.isEmpty()) {
             //debug
             System.out.println("Twitch user " + username + " is not live, not caching");
+            message.delete().queue();
             return;
         }
 
@@ -65,6 +66,7 @@ public class LiveTwitch {
         //debug
         System.out.println(event.getChannel().getName() + " is no longer live");
         String username = event.getChannel().getName().toLowerCase();
+        System.out.println(liveUsers.containsKey(username));
         liveUsers.get(username).delete().queue();
         liveUsers.remove(username);
     }
