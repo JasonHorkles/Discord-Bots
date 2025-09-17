@@ -4,7 +4,6 @@ import me.jasonhorkles.booper.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.IMentionable;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -108,13 +107,7 @@ public class SlashCommands extends ListenerAdapter {
 
         // If it's a member, mention them regardless
         String mention = receiver.getAsMention();
-        if (!(receiver instanceof Member)) {
-            // If it's a user, send an ephemeral message
-            if (receiver instanceof User) {
-                event.reply("Sorry, but that user isn't in the server!").setEphemeral(true).queue();
-                return;
-            }
-
+        if (!(receiver instanceof User))
             // Never allow @everyone
             if (mention.equalsIgnoreCase("@everyone")) mention = mention.replaceFirst("@", "");
             else {
@@ -127,7 +120,6 @@ public class SlashCommands extends ListenerAdapter {
                 // Fallback to just the name if they can't
                 if (!canMention && receiver instanceof Role) mention = ((Role) receiver).getName();
             }
-        }
 
         event.reply(MessageFormat.format(message, event.getMember().getAsMention(), "**" + mention + "**"))
             .queue();
