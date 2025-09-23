@@ -98,7 +98,6 @@ public class Utils {
             System.out.println(getTime(LogColor.GREEN) + "Updated the daily Wordle!");
         } catch (IOException e) {
             System.out.print(getTime(LogColor.RED));
-            System.out.print(getTime(LogColor.RED));
             e.printStackTrace();
         }
     }
