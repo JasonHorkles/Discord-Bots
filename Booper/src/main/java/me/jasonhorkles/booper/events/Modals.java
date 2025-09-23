@@ -52,9 +52,13 @@ public class Modals extends ListenerAdapter {
             file.write(originalData.toString(2));
             file.close();
 
+            String missingName = "";
+            if (!message.isBlank()) if (!message.contains("{NAME}"))
+                missingName = "\n:warning: Warning: The message is missing the `{NAME}` placeholder!";
+
             String name = platform.equals("discord") ? "<@" + usernameOrId + ">" : "**" + usernameOrId + "**";
             hook
-                .editOriginal("Successfully set " + name + "'s live message to:\n" + (message.isBlank() ? "DEFAULT" : message))
+                .editOriginal("Successfully set " + name + "'s live message to:\n" + (message.isBlank() ? "DEFAULT" : message) + missingName)
                 .queue();
 
         } catch (IOException e) {
