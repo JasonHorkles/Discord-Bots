@@ -34,8 +34,6 @@ public class LiveTwitch {
             null).execute().getStreams();
 
         if (stream.isEmpty()) {
-            //debug
-            System.out.println("Twitch user " + username + " is not live, not caching");
             message.delete().queue();
             return;
         }
@@ -46,8 +44,6 @@ public class LiveTwitch {
 
     public void channelLiveEvent(ChannelGoLiveEvent event) {
         String username = event.getChannel().getName().toLowerCase();
-        //debug
-        System.out.println(event.getChannel().getName() + " is live!");
         if (liveUsers.containsKey(username)) return;
 
         new Thread(() -> {
@@ -63,10 +59,7 @@ public class LiveTwitch {
     }
 
     public void channelOfflineEvent(ChannelGoOfflineEvent event) {
-        //debug
-        System.out.println(event.getChannel().getName() + " is no longer live");
         String username = event.getChannel().getName().toLowerCase();
-        System.out.println(liveUsers.containsKey(username));
         liveUsers.get(username).delete().queue();
         liveUsers.remove(username);
     }
