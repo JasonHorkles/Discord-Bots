@@ -4,6 +4,8 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.ThreadMember;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -36,8 +38,13 @@ public class Utils {
         return channel.getIterableHistory().takeAsync(count).thenApply(ArrayList::new);
     }
 
+    @Nullable
     public ThreadMember getThreadOP(ThreadChannel channel) {
-        return channel.retrieveThreadMemberById(channel.getOwnerIdLong()).complete();
+        try {
+            return channel.retrieveThreadMemberById(channel.getOwnerIdLong()).complete();
+        } catch (ErrorResponseException ignored) {
+            return null;
+        }
     }
 
     // EntityClearer, ExpensiveDeaths, FileCleaner

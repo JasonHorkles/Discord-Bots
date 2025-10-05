@@ -33,7 +33,9 @@ public class CloseStale {
                 if (latestMessage.getTimeCreated().isBefore(twoWeeksAgo)) {
                     System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Closing stale post '" + thread.getName() + "'");
 
-                    String ping = utils.getThreadOP(thread).getAsMention();
+                    //noinspection DataFlowIssue
+                    String ping = utils.getThreadOP(thread) == null ? "Hello" : utils.getThreadOP(thread)
+                        .getAsMention();
                     thread
                         .sendMessage(ping + ", this thread has been archived due to inactivity. If you still need help, send a message to re-open it.")
                         .queue(na -> thread.getManager().setArchived(true).queue());
