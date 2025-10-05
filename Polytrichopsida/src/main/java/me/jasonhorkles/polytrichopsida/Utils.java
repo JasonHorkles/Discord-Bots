@@ -16,7 +16,9 @@ import java.util.concurrent.CompletableFuture;
 
 public class Utils {
     public enum LogColor {
-        RED("\u001B[31m"), YELLOW("\u001B[33m"), GREEN("\u001B[32m");
+        RED("\u001B[31m"),
+        YELLOW("\u001B[33m"),
+        GREEN("\u001B[32m");
 
         private final String logColor;
 
@@ -48,7 +50,11 @@ public class Utils {
     }
 
     // EntityClearer, ExpensiveDeaths, FileCleaner
-    private final long[] supportChannels = {1226927981977403452L, 1264700031819059340L, 1264699977293107242L};
+    private final long[] supportChannels = {
+        1226927981977403452L,
+        1264700031819059340L,
+        1264699977293107242L
+    };
 
     public long[] getSupportIds() {
         return supportChannels;
