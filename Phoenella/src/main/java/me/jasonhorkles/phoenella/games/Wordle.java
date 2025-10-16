@@ -705,7 +705,10 @@ public class Wordle extends ListenerAdapter {
     }
 
     private enum LetterType {
-        WRONG, IN_WORD, CORRECT, NOT_GUESSED
+        WRONG,
+        IN_WORD,
+        CORRECT,
+        NOT_GUESSED
     }
 
     private String getLetter(Character letter, LetterType letterType) {
