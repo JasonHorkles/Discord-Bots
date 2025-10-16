@@ -219,25 +219,27 @@ public class Messages extends ListenerAdapter {
 
         Random r = new Random();
 
-        if (text.isEmpty()) {
-            msg = new Utils().getFirstName(member);
+        switch (text) {
+            case "" -> {
+                msg = new Utils().getFirstName(member);
 
-            new Utils().sendMessage(channel, null, msg, allCaps);
-            return;
-        }
+                new Utils().sendMessage(channel, null, msg, allCaps);
+                return;
+            }
 
-        if (text.equals("?")) {
-            msg = new Utils().getFirstName(member) + "?";
+            case "?" -> {
+                msg = new Utils().getFirstName(member) + "?";
 
-            new Utils().sendMessage(channel, null, msg, allCaps);
-            return;
-        }
+                new Utils().sendMessage(channel, null, msg, allCaps);
+                return;
+            }
 
-        if (text.equals("!")) {
-            msg = "WHAT DO YOU WANT " + new Utils().getFirstName(member) + " AAAAAAAAAAAAAAAAAAAAA";
+            case "!" -> {
+                msg = "WHAT DO YOU WANT " + new Utils().getFirstName(member) + " AAAAAAAAAAAAAAAAAAAAA";
 
-            new Utils().sendMessage(channel, null, msg, true);
-            return;
+                new Utils().sendMessage(channel, null, msg, true);
+                return;
+            }
         }
 
         if (text.length() == 1) {
