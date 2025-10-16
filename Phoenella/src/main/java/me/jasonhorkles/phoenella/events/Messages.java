@@ -24,8 +24,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("DataFlowIssue")
@@ -336,14 +336,17 @@ public class Messages extends ListenerAdapter {
         }
 
         if (text.startsWith("define ")) {
-            MessageEmbed embed = new Utils().defineWord(text.replace("define ", ""));
+            Utils.DefinitionResult result = new Utils().defineWord(text.replace("define ", ""));
+            MessageEmbed embed = result.embed();
 
             if (embed.getDescription() != null) if (embed.getDescription().startsWith("Couldn't find "))
                 message.replyEmbeds(embed).mentionRepliedUser(false).queue();
 
-            else message.replyEmbeds(embed).setActionRow(Button
-                        .danger("definitionreport", "Report definition").withEmoji(Emoji.fromUnicode("🚩")))
-                    .mentionRepliedUser(false).queue();
+            else if (result.isSuccessful()) message.replyEmbeds(embed).setActionRow(Button
+                    .danger("definitionreport", "Report definition").withEmoji(Emoji.fromUnicode("🚩")))
+                .mentionRepliedUser(false).queue();
+
+            else message.replyEmbeds(embed).mentionRepliedUser(false).queue();
 
             return;
         }

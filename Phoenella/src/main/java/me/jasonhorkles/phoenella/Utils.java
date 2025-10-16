@@ -27,7 +27,9 @@ import java.util.List;
 //@SuppressWarnings("DataFlowIssue")
 public class Utils {
     public enum LogColor {
-        RED("\u001B[31m"), YELLOW("\u001B[33m"), GREEN("\u001B[32m");
+        RED("\u001B[31m"),
+        YELLOW("\u001B[33m"),
+        GREEN("\u001B[32m");
 
         private final String logColor;
 
@@ -120,7 +122,9 @@ public class Utils {
         return daily;
     }
 
-    public MessageEmbed defineWord(String word) {
+    public record DefinitionResult(MessageEmbed embed, boolean isSuccessful) {}
+
+    public DefinitionResult defineWord(String word) {
         word = word.replaceAll(" .*", "");
         EmbedBuilder embed = new EmbedBuilder();
 
@@ -132,7 +136,8 @@ public class Utils {
             } catch (FileNotFoundException ignored) {
                 embed.setColor(new Color(212, 43, 65));
                 embed.setDescription("Couldn't find **" + word + "** in the dictionary!");
-                return embed.build();
+
+                return new DefinitionResult(embed.build(), false);
             }
 
             JSONObject obj = new JSONArray(new String(
@@ -180,9 +185,11 @@ public class Utils {
 
             embed.setColor(new Color(212, 43, 65));
             embed.setDescription("Failed to search dictionary for word **" + word + "**! Please try again later.");
+
+            return new DefinitionResult(embed.build(), false);
         }
 
-        return embed.build();
+        return new DefinitionResult(embed.build(), true);
     }
 
     /* BAD WORD LIST BELOW */
