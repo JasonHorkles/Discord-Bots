@@ -29,8 +29,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -580,15 +580,18 @@ public class Wordle extends ListenerAdapter {
             event.deferReply(true).queue();
 
             String word = event.getComponentId().replace("defineword:", "");
-            MessageEmbed embed = new Utils().defineWord(word);
+            Utils.DefinitionResult result = new Utils().defineWord(word);
+            MessageEmbed embed = result.embed();
 
             if (embed.getDescription() != null)
                 if (embed.getDescription().startsWith("Couldn't find ")) event.getHook().editOriginalEmbeds(
                     embed).queue();
 
-                else event.getHook().editOriginalEmbeds(embed).setActionRow(Button
+                else if (result.isSuccessful()) event.getHook().editOriginalEmbeds(embed).setActionRow(Button
                         .danger("definitionreport", "Report definition").withEmoji(Emoji.fromUnicode("🚩")))
                     .queue();
+
+                else event.getHook().editOriginalEmbeds(embed).queue();
         }
     }
 
