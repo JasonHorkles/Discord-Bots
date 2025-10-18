@@ -25,7 +25,8 @@ public class Polytrichopsida {
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());
         builder.disableCache(CacheFlag.ACTIVITY, CacheFlag.VOICE_STATE);
-        builder.enableIntents(GatewayIntent.GUILD_MEMBERS,
+        builder.enableIntents(
+            GatewayIntent.GUILD_MEMBERS,
             GatewayIntent.GUILD_MESSAGES,
             GatewayIntent.MESSAGE_CONTENT);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
@@ -37,16 +38,14 @@ public class Polytrichopsida {
 
         jda.awaitReady();
 
-        OptionData plugins = new OptionData(OptionType.STRING,
-            "plugin",
-            "The plugin",
-            true).addChoices(new Command.Choice("EntityClearer", "EntityClearer"),
+        OptionData plugins = new OptionData(OptionType.STRING, "plugin", "The plugin", true).addChoices(
+            new Command.Choice("EntityClearer", "EntityClearer"),
             new Command.Choice("ExpensiveDeaths", "ExpensiveDeaths"),
             new Command.Choice("FileCleaner", "FileCleaner"));
 
         //noinspection DataFlowIssue
-        jda.getGuildById(390942438061113344L).updateCommands().addCommands(Commands
-                .slash("ecldebug", "EntityClearer debug")
+        jda.getGuildById(390942438061113344L).updateCommands().addCommands(
+            Commands.slash("ecldebug", "EntityClearer debug")
                 .addOption(OptionType.BOOLEAN, "replyop", "Reply to the OP", false),
             Commands.slash("faqs", "FAQs link").addOptions(plugins),
             Commands.slash("plgh", "Links to the plugins on GitHub"),
@@ -56,18 +55,20 @@ public class Polytrichopsida {
             Commands.slash("close", "Close a plugin support thread")).queue();
 
         // Add shutdown hooks
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> new Polytrichopsida().shutdown(),
+        Runtime.getRuntime().addShutdownHook(new Thread(
+            () -> new Polytrichopsida().shutdown(),
             "Shutdown Hook"));
-        Thread input = new Thread(() -> {
-            Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
-            while (true) {
-                String text = in.nextLine();
-                if (text.equalsIgnoreCase("stop")) {
-                    in.close();
-                    System.exit(0);
+        Thread input = new Thread(
+            () -> {
+                Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
+                while (true) {
+                    String text = in.nextLine();
+                    if (text.equalsIgnoreCase("stop")) {
+                        in.close();
+                        System.exit(0);
+                    }
                 }
-            }
-        }, "Console Input");
+            }, "Console Input");
         input.start();
 
         try {
@@ -85,7 +86,8 @@ public class Polytrichopsida {
             // Initating the shutdown, this closes the gateway connection and subsequently closes the requester queue
             jda.shutdown();
             // Allow at most 10 seconds for remaining requests to finish
-            if (!jda.awaitShutdown(10,
+            if (!jda.awaitShutdown(
+                10,
                 TimeUnit.SECONDS)) { // returns true if shutdown is graceful, false if timeout exceeded
                 jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
                 jda.awaitShutdown(); // Wait until shutdown is complete (indefinitely)

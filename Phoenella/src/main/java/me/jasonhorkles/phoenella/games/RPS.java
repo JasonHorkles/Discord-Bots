@@ -2,14 +2,14 @@ package me.jasonhorkles.phoenella.games;
 
 import me.jasonhorkles.phoenella.GameManager;
 import me.jasonhorkles.phoenella.Utils;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 
 import java.util.ArrayList;
@@ -41,10 +41,10 @@ public class RPS extends ListenerAdapter {
 
         channel
             .sendMessage("## Round 0/3\n\n**" + new Utils().getFirstName(playerList.get(0)) + ":** 0\n**" + new Utils().getFirstName(
-                playerList.get(1)) + ":** 0").setActionRow(
+                playerList.get(1)) + ":** 0").addComponents(ActionRow.of(
                 Button.primary("rps:rock", Emoji.fromUnicode("\uD83E\uDEA8")),
                 Button.primary("rps:paper", Emoji.fromUnicode("\uD83D\uDCDD")),
-                Button.primary("rps:scissors", Emoji.fromUnicode("✂️"))).queueAfter(5, TimeUnit.SECONDS);
+                Button.primary("rps:scissors", Emoji.fromUnicode("✂️")))).queueAfter(5, TimeUnit.SECONDS);
 
         StringBuilder mentions = new StringBuilder();
         for (Member player : playerList) mentions.append(player.getAsMention());

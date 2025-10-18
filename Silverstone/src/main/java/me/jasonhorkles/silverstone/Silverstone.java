@@ -26,7 +26,8 @@ public class Silverstone {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());
-        builder.enableIntents(GatewayIntent.GUILD_PRESENCES,
+        builder.enableIntents(
+            GatewayIntent.GUILD_PRESENCES,
             GatewayIntent.GUILD_MEMBERS,
             GatewayIntent.GUILD_MESSAGES,
             GatewayIntent.MESSAGE_CONTENT);
@@ -91,16 +92,17 @@ public class Silverstone {
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new Silverstone().shutdown(), "Shutdown Hook"));
-        Thread input = new Thread(() -> {
-            Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
-            while (true) {
-                String text = in.nextLine();
-                if (text.equalsIgnoreCase("stop")) {
-                    in.close();
-                    System.exit(0);
+        Thread input = new Thread(
+            () -> {
+                Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
+                while (true) {
+                    String text = in.nextLine();
+                    if (text.equalsIgnoreCase("stop")) {
+                        in.close();
+                        System.exit(0);
+                    }
                 }
-            }
-        }, "Console Input");
+            }, "Console Input");
         input.start();
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
@@ -113,7 +115,8 @@ public class Silverstone {
             // Initating the shutdown, this closes the gateway connection and subsequently closes the requester queue
             jda.shutdown();
             // Allow at most 10 seconds for remaining requests to finish
-            if (!jda.awaitShutdown(10,
+            if (!jda.awaitShutdown(
+                10,
                 TimeUnit.SECONDS)) { // returns true if shutdown is graceful, false if timeout exceeded
                 jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
                 jda.awaitShutdown(); // Wait until shutdown is complete (indefinitely)

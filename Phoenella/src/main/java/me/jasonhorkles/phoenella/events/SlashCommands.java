@@ -4,13 +4,14 @@ import me.jasonhorkles.phoenella.Phoenella;
 import me.jasonhorkles.phoenella.Utils;
 import me.jasonhorkles.phoenella.games.RPS;
 import me.jasonhorkles.phoenella.games.Wordle;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,14 +45,16 @@ public class SlashCommands extends ListenerAdapter {
     private void wordleCommand(SlashCommandInteractionEvent event) {
         switch (event.getSubcommandName()) {
             case "create" -> {
-                TextInput word = TextInput.create("word", "Word", TextInputStyle.SHORT).setPlaceholder(
-                    "Standard words are 5 characters").setMinLength(4).setMaxLength(8).build();
-                TextInput tries = TextInput.create("tries", "Tries", TextInputStyle.SHORT).setPlaceholder(
-                        "Must be between 4-8").setMinLength(1).setMaxLength(1).setValue(String.valueOf(6))
-                    .build();
+                Label word = Label.of(
+                    "Word", TextInput.create("word", TextInputStyle.SHORT).setPlaceholder(
+                        "Standard words are 5 characters").setMinLength(4).setMaxLength(8).build());
+                Label tries = Label.of(
+                    "Tries", TextInput.create("tries", TextInputStyle.SHORT).setPlaceholder(
+                            "Must be between 4-8").setMinLength(1).setMaxLength(1).setValue(String.valueOf(6))
+                        .build());
 
-                Modal modal = Modal.create("customwordle", "Create Custom Wordle").addActionRow(word)
-                    .addActionRow(tries).build();
+                Modal modal = Modal.create("customwordle", "Create Custom Wordle").addComponents(word, tries)
+                    .build();
 
                 event.replyModal(modal).queue();
             }

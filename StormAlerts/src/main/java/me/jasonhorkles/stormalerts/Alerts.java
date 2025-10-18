@@ -4,9 +4,10 @@ import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
 import me.jasonhorkles.stormalerts.Utils.LogUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -98,7 +99,13 @@ public class Alerts {
 
             // Ignore alerts for (irrelevant) places outside of the region before we format everything else
             String area = alert.getString("areaDesc");
-            String[] locations = {fa, ce, ka, nwf, da};
+            String[] locations = {
+                fa,
+                ce,
+                ka,
+                nwf,
+                da
+            };
             boolean irrelevantLoc = true;
             for (String location : locations)
                 if (description.toLowerCase().contains(location.toLowerCase())) {
@@ -292,8 +299,9 @@ public class Alerts {
                     embed.setFooter("Updated");
                     embed.setTimestamp(Instant.now());
 
-                    dontDeleteMe.add(alertMessage.editMessage(message).setEmbeds(embed.build()).setActionRow(
-                        Button.secondary("viewchanges", "View changes")).complete().getIdLong());
+                    dontDeleteMe.add(alertMessage.editMessage(message).setEmbeds(embed.build()).setComponents(
+                            ActionRow.of(Button.secondary("viewchanges", "View changes"))).complete()
+                        .getIdLong());
                     hasUpdated = true;
                 }
             }

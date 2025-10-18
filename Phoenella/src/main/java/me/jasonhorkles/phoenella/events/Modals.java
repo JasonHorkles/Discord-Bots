@@ -2,9 +2,10 @@ package me.jasonhorkles.phoenella.events;
 
 import me.jasonhorkles.phoenella.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.awt.*;
 
@@ -51,7 +52,8 @@ public class Modals extends ListenerAdapter {
             embed.addField("Fails", "0", true);
 
             event.getJDA().getTextChannelById(956267174727671869L).sendMessageEmbeds(embed.build())
-                .setActionRow(Button.success("playwordle:" + word + ":" + tries, "Play it!")).queue();
+                .addComponents(ActionRow.of(Button.success("playwordle:" + word + ":" + tries, "Play it!")))
+                .queue();
         }
     }
 }

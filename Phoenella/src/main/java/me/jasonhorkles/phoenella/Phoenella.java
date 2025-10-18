@@ -79,8 +79,7 @@ public class Phoenella {
                 new SubcommandData("play", "Play with a random word"),
                 new SubcommandData("create", "Create a Wordle for others to play"),
                 new SubcommandData("leaderboard", "View the Wordle leaderboard").addOption(
-                    OptionType.BOOLEAN,
-                    "show", "Show the leaderboard message publicly?", false),
+                    OptionType.BOOLEAN, "show", "Show the leaderboard message publicly?", false),
                 new SubcommandData("daily", "Play the daily Wordle")),
             Commands.slash("rps", "Rock, Paper, Scissors")
                 .addOption(OptionType.USER, "player", "Player 2", true)).queue();

@@ -2,13 +2,14 @@ package me.jasonhorkles.booper.events;
 
 import me.jasonhorkles.booper.Booper;
 import me.jasonhorkles.booper.Utils;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 import org.json.JSONObject;
 
 import java.io.FileWriter;
@@ -83,18 +84,18 @@ public class SelectMenus extends ListenerAdapter {
     }
 
     private Modal getAddTwitchModal() {
-        TextInput usernameInput = TextInput.create("username", "Twitch Username", TextInputStyle.SHORT)
-            .setPlaceholder("The lowercase username displayed in the Twitch URL").setRequired(true).build();
+        Label usernameInput = Label.of(
+            "Twitch Username", TextInput.create("username", TextInputStyle.SHORT)
+                .setPlaceholder("The lowercase username displayed in the Twitch URL").setRequired(true).build());
 
-        TextInput messageInput = TextInput.create(
-                "custom-message",
-                "Custom Message",
-                TextInputStyle.PARAGRAPH).setPlaceholder(
-                "Leave blank for the default message. Use {NAME} for the person's username").setRequired(false)
-            .build();
+        Label messageInput = Label.of(
+            "Custom Message", TextInput.create("custom-message", TextInputStyle.PARAGRAPH).setPlaceholder(
+                    "Leave blank for the default message. Use {NAME} for the person's username")
+                .setRequired(false).build());
 
-        return Modal.create("add-twitch-live-user", "Add Custom Live Message").addActionRow(usernameInput)
-            .addActionRow(messageInput).build();
+        return Modal.create("add-twitch-live-user", "Add Custom Live Message").addComponents(
+            usernameInput,
+            messageInput).build();
     }
 
     private Modal getSetModal(String usernameOrId, String platform) {
@@ -109,12 +110,12 @@ public class SelectMenus extends ListenerAdapter {
 
         String placeholderDefault = platform.equalsIgnoreCase("discord") ? "" : "Leave blank for the default message. ";
 
-        TextInput messageInput = TextInput.create(
-                "custom-message", "Custom Message", TextInputStyle.PARAGRAPH)
-            .setPlaceholder(placeholderDefault + "Use {NAME} for the person's username")
-            .setValue(prePopulated).setRequired(platform.equalsIgnoreCase("discord")).build();
+        Label messageInput = Label.of(
+            "Custom Message", TextInput.create("custom-message", TextInputStyle.PARAGRAPH).setPlaceholder(
+                    placeholderDefault + "Use {NAME} for the person's username").setValue(prePopulated)
+                .setRequired(platform.equalsIgnoreCase("discord")).build());
 
         return Modal.create("custom-" + platform + "-live-" + usernameOrId, "Set Custom Live Message")
-            .addActionRow(messageInput).build();
+            .addComponents(messageInput).build();
     }
 }

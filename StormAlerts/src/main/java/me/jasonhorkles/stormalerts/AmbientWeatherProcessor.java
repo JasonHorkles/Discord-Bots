@@ -119,8 +119,26 @@ public class AmbientWeatherProcessor {
 
             // Convert wind direction to 16-point cardinal direction
             int index = (int) ((windDir + 22.5) / 45) % 8;
-            String[] cardinal = {"North", "Northeast", "East", "Southeast", "South", "Southwest", "West", "Northwest"};
-            String[] directions = {"⬇️", "↙️", "⬅️", "↖️", "⬆️", "↗️", "➡️", "↘️"};
+            String[] cardinal = {
+                "North",
+                "Northeast",
+                "East",
+                "Southeast",
+                "South",
+                "Southwest",
+                "West",
+                "Northwest"
+            };
+            String[] directions = {
+                "⬇️",
+                "↙️",
+                "⬅️",
+                "↖️",
+                "⬆️",
+                "↗️",
+                "➡️",
+                "↘️"
+            };
             String windDirStr = cardinal[index];
             String windDirEmote = directions[index];
 

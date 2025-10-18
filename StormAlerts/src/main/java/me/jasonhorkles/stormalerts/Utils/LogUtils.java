@@ -8,7 +8,9 @@ import java.util.Locale;
 
 public class LogUtils {
     public enum LogColor {
-        RED("\u001B[31m"), YELLOW("\u001B[33m"), GREEN("\u001B[32m");
+        RED("\u001B[31m"),
+        YELLOW("\u001B[33m"),
+        GREEN("\u001B[32m");
 
         private final String logColor;
 

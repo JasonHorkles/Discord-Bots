@@ -4,12 +4,13 @@ import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
 import me.jasonhorkles.stormalerts.Utils.LogUtils;
 import me.jasonhorkles.stormalerts.Utils.MessageUtils;
 import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -311,11 +312,10 @@ public class Weather {
         }
 
         if (shouldSendMessage) rainConfirmationChannel.sendMessage(
-            "<@277291758503723010>\n# PWS reports rain:").setActionRow(
-            Button
-                .success("acceptrain", "Accept since snow").withEmoji(Emoji.fromUnicode("✅")),
-            Button.danger("denyrain", "Deny for 5 hours").withEmoji(Emoji.fromUnicode("✖️"))).queue(del -> del
-            .delete().queueAfter(
+                "<@277291758503723010>\n# PWS reports rain:").addComponents(ActionRow.of(
+                Button.success("acceptrain", "Accept since snow").withEmoji(Emoji.fromUnicode("✅")),
+                Button.danger("denyrain", "Deny for 5 hours").withEmoji(Emoji.fromUnicode("✖️"))))
+            .queue(del -> del.delete().queueAfter(
                 60,
                 TimeUnit.MINUTES,
                 null,

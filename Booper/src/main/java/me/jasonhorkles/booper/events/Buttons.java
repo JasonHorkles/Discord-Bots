@@ -1,15 +1,16 @@
 package me.jasonhorkles.booper.events;
 
 import me.jasonhorkles.booper.Utils;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.selections.EntitySelectMenu;
+import net.dv8tion.jda.api.components.selections.EntitySelectMenu.SelectTarget;
+import net.dv8tion.jda.api.components.selections.SelectMenu;
+import net.dv8tion.jda.api.components.selections.SelectOption;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
-import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -35,8 +36,8 @@ public class Buttons extends ListenerAdapter {
     }
 
     private SelectMenu getSelectMenu(boolean isDiscord) {
-        if (isDiscord) return EntitySelectMenu.create("discord-user-set", EntitySelectMenu.SelectTarget.USER)
-            .setPlaceholder("Select which Discord user to set a message for").build();
+        if (isDiscord) return EntitySelectMenu.create("discord-user-set", SelectTarget.USER).setPlaceholder(
+            "Select which Discord user to set a message for").build();
 
         else {
             List<SelectOption> options = new ArrayList<>();

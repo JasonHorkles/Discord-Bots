@@ -9,6 +9,8 @@ import me.jasonhorkles.phoenella.Secrets;
 import me.jasonhorkles.phoenella.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -17,7 +19,6 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.awt.*;
 import java.io.File;
@@ -344,8 +345,8 @@ public class Messages extends ListenerAdapter {
             if (embed.getDescription() != null) if (embed.getDescription().startsWith("Couldn't find "))
                 message.replyEmbeds(embed).mentionRepliedUser(false).queue();
 
-            else if (result.isSuccessful()) message.replyEmbeds(embed).setActionRow(Button
-                    .danger("definitionreport", "Report definition").withEmoji(Emoji.fromUnicode("🚩")))
+            else if (result.isSuccessful()) message.replyEmbeds(embed).addComponents(ActionRow.of(Button
+                    .danger("definitionreport", "Report definition").withEmoji(Emoji.fromUnicode("🚩"))))
                 .mentionRepliedUser(false).queue();
 
             else message.replyEmbeds(embed).mentionRepliedUser(false).queue();

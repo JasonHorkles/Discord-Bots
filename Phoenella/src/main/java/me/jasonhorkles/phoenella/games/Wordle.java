@@ -5,6 +5,8 @@ import me.jasonhorkles.phoenella.Phoenella;
 import me.jasonhorkles.phoenella.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -16,9 +18,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -571,8 +570,8 @@ public class Wordle extends ListenerAdapter {
             //noinspection DataFlowIssue
             event.getJDA().getTextChannelById(960213547944661042L)
                 .sendMessage(":warning: Word report from " + new Utils().getFullName(event.getMember()) + ": **" + word + "**")
-                .setActionRow(Button.primary("defineword:" + word, "Define word")
-                    .withEmoji(Emoji.fromUnicode("❔"))).queue(msg -> msg.addReaction(Emoji.fromUnicode("👌"))
+                .addComponents(ActionRow.of(Button.primary("defineword:" + word, "Define word")
+                    .withEmoji(Emoji.fromUnicode("❔")))).queue(msg -> msg.addReaction(Emoji.fromUnicode("👌"))
                     .queue(na -> msg.addReaction(Emoji.fromUnicode("🗑️")).queueAfter(1, TimeUnit.SECONDS)));
         }
 
@@ -587,9 +586,9 @@ public class Wordle extends ListenerAdapter {
                 if (embed.getDescription().startsWith("Couldn't find ")) event.getHook().editOriginalEmbeds(
                     embed).queue();
 
-                else if (result.isSuccessful()) event.getHook().editOriginalEmbeds(embed).setActionRow(Button
-                        .danger("definitionreport", "Report definition").withEmoji(Emoji.fromUnicode("🚩")))
-                    .queue();
+                else if (result.isSuccessful()) event.getHook().editOriginalEmbeds(embed).setComponents(
+                    ActionRow.of(Button.danger("definitionreport", "Report definition")
+                        .withEmoji(Emoji.fromUnicode("🚩")))).queue();
 
                 else event.getHook().editOriginalEmbeds(embed).queue();
         }
@@ -615,7 +614,7 @@ public class Wordle extends ListenerAdapter {
     private void sendRetryMsg(TextChannel channel, String message, String answer, boolean gaveUp) {
         channel.upsertPermissionOverride(players.get(channel)).setDenied(Permission.MESSAGE_SEND).queue();
 
-        List<ItemComponent> buttons = new ArrayList<>();
+        List<Button> buttons = new ArrayList<>();
         if (!isNonReal.get(channel)) {
             buttons.add(Button.danger("reportword:" + answer, "Report word")
                 .withEmoji(Emoji.fromUnicode("🚩")));
@@ -626,7 +625,7 @@ public class Wordle extends ListenerAdapter {
         if (daily.get(channel) && !gaveUp) buttons.add(Button.secondary("sharewordlescore", "Share score")
             .withEmoji(Emoji.fromUnicode("📤")));
 
-        channel.sendMessage(message).setActionRow(buttons).queue();
+        channel.sendMessage(message).addComponents(ActionRow.of(buttons)).queue();
 
         new Thread(
             () -> {
@@ -656,8 +655,8 @@ public class Wordle extends ListenerAdapter {
         //noinspection DataFlowIssue
         Phoenella.jda.getTextChannelById(960213547944661042L).sendMessage(
                 ":inbox_tray: Auto word request from " + new Utils().getFullName(member) + ": **" + word + "**")
-            .setActionRow(Button.primary("defineword:" + word, "Define word")
-                .withEmoji(Emoji.fromUnicode("❔"))).queue((msg) -> msg.addReaction(Emoji.fromUnicode("✅"))
+            .addComponents(ActionRow.of(Button.primary("defineword:" + word, "Define word")
+                .withEmoji(Emoji.fromUnicode("❔")))).queue((msg) -> msg.addReaction(Emoji.fromUnicode("✅"))
                 .queue(m -> msg.addReaction(Emoji.fromUnicode("⛔")).queueAfter(1, TimeUnit.SECONDS)));
     }
 

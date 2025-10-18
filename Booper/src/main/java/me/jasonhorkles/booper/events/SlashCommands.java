@@ -3,14 +3,14 @@ package me.jasonhorkles.booper.events;
 import me.jasonhorkles.booper.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.json.JSONObject;
 
 import java.awt.*;
@@ -56,12 +56,12 @@ public class SlashCommands extends ListenerAdapter {
             case "livemsg" -> {
                 switch (event.getSubcommandName().toLowerCase()) {
                     case "set" -> event.reply(
-                        "Which type of user would you like to **SET** a live message for?").addActionRow(
+                        "Which type of user would you like to **SET** a live message for?").addComponents(
                         getLiveMessageButtons("set")).setEphemeral(true).queue();
 
                     case "reset" -> event.reply(
                             "Which type of user's live message would you like to **RESET**?\n-# Selecting Twitch will disable notifications for that user entirely.")
-                        .addActionRow(getLiveMessageButtons("reset")).setEphemeral(true).queue();
+                        .addComponents(getLiveMessageButtons("reset")).setEphemeral(true).queue();
 
                     case "list" -> {
                         event.deferReply(true).queue();
@@ -125,8 +125,8 @@ public class SlashCommands extends ListenerAdapter {
             .queue();
     }
 
-    private List<ItemComponent> getLiveMessageButtons(String type) {
-        return List.of(
+    private ActionRow getLiveMessageButtons(String type) {
+        return ActionRow.of(
             Button.success("live-msg-discord-" + type, "Discord User"),
             Button.primary("live-msg-twitch-" + type, "Twitch User"));
     }
