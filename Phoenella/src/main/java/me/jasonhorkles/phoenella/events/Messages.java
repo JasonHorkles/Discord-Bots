@@ -1,11 +1,7 @@
 package me.jasonhorkles.phoenella.events;
 
-import com.mattmalec.pterodactyl4j.PteroBuilder;
-import com.mattmalec.pterodactyl4j.client.entities.ClientServer;
-import com.mattmalec.pterodactyl4j.client.entities.PteroClient;
 import me.jasonhorkles.phoenella.Nicknames;
 import me.jasonhorkles.phoenella.Phoenella;
-import me.jasonhorkles.phoenella.Secrets;
 import me.jasonhorkles.phoenella.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -67,15 +63,6 @@ public class Messages extends ListenerAdapter {
 
             new Utils().sendMessage(null, message, "Updating members... See console for details.", false);
             new Thread(() -> new Nicknames().runNameCheckForGuild(false)).start();
-            return;
-        }
-
-        if (text.equals("stop") || text.equals("shut down")) if (member.getIdLong() == 277291758503723010L) {
-            message.reply("Shutting down...").mentionRepliedUser(false).queue();
-            PteroClient ptero = PteroBuilder.createClient(
-                new Secrets().pteroUrl(),
-                new Secrets().pteroApiKey());
-            ptero.retrieveServerByIdentifier("5243694c").flatMap(ClientServer::stop).executeAsync();
             return;
         }
 
