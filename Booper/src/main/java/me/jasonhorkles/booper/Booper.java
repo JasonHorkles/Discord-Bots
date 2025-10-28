@@ -27,7 +27,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class Booper {
     public static JDA jda;
@@ -59,6 +61,19 @@ public class Booper {
             System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Guild not found! Exiting...");
             new Booper().shutdown();
             return;
+        }
+
+        // Clean up user-sent messages in live channel
+        try {
+            //noinspection DataFlowIssue
+            for (Message message : new Utils().getMessages(guild.getTextChannelById(TWITCH_CHANNEL_ID), 15)
+                .get(30, TimeUnit.SECONDS)) {
+                if (message.getAuthor().isBot()) continue;
+                message.delete().queue();
+            }
+        } catch (ExecutionException | TimeoutException e) {
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            e.printStackTrace();
         }
 
         guild.updateCommands().addCommands(

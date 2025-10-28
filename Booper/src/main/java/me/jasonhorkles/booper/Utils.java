@@ -3,6 +3,7 @@ package me.jasonhorkles.booper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import org.jetbrains.annotations.Nullable;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 public class Utils {
@@ -39,6 +41,10 @@ public class Utils {
     public String getTime(LogColor logColor) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm:ss a", Locale.US);
         return logColor.getLogColor() + "[" + dtf.format(LocalDateTime.now()) + "] ";
+    }
+
+    public CompletableFuture<List<Message>> getMessages(MessageChannel channel, int count) {
+        return channel.getIterableHistory().takeAsync(count).thenApply(ArrayList::new);
     }
 
     public JSONObject getJsonFromFile(String fileName) {
