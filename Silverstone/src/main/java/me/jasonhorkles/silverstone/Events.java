@@ -37,14 +37,9 @@ public class Events extends ListenerAdapter {
             .hasPermission(Permission.ADMINISTRATOR)) && !(event.getChannel()
             .getIdLong() == 456470772207190036L || event.getChannel().getIdLong() == 468416589331562506L);
 
-        switch (event.getName().toLowerCase()) {
-            case "moss" -> event.reply(
-                    "Get help with EssentialsX, Jason's plugins, and more here: https://discord.gg/PHpuzZS")
-                .setEphemeral(ephemeral).queue();
-
-            case "lp" -> event.reply("Get LuckPerms help here: https://discord.gg/luckperms").setEphemeral(
-                ephemeral).queue();
-        }
+        if (event.getName().equalsIgnoreCase("moss")) event.reply(
+                "Get help with EssentialsX, Jason's plugins, and more here: https://discord.gg/PHpuzZS")
+            .setEphemeral(ephemeral).queue();
     }
 
     @Override
