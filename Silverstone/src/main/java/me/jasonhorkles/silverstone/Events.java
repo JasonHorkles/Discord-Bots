@@ -1,26 +1,16 @@
 package me.jasonhorkles.silverstone;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 
-import java.awt.*;
-import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 @SuppressWarnings("DataFlowIssue")
 public class Events extends ListenerAdapter {
@@ -100,67 +90,5 @@ public class Events extends ListenerAdapter {
             Message message = event.getMessage();
             if (!message.getAttachments().isEmpty()) message.addReaction(Emoji.fromUnicode("❤")).queue();
         }
-    }
-
-    // When recent chatter leaves
-    @Override
-    public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
-        System.out.println("\n" + new Utils().getTime(Utils.LogColor.YELLOW) + event.getUser()
-            .getName() + " left!");
-
-        OffsetDateTime thirtyMinsAgo = OffsetDateTime.now().minusMinutes(30);
-        OffsetDateTime threeDaysAgo = OffsetDateTime.now().minusDays(3);
-
-        Long[] textChannels = {
-            592208420602380328L,
-            456108521210118146L
-        };
-        for (long channelId : textChannels) {
-            TextChannel channel = event.getGuild().getTextChannelById(channelId);
-            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Checking #" + channel.getName());
-
-            // If the user that left sent the latest or a recent message, say so
-            if (checkIfFromUser(thirtyMinsAgo, threeDaysAgo, channel, event.getUser().getIdLong()))
-                sendRecentLeaveMessage(channel, event.getUser());
-        }
-    }
-
-    private boolean checkIfFromUser(OffsetDateTime thirtyMinsAgo, OffsetDateTime threeDaysAgo, MessageChannel channel, Long userId) {
-        boolean fromUser = false;
-
-        try {
-            // Check the past 15 messages within 30 minutes
-            for (Message messages : new Utils().getMessages(channel, 15).get(30, TimeUnit.SECONDS))
-                if (messages.getTimeCreated().isAfter(thirtyMinsAgo) && messages.getAuthor()
-                    .getIdLong() == userId) {
-                    fromUser = true;
-                    break;
-                }
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            System.out.print(new Utils().getTime(Utils.LogColor.RED));
-            e.printStackTrace();
-        }
-
-        // If message isn't from the past 30 minutes, see if it's at least the latest message within 3 days
-        if (!fromUser) try {
-            Message message = new Utils().getMessages(channel, 1).get(30, TimeUnit.SECONDS).getFirst();
-            if (message.getTimeCreated().isAfter(threeDaysAgo) && message.getAuthor().getIdLong() == userId)
-                fromUser = true;
-        } catch (ExecutionException | InterruptedException | TimeoutException e) {
-            System.out.print(new Utils().getTime(Utils.LogColor.RED));
-            e.printStackTrace();
-        }
-
-        return fromUser;
-    }
-
-    private void sendRecentLeaveMessage(MessageChannel channel, User user) {
-        EmbedBuilder embed = new EmbedBuilder();
-        embed.setTitle("Recent chatter " + user.getName() + " has left the server");
-        embed.setDescription(user.getAsMention());
-        embed.setThumbnail(user.getAvatarUrl());
-        embed.setColor(new Color(255, 200, 0));
-
-        channel.sendMessageEmbeds(embed.build()).queue();
     }
 }
