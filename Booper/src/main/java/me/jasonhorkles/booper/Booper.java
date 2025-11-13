@@ -63,19 +63,6 @@ public class Booper {
             return;
         }
 
-        // Clean up user-sent messages in live channel
-        try {
-            //noinspection DataFlowIssue
-            for (Message message : new Utils().getMessages(guild.getTextChannelById(TWITCH_CHANNEL_ID), 15)
-                .get(30, TimeUnit.SECONDS)) {
-                if (message.getAuthor().isBot()) continue;
-                message.delete().queue();
-            }
-        } catch (ExecutionException | TimeoutException e) {
-            System.out.print(new Utils().getTime(Utils.LogColor.RED));
-            e.printStackTrace();
-        }
-
         guild.updateCommands().addCommands(
             Commands.slash("hug", "Give someone a hug!")
                 .addOption(OptionType.MENTIONABLE, "hug", "Who do you want to hug?", true),
@@ -149,6 +136,23 @@ public class Booper {
                     if (message == null) continue;
 
                     new LiveTwitch().checkIfLive(username, message);
+                }
+
+                // Clean up messages in live channel
+                try {
+                    //noinspection DataFlowIssue
+                    for (Message message : new Utils()
+                        .getMessages(guild.getTextChannelById(TWITCH_CHANNEL_ID), 15).get(
+                            30,
+                            TimeUnit.SECONDS)) {
+                        if (message.getAuthor().isBot())
+                            if (!LiveDiscord.liveMembers.isEmpty() || !LiveTwitch.liveUsers.isEmpty())
+                                continue;
+                        message.delete().queue();
+                    }
+                } catch (ExecutionException | TimeoutException | InterruptedException e) {
+                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                    e.printStackTrace();
                 }
 
                 jda.addEventListener(new LiveDiscord());
