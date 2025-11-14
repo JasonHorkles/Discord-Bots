@@ -192,8 +192,7 @@ public class Weather {
         }
 
         if (weatherType == null) StormAlerts.jda.getPresence().setPresence(
-            OnlineStatus.IDLE,
-            Activity.watching("for gnarly weather"));
+            OnlineStatus.IDLE, Activity.customStatus("Waiting for gnarly weather..."));
 
         previousWeatherType = weatherType;
 
@@ -228,8 +227,7 @@ public class Weather {
         if (rainAcceptedSinceSnow(snowChannel) || hasNotSnowed) {
             // Update the presence
             StormAlerts.jda.getPresence().setPresence(
-                OnlineStatus.ONLINE,
-                Activity.watching("the rain @ " + currentRainRate + " in/hr"));
+                OnlineStatus.ONLINE, Activity.customStatus("It's raining @ " + currentRainRate + " in/hr"));
 
             System.out.println(new LogUtils().getTime(LogUtils.LogColor.GREEN) + "Raining @ " + currentRainRate + " in/hr");
 

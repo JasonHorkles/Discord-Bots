@@ -30,7 +30,7 @@ public class AQI {
         if (input.isEmpty()) {
             System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] No air quality data found!");
             AirCheck.jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-            AirCheck.jda.getPresence().setActivity(Activity.playing("⚠ No air quality data found!"));
+            AirCheck.jda.getPresence().setActivity(Activity.customStatus("⚠ No air quality data found!"));
             return;
         }
 
@@ -69,7 +69,7 @@ public class AQI {
 
         AirCheck.jda.getPresence().setStatus(OnlineStatus.ONLINE);
         AirCheck.jda.getPresence()
-            .setActivity(Activity.customStatus(airQualityName + " (" + highestAqi + ", " + topPollutant + ")"));
+            .setActivity(Activity.customStatus("AQI: " + airQualityName + " (" + highestAqi + ", " + topPollutant + ")"));
 
         System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got the air! (" + highestAqi + ", " + topPollutant + ")");
     }

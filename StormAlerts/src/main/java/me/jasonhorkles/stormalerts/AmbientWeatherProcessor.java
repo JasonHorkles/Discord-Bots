@@ -195,7 +195,7 @@ public class AmbientWeatherProcessor {
             System.out.println(logUtils.getTime(LogUtils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
             e.printStackTrace();
             StormAlerts.jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-            StormAlerts.jda.getPresence().setActivity(Activity.playing("Error checking weather!"));
+            StormAlerts.jda.getPresence().setActivity(Activity.customStatus("Error checking weather!"));
             logUtils.logError(e);
         }
     }
