@@ -145,7 +145,7 @@ public class Wordle extends ListenerAdapter {
 
                     keyboard.put(
                         channel,
-                        channel.sendMessage("~~==========================~~\n    " + getLetter(
+                        channel.sendMessage("~~=================================~~\n    " + getLetter(
                             'Q',
                             LetterType.NOT_GUESSED) + getLetter('W', LetterType.NOT_GUESSED) + getLetter(
                             'E',
