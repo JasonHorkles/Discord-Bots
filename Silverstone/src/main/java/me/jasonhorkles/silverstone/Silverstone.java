@@ -48,8 +48,6 @@ public class Silverstone {
             "moss",
             "M.O.S.S. Discord invite")).queue();
 
-        new Time().updateTime();
-
         // Cache last counting number and verify last 10 messages
         TextChannel counting = jda.getChannelById(TextChannel.class, 816885380577230906L);
         //noinspection DataFlowIssue
