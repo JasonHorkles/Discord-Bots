@@ -19,6 +19,8 @@ public class LiveDiscord extends ListenerAdapter {
     @Override
     public void onUserUpdateActivities(@NotNull UserUpdateActivitiesEvent event) {
         if (event.getGuild().getIdLong() != 1299547538445307986L) return;
+        if (event.getUser().getIdLong() == 314933806173913089L) return;
+        if (event.getUser().getIdLong() == 321852845144145920L) return;
         checkIfLive(event.getMember());
     }
 
