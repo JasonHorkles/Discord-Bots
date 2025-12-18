@@ -22,7 +22,9 @@ public class Pollen {
         else {
             Connection conn = Jsoup
                 .connect("https://weather.com/forecast/allergy/l/" + new Secrets().pollenLocationId())
-                .timeout(30000);
+                .timeout(30000).userAgent(
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0 Safari/537.36")
+                .referrer("https://www.google.com");
             Document doc = conn.get();
 
             //noinspection DataFlowIssue
