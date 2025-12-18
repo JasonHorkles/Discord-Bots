@@ -50,13 +50,11 @@ public class Utils {
     public String lookUp(String message, String name) {
         try {
             String page = "https://api.wolframalpha.com/v1/result?i=" + URLEncoder.encode(
-                message,
-                StandardCharsets.UTF_8) + "&appid=2T7PHK-JPX3QAR42E";
+                message, StandardCharsets.UTF_8) + "&appid=" + new Secrets().wolframAppId();
             Connection conn = Jsoup.connect(page);
             Document doc = conn.get();
             message = doc.body().text().replace("Wolfram Alpha", "Phoenella").replace("Wolfram|Alpha", "")
                 .replace("human", name);
-            if (message.contains("69")) message = "nice";
             return message;
         } catch (IOException e) {
             if (e.getMessage().contains("Status=501")) return "501";
