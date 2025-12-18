@@ -23,7 +23,7 @@ public class Silverstone {
 
     private static ScheduledFuture<?> liveTimer;
 
-    public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException {
+    static void main() throws InterruptedException, ExecutionException, TimeoutException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());

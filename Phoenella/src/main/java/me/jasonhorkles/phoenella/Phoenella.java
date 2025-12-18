@@ -40,7 +40,7 @@ public class Phoenella {
     public static boolean localWordleBoard;
     public static JDA jda;
 
-    public static void main(String[] args) throws InterruptedException, IOException, ParseException {
+    static void main() throws InterruptedException, IOException, ParseException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());

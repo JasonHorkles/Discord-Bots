@@ -20,7 +20,7 @@ import java.util.concurrent.TimeoutException;
 public class Polytrichopsida {
     public static JDA jda;
 
-    public static void main(String[] args) throws InterruptedException {
+    static void main() throws InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());

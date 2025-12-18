@@ -37,7 +37,7 @@ public class Booper {
     public static String authToken;
     public static final Long TWITCH_CHANNEL_ID = 1413244874823569479L;
 
-    public static void main(String[] args) throws InterruptedException {
+    static void main() throws InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());

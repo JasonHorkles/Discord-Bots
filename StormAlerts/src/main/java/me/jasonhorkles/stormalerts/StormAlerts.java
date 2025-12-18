@@ -32,7 +32,7 @@ public class StormAlerts extends ListenerAdapter {
 
     private static AmbientWeatherSocket ambientWeatherSocket;
 
-    public static void main(String[] args) throws InterruptedException, ParseException {
+    static void main() throws InterruptedException, ParseException {
         LogUtils logUtils = new LogUtils();
         System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Starting...");
 
