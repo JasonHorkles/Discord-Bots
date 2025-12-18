@@ -9,12 +9,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
 import java.awt.*;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -49,16 +47,31 @@ public class Utils {
 
     public String lookUp(String message, String name) {
         try {
-            String page = "https://api.wolframalpha.com/v1/result?i=" + URLEncoder.encode(
-                message, StandardCharsets.UTF_8) + "&appid=" + new Secrets().wolframAppId();
-            Connection conn = Jsoup.connect(page);
-            Document doc = conn.get();
-            message = doc.body().text().replace("Wolfram Alpha", "Phoenella").replace("Wolfram|Alpha", "")
-                .replace("human", name);
+            HttpURLConnection connection = (HttpURLConnection) new URI(
+                "https://api.wolframalpha.com/v1/result?i=" + URLEncoder.encode(
+                    message,
+                    StandardCharsets.UTF_8) + "&appid=" + new Secrets().wolframAppId()).toURL()
+                .openConnection();
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 501) {
+                connection.disconnect();
+                return "501";
+            }
+
+            InputStream url = connection.getInputStream();
+            String result = new String(url.readAllBytes(), StandardCharsets.UTF_8);
+            url.close();
+            connection.disconnect();
+
+            message = result.replace("Wolfram Alpha", "Phoenella").replace("Wolfram|Alpha", "").replace("human",
+                name);
             return message;
-        } catch (IOException e) {
-            if (e.getMessage().contains("Status=501")) return "501";
-            else return "`ERROR: " + e + "`";
+
+        } catch (IOException | URISyntaxException e) {
+            System.out.print(new Utils().getTime(LogColor.RED));
+            e.printStackTrace();
+            return "`ERROR: " + e.toString().replace(new Secrets().wolframAppId(), "REDACTED") + "`";
         }
     }
 
