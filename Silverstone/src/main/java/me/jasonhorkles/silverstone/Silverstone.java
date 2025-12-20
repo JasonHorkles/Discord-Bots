@@ -4,26 +4,23 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.ISnowflake;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.Scanner;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class Silverstone {
     public static JDA jda;
 
     private static ScheduledFuture<?> liveTimer;
 
-    static void main() throws InterruptedException, ExecutionException, TimeoutException {
+    static void main() throws InterruptedException {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());
@@ -49,7 +46,7 @@ public class Silverstone {
             "M.O.S.S. Discord invite")).queue();
 
         // Cache last counting number and verify last 10 messages
-        TextChannel counting = jda.getChannelById(TextChannel.class, 816885380577230906L);
+        /*TextChannel counting = jda.getChannelById(TextChannel.class, 816885380577230906L);
         //noinspection DataFlowIssue
         LinkedList<Message> messages = new LinkedList<>(new Utils().getMessages(counting, 50)
             .get(60, TimeUnit.SECONDS));
@@ -88,7 +85,7 @@ public class Silverstone {
                 }
             }
         }
-        Events.lastNumber = lastNumber;
+        Events.lastNumber = lastNumber;*/
 
         // Start the live check timer
         liveTimer = Executors.newSingleThreadScheduledExecutor()

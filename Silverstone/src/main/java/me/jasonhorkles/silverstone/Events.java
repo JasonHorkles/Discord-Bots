@@ -14,7 +14,7 @@ import java.util.List;
 
 @SuppressWarnings("DataFlowIssue")
 public class Events extends ListenerAdapter {
-    public static int lastNumber;
+    //    public static int lastNumber;
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
@@ -58,7 +58,7 @@ public class Events extends ListenerAdapter {
         }
 
         // Counting
-        if (event.getChannel().getIdLong() == 816885380577230906L) {
+        /*if (event.getChannel().getIdLong() == 816885380577230906L) {
             Message message = event.getMessage();
             int value;
             try {
@@ -79,7 +79,7 @@ public class Events extends ListenerAdapter {
                 System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Deleting invalid message from counting: " + message.getContentRaw());
                 message.delete().queue();
             }
-        }
+        }*/
 
         // Ping
         if (event.getMessage().getContentRaw().contains("<@277291758503723010>"))
