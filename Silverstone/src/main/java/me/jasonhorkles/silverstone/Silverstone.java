@@ -35,7 +35,7 @@ public class Silverstone {
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.playing("play.silverstonemc.net"));
         builder.setEnableShutdownHook(false);
-        builder.addEventListeners(new Events(), new Testing());
+        builder.addEventListeners(new Events());
         jda = builder.build();
 
         jda.awaitReady();
