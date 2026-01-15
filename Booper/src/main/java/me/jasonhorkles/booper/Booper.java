@@ -43,14 +43,18 @@ public class Booper {
         JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());
         builder.enableIntents(
             GatewayIntent.GUILD_PRESENCES,
-            GatewayIntent.GUILD_MESSAGES,
-            GatewayIntent.GUILD_MEMBERS);
+            GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT);
         builder.disableCache(CacheFlag.VOICE_STATE);
         builder.enableCache(CacheFlag.ACTIVITY);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.customStatus("Booper Booping"));
-        builder.addEventListeners(new SlashCommands(), new Buttons(), new SelectMenus(), new Modals());
+        builder.addEventListeners(
+            new SlashCommands(),
+            new Buttons(),
+            new SelectMenus(),
+            new Modals(),
+            new Messages());
         builder.setEnableShutdownHook(false);
         jda = builder.build();
 
