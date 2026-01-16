@@ -11,7 +11,7 @@ public class Messages extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         if (!event.isFromGuild()) return;
         if (event.getGuildChannel().getIdLong() != 1365398168937824256L) return;
-        //        if (event.getAuthor().getIdLong() != 291471770140147712L) return;
+        if (event.getAuthor().getIdLong() != 291471770140147712L) return;
 
         Message message = event.getMessage();
         String strippedMsg = message.getContentStripped().toLowerCase();
