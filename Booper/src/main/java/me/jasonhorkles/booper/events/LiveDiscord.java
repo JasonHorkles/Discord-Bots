@@ -15,6 +15,7 @@ import java.util.Objects;
 
 public class LiveDiscord extends ListenerAdapter {
     public static final Map<Member, Message> liveMembers = new HashMap<>();
+    public static boolean teddyIsLive;
 
     @Override
     public void onUserUpdateActivities(@NotNull UserUpdateActivitiesEvent event) {
@@ -30,12 +31,17 @@ public class LiveDiscord extends ListenerAdapter {
         if (liveMembers.containsKey(member)) {
             if (activity != null) return;
 
+            if (member.getUser().getIdLong() == 291471770140147712L) teddyIsLive = false;
             liveMembers.get(member).delete().queue();
             liveMembers.remove(member);
         }
 
         // Member is now live
         else if (activity != null) new Thread(() -> {
+            // Stop sending live messages while Teddy is live
+            if (teddyIsLive) return;
+            if (member.getUser().getIdLong() == 291471770140147712L) teddyIsLive = true;
+
             Message message = new Utils().sendLiveMessage(
                 member.getId(),
                 Objects.requireNonNullElse(activity.getUrl(), "https://twitch.tv/thischanneldoesnotexist"),

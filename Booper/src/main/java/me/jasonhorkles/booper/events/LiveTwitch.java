@@ -45,6 +45,8 @@ public class LiveTwitch {
     public void channelLiveEvent(ChannelGoLiveEvent event) {
         String username = event.getChannel().getName().toLowerCase();
         if (liveUsers.containsKey(username)) return;
+        // Stop sending live messages while Teddy is live
+        if (LiveDiscord.teddyIsLive) return;
 
         new Thread(() -> {
             Message message = new Utils().sendLiveMessage(
