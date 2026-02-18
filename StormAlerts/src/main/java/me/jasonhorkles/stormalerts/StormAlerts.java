@@ -1,8 +1,5 @@
 package me.jasonhorkles.stormalerts;
 
-import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
-import me.jasonhorkles.stormalerts.Utils.LogUtils;
-import me.jasonhorkles.stormalerts.Utils.MessageUtils;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -24,6 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.*;
+
+import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
+import me.jasonhorkles.stormalerts.Utils.LogUtils;
+import me.jasonhorkles.stormalerts.Utils.MessageUtils;
 
 public class StormAlerts extends ListenerAdapter {
     public static final List<ScheduledFuture<?>> scheduledTimers = new ArrayList<>();
@@ -96,11 +97,11 @@ public class StormAlerts extends ListenerAdapter {
                 // Check for new records
                 new Records().checkRecords();
 
-                // Reset max wind gust 1 minute later
+                // Reset max wind gust 3 minutes later
                 scheduledTimers.add(Executors.newSingleThreadScheduledExecutor()
                     .schedule(
                         () -> {AmbientWeatherProcessor.lastAlertedWindGust = -1;},
-                        1,
+                        3,
                         TimeUnit.MINUTES));
             }, delay, TimeUnit.SECONDS));
 
@@ -174,6 +175,7 @@ public class StormAlerts extends ListenerAdapter {
                     }
                     if (text.equalsIgnoreCase("n")) new Traffic().checkTraffic(true);
                     if (text.equalsIgnoreCase("s")) new Traffic().checkTraffic(false);
+                    if (text.equalsIgnoreCase("get")) new GetApiInfo().output();
                 }
             }, "Console Input");
         input.start();
