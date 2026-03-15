@@ -38,7 +38,7 @@ public class CloseStale {
                         .getAsMention();
                     thread
                         .sendMessage(ping + ", this thread has been archived due to inactivity. If you still need help, send a message to re-open it.")
-                        .queue(na -> thread.getManager().setArchived(true).queue());
+                        .queue(_ -> thread.getManager().setArchived(true).queue());
                 }
             }
     }

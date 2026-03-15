@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -189,7 +190,9 @@ public class Events extends ListenerAdapter {
                 .queue();
 
         post.sendMessage("<@277291758503723010>").queueAfter(
-            500, TimeUnit.MILLISECONDS, del -> del.delete().queueAfter(
+            500,
+            TimeUnit.MILLISECONDS,
+            del -> del.delete().queueAfter(
                 100,
                 TimeUnit.MILLISECONDS,
                 null,
@@ -280,7 +283,7 @@ public class Events extends ListenerAdapter {
         embed.setThumbnail(user.getAvatarUrl());
         embed.setColor(new Color(255, 100, 0));
 
-        channel.sendMessageEmbeds(embed.build()).queue(na -> channel.getManager().setArchived(true)
+        channel.sendMessageEmbeds(embed.build()).queue(_ -> channel.getManager().setArchived(true)
             .setLocked(true).queueAfter(1, TimeUnit.SECONDS));
     }
 
@@ -314,11 +317,12 @@ public class Events extends ListenerAdapter {
         String message = "Thank you for coming, " + ping + ". If you enjoy the plugin and are happy with the support you received, please consider leaving a star on Hangar or a follow on Modrinth :heart:";
 
         if (slashEvent != null) slashEvent.reply(message).addEmbeds(embed.build()).queue(
-            na -> channel
+            _ -> channel
                 .getManager().setArchived(true).queueAfter(5, TimeUnit.MINUTES),
             new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
+
         else channel.sendMessage(message).addEmbeds(embed.build()).queue(
-            na -> channel.getManager()
+            _ -> channel.getManager()
                 .setArchived(true).queueAfter(5, TimeUnit.MINUTES),
             new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
     }

@@ -68,7 +68,7 @@ public class Events extends ListenerAdapter {
                     return;
                 }
 
-                event.deferEdit().queue(na -> event.getMessage().delete().queue());
+                event.deferEdit().queue(_ -> event.getMessage().delete().queue());
             }
 
             case "denyrain" -> {
@@ -80,7 +80,7 @@ public class Events extends ListenerAdapter {
                         }
                     }, "Deny Rain").start();
 
-                event.deferEdit().queue(na -> event.getMessage().delete().queue());
+                event.deferEdit().queue(_ -> event.getMessage().delete().queue());
             }
         }
     }

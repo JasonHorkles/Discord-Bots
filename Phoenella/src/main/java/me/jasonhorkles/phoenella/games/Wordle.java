@@ -1,8 +1,5 @@
 package me.jasonhorkles.phoenella.games;
 
-import me.jasonhorkles.phoenella.GameManager;
-import me.jasonhorkles.phoenella.Phoenella;
-import me.jasonhorkles.phoenella.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
@@ -19,6 +16,7 @@ import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,6 +33,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+
+import me.jasonhorkles.phoenella.GameManager;
+import me.jasonhorkles.phoenella.Phoenella;
+import me.jasonhorkles.phoenella.Utils;
 
 public class Wordle extends ListenerAdapter {
     private static final ArrayList<String> wordList = new ArrayList<>();
@@ -572,7 +574,7 @@ public class Wordle extends ListenerAdapter {
                 .sendMessage(":warning: Word report from " + new Utils().getFullName(event.getMember()) + ": **" + word + "**")
                 .addComponents(ActionRow.of(Button.primary("defineword:" + word, "Define word")
                     .withEmoji(Emoji.fromUnicode("❔")))).queue(msg -> msg.addReaction(Emoji.fromUnicode("👌"))
-                    .queue(na -> msg.addReaction(Emoji.fromUnicode("🗑️")).queueAfter(1, TimeUnit.SECONDS)));
+                    .queue(_ -> msg.addReaction(Emoji.fromUnicode("🗑️")).queueAfter(1, TimeUnit.SECONDS)));
         }
 
         if (event.getComponentId().startsWith("defineword:")) {
@@ -657,7 +659,7 @@ public class Wordle extends ListenerAdapter {
                 ":inbox_tray: Auto word request from " + new Utils().getFullName(member) + ": **" + word + "**")
             .addComponents(ActionRow.of(Button.primary("defineword:" + word, "Define word")
                 .withEmoji(Emoji.fromUnicode("❔")))).queue((msg) -> msg.addReaction(Emoji.fromUnicode("✅"))
-                .queue(m -> msg.addReaction(Emoji.fromUnicode("⛔")).queueAfter(1, TimeUnit.SECONDS)));
+                .queue(_ -> msg.addReaction(Emoji.fromUnicode("⛔")).queueAfter(1, TimeUnit.SECONDS)));
     }
 
     public MessageEmbed getLeaderboard(Guild guild) {
