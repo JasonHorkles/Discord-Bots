@@ -191,7 +191,7 @@ public class AmbientWeatherProcessor {
 
         // Check the weather conditions if not on 3 minute API cooldown (max 500 calls/day)
         LogUtils logUtils = new LogUtils();
-        if (StormAlerts.testing || System.currentTimeMillis() - lastWeatherCheckTime > 180000) {
+        if (StormAlerts.testing || System.currentTimeMillis() - lastWeatherCheckTime >= 180000) {
             lastWeatherCheckTime = System.currentTimeMillis();
             try {
                 new Weather().checkConditions(currentRainRate, temperature);
