@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -55,7 +56,11 @@ public class StormAlerts extends ListenerAdapter {
         if (testing)
             System.out.println(logUtils.getTime(LogUtils.LogColor.RED) + "Warning: Testing mode enabled! Local files will be used.");
 
+        // Cache channels and members
         new ChannelUtils().cacheChannels(jda);
+        Guild guild = jda.getGuildById(843919716677582888L);
+        //noinspection DataFlowIssue
+        guild.loadMembers().get();
 
         // Cache wind speed
         try {

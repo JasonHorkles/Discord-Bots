@@ -1,11 +1,13 @@
 package me.jasonhorkles.stormalerts;
 
-import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
-import me.jasonhorkles.stormalerts.Utils.MessageUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -17,6 +19,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
+import me.jasonhorkles.stormalerts.Utils.MessageUtils;
 
 public class Events extends ListenerAdapter {
     @Override
@@ -90,6 +95,36 @@ public class Events extends ListenerAdapter {
         embed.setDescription(user.getAsMention());
         embed.setThumbnail(user.getAvatarUrl());
         embed.setColor(new Color(255, 200, 0));
+
+        ChannelUtils.logChannel.sendMessageEmbeds(embed.build()).queue();
+    }
+
+    @Override
+    public void onGuildMemberRoleAdd(GuildMemberRoleAddEvent event) {
+        if (event.getGuild().getIdLong() != 843919716677582888L) return;
+
+        Member member = event.getMember();
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setTitle(member.getEffectiveName() + " has added the roles " + event.getRoles().stream()
+            .map(Role::getName).toList());
+        embed.setDescription(member.getAsMention());
+        embed.setThumbnail(member.getEffectiveAvatarUrl());
+        embed.setColor(new Color(65, 172, 67));
+
+        ChannelUtils.logChannel.sendMessageEmbeds(embed.build()).queue();
+    }
+
+    @Override
+    public void onGuildMemberRoleRemove(GuildMemberRoleRemoveEvent event) {
+        if (event.getGuild().getIdLong() != 843919716677582888L) return;
+
+        Member member = event.getMember();
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setTitle(member.getEffectiveName() + " has removed the roles " + event.getRoles().stream()
+            .map(Role::getName).toList());
+        embed.setDescription(member.getAsMention());
+        embed.setThumbnail(member.getEffectiveAvatarUrl());
+        embed.setColor(new Color(237, 85, 58));
 
         ChannelUtils.logChannel.sendMessageEmbeds(embed.build()).queue();
     }
