@@ -205,7 +205,7 @@ public class AmbientWeatherProcessor {
             }
         } else {
             long secondsLeft = 180 - ((System.currentTimeMillis() - lastWeatherCheckTime) / 1000);
-            System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Weather conditions on cooldown for another " + secondsLeft + " seconds.");
+            System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Weather conditions on cooldown for another " + secondsLeft + " seconds.\n");
         }
     }
 }
