@@ -1,13 +1,16 @@
 package me.jasonhorkles.stormalerts;
 
+import static me.jasonhorkles.stormalerts.Utils.ChannelUtils.alertChannel;
+
 import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
-import me.jasonhorkles.stormalerts.Utils.LogUtils;
+
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -31,7 +34,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static me.jasonhorkles.stormalerts.Utils.ChannelUtils.alertChannel;
+import me.jasonhorkles.stormalerts.Utils.LogUtils;
 
 public class Alerts {
     public static final String historyDir = "StormAlerts/Alert History";
@@ -202,14 +205,17 @@ public class Alerts {
                 if (!idFound) alertType = "Alert";
             }
 
-            long ends;
-            if (alert.isNull("ends")) ends = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString(
-                "expires"))).toEpochMilli() / 1000;
-            else ends = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString("ends")))
-                .toEpochMilli() / 1000;
-
             long sent = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString("sent")))
                 .toEpochMilli() / 1000;
+
+            long effective = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString("onset")))
+                .toEpochMilli() / 1000;
+
+            // "ends" is optional; fall back to the always-present "expires" if missing
+            long ends = Instant
+                .from(DateTimeFormatter.ISO_INSTANT.parse(alert.getString(alert.isNull("ends") ? "expires" : "ends")))
+                .toEpochMilli() / 1000;
+
             String boldArea = boldAreas(area);
             String certainty = alert.getString("certainty");
             String event = alert.getString("event");
@@ -230,7 +236,7 @@ public class Alerts {
                 sender,
                 null,
                 "https://pbs.twimg.com/profile_images/1076936762377814016/AOf7ktiH.jpg");
-            embed.setTitle("Issued <t:" + sent + ":F>\nEnds <t:" + ends + ":F>");
+            embed.setTitle("Issued <t:" + sent + ":F>\nStarts <t:" + effective + ":F>\nEnds <t:" + ends + ":F>");
             embed.setThumbnail(getThumbnailImage(event));
 
             List<MessageEmbed.Field> fields = new ArrayList<>();
@@ -271,8 +277,8 @@ public class Alerts {
                         // Create a diff checker
                         DiffRowGenerator generator = DiffRowGenerator.create().showInlineDiffs(true)
                             .mergeOriginalRevised(true).inlineDiffByWord(true)
-                            .replaceOriginalLinefeedInChangesWithSpaces(false).oldTag(f -> "~~")
-                            .newTag(f -> "__").build();
+                            .replaceOriginalLinefeedInChangesWithSpaces(false).oldTag(_ -> "~~")
+                            .newTag(_ -> "__").build();
 
                         // Generate diffs
                         List<DiffRow> diff = generator.generateDiffRows(
