@@ -1,8 +1,7 @@
 package me.jasonhorkles.stormalerts;
 
-import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
-import me.jasonhorkles.stormalerts.Utils.LogUtils;
-import me.jasonhorkles.stormalerts.Utils.MessageUtils;
+import static me.jasonhorkles.stormalerts.Utils.ChannelUtils.*;
+
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
@@ -12,86 +11,77 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.requests.ErrorResponse;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
+
+import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.SocketTimeoutException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static me.jasonhorkles.stormalerts.Utils.ChannelUtils.*;
+import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
+import me.jasonhorkles.stormalerts.Utils.LogUtils;
+import me.jasonhorkles.stormalerts.Utils.MessageUtils;
 
 public class Weather {
+    public Weather() {
+        messageUtils = new MessageUtils();
+    }
+
     public static boolean rainDenied;
     public static WeatherType previousWeatherType;
 
-    private static RainLevel previousRainLevel;
+    private final MessageUtils messageUtils;
+    private static final Map<WeatherType, IntensityLevel> previousLevels = new HashMap<>();
     private static Long allowedSnowTime;
 
-    public void checkConditions(double currentRainRate, double temperature) throws IOException, ExecutionException, InterruptedException, TimeoutException {
+    public void checkConditions(double currentRainRate, double temperature) throws IOException, ExecutionException, InterruptedException, TimeoutException, URISyntaxException {
         LogUtils logUtils = new LogUtils();
         System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Checking weather...");
 
-        String rawWeatherType;
-        if (StormAlerts.testing) rawWeatherType = Files.readString(Path.of("StormAlerts/Tests/weather.txt"));
-        else try {
-            Connection conn = Jsoup
-                .connect("https://weather.com/weather/today/l/" + new Secrets().weatherCode()).timeout(30000);
-            Document doc = conn.get();
-            //noinspection DataFlowIssue
-            rawWeatherType = doc.select("[class*=\"CurrentConditions--phraseValue--\"]").first().text();
-
-        } catch (SocketTimeoutException ignored) {
-            // Don't do anything with timeouts - we'll just try again next time
-            System.out.println(logUtils.getTime(LogUtils.LogColor.RED) + "Weather request timed out.\n ");
-            return;
+        JSONObject input;
+        if (StormAlerts.testing) input = new JSONObject(Files.readString(Path.of(
+            "StormAlerts/Tests/weather.json"))).getJSONObject("data").getJSONObject("values");
+        else {
+            InputStream url = new URI(
+                "https://api.tomorrow.io/v4/weather/realtime?location=84025%20US&units=imperial&apikey=" + new Secrets().tomorrowApiKey())
+                .toURL().openStream();
+            input = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8)).getJSONObject(
+                "data").getJSONObject("values");
+            url.close();
         }
 
-        if (rawWeatherType.isBlank()) throw new IOException("Weather type is blank");
+        // https://docs.tomorrow.io/reference/data-layers-weather-codes
+        int weatherCode = input.getInt("weatherCode");
+        int weatherCodeType = weatherCode / 1000;
 
         // Won't be null here or later if the weather is something we care about
         WeatherType weatherType = null;
-        if (rawWeatherType.toLowerCase().contains("hail") || rawWeatherType.toLowerCase().contains("sleet"))
-            weatherType = WeatherType.HAIL;
-        else if (rawWeatherType.toLowerCase().contains("snow")) weatherType = WeatherType.SNOW;
+        if (weatherCodeType == 7) weatherType = WeatherType.HAIL;
+        else if (weatherCodeType == 5) weatherType = WeatherType.SNOW;
 
-        // Check if the weather has changed since last time (excluding rain levels)
+        // Check if the weather type has changed since last time (excluding precipitation levels)
         // Previous type will be null if not exciting and will be set at the end of everything
         boolean weatherIsDifferent = previousWeatherType != weatherType;
-
-        MessageUtils messageUtils = new MessageUtils();
 
         // If snow is queued but not yet sent, don't cancel the snow message later on
         //noinspection BooleanVariableAlwaysNegated
         boolean snowQueued = false;
 
         // If the weather is still exciting, we'll want to update at least the bot status
-        // If the weather has also changed since then, we'll want to send a message too
+        // If the weather/level has also changed since then, we'll want to send a message too
         if (weatherType != null) switch (weatherType) {
-            case HAIL -> {
-                StormAlerts.jda.getPresence().setPresence(
-                    OnlineStatus.ONLINE,
-                    Activity.customStatus("It's " + getWeatherText(
-                        WeatherType.HAIL,
-                        true) + " (" + rawWeatherType + ")"));
-
-                if (!weatherIsDifferent) break;
-
-                String ping = messageUtils.shouldIPing(hailChannel) ? "<@&845055784156397608>\n" : "";
-
-                // 🧊
-                hailChannel.sendMessage(ping + "\uD83E\uDDCA It's " + getWeatherText(
-                        WeatherType.HAIL,
-                        false) + "! (" + rawWeatherType + ")")
-                    .setSuppressedNotifications(messageUtils.shouldIBeSilent(hailChannel)).queue();
-            }
+            case HAIL -> processWeather(weatherType, getWeatherLevel(weatherCode));
 
             case SNOW -> {
                 System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Snow detected.");
@@ -109,16 +99,16 @@ public class Weather {
                         allowedSnowTime = System.currentTimeMillis();
 
                         canScheduleMessage = false;
-                        sendSnowMessage(snowChannel, rawWeatherType, weatherIsDifferent, messageUtils);
+                        processWeather(weatherType, getWeatherLevel(weatherCode));
                     }
 
-                // We'll want to send the snow message after 20 minutes IF it's still snowing by then
+                // We'll want to send the snow message after 5 minutes IF it's still snowing by then
                 // First check if we can even schedule the message
                 if (canScheduleMessage)
-                    // If the allowed snow time is null, set it to 20 minutes in advance
+                    // If the allowed snow time is null, set it to 5 minutes in advance
                     if (allowedSnowTime == null) { //noinspection NonThreadSafeLazyInitialization - There shouldn't be any case where the thread runs more than once per minute or so
-                        allowedSnowTime = System.currentTimeMillis() + 1200000;
-                        System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Allowing snow messages in 20 minutes.");
+                        allowedSnowTime = System.currentTimeMillis() /*+ 300000*/;
+                        System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Allowing snow messages in 5 minutes.");
 
                         snowQueued = true;
                         weatherType = null;
@@ -126,11 +116,9 @@ public class Weather {
                     }
 
                     // Otherwise, if it has already passed, send the snow message
-                    else if (System.currentTimeMillis() >= allowedSnowTime) sendSnowMessage(
-                        snowChannel,
-                        rawWeatherType,
-                        weatherIsDifferent,
-                        messageUtils);
+                    else if (System.currentTimeMillis() >= allowedSnowTime) processWeather(
+                        weatherType,
+                        getWeatherLevel(weatherCode));
 
                     else { // Finally, if the snow is still waiting, set the weatherType to null
                         System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "We're still waiting, though.");
@@ -141,42 +129,40 @@ public class Weather {
             }
         }
 
-        // If it's currently snowing or hailing, don't start to check the rain
-        if (weatherType == null) {
-            RainLevel rainLevel = null;
-            boolean isRaining = false;
 
-            // If we know it's raining and it's not blocked
-            // We need to get a level for the enum
-            if (currentRainRate > 0 && !rainDenied && temperature >= 30) {
-                weatherType = WeatherType.RAIN;
-                rainLevel = getRainLevel(currentRainRate);
-                isRaining = true;
-            }
+        // If the weather is something else exciting, don't start to check the rain
+        // If we know it's raining and it's not blocked
+        // We need to get a level for the enum
+        if (weatherType == null) if (currentRainRate > 0 && !rainDenied && temperature >= 30) {
+            weatherType = WeatherType.RAIN;
 
-            if (isRaining) {
-                // Set weatherIsDifferent again now that we know it's raining
-                weatherIsDifferent = previousWeatherType != weatherType;
-                rawWeatherType = "RAIN";
+            // Set weatherIsDifferent again now that we know it's raining
+            weatherIsDifferent = previousWeatherType != weatherType;
 
-                // Send the rain message if further checks have passed and the rain level has changed
-                processRain(rainLevel, previousRainLevel != rainLevel, currentRainRate, messageUtils);
-                previousRainLevel = rainLevel;
-            }
+            // Send the rain message if further checks have passed and the rain level has changed
+            IntensityLevel rainLevel = getRainLevel(currentRainRate);
+            processRain(rainLevel, currentRainRate);
         }
+
 
         // Determine if the weather has changed since our last alert
         if (!weatherIsDifferent)
             System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "The weather hasn't changed!");
 
-        // If not snowing, reset the allowed snow time
-        if (weatherType != WeatherType.SNOW && !snowQueued) if (allowedSnowTime != null) {
-            allowedSnowTime = null;
-            System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Snow stopped - resetting allowed time");
+        // If no longer snowing, reset the allowed snow time
+        if (weatherType != WeatherType.SNOW && !snowQueued) {
+            if (allowedSnowTime != null) {
+                allowedSnowTime = null;
+                System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Snow stopped - resetting allowed time");
+            }
+
+            // Remove the previous level
+            previousLevels.remove(WeatherType.SNOW);
         }
 
-        // If not raining, reset the last rain level
-        if (weatherType != WeatherType.RAIN) if (previousRainLevel != null) previousRainLevel = null;
+        // If no longer snowing (above), raining, or hailing, remove the previous level
+        if (weatherType != WeatherType.RAIN) previousLevels.remove(WeatherType.RAIN);
+        if (weatherType != WeatherType.HAIL) previousLevels.remove(WeatherType.HAIL);
 
         // If the previous weather was something we cared about and it's not the same as the current type
         if (previousWeatherType != null && weatherIsDifferent) {
@@ -192,33 +178,52 @@ public class Weather {
         }
 
         if (weatherType == null) StormAlerts.jda.getPresence().setPresence(
-            OnlineStatus.IDLE, Activity.customStatus("Waiting for gnarly weather..."));
+            OnlineStatus.IDLE,
+            Activity.customStatus("Waiting for gnarly weather..."));
 
         previousWeatherType = weatherType;
 
-        System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Raw weather: " + rawWeatherType + "\n ");
+        System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Weather: " + weatherType + " (" + weatherCode + ")\n");
     }
 
-    private void sendSnowMessage(TextChannel snowChannel, String rawWeatherType, boolean weatherIsDifferent, MessageUtils messageUtils) {
+    private void processWeather(WeatherType weatherType, IntensityLevel intensityLevel) {
+        // If the level hasn't changed, return
+        if (previousLevels.get(weatherType) == intensityLevel) return;
+        previousLevels.put(weatherType, intensityLevel);
+
+        // Update the presence
         StormAlerts.jda.getPresence().setPresence(
             OnlineStatus.ONLINE,
-            Activity.customStatus("It's " + getWeatherText(
-                WeatherType.SNOW,
-                true) + " (" + rawWeatherType + ")"));
+            Activity.customStatus("It's " + getWeatherText(weatherType, intensityLevel) + getWeatherEmoji(
+                weatherType,
+                intensityLevel,
+                true)));
 
-        if (!weatherIsDifferent) return;
+        // If the intensity bar should include all 4 levels
+        boolean includeLevel4 = weatherType != WeatherType.HAIL;
 
-        String ping = messageUtils.shouldIPing(snowChannel) ? "<@&845055624165064734>\n" : "";
+        // Calculate what the message should be
+        String message = getWeatherEmoji(weatherType, intensityLevel, false) + " It's " + getWeatherText(weatherType,
+            intensityLevel) + "!\n" + getLevelBar(intensityLevel, includeLevel4);
 
-        // 🌨️
-        snowChannel.sendMessage(ping + "\uD83C\uDF28️ It's " + getWeatherText(
-            WeatherType.SNOW,
-            false) + "! (" + rawWeatherType + ")").setSuppressedNotifications(messageUtils.shouldIBeSilent(
-            snowChannel)).queue();
+        // Add weewoo if the level is the highest for that type
+        if ((includeLevel4 && intensityLevel == IntensityLevel.L4) || (!includeLevel4 && intensityLevel == IntensityLevel.L3))
+            message += " <a:weewoo:1083615022455992382>";
+
+        TextChannel channel = new ChannelUtils().getWeatherChannel(weatherType);
+        String roleId = "";
+        switch (weatherType) {
+            case HAIL -> roleId = "845055784156397608";
+            case SNOW -> roleId = "845055624165064734";
+        }
+        String ping = messageUtils.shouldMsgPing(channel) ? "<@&" + roleId + ">\n" : "";
+
+        channel.sendMessage(ping + message)
+            .setSuppressedNotifications(messageUtils.shouldMsgBeSilent(channel)).queue();
     }
 
     // This will never be called if the rainDenied boolean is true
-    private void processRain(RainLevel rainLevel, boolean levelChanged, double currentRainRate, MessageUtils messageUtils) throws IOException, ExecutionException, InterruptedException, TimeoutException {
+    private void processRain(IntensityLevel rainLevel, double currentRainRate) throws IOException, ExecutionException, InterruptedException, TimeoutException {
         // If it has NOT snowed in the last 5 days
         boolean hasNotSnowed = messageUtils.getMessages(snowChannel, 1).get(30, TimeUnit.SECONDS).getFirst()
             .getTimeCreated().isBefore(OffsetDateTime.now().minusDays(5));
@@ -227,67 +232,58 @@ public class Weather {
         if (rainAcceptedSinceSnow(snowChannel) || hasNotSnowed) {
             // Update the presence
             StormAlerts.jda.getPresence().setPresence(
-                OnlineStatus.ONLINE, Activity.customStatus("It's raining @ " + currentRainRate + " in/hr"));
+                OnlineStatus.ONLINE,
+                Activity.customStatus("It's raining @ " + currentRainRate + " in/hr"));
 
             System.out.println(new LogUtils().getTime(LogUtils.LogColor.GREEN) + "Raining @ " + currentRainRate + " in/hr");
 
             // If the level hasn't actually changed then that's all we needed to do
-            if (!levelChanged) return;
-
-            String ping = messageUtils.shouldIPing(rainChannel) ? "<@&843956362059841596>\n" : "";
+            // This is lower in the code than the other checks since the rain amount can change without the level changing in the status
+            if (previousLevels.get(WeatherType.RAIN) == rainLevel) return;
 
             // Calculate what the rain message should be
-            String message = "";
-            switch (rainLevel) {
-                case L1 -> // 🟩▫️▫️▫️
-                    message = ping + "☂️ It's " + getWeatherText(
-                        RainLevel.L1,
-                        false) + "!\n\uD83D\uDFE9▫️▫️▫️ (" + currentRainRate + " in/hr)";
+            String message = getWeatherEmoji(WeatherType.RAIN, rainLevel, false) + " It's " + getWeatherText(WeatherType.RAIN,
+                rainLevel) + "!\n" + getLevelBar(
+                rainLevel,
+                true) + " (" + currentRainRate + " in/hr)";
 
-                case L2 -> // 🟩🟨▫️▫️
-                    message = ping + "☔ It's " + getWeatherText(
-                        RainLevel.L2,
-                        false) + "!\n\uD83D\uDFE9\uD83D\uDFE8▫️▫️ (" + currentRainRate + " in/hr)";
-
-                case L3 -> // 🟩🟨🟧▫️
-                    // 🌦️
-                    message = ping + "\uD83C\uDF26️ It's " + getWeatherText(
-                        RainLevel.L3,
-                        false) + "!\n\uD83D\uDFE9\uD83D\uDFE8\uD83D\uDFE7▫️ (" + currentRainRate + " in/hr)";
-
-                case L4 -> // 🟩🟨🟧🟥
-                    // 🌧️
-                    message = ping + "\uD83C\uDF27️ It's " + getWeatherText(
-                        RainLevel.L4,
-                        false) + "!\n\uD83D\uDFE9\uD83D\uDFE8\uD83D\uDFE7\uD83D\uDFE5 (" + currentRainRate + " in/hr) <a:weewoo:1083615022455992382>";
-            }
+            if (rainLevel == IntensityLevel.L4) message += " <a:weewoo:1083615022455992382>";
 
             // Regular rain message
-            rainChannel.sendMessage(message).setSuppressedNotifications(messageUtils.shouldIBeSilent(
+            String ping = messageUtils.shouldMsgPing(rainChannel) ? "<@&843956362059841596>\n" : "";
+            rainChannel.sendMessage(ping + message).setSuppressedNotifications(messageUtils.shouldMsgBeSilent(
                 rainChannel)).queue();
 
             // Heavy rain message
-            if (rainLevel == RainLevel.L4) {
-                String heavyPing = messageUtils.shouldIPing(heavyRainChannel) ? "<@&843956325690900503>\n" : "";
-                heavyRainChannel.sendMessage(heavyPing + "\uD83C\uDF27️ It's " + getWeatherText(
-                    RainLevel.L4,
-                    false) + "! (" + currentRainRate + " in/hr)").queue();
+            if (rainLevel == IntensityLevel.L4) {
+                String heavyPing = messageUtils.shouldMsgPing(heavyRainChannel) ? "<@&843956325690900503>\n" : "";
+                heavyRainChannel.sendMessage(heavyPing + getWeatherEmoji(
+                    WeatherType.RAIN,
+                    IntensityLevel.L4,
+                    false) + " It's " + getWeatherText(
+                    WeatherType.RAIN,
+                    IntensityLevel.L4) + "! (" + currentRainRate + " in/hr)").queue();
             }
+
+            previousLevels.put(WeatherType.RAIN, rainLevel);
 
         } else { // Has snowed and rain hasn't been accepted since latest snow
             sendConfirmationMessage();
             StormAlerts.jda.getPresence().setPresence(
-                OnlineStatus.IDLE, Activity.customStatus("It's maybe " + getWeatherText(
+                OnlineStatus.IDLE,
+                Activity.customStatus("It's maybe " + getWeatherText(
+                    WeatherType.RAIN,
+                    rainLevel) + getWeatherEmoji(
+                    WeatherType.RAIN,
                     rainLevel,
                     true) + " @ " + currentRainRate + " in/hr"));
         }
     }
 
-
     // Returns true if the latest snow message id = the id in the file
     // If it doesn't match, then it's assumed to have snowed since the last rain confirmation
     private boolean rainAcceptedSinceSnow(TextChannel snowChannel) throws ExecutionException, InterruptedException, TimeoutException, IOException {
-        Long latestId = new MessageUtils().getMessages(snowChannel, 1).get(30, TimeUnit.SECONDS).getFirst()
+        Long latestId = messageUtils.getMessages(snowChannel, 1).get(30, TimeUnit.SECONDS).getFirst()
             .getIdLong();
         Long savedId = Long.parseLong(Files.readString(Path.of("StormAlerts/accepted-snow.txt")));
 
@@ -296,7 +292,7 @@ public class Weather {
 
     private void sendConfirmationMessage() throws ExecutionException, InterruptedException, TimeoutException {
         // Delete the message if it's older than 5 hours
-        List<Message> latestMessage = new MessageUtils().getMessages(rainConfirmationChannel, 1).get(
+        List<Message> latestMessage = messageUtils.getMessages(rainConfirmationChannel, 1).get(
             30,
             TimeUnit.SECONDS);
         boolean shouldSendMessage = true;
@@ -311,7 +307,8 @@ public class Weather {
 
         if (shouldSendMessage) rainConfirmationChannel.sendMessage(
                 "<@277291758503723010>\n# PWS reports rain:").addComponents(ActionRow.of(
-                Button.success("acceptrain", "Accept since snow").withEmoji(Emoji.fromUnicode("✅")),
+                Button
+                    .success("acceptrain", "Accept since snow").withEmoji(Emoji.fromUnicode("✅")),
                 Button.danger("denyrain", "Deny for 5 hours").withEmoji(Emoji.fromUnicode("✖️"))))
             .queue(del -> del.delete().queueAfter(
                 60,
@@ -326,66 +323,148 @@ public class Weather {
         HAIL
     }
 
-    private enum RainLevel {
+    public enum IntensityLevel {
         L1,
         L2,
         L3,
         L4
     }
 
-    /**
-     * Rain levels should be retrieved with {@link #getWeatherText(RainLevel, boolean includeEmote)}
-     *
-     * @param weatherType  The weather type, excluding rain
-     * @param includeEmote If the emote should be included in the text
-     * @return The weather's name
-     */
-    private String getWeatherText(WeatherType weatherType, boolean includeEmote) {
+    private String getWeatherText(WeatherType weatherType, IntensityLevel intensity) {
         switch (weatherType) {
+            case RAIN -> {
+                switch (intensity) {
+                    case L1 -> {
+                        return "raining";
+                    }
+
+                    case L2 -> {
+                        return "moderately raining";
+                    }
+
+                    case L3 -> {
+                        return "heavily raining";
+                    }
+
+                    case L4 -> {
+                        return "pouring";
+                    }
+                }
+            }
+
             case SNOW -> {
-                String name = "snowing";
-                return includeEmote ? name + " 🌨️" : name;
+                switch (intensity) {
+                    case L1 -> {
+                        return "flurrying";
+                    }
+
+                    case L2 -> {
+                        return "lightly snowing";
+                    }
+
+                    case L3 -> {
+                        return "snowing";
+                    }
+
+                    case L4 -> {
+                        return "heavily snowing";
+                    }
+                }
             }
 
             case HAIL -> {
-                String name = "hailing";
-                return includeEmote ? name + " 🧊" : name;
+                switch (intensity) {
+                    case L1 -> {
+                        return "lightly hailing";
+                    }
+
+                    case L2 -> {
+                        return "hailing";
+                    }
+
+                    case L3 -> {
+                        return "heavily hailing";
+                    }
+
+                    case L4 -> {
+                        return "pouring";
+                    }
+                }
             }
 
-            default -> throw new IllegalStateException("Unexpected weather value: " + weatherType);
+            default -> throw new IllegalStateException("Unexpected weather type: " + weatherType);
         }
+
+        throw new IllegalStateException("Unexpected weather intensity for " + weatherType + ": " + intensity);
     }
 
-    private String getWeatherText(RainLevel rainLevel, boolean includeEmote) {
-        switch (rainLevel) {
-            case L1 -> {
-                String name = "raining";
-                return includeEmote ? name + " ☂️" : name;
+    private String getWeatherEmoji(WeatherType weatherType, IntensityLevel intensity, boolean prependSpace) {
+        String emoji = prependSpace ? " " : "";
+        switch (weatherType) {
+            case RAIN -> {
+                switch (intensity) {
+                    case L1 -> emoji += "☂️";
+                    case L2 -> emoji += "☔";
+                    case L3 -> emoji += "🌦️";
+                    case L4 -> emoji += "🌧️";
+                }
             }
 
-            case L2 -> {
-                String name = "moderately raining";
-                return includeEmote ? name + " ☔" : name;
+            case SNOW -> {
+                switch (intensity) {
+                    case L1, L2, L3, L4 -> emoji += "🌨️";
+                }
             }
 
+            case HAIL -> {
+                switch (intensity) {
+                    case L1, L2, L3 -> emoji += "🧊";
+                    case L4 ->
+                        throw new IllegalStateException("Unexpected weather intensity for " + weatherType + ": " + intensity);
+                }
+            }
+
+            default -> throw new IllegalStateException("Unexpected weather type: " + weatherType);
+        }
+
+        return emoji;
+    }
+
+    private IntensityLevel getRainLevel(double currentRainRate) {
+        if (currentRainRate < 0.2) return IntensityLevel.L1;
+        else if (currentRainRate < 0.3) return IntensityLevel.L2;
+        else if (currentRainRate < 0.4) return IntensityLevel.L3;
+        else return IntensityLevel.L4;
+    }
+
+    private IntensityLevel getWeatherLevel(int weatherCode) {
+        return switch (weatherCode) {
+            case 5001, 7102 -> // Flurries, light hail
+                IntensityLevel.L1;
+
+            case 5100, 7000 -> // Light snow, hail
+                IntensityLevel.L2;
+
+            case 5000, 7101 -> // Snow, heavy hail
+                IntensityLevel.L3;
+
+            case 5101 -> // Heavy snow
+                IntensityLevel.L4;
+
+            default -> throw new IllegalStateException("Unexpected weather code: " + weatherCode);
+        };
+    }
+
+    private String getLevelBar(IntensityLevel level, boolean includeLevel4) {
+        String level4 = includeLevel4 ? "▫️" : "";
+        return switch (level) {
+            case L1 -> "🟩▫️▫️" + level4;
+            case L2 -> "🟩🟨▫️" + level4;
             case L3 -> {
-                String name = "heavily raining";
-                return includeEmote ? name + " 🌦️" : name;
+                if (includeLevel4) yield "🟩🟨🟧" + level4;
+                else yield "🟩🟨🟥";
             }
-
-            case L4 -> {
-                String name = "pouring";
-                return includeEmote ? name + " 🌧️" : name;
-            }
-
-            default -> throw new IllegalStateException("Unexpected rain value: " + rainLevel);
-        }
-    }
-
-    private RainLevel getRainLevel(double currentRainRate) {
-        if (currentRainRate < 0.2) return RainLevel.L1;
-        else if (currentRainRate < 0.3) return RainLevel.L2;
-        else if (currentRainRate < 0.4) return RainLevel.L3;
-        else return RainLevel.L4;
+            case L4 -> "🟩🟨🟧🟥";
+        };
     }
 }

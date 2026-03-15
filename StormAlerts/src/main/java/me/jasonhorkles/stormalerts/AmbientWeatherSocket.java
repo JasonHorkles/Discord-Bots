@@ -1,12 +1,13 @@
 package me.jasonhorkles.stormalerts;
 
-import io.socket.client.IO;
-import io.socket.client.Socket;
-import me.jasonhorkles.stormalerts.Utils.LogUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.URI;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import me.jasonhorkles.stormalerts.Utils.LogUtils;
 
 public class AmbientWeatherSocket {
     private final Socket socket;
@@ -31,11 +32,11 @@ public class AmbientWeatherSocket {
 
         socket.on(
             "subscribed",
-            args -> System.out.println(new LogUtils().getTime(LogUtils.LogColor.GREEN) + "Connected to Ambient Weather API."));
+            _ -> System.out.println(new LogUtils().getTime(LogUtils.LogColor.GREEN) + "Connected to Ambient Weather API."));
 
         socket.on(
             Socket.EVENT_DISCONNECT,
-            args -> System.out.println(new LogUtils().getTime(LogUtils.LogColor.RED) + "Disconnected from Ambient Weather API."));
+            _ -> System.out.println(new LogUtils().getTime(LogUtils.LogColor.RED) + "Disconnected from Ambient Weather API."));
 
         socket.on(
             Socket.EVENT_CONNECT_ERROR,

@@ -18,7 +18,7 @@ public class MessageUtils {
         return channel.getIterableHistory().takeAsync(count).thenApply(ArrayList::new);
     }
 
-    public boolean shouldIPing(TextChannel channel) {
+    public boolean shouldMsgPing(TextChannel channel) {
         try {
             Message message = getMessages(channel, 1).get(30, TimeUnit.SECONDS).getFirst();
 
@@ -39,7 +39,7 @@ public class MessageUtils {
         }
     }
 
-    public boolean shouldIBeSilent(TextChannel channel) {
+    public boolean shouldMsgBeSilent(TextChannel channel) {
         // Set whether or not the message should be silent (e.g. right after a restart)
         try {
             Message message = getMessages(channel, 1).get(30, TimeUnit.SECONDS).getFirst();

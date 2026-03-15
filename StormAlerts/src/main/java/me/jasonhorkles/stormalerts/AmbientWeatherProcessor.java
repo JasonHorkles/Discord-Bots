@@ -1,10 +1,8 @@
 package me.jasonhorkles.stormalerts;
 
-import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
-import me.jasonhorkles.stormalerts.Utils.LogUtils;
-import me.jasonhorkles.stormalerts.Utils.MessageUtils;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+
 import org.json.JSONObject;
 
 import java.io.FileWriter;
@@ -19,6 +17,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
+import me.jasonhorkles.stormalerts.Utils.LogUtils;
+import me.jasonhorkles.stormalerts.Utils.MessageUtils;
 
 public class AmbientWeatherProcessor {
     public static double lastAlertedWindGust = -1;
@@ -143,14 +145,14 @@ public class AmbientWeatherProcessor {
             String windDirEmote = directions[index];
 
             String ping = "";
-            if (messageUtils.shouldIPing(ChannelUtils.windChannel) || pingOverride)
+            if (messageUtils.shouldMsgPing(ChannelUtils.windChannel) || pingOverride)
                 ping = "<@&1046148944108978227>\n";
 
             String message = ping + "🍃 " + windDirStr + "ern wind gust of **" + windMax + " mph** *(" + windMaxFps + " ft/s)* detected! " + windDirEmote;
             if (windMax >= 50) message += " <a:weewoo:1083615022455992382>";
 
             ChannelUtils.windChannel.sendMessage(message)
-                .setSuppressedNotifications(messageUtils.shouldIBeSilent(ChannelUtils.windChannel) && !pingOverride)
+                .setSuppressedNotifications(messageUtils.shouldMsgBeSilent(ChannelUtils.windChannel) && !pingOverride)
                 .queue();
             lastAlertedWindGust = windMax;
         }
@@ -168,7 +170,7 @@ public class AmbientWeatherProcessor {
             if (lightningDistance == 1) s = "";
 
             String ping = "";
-            if (messageUtils.shouldIPing(ChannelUtils.lightningChannel)) ping = "<@&896877424824954881>\n";
+            if (messageUtils.shouldMsgPing(ChannelUtils.lightningChannel)) ping = "<@&896877424824954881>\n";
 
             String message = ping + "🌩️ Lightning detected **~" + lightningDistance + " mile" + s + "** from Eastern Farmington <t:" + (lightningTime / 1000) + ":R>!";
             if (lightningDistance <= 2) message += " <a:weewoo:1083615022455992382>";
@@ -177,7 +179,7 @@ public class AmbientWeatherProcessor {
             if (lightningDistance > 15)
                 ChannelUtils.lightningChannel.sendMessage(message).setSuppressedNotifications(true).queue();
             else ChannelUtils.lightningChannel.sendMessage(message)
-                .setSuppressedNotifications(messageUtils.shouldIBeSilent(ChannelUtils.lightningChannel))
+                .setSuppressedNotifications(messageUtils.shouldMsgBeSilent(ChannelUtils.lightningChannel))
                 .queue();
 
             FileWriter fw = new FileWriter("StormAlerts/lastlightningid.txt", StandardCharsets.UTF_8, false);

@@ -28,7 +28,7 @@ import me.jasonhorkles.stormalerts.Utils.MessageUtils;
 
 public class StormAlerts extends ListenerAdapter {
     public static final List<ScheduledFuture<?>> scheduledTimers = new ArrayList<>();
-    public static final boolean testing = false;
+    public static final boolean testing = true;
     public static JDA jda;
 
     private static AmbientWeatherSocket ambientWeatherSocket;
@@ -107,9 +107,11 @@ public class StormAlerts extends ListenerAdapter {
 
         System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Scheduled record check & wind reset in " + delay / 3600 + " hours.");
 
-        // Start listening for PWS messages
-        ambientWeatherSocket = new AmbientWeatherSocket();
-        ambientWeatherSocket.connect();
+        // Start listening for PWS messages if not in testing mode
+        if (!testing) {
+            ambientWeatherSocket = new AmbientWeatherSocket();
+            ambientWeatherSocket.connect();
+        }
 
         // 1 min
         // Alert checks
@@ -175,7 +177,14 @@ public class StormAlerts extends ListenerAdapter {
                     }
                     if (text.equalsIgnoreCase("n")) new Traffic().checkTraffic(true);
                     if (text.equalsIgnoreCase("s")) new Traffic().checkTraffic(false);
-                    if (text.equalsIgnoreCase("get")) new GetApiInfo().output();
+                    if (text.equalsIgnoreCase("get")) if (testing) try {
+                        new AmbientWeatherProcessor().processWeatherData("");
+                    } catch (Exception e) {
+                        System.out.print(logUtils.getTime(LogUtils.LogColor.RED));
+                        e.printStackTrace();
+                    }
+                    else
+                        System.out.println(logUtils.getTime(LogUtils.LogColor.RED) + "Testing mode must be enabled to do that!");
                 }
             }, "Console Input");
         input.start();
@@ -187,7 +196,7 @@ public class StormAlerts extends ListenerAdapter {
         LogUtils logUtils = new LogUtils();
         System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Shutting down...");
 
-        ambientWeatherSocket.disconnect();
+        if (!testing) ambientWeatherSocket.disconnect();
 
         System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Dumping record data...");
         try {

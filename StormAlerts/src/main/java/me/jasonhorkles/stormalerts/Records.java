@@ -1,8 +1,5 @@
 package me.jasonhorkles.stormalerts;
 
-import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
-import me.jasonhorkles.stormalerts.Utils.LogUtils;
-import me.jasonhorkles.stormalerts.Utils.MessageUtils;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -11,6 +8,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
+import me.jasonhorkles.stormalerts.Utils.LogUtils;
+import me.jasonhorkles.stormalerts.Utils.MessageUtils;
 
 public class Records {
     // Stats
@@ -214,7 +215,7 @@ public class Records {
 
     private void sendRecordMessage(String recordType, String newRecord, long newTimeStamp, String oldRecord, long oldTimeStamp) {
         String ping = "";
-        if (new MessageUtils().shouldIPing(ChannelUtils.recordsChannel)) ping = "<@&1046149064519073813>\n";
+        if (new MessageUtils().shouldMsgPing(ChannelUtils.recordsChannel)) ping = "<@&1046149064519073813>\n";
 
         // 📊
         ChannelUtils.recordsChannel
