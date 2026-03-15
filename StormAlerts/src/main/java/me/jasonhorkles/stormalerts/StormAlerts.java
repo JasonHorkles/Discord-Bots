@@ -88,24 +88,24 @@ public class StormAlerts extends ListenerAdapter {
         }
 
         // Schedule records announcement & wind var reset
-        LocalDateTime future = LocalDateTime.now().withHour(23).withMinute(59).withSecond(0);
+        LocalDateTime future = LocalDateTime.now().withHour(23).withMinute(59).withSecond(0).withNano(0);
         long delay = Duration.between(LocalDateTime.now(), future).getSeconds();
-        if (delay < 0) return;
+        if (delay >= 0) {
+            scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().schedule(
+                () -> {
+                    // Check for new records
+                    new Records().checkRecords();
 
-        scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().schedule(
-            () -> {
-                // Check for new records
-                new Records().checkRecords();
+                    // Reset max wind gust 3 minutes later
+                    scheduledTimers.add(Executors.newSingleThreadScheduledExecutor()
+                        .schedule(
+                            () -> {AmbientWeatherProcessor.lastAlertedWindGust = -1;},
+                            3,
+                            TimeUnit.MINUTES));
+                }, delay, TimeUnit.SECONDS));
 
-                // Reset max wind gust 3 minutes later
-                scheduledTimers.add(Executors.newSingleThreadScheduledExecutor()
-                    .schedule(
-                        () -> {AmbientWeatherProcessor.lastAlertedWindGust = -1;},
-                        3,
-                        TimeUnit.MINUTES));
-            }, delay, TimeUnit.SECONDS));
-
-        System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Scheduled record check & wind reset in " + delay / 3600 + " hours.");
+            System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Scheduled record check & wind reset in " + delay / 3600 + " hours.");
+        }
 
         // Start listening for PWS messages if not in testing mode
         if (!testing) {
@@ -197,6 +197,7 @@ public class StormAlerts extends ListenerAdapter {
         System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Shutting down...");
 
         if (!testing) ambientWeatherSocket.disconnect();
+        if (!scheduledTimers.isEmpty()) for (ScheduledFuture<?> task : scheduledTimers) task.cancel(true);
 
         System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Dumping record data...");
         try {
@@ -228,8 +229,6 @@ public class StormAlerts extends ListenerAdapter {
                     Records.maxRainRateTime,
                     Records.maxWindTime))).complete();
         }
-
-        if (!scheduledTimers.isEmpty()) for (ScheduledFuture<?> task : scheduledTimers) task.cancel(true);
 
         // Update active weather message
         if (Weather.previousWeatherType != null) {
