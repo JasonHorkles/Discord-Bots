@@ -19,7 +19,7 @@ public class AmbientWeatherSocket {
         socket = IO.socket(uri, options);
 
         socket.on(
-            Socket.EVENT_CONNECT, args -> {
+            Socket.EVENT_CONNECT, _ -> {
                 JSONObject subscribeData = new JSONObject();
                 JSONArray apiKeys = new JSONArray();
                 apiKeys.put(new Secrets().awApiKey());
