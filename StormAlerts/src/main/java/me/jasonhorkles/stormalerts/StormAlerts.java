@@ -28,7 +28,7 @@ import me.jasonhorkles.stormalerts.Utils.MessageUtils;
 
 public class StormAlerts extends ListenerAdapter {
     public static final List<ScheduledFuture<?>> scheduledTimers = new ArrayList<>();
-    public static final boolean testing = true;
+    public static final boolean testing = false;
     public static JDA jda;
 
     private static AmbientWeatherSocket ambientWeatherSocket;

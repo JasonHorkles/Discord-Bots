@@ -26,6 +26,7 @@ public class AmbientWeatherProcessor {
     public static double lastAlertedWindGust = -1;
 
     private static boolean notRateLimited = true;
+    private static long lastWeatherCheckTime = -1;
 
     public void processWeatherData(String data) throws IOException {
         System.out.println(new LogUtils().getTime(LogUtils.LogColor.YELLOW) + "Processing PWS conditions...");
@@ -188,17 +189,23 @@ public class AmbientWeatherProcessor {
         }
 
 
-        // Check the weather conditions
-        try {
-            new Weather().checkConditions(currentRainRate, temperature);
-        } catch (Exception e) {
-            LogUtils logUtils = new LogUtils();
+        // Check the weather conditions if not on 3 minute API cooldown (max 500 calls/day)
+        LogUtils logUtils = new LogUtils();
+        if (StormAlerts.testing || System.currentTimeMillis() - lastWeatherCheckTime > 180000) {
+            lastWeatherCheckTime = System.currentTimeMillis();
+            try {
+                new Weather().checkConditions(currentRainRate, temperature);
+            } catch (Exception e) {
 
-            System.out.println(logUtils.getTime(LogUtils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
-            e.printStackTrace();
-            StormAlerts.jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-            StormAlerts.jda.getPresence().setActivity(Activity.customStatus("Error checking weather!"));
-            logUtils.logError(e);
+                System.out.println(logUtils.getTime(LogUtils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
+                e.printStackTrace();
+                StormAlerts.jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
+                StormAlerts.jda.getPresence().setActivity(Activity.customStatus("Error checking weather!"));
+                logUtils.logError(e);
+            }
+        } else {
+            long secondsLeft = 180 - ((System.currentTimeMillis() - lastWeatherCheckTime) / 1000);
+            System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Weather conditions on cooldown for another " + secondsLeft + " seconds.");
         }
     }
 }
