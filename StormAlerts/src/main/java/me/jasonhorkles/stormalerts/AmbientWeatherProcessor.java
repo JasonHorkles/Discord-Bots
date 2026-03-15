@@ -204,8 +204,10 @@ public class AmbientWeatherProcessor {
                 logUtils.logError(e);
             }
         } else {
+            // 3 mins minus remaining cooldown time
             long secondsLeft = 180 - ((System.currentTimeMillis() - lastWeatherCheckTime) / 1000);
-            System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Weather conditions on cooldown for another " + secondsLeft + " seconds.\n");
+            // Space is added at the end to fix weird console issue
+            System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Weather conditions on cooldown for another " + secondsLeft + " seconds.\n ");
         }
     }
 }

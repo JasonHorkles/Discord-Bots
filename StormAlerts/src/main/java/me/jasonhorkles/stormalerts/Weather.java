@@ -183,7 +183,8 @@ public class Weather {
 
         previousWeatherType = weatherType;
 
-        System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Weather: " + weatherType + " (" + weatherCode + ")\n");
+        // Space is added at the end to fix weird console issue
+        System.out.println(logUtils.getTime(LogUtils.LogColor.GREEN) + "Weather: " + weatherType + " (" + weatherCode + ")\n ");
     }
 
     private void processWeather(WeatherType weatherType, IntensityLevel intensityLevel) {
