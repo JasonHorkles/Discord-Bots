@@ -1,11 +1,23 @@
 package me.jasonhorkles.aircheck;
 
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+
 import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class Utils {
     public enum LogColor {
@@ -47,5 +59,28 @@ public class Utils {
 
         //noinspection DataFlowIssue
         AirCheck.jda.getTextChannelById(1093060038265950238L).sendMessage(error).queue();
+    }
+
+    public CompletableFuture<List<Message>> getMessages(MessageChannel channel, int count) {
+        return channel.getIterableHistory().takeAsync(count).thenApply(ArrayList::new);
+    }
+
+    public boolean shouldMsgPing(TextChannel channel) {
+        try {
+            Message message = getMessages(channel, 1).get(30, TimeUnit.SECONDS).getFirst();
+
+            if (message.isEdited()) //noinspection DataFlowIssue
+                return message.getTimeEdited().isBefore(OffsetDateTime.now().minusHours(12));
+            else return message.getTimeCreated().isBefore(OffsetDateTime.now().minusHours(12));
+
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            System.out.print(getTime(LogColor.RED));
+            e.printStackTrace();
+            logError(e);
+            return true;
+
+        } catch (NoSuchElementException ignored) {
+            return true;
+        }
     }
 }

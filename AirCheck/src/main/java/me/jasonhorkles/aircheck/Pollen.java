@@ -18,7 +18,7 @@ public class Pollen {
         System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Checking pollen...");
 
         String input;
-        if (AirCheck.testing) input = Files.readString(Path.of("AirCheck/pollen.txt"));
+        if (AirCheck.testing) input = Files.readString(Path.of("AirCheck/Tests/pollen.txt"));
         else {
             Connection conn = Jsoup
                 .connect("https://weather.com/forecast/allergy/l/" + new Secrets().pollenLocationId())
@@ -49,9 +49,15 @@ public class Pollen {
         String weedLevel = pollenLevels.getOrDefault("Ragweed", "ERROR");
         String treeLevel = pollenLevels.getOrDefault("Tree", "ERROR");
 
-        utils.updateVoiceChannel(1415457851849048094L, "Grass | " + getColor(grassLevel) + " " + grassLevel);
-        utils.updateVoiceChannel(1415453649479536751L, "Ragweed | " + getColor(weedLevel) + " " + weedLevel);
-        utils.updateVoiceChannel(1415457875098337380L, "Tree | " + getColor(treeLevel) + " " + treeLevel);
+        if (!AirCheck.testing) {
+            utils.updateVoiceChannel(
+                1415457851849048094L,
+                "Grass | " + getColor(grassLevel) + " " + grassLevel);
+            utils.updateVoiceChannel(
+                1415453649479536751L,
+                "Ragweed | " + getColor(weedLevel) + " " + weedLevel);
+            utils.updateVoiceChannel(1415457875098337380L, "Tree | " + getColor(treeLevel) + " " + treeLevel);
+        }
 
         System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Got the pollen! (G:" + grassLevel + " W:" + weedLevel + " T:" + treeLevel + ")");
     }

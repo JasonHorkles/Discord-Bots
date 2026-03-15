@@ -7,7 +7,14 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -20,9 +27,11 @@ public class AirCheck {
     public static final boolean testing = false;
 
     private static final List<ScheduledFuture<?>> scheduledTimers = new ArrayList<>();
+    private static final String AQI_FILE_PATH = "AirCheck/max-aqi-level.txt";
 
     static void main() throws InterruptedException {
-        System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Starting...");
+        Utils utils = new Utils();
+        System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Starting...");
 
         JDABuilder builder = JDABuilder.createDefault(new Secrets().botToken());
         builder.disableCache(
@@ -38,6 +47,31 @@ public class AirCheck {
 
         jda.awaitReady();
 
+        // Cache unhealthy AQI max level
+        try {
+            AQI.maxAqiLevel = Integer.parseInt(Files.readString(Path.of(AQI_FILE_PATH)));
+        } catch (IOException e) {
+            System.out.print(utils.getTime(Utils.LogColor.RED));
+            e.printStackTrace();
+            utils.logError(e);
+        }
+
+        // Schedule unhealthy AQI var reset
+        // This system relies on the bot restarting daily before 6 AM
+        OffsetDateTime morning = OffsetDateTime.now().withHour(6).withMinute(0).withSecond(0).withNano(0);
+        long delay = Duration.between(LocalDateTime.now(), morning).getSeconds();
+        if (delay >= 0) {
+            scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().schedule(
+                () -> {
+                    // Reset max unhealthy AQI level
+                    AQI.maxAqiLevel = -1;
+                    System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Reset max AQI level.");
+                }, delay, TimeUnit.SECONDS));
+
+            System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Scheduled max AQI reset in " + delay / 3600 + " hours.");
+        }
+
+        // 30 min
         // Air Quality
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
             () -> {
@@ -49,18 +83,19 @@ public class AirCheck {
                     else if (e.getMessage().contains("502")) reason = " (Bad Gateway)";
                     else if (e.getMessage().contains("503")) reason = " (Service Unavailable)";
 
-                    System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the air quality!" + reason);
+                    System.out.println(utils.getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the air quality!" + reason);
                     if (reason.isBlank()) {
-                        System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                        System.out.print(utils.getTime(Utils.LogColor.RED));
                         e.printStackTrace();
-                        new Utils().logError(e);
-                    }
+                        utils.logError(e);
 
-                    jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-                    jda.getPresence().setActivity(Activity.customStatus("⚠ Error"));
+                        jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
+                        jda.getPresence().setActivity(Activity.customStatus("⚠ Error"));
+                    }
                 }
             }, 1, 1800, TimeUnit.SECONDS));
 
+        // 45 min
         // Pollen
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
             () -> {
@@ -70,11 +105,11 @@ public class AirCheck {
                     String reason = "";
                     if (e.getMessage().contains("Read timed out")) reason = " (Read Timed Out)";
 
-                    System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the pollen!" + reason);
+                    System.out.println(utils.getTime(Utils.LogColor.RED) + "[ERROR] Couldn't get the pollen!" + reason);
                     if (reason.isBlank()) {
-                        System.out.print(new Utils().getTime(Utils.LogColor.RED));
+                        System.out.print(utils.getTime(Utils.LogColor.RED));
                         e.printStackTrace();
-                        new Utils().logError(e);
+                        utils.logError(e);
                     }
                 }
             }, 2, 2700, TimeUnit.SECONDS));
@@ -90,16 +125,29 @@ public class AirCheck {
                         in.close();
                         System.exit(0);
                     }
+
+                    if (text.equalsIgnoreCase("get")) if (testing) try {
+                        new AQI().checkAir();
+                        new Pollen().getPollen();
+                    } catch (Exception e) {
+                        System.out.print(utils.getTime(Utils.LogColor.RED));
+                        e.printStackTrace();
+                    }
+                    else
+                        System.out.println(utils.getTime(Utils.LogColor.RED) + "Testing mode must be enabled to do that!");
                 }
             }, "Console Input");
         input.start();
 
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Done starting up!");
+        System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Done starting up!");
     }
 
     public void shutdown() {
         System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Shutting down...");
+
         if (!scheduledTimers.isEmpty()) for (ScheduledFuture<?> task : scheduledTimers) task.cancel(true);
+        saveAqiLevel();
+
         try {
             // Initating the shutdown, this closes the gateway connection and subsequently closes the requester queue
             jda.shutdown();
@@ -111,6 +159,21 @@ public class AirCheck {
                 jda.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
             }
         } catch (NoClassDefFoundError | InterruptedException ignored) {
+        }
+    }
+
+    private void saveAqiLevel() {
+        Utils utils = new Utils();
+        System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Dumping max AQI level...");
+        try {
+            FileWriter maxAqi = new FileWriter(AQI_FILE_PATH, StandardCharsets.UTF_8, false);
+            maxAqi.write(String.valueOf(AQI.maxAqiLevel));
+            maxAqi.close();
+
+        } catch (IOException e) {
+            System.out.print(utils.getTime(Utils.LogColor.RED));
+            e.printStackTrace();
+            utils.logError(e);
         }
     }
 }

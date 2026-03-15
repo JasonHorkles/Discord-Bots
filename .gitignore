@@ -1,9 +1,8 @@
 */target
 .idea
-AirCheck/activities.json
-AirCheck/air.json
-AirCheck/pollen.txt
+AirCheck/max-aqi-level.txt
 AirCheck/src/main/java/me/jasonhorkles/aircheck/Secrets.java
+AirCheck/Tests
 Booper/Data
 Booper/Messages
 Booper/src/main/java/me/jasonhorkles/booper/Secrets.java

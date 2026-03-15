@@ -2,6 +2,8 @@ package me.jasonhorkles.aircheck;
 
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -14,11 +16,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class AQI {
+    public AQI() {
+        utils = new Utils();
+    }
+
+    public static final long CHANNEL_ID = 1261785476277338163L;
+    public static int maxAqiLevel = -1;
+
+    private final Utils utils;
+
     public void checkAir() throws IOException, URISyntaxException {
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Checking air quality...");
+        System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Checking air quality...");
 
         JSONArray input;
-        if (AirCheck.testing) input = new JSONArray(Files.readString(Path.of("AirCheck/air.json")));
+        if (AirCheck.testing) input = new JSONArray(Files.readString(Path.of("AirCheck/Tests/air.json")));
         else {
             InputStream url = new URI(
                 "https://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json&zipCode=" + new Secrets().zip() + "&distance=25&API_KEY=" + new Secrets().aqiApiKey())
@@ -28,7 +39,7 @@ public class AQI {
         }
 
         if (input.isEmpty()) {
-            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "[ERROR] No air quality data found!");
+            System.out.println(utils.getTime(Utils.LogColor.RED) + "[ERROR] No air quality data found!");
             AirCheck.jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
             AirCheck.jda.getPresence().setActivity(Activity.customStatus("⚠ No air quality data found!"));
             return;
@@ -50,20 +61,13 @@ public class AQI {
         if (topPollutant.equals("O3")) topPollutant = "Ozone";
 
         String airQualityName = switch (catNumber) {
-            // 🟢
-            case 1 -> "Good \uD83D\uDFE2";
-            // 🟡
-            case 2 -> "Moderate \uD83D\uDFE1";
-            // 🟠
-            case 3 -> "Unhealty for sensitive groups \uD83D\uDFE0";
-            // 🔴
-            case 4 -> "Unhealthy \uD83D\uDD34";
-            // ⚫
+            case 1 -> "Good 🟢";
+            case 2 -> "Moderate 🟡";
+            case 3 -> "Unhealty for sensitive groups 🟠";
+            case 4 -> "Unhealthy 🔴";
             case 5 -> "Very unhealthy ⚫";
-            // ⚠️
             case 6 -> "Hazardous ⚠️";
             case 7 -> "⚠️ Unavailable";
-
             default -> "⚠️ Error: " + catNumber;
         };
 
@@ -71,6 +75,18 @@ public class AQI {
         AirCheck.jda.getPresence()
             .setActivity(Activity.customStatus("AQI: " + airQualityName + " (" + highestAqi + ", " + topPollutant + ")"));
 
-        System.out.println(new Utils().getTime(Utils.LogColor.GREEN) + "Got the air! (" + highestAqi + ", " + topPollutant + ")");
+        System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Got the air! (" + highestAqi + ", " + topPollutant + ")");
+
+        if ((catNumber >= 4 && catNumber < 7) && maxAqiLevel < catNumber) {
+            maxAqiLevel = catNumber;
+
+            TextChannel channel = AirCheck.jda.getTextChannelById(CHANNEL_ID);
+            String ping = utils.shouldMsgPing(channel) ? "<@&1261811494191108156>\n" : "";
+
+            //noinspection DataFlowIssue
+            channel
+                .sendMessage(ping + "### ⚠️  __Air Quality Alert__ ⚠️\nThe air quality is currently **" + airQualityName.toLowerCase() + "** with an AQI of **" + highestAqi + "**\nThe top pollutant is **" + topPollutant + "**")
+                .queue();
+        }
     }
 }
