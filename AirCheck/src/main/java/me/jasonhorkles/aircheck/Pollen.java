@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public class Pollen {
     public void getPollen() throws IOException {
         Utils utils = new Utils();
-        System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Checking pollen...");
+        System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Checking pollen...");
 
         String input;
         if (AirCheck.testing) input = Files.readString(Path.of("AirCheck/Tests/pollen.txt"));
@@ -59,7 +59,7 @@ public class Pollen {
             utils.updateVoiceChannel(1415457875098337380L, "Tree | " + getColor(treeLevel) + " " + treeLevel);
         }
 
-        System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Got the pollen! (G:" + grassLevel + " W:" + weedLevel + " T:" + treeLevel + ")");
+        System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Got the pollen! (G:" + grassLevel + " W:" + weedLevel + " T:" + treeLevel + ")\n ");
     }
 
     private String getColor(String value) {

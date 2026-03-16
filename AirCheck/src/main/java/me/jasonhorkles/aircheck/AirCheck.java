@@ -112,7 +112,7 @@ public class AirCheck {
                         utils.logError(e);
                     }
                 }
-            }, 2, 2700, TimeUnit.SECONDS));
+            }, 3, 2700, TimeUnit.SECONDS));
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new AirCheck().shutdown(), "Shutdown Hook"));

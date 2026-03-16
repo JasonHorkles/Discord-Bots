@@ -26,7 +26,7 @@ public class AQI {
     private final Utils utils;
 
     public void checkAir() throws IOException, URISyntaxException {
-        System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Checking air quality...");
+        System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Checking air quality...");
 
         JSONArray input;
         if (AirCheck.testing) input = new JSONArray(Files.readString(Path.of("AirCheck/Tests/air.json")));
@@ -75,7 +75,7 @@ public class AQI {
         AirCheck.jda.getPresence()
             .setActivity(Activity.customStatus("AQI: " + airQualityName + " (" + highestAqi + ", " + topPollutant + ")"));
 
-        System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Got the air! (" + highestAqi + ", " + topPollutant + ")");
+        System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Got the air! (" + highestAqi + ", " + topPollutant + ")\n ");
 
         if ((catNumber >= 4 && catNumber < 7) && maxAqiLevel < catNumber) {
             maxAqiLevel = catNumber;
