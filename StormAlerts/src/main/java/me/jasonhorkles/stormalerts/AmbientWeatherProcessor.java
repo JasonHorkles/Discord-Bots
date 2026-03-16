@@ -196,12 +196,19 @@ public class AmbientWeatherProcessor {
             try {
                 new Weather().checkConditions(currentRainRate, temperature);
             } catch (Exception e) {
+                String reason = "";
+                if (e.getMessage().contains("500")) reason = " (Internal Server Error)";
 
-                System.out.println(logUtils.getTime(LogUtils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!");
-                e.printStackTrace();
-                StormAlerts.jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-                StormAlerts.jda.getPresence().setActivity(Activity.customStatus("Error checking weather!"));
-                logUtils.logError(e);
+                System.out.println(logUtils.getTime(LogUtils.LogColor.RED) + "[ERROR] Couldn't get the weather conditions!" + reason);
+                if (reason.isBlank()) {
+                    System.out.print(logUtils.getTime(LogUtils.LogColor.RED));
+                    e.printStackTrace();
+                    logUtils.logError(e);
+
+                    StormAlerts.jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
+                    StormAlerts.jda.getPresence()
+                        .setActivity(Activity.customStatus("Error checking weather!"));
+                }
             }
         } else {
             // 3 mins minus remaining cooldown time
