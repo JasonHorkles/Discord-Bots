@@ -189,9 +189,10 @@ public class AmbientWeatherProcessor {
         }
 
 
-        // Check the weather conditions if not on 3 minute API cooldown (max 500 calls/day)
+        // Check the weather conditions if not on 2.9 minute API cooldown (max 500 calls/day)
         LogUtils logUtils = new LogUtils();
-        if (StormAlerts.testing || System.currentTimeMillis() - lastWeatherCheckTime >= 180000) {
+        final long cooldown = 174000;
+        if (StormAlerts.testing || System.currentTimeMillis() - lastWeatherCheckTime >= cooldown) {
             lastWeatherCheckTime = System.currentTimeMillis();
             try {
                 new Weather().checkConditions(currentRainRate, temperature);
@@ -211,8 +212,8 @@ public class AmbientWeatherProcessor {
                 }
             }
         } else {
-            // 3 mins minus remaining cooldown time
-            long secondsLeft = 180 - ((System.currentTimeMillis() - lastWeatherCheckTime) / 1000);
+            // Total cooldown minus remaining time in cooldown
+            long secondsLeft = (cooldown - (System.currentTimeMillis() - lastWeatherCheckTime)) / 1000;
             // Space is added at the end to fix weird console issue
             System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Weather conditions on cooldown for another " + secondsLeft + " seconds.\n ");
         }
