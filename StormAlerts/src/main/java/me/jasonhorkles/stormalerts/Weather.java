@@ -108,7 +108,7 @@ public class Weather {
                     // If the allowed snow time is null, set it to 10 minutes in advance
                     if (allowedSnowTime == null) { //noinspection NonThreadSafeLazyInitialization - There shouldn't be any case where the thread runs more than once per minute or so
                         allowedSnowTime = System.currentTimeMillis() + 600000;
-                        System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Allowing snow messages in 5 minutes.");
+                        System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Allowing snow messages in 10 minutes.");
 
                         snowQueued = true;
                         weatherType = null;
