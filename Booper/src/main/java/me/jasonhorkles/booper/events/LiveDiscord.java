@@ -1,11 +1,11 @@
 package me.jasonhorkles.booper.events;
 
-import me.jasonhorkles.booper.Utils;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.user.update.UserUpdateActivitiesEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,13 +13,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import me.jasonhorkles.booper.Utils;
+
 public class LiveDiscord extends ListenerAdapter {
     public static final Map<Member, Message> liveMembers = new HashMap<>();
 
     @Override
     public void onUserUpdateActivities(@NotNull UserUpdateActivitiesEvent event) {
         if (event.getGuild().getIdLong() != 1299547538445307986L) return;
-        if (event.getUser().getIdLong() == 314933806173913089L) return;
         checkIfLive(event.getMember());
     }
 
