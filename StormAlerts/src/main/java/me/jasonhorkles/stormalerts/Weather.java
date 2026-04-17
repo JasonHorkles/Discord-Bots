@@ -102,13 +102,13 @@ public class Weather {
                         processWeather(weatherType, getWeatherLevel(weatherCode));
                     }
 
-                // We'll want to send the snow message after 10 minutes IF it's still snowing by then
+                // We'll want to send the snow message after 7 minutes IF it's still snowing by then
                 // First check if we can even schedule the message
                 if (canScheduleMessage)
-                    // If the allowed snow time is null, set it to 10 minutes in advance
+                    // If the allowed snow time is null, set it to 7 minutes in advance
                     if (allowedSnowTime == null) { //noinspection NonThreadSafeLazyInitialization - There shouldn't be any case where the thread runs more than once per minute or so
-                        allowedSnowTime = System.currentTimeMillis() + 600000;
-                        System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Allowing snow messages in 10 minutes.");
+                        allowedSnowTime = System.currentTimeMillis() + 420000;
+                        System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Allowing snow messages in 7 minutes.");
 
                         snowQueued = true;
                         weatherType = null;
