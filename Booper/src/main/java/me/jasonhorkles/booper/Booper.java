@@ -5,7 +5,7 @@ import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.events.ChannelGoLiveEvent;
 import com.github.twitch4j.events.ChannelGoOfflineEvent;
-import me.jasonhorkles.booper.events.*;
+
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -13,13 +13,14 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.NewsChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+
 import org.json.JSONObject;
 
 import java.io.FileWriter;
@@ -30,6 +31,8 @@ import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import me.jasonhorkles.booper.events.*;
 
 public class Booper {
     public static JDA jda;
@@ -108,7 +111,7 @@ public class Booper {
                 JSONObject discordUsers = liveUsers.getJSONObject("discord");
                 JSONObject twitchUsers = liveUsers.getJSONObject("twitch");
 
-                TextChannel channel = guild.getTextChannelById(TWITCH_CHANNEL_ID);
+                NewsChannel channel = guild.getNewsChannelById(TWITCH_CHANNEL_ID);
                 if (channel == null) {
                     System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Twitch text channel not found!");
                     return;
@@ -146,7 +149,7 @@ public class Booper {
                 try {
                     //noinspection DataFlowIssue
                     for (Message message : new Utils()
-                        .getMessages(guild.getTextChannelById(TWITCH_CHANNEL_ID), 15).get(
+                        .getMessages(guild.getNewsChannelById(TWITCH_CHANNEL_ID), 15).get(
                             30,
                             TimeUnit.SECONDS)) {
                         if (message.getAuthor().isBot())

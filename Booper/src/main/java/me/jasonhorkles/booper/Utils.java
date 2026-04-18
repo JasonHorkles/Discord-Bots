@@ -2,10 +2,11 @@ package me.jasonhorkles.booper;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.NewsChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
@@ -120,8 +121,8 @@ public class Utils {
         embed.setColor(new Color(36, 36, 41));
 
         //noinspection DataFlowIssue
-        TextChannel channel = Booper.jda.getGuildById(1299547538445307986L)
-            .getTextChannelById(Booper.TWITCH_CHANNEL_ID);
+        NewsChannel channel = Booper.jda.getGuildById(1299547538445307986L)
+            .getNewsChannelById(Booper.TWITCH_CHANNEL_ID);
         //noinspection DataFlowIssue
         Message liveMessage = channel.sendMessage(liveMessageText).setEmbeds(embed.build()).complete();
 
