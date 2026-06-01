@@ -662,6 +662,7 @@ public class Wordle extends ListenerAdapter {
                 .queue(_ -> msg.addReaction(Emoji.fromUnicode("⛔")).queueAfter(1, TimeUnit.SECONDS)));
     }
 
+    @Nullable
     public MessageEmbed getLeaderboard(Guild guild) {
         Scanner leaderboard = null;
         try {
@@ -683,6 +684,8 @@ public class Wordle extends ListenerAdapter {
         }
 
         leaderboard.close();
+
+        if (lines.isEmpty()) return null;
 
         LinkedHashMap<Member, Integer> sortedLeaderboard = new LinkedHashMap<>();
         Stream<Map.Entry<Member, Integer>> leaderboardItems = lines.entrySet().stream();

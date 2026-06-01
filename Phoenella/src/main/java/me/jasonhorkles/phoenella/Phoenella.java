@@ -1,8 +1,5 @@
 package me.jasonhorkles.phoenella;
 
-import me.jasonhorkles.phoenella.events.*;
-import me.jasonhorkles.phoenella.games.RPS;
-import me.jasonhorkles.phoenella.games.Wordle;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -33,6 +30,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import me.jasonhorkles.phoenella.events.*;
+import me.jasonhorkles.phoenella.games.RPS;
+import me.jasonhorkles.phoenella.games.Wordle;
 
 @SuppressWarnings({"DataFlowIssue"})
 public class Phoenella {
@@ -79,7 +80,10 @@ public class Phoenella {
                 new SubcommandData("play", "Play with a random word"),
                 new SubcommandData("create", "Create a Wordle for others to play"),
                 new SubcommandData("leaderboard", "View the Wordle leaderboard").addOption(
-                    OptionType.BOOLEAN, "show", "Show the leaderboard message publicly?", false),
+                    OptionType.BOOLEAN,
+                    "show",
+                    "Show the leaderboard message publicly?",
+                    false),
                 new SubcommandData("daily", "Play the daily Wordle")),
             Commands.slash("rps", "Rock, Paper, Scissors")
                 .addOption(OptionType.USER, "player", "Player 2", true)).queue();
@@ -117,8 +121,10 @@ public class Phoenella {
                 Scanner lastClearedScanner = new Scanner(lastClearedFile, StandardCharsets.UTF_8);
                 int month = lastClearedScanner.nextInt();
                 if (month != LocalDate.now().getMonthValue()) {
-                    guild.getTextChannelById(956267174727671869L).sendMessage("## " + Month.of(month)
-                            .getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH) + "'s Leaderboard")
+                    // Post the leaderboard for the previous month if not empty
+                    if (leaderboardEmbed != null) guild.getTextChannelById(956267174727671869L).sendMessage(
+                            "## " + Month.of(month)
+                                .getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH) + "'s Leaderboard")
                         .addEmbeds(leaderboardEmbed).queue();
 
                     FileWriter lastCleared = new FileWriter(lastClearedFile, StandardCharsets.UTF_8, false);

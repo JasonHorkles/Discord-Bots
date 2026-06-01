@@ -1,13 +1,10 @@
 package me.jasonhorkles.phoenella.events;
 
-import me.jasonhorkles.phoenella.Phoenella;
-import me.jasonhorkles.phoenella.Utils;
-import me.jasonhorkles.phoenella.games.RPS;
-import me.jasonhorkles.phoenella.games.Wordle;
 import net.dv8tion.jda.api.components.label.Label;
 import net.dv8tion.jda.api.components.textinput.TextInput;
 import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -16,6 +13,11 @@ import net.dv8tion.jda.api.modals.Modal;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import me.jasonhorkles.phoenella.Phoenella;
+import me.jasonhorkles.phoenella.Utils;
+import me.jasonhorkles.phoenella.games.RPS;
+import me.jasonhorkles.phoenella.games.Wordle;
 
 @SuppressWarnings("DataFlowIssue")
 public class SlashCommands extends ListenerAdapter {
@@ -96,7 +98,10 @@ public class SlashCommands extends ListenerAdapter {
                             ephemeral = !event.getOption("show").getAsBoolean();
 
                     event.deferReply(ephemeral).queue();
-                    event.getHook().editOriginalEmbeds(new Wordle().getLeaderboard(event.getGuild())).queue();
+                    MessageEmbed embed = new Wordle().getLeaderboard(event.getGuild());
+                    if (embed == null)
+                        event.getHook().editOriginal("No one has earned any points this month!").queue();
+                    else event.getHook().editOriginalEmbeds().queue();
                 }
             }
         }
