@@ -87,7 +87,13 @@ public class AmbientWeatherProcessor {
         if (notRateLimited && !StormAlerts.testing) {
             ChannelUtils channelUtils = new ChannelUtils();
             channelUtils.updateVoiceChannel(879099218302746694L, "Temperature | " + temperature + "°");
-            channelUtils.updateVoiceChannel(927585852396294164L, "Feels Like | " + feelsLike + "°");
+            channelUtils.updateVoiceChannel(927585852396294164L, "├ Feels Like | " + feelsLike + "°");
+            channelUtils.updateVoiceChannel(
+                1511872060320649226L,
+                "├ Highest Today | " + Records.highestTempToday + "°");
+            channelUtils.updateVoiceChannel(
+                1511872085994110996L,
+                "└ Lowest Today | " + Records.lowestTempToday + "°");
             channelUtils.updateVoiceChannel(879099369587081226L, "UV Index | " + uv);
             channelUtils.updateVoiceChannel(879099159574089809L, "Humidity | " + humidity + "%");
             channelUtils.updateVoiceChannel(879098793876934676L, "Daily | " + rainDaily + " in");
