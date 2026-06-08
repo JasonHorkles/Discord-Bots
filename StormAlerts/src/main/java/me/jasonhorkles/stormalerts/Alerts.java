@@ -18,7 +18,6 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -56,9 +55,7 @@ public class Alerts {
         if (StormAlerts.testing) input = new JSONObject(Files.readString(Path.of(
             "StormAlerts/Tests/alerts-empty.json")));
         else {
-            InputStream url = new URI(
-                "https://api.weather.gov/alerts/active?status=actual&message_type=alert,update&zone=" + new Secrets().alertZone())
-                .toURL().openStream();
+            InputStream url = new Secrets().alertUrl().openStream();
             input = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();
         }

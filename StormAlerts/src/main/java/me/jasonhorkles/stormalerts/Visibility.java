@@ -4,7 +4,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -21,8 +20,7 @@ public class Visibility {
         if (StormAlerts.testing) input = new JSONObject(Files.readString(Path.of(
             "StormAlerts/Tests/visibility.json")));
         else {
-            InputStream url = new URI("https://api.weather.gov/stations/" + new Secrets().nwsStation() + "/observations/latest")
-                .toURL().openStream();
+            InputStream url = new Secrets().visibilityUrl().openStream();
             input = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();
         }

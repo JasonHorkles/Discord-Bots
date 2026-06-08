@@ -13,7 +13,7 @@ public class AmbientWeatherSocket {
     private final Socket socket;
 
     public AmbientWeatherSocket() {
-        URI uri = URI.create("https://rt2.ambientweather.net/?api=1&applicationKey=" + new Secrets().awAppKey());
+        URI uri = new Secrets().awUri();
         IO.Options options = IO.Options.builder().setTransports(new String[]{"websocket"})
             .setReconnectionDelayMax(60000).build();
         socket = IO.socket(uri, options);

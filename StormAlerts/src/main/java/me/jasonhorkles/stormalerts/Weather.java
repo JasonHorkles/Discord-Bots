@@ -16,8 +16,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,7 +43,7 @@ public class Weather {
     private static final Map<WeatherType, IntensityLevel> previousLevels = new HashMap<>();
     private static Long allowedSnowTime;
 
-    public void checkConditions(double currentRainRate, double temperature) throws IOException, ExecutionException, InterruptedException, TimeoutException, URISyntaxException {
+    public void checkConditions(double currentRainRate, double temperature) throws IOException, ExecutionException, InterruptedException, TimeoutException {
         LogUtils logUtils = new LogUtils();
         System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Checking weather...");
 
@@ -53,9 +51,7 @@ public class Weather {
         if (StormAlerts.testing) input = new JSONObject(Files.readString(Path.of(
             "StormAlerts/Tests/weather.json"))).getJSONObject("data").getJSONObject("values");
         else {
-            InputStream url = new URI(
-                "https://api.tomorrow.io/v4/weather/realtime?location=84025%20US&units=imperial&apikey=" + new Secrets().tomorrowApiKey())
-                .toURL().openStream();
+            InputStream url = new Secrets().tomorrowUrl().openStream();
             input = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8)).getJSONObject(
                 "data").getJSONObject("values");
             url.close();
@@ -244,7 +240,9 @@ public class Weather {
 
             // Calculate what the rain message should be
             String message = getWeatherEmoji(WeatherType.RAIN, rainLevel, false) + " It's " + getWeatherText(WeatherType.RAIN,
-                rainLevel) + "!\n" + getLevelBar(rainLevel, true) + " (" + currentRainRate + " in/hr)";
+                rainLevel) + "!\n" + getLevelBar(
+                rainLevel,
+                true) + " (" + currentRainRate + " in/hr)";
 
             if (rainLevel == IntensityLevel.L4) message += " <a:weewoo:1083615022455992382>";
 

@@ -4,7 +4,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.InputStream;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,8 +28,7 @@ public class Traffic {
             if (StormAlerts.testing) input = new JSONObject(Files.readString(Path.of(
                 "StormAlerts/Tests/traffic.json"))).getJSONArray("results");
             else {
-                InputStream url = new URI("https://data.traffic.hereapi.com/v7/flow?in=circle:" + secrets.trafficCoords() + ";r=10&locationReferencing=none&apiKey=" + secrets.trafficApiKey())
-                    .toURL().openStream();
+                InputStream url = secrets.trafficUrl().openStream();
                 JSONObject obj = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
                 url.close();
 
