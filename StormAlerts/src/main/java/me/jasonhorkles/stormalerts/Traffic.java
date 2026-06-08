@@ -1,6 +1,5 @@
 package me.jasonhorkles.stormalerts;
 
-import me.jasonhorkles.stormalerts.Utils.LogUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -18,6 +17,8 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import me.jasonhorkles.stormalerts.Utils.LogUtils;
 
 public class Traffic {
     public void checkTraffic(boolean north) {

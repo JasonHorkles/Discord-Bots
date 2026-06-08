@@ -1,15 +1,17 @@
 package me.jasonhorkles.booper.events;
 
-import me.jasonhorkles.booper.Booper;
-import me.jasonhorkles.booper.Utils;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+
 import org.json.JSONObject;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+
+import me.jasonhorkles.booper.Booper;
+import me.jasonhorkles.booper.Utils;
 
 public class Modals extends ListenerAdapter {
     @SuppressWarnings("DataFlowIssue")

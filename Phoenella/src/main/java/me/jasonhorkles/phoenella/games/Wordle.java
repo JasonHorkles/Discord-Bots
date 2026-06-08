@@ -139,7 +139,7 @@ public class Wordle extends ListenerAdapter {
             () -> {
                 ArrayList<Message> lines = new ArrayList<>();
                 StringBuilder empties = new StringBuilder(140);
-                empties.append("<:empty:1279501848780341399> ".repeat(answers.get(channel).length()));
+                empties.repeat("<:empty:1279501848780341399> ", answers.get(channel).length());
                 try {
                     for (int x = 0; x < maxTries.get(channel); x++)
                         lines.add(channel.sendMessage(empties).complete());

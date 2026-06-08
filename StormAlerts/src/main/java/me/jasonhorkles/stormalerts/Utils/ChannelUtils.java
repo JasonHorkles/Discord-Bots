@@ -1,10 +1,11 @@
 package me.jasonhorkles.stormalerts.Utils;
 
-import me.jasonhorkles.stormalerts.StormAlerts;
-import me.jasonhorkles.stormalerts.Weather;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+
+import me.jasonhorkles.stormalerts.StormAlerts;
+import me.jasonhorkles.stormalerts.Weather;
 
 public class ChannelUtils {
     public static TextChannel alertChannel;

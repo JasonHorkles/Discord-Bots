@@ -244,9 +244,7 @@ public class Weather {
 
             // Calculate what the rain message should be
             String message = getWeatherEmoji(WeatherType.RAIN, rainLevel, false) + " It's " + getWeatherText(WeatherType.RAIN,
-                rainLevel) + "!\n" + getLevelBar(
-                rainLevel,
-                true) + " (" + currentRainRate + " in/hr)";
+                rainLevel) + "!\n" + getLevelBar(rainLevel, true) + " (" + currentRainRate + " in/hr)";
 
             if (rainLevel == IntensityLevel.L4) message += " <a:weewoo:1083615022455992382>";
 

@@ -1,7 +1,5 @@
 package me.jasonhorkles.booper.events;
 
-import me.jasonhorkles.booper.Booper;
-import me.jasonhorkles.booper.Utils;
 import net.dv8tion.jda.api.components.label.Label;
 import net.dv8tion.jda.api.components.textinput.TextInput;
 import net.dv8tion.jda.api.components.textinput.TextInputStyle;
@@ -10,6 +8,7 @@ import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionE
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.modals.Modal;
+
 import org.json.JSONObject;
 
 import java.io.FileWriter;
@@ -17,6 +16,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+
+import me.jasonhorkles.booper.Booper;
+import me.jasonhorkles.booper.Utils;
 
 public class SelectMenus extends ListenerAdapter {
     @Override

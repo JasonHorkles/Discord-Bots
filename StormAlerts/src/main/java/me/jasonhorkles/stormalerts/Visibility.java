@@ -1,7 +1,5 @@
 package me.jasonhorkles.stormalerts;
 
-import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
-import me.jasonhorkles.stormalerts.Utils.LogUtils;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -11,6 +9,9 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
+import me.jasonhorkles.stormalerts.Utils.LogUtils;
 
 public class Visibility {
     public void checkConditions() throws IOException, URISyntaxException {

@@ -1,7 +1,5 @@
 package me.jasonhorkles.phoenella.events;
 
-import me.jasonhorkles.phoenella.Phoenella;
-import me.jasonhorkles.phoenella.Utils;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -9,6 +7,7 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -20,6 +19,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+
+import me.jasonhorkles.phoenella.Phoenella;
+import me.jasonhorkles.phoenella.Utils;
 
 @SuppressWarnings("DataFlowIssue")
 public class Reactions extends ListenerAdapter {

@@ -1,6 +1,5 @@
 package me.jasonhorkles.phoenella.events;
 
-import me.jasonhorkles.phoenella.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
@@ -8,6 +7,8 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.awt.*;
+
+import me.jasonhorkles.phoenella.Utils;
 
 @SuppressWarnings("DataFlowIssue")
 public class Modals extends ListenerAdapter {

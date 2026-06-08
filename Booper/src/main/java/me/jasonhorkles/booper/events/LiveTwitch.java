@@ -3,14 +3,16 @@ package me.jasonhorkles.booper.events;
 import com.github.twitch4j.events.ChannelGoLiveEvent;
 import com.github.twitch4j.events.ChannelGoOfflineEvent;
 import com.github.twitch4j.helix.domain.Stream;
-import me.jasonhorkles.booper.Booper;
-import me.jasonhorkles.booper.Utils;
+
 import net.dv8tion.jda.api.entities.Message;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import me.jasonhorkles.booper.Booper;
+import me.jasonhorkles.booper.Utils;
 
 public class LiveTwitch {
     // Twitch username, message

@@ -1,6 +1,5 @@
 package me.jasonhorkles.booper.events;
 
-import me.jasonhorkles.booper.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
@@ -11,6 +10,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+
 import org.json.JSONObject;
 
 import java.awt.*;
@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+
+import me.jasonhorkles.booper.Utils;
 
 @SuppressWarnings("DataFlowIssue")
 public class SlashCommands extends ListenerAdapter {

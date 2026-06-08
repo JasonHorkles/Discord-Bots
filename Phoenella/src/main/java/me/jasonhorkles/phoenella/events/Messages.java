@@ -1,8 +1,5 @@
 package me.jasonhorkles.phoenella.events;
 
-import me.jasonhorkles.phoenella.Nicknames;
-import me.jasonhorkles.phoenella.Phoenella;
-import me.jasonhorkles.phoenella.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
@@ -24,6 +21,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import me.jasonhorkles.phoenella.Nicknames;
+import me.jasonhorkles.phoenella.Phoenella;
+import me.jasonhorkles.phoenella.Utils;
 
 @SuppressWarnings("DataFlowIssue")
 public class Messages extends ListenerAdapter {

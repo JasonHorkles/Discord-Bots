@@ -1,7 +1,5 @@
 package me.jasonhorkles.phoenella.games;
 
-import me.jasonhorkles.phoenella.GameManager;
-import me.jasonhorkles.phoenella.Utils;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Member;
@@ -17,6 +15,9 @@ import java.util.HashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import me.jasonhorkles.phoenella.GameManager;
+import me.jasonhorkles.phoenella.Utils;
 
 public class RPS extends ListenerAdapter {
     private static final HashMap<TextChannel, Integer> round = new HashMap<>();

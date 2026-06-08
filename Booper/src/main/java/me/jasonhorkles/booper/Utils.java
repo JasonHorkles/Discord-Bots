@@ -128,7 +128,8 @@ public class Utils {
 
         // Update image after 10 minutes
         liveMessage.editMessageEmbeds(embed.setImage(imageUrl + "1").build()).queueAfter(
-            10, TimeUnit.MINUTES,
+            10,
+            TimeUnit.MINUTES,
             null,
             new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
 
