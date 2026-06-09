@@ -47,6 +47,9 @@ public class AirCheck {
 
         jda.awaitReady();
 
+        if (testing)
+            System.out.println(utils.getTime(Utils.LogColor.RED) + "Warning: Testing mode enabled! Local files will be used.");
+
         // Cache unhealthy AQI max level
         try {
             AQI.maxAqiLevel = Integer.parseInt(Files.readString(Path.of(AQI_FILE_PATH)));
