@@ -1,85 +1,132 @@
 package me.jasonhorkles.aircheck;
 
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Map.Entry;
 
 public class Pollen {
     public void getPollen() throws IOException {
         Utils utils = new Utils();
         System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Checking pollen...");
 
-        String input;
-        if (AirCheck.testing) input = Files.readString(Path.of("AirCheck/Tests/pollen.txt"));
+        JSONObject rawInput;
+        if (AirCheck.testing)
+            rawInput = new JSONObject(Files.readString(Path.of("AirCheck/Tests/pollen.json")));
         else {
-            Connection conn = Jsoup
-                .connect("https://weather.com/forecast/allergy/l/" + new Secrets().pollenLocationId())
-                .timeout(30000).userAgent(
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0 Safari/537.36")
-                .referrer("https://www.google.com");
-            Document doc = conn.get();
-
-            //noinspection DataFlowIssue
-            input = doc.select("[class*=\"PollenBreakdown--body--\"]").first().text();
+            InputStream url = new Secrets().pollenUrl().openStream();
+            rawInput = new JSONObject(new String(url.readAllBytes(), StandardCharsets.UTF_8));
+            url.close();
         }
 
-        Map<String, String> pollenLevels = new HashMap<>();
-        Pattern pattern = Pattern.compile("(\\w+?) Pollen (Today|Tonight): (\\w+)");
-        Matcher matcher = pattern.matcher(input.replace("Very High", "VeryHigh")
-            .replace("Very Low", "VeryLow"));
+        JSONArray input = new JSONArray();
+        JSONArray dailyInfo = rawInput.getJSONArray("dailyInfo");
+        if (!dailyInfo.isEmpty()) input = dailyInfo.getJSONObject(0).getJSONArray("pollenTypeInfo");
 
-        while (matcher.find()) {
-            String pollenType = matcher.group(1);
-            String level = matcher.group(3);
-
-            pollenLevels.put(
-                pollenType,
-                level.replace("VeryHigh", "Very High").replace("VeryLow", "Very Low"));
+        if (input.isEmpty()) {
+            System.out.println(utils.getTime(Utils.LogColor.RED) + "[ERROR] No pollen data found!");
+            return;
         }
 
-        String grassLevel = pollenLevels.getOrDefault("Grass", "ERROR");
-        String weedLevel = pollenLevels.getOrDefault("Ragweed", "ERROR");
-        String treeLevel = pollenLevels.getOrDefault("Tree", "ERROR");
+        EnumMap<PollenType, PollenData> pollenDataMap = new EnumMap<>(PollenType.class);
+        // Add default values
+        for (PollenType type : PollenType.values())
+            pollenDataMap.put(type, new PollenData(-1, "ERROR"));
 
-        if (!AirCheck.testing) {
+        for (int i = 0; i < input.length(); i++) {
+            JSONObject pollenInfo = input.getJSONObject(i);
+            String code = pollenInfo.getString("code");
+            PollenType type;
+            try {
+                type = PollenType.valueOf(code);
+            } catch (IllegalArgumentException e) {
+                System.out.println(utils.getTime(Utils.LogColor.RED) + "[ERROR] Unknown pollen type: " + code);
+                continue;
+            }
+
+            JSONObject indexInfo = pollenInfo.optJSONObject(
+                "indexInfo",
+                new JSONObject().put("value", 0).put("category", "None"));
+
+            int level = indexInfo.getInt("value");
+            String category = indexInfo.getString("category");
+
+            pollenDataMap.put(type, new PollenData(level, category));
+        }
+
+        Map<PollenType, Long> channelMap = Map.of(
+            PollenType.GRASS,
+            1415457851849048094L,
+            PollenType.TREE,
+            1415457875098337380L,
+            PollenType.WEED,
+            1415453649479536751L);
+
+        // Update each channel with the corresponding data
+        if (!AirCheck.testing) for (Entry<PollenType, Long> entry : channelMap.entrySet()) {
+            PollenData data = pollenDataMap.get(entry.getKey());
             utils.updateVoiceChannel(
-                1415457851849048094L,
-                "Grass | " + getColor(grassLevel) + " " + grassLevel);
-            utils.updateVoiceChannel(
-                1415453649479536751L,
-                "Ragweed | " + getColor(weedLevel) + " " + weedLevel);
-            utils.updateVoiceChannel(1415457875098337380L, "Tree | " + getColor(treeLevel) + " " + treeLevel);
+                entry.getValue(),
+                entry.getKey().getDisplayName() + " | " + getColor(data.level()) + " " + data.category());
         }
 
-        System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Got the pollen! (G:" + grassLevel + " W:" + weedLevel + " T:" + treeLevel + ")\n ");
+        PollenData grassLevel = pollenDataMap.get(PollenType.GRASS);
+        PollenData treeLevel = pollenDataMap.get(PollenType.TREE);
+        PollenData weedLevel = pollenDataMap.get(PollenType.WEED);
+
+        System.out.println(utils.getTime(Utils.LogColor.GREEN) + "Pollen: G:" + grassLevel.category() + " T:" + treeLevel.category() + " W:" + weedLevel.category() + "\n ");
     }
 
-    private String getColor(String value) {
-        return switch (value) {
-            // ⭕
-            case "ERROR" -> "⭕ ";
-            // 🟢
-            case "None" -> "\uD83D\uDFE2 ";
-            // 🔵
-            case "Very Low" -> "\uD83D\uDD35 ";
-            // 🟡
-            case "Low" -> "\uD83D\uDFE1 ";
-            // 🟠
-            case "Moderate" -> "\uD83D\uDFE0 ";
-            // 🔴
-            case "High" -> "\uD83D\uDD34 ";
-            // ⚠️
-            case "Very High" -> "⚠️ ";
+    private enum PollenType {
+        GRASS("Grass"),
+        TREE("Tree"),
+        WEED("Weed");
 
-            default -> value;
+        private final String displayName;
+
+        PollenType(String displayName) {
+            this.displayName = displayName;
+        }
+
+        private String getDisplayName() {
+            return displayName;
+        }
+    }
+
+    private String getColor(int value) {
+        // https://developers.google.com/maps/documentation/pollen/pollen-index
+        return switch (value) {
+            // Error
+            case -1 -> "❌ ";
+
+            // None
+            case 0 -> "🔵 ";
+
+            // Very Low
+            case 1 -> "🟢 ";
+
+            // Low
+            case 2 -> "🟡 ";
+
+            // Moderate
+            case 3 -> "🟠 ";
+
+            // High
+            case 4 -> "🔴 ";
+
+            // Very High
+            case 5 -> "⚠️ ";
+
+            default -> String.valueOf(value);
         };
     }
+
+    private record PollenData(int level, String category) {}
 }

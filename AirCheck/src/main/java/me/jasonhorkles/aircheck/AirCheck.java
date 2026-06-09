@@ -98,7 +98,7 @@ public class AirCheck {
                 }
             }, 1, 1800, TimeUnit.SECONDS));
 
-        // 45 min
+        // 1 hr
         // Pollen
         scheduledTimers.add(Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
             () -> {
@@ -115,7 +115,7 @@ public class AirCheck {
                         utils.logError(e);
                     }
                 }
-            }, 3, 2700, TimeUnit.SECONDS));
+            }, 3, 3600, TimeUnit.SECONDS));
 
         // Add shutdown hooks
         Runtime.getRuntime().addShutdownHook(new Thread(() -> new AirCheck().shutdown(), "Shutdown Hook"));

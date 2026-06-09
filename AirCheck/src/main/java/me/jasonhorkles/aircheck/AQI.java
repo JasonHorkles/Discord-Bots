@@ -9,8 +9,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,15 +23,13 @@ public class AQI {
 
     private final Utils utils;
 
-    public void checkAir() throws IOException, URISyntaxException {
+    public void checkAir() throws IOException {
         System.out.println(utils.getTime(Utils.LogColor.YELLOW) + "Checking air quality...");
 
         JSONArray input;
         if (AirCheck.testing) input = new JSONArray(Files.readString(Path.of("AirCheck/Tests/air.json")));
         else {
-            InputStream url = new URI(
-                "https://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json&zipCode=" + new Secrets().zip() + "&distance=25&API_KEY=" + new Secrets().aqiApiKey())
-                .toURL().openStream();
+            InputStream url = new Secrets().aqiUrl().openStream();
             input = new JSONArray(new String(url.readAllBytes(), StandardCharsets.UTF_8));
             url.close();
         }
