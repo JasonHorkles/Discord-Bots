@@ -70,8 +70,8 @@ public class Utils {
             Message message = getMessages(channel, 1).get(30, TimeUnit.SECONDS).getFirst();
 
             if (message.isEdited()) //noinspection DataFlowIssue
-                return message.getTimeEdited().isBefore(OffsetDateTime.now().minusHours(12));
-            else return message.getTimeCreated().isBefore(OffsetDateTime.now().minusHours(12));
+                return message.getTimeEdited().isBefore(OffsetDateTime.now().minusHours(36));
+            else return message.getTimeCreated().isBefore(OffsetDateTime.now().minusHours(36));
 
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             System.out.print(getTime(LogColor.RED));
