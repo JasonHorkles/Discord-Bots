@@ -3,7 +3,6 @@ package me.jasonhorkles.aircheck;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
@@ -91,9 +90,6 @@ public class AirCheck {
                         System.out.print(utils.getTime(Utils.LogColor.RED));
                         e.printStackTrace();
                         utils.logError(e);
-
-                        jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-                        jda.getPresence().setActivity(Activity.customStatus("⚠ Error"));
                     }
                 }
             }, 1, 1800, TimeUnit.SECONDS));
