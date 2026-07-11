@@ -347,75 +347,40 @@ public class Alerts {
     }
 
     private String getThumbnailImage(String event) {
-        switch (event) {
-            case "911 Telephone Outage Emergency" -> {
-                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516136171044864/call-911-1024x1024.png";
-            }
+        if (event.contains("911")) return "https://i.imgur.com/2mgDk4o.png";
 
-            case "Administrative Message" -> {
-                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516136594673694/how-to-fix-the-unknown-message-not-found-on-iphone-error-849e332f4e9241db9cb80ef9ddb63e01.png";
-            }
+        else if (event.contains("Administrative")) return "https://i.imgur.com/vin99pg.png";
 
-            case "Air Quality Alert" -> {
-                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516137085403176/Power-Plant-Clip-Art.png";
-            }
+        else if (event.contains("Air")) return "https://i.imgur.com/x1tuier.png";
 
-            case "Blizzard Warning", "Blizzard Watch" -> {
-                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516137605501039/6a00d8341cdd0d53ef022ad3c2a6f5200d-pi.png";
-            }
+        else if (event.contains("Avalanche") || event.contains("Blizzard"))
+            return "https://i.imgur.com/hHaZu7V.png";
 
-            case "Brisk Wind Advisory", "High Wind Warning", "High Wind Watch", "Wind Advisory",
-                 "Extreme Wind Warning" -> {
-                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516138079453235/wind-clipart-xl.png";
-            }
+        else if (event.contains("Child Abduction")) return "https://i.imgur.com/iKfjHvJ.png";
 
-            case "Child Abduction Emergency" -> {
-                return "https://cdn.discordapp.com/attachments/335445132520194058/1049517612880625714/58c063da3ce0c.png";
-            }
+        else if (event.contains("Cold")) return "https://i.imgur.com/8Nl95yj.png";
 
-            case "Dense Fog Advisory", "Dense Smoke Advisory" -> {
-                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516436789403658/122-1220930_free-download-cloudy-weather-clipart-cloudy-day-clip.png";
-            }
+        else if (event.contains("Dense") || event.contains("Dust")) return "https://i.imgur.com/5mr5tdE.png";
 
-            case "Earthquake Warning" -> {
-                return "https://cdn.discordapp.com/attachments/335445132520194058/1049517612566073425/earthquake-metaphor-vector-icon-vec.png";
-            }
+        else if (event.contains("Earthquake")) return "https://i.imgur.com/EzkHaS9.png";
 
-            case "Excessive Heat Warning", "Excessive Heat Watch", "Heat Advisory" -> {
-                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516438030913616/kindpng_636901.png";
-            }
+        else if (event.contains("Fire") || event.contains("Red Flag"))
+            return "https://i.imgur.com/l32qJEQ.png";
 
-            case "Extreme Cold Warning", "Extreme Cold Watch", "Wind Chill Watch", "Wind Chill Warning" -> {
-                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516437619867668/Cold-Thermometer-clipart-transparent.png";
-            }
+        else if (event.contains("Flood")) return "https://i.imgur.com/FDMPofR.png";
 
-            case "Extreme Fire Danger", "Fire Warning", "Fire Weather Watch", "Red Flag Warning" -> {
-                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516774737059881/image.png";
-            }
+        else if (event.contains("Freez") || event.contains("Frost")) return "https://i.imgur.com/EbyDtkB.png";
 
-            case "Flash Flood Statement", "Flash Flood Warning", "Flash Flood Watch", "Flood Advisory",
-                 "Flood Statement", "Flood Warning", "Flood Watch" -> {
-                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516775118745640/flood-disaster-home-vector-vector-id1038699624.png";
-            }
+        else if (event.startsWith("Gale") || event.contains("Hurricane") || event.contains("Wind"))
+            return "https://i.imgur.com/1enWCAZ.png";
 
-            case "Snow Squall Warning", "Winter Storm Warning", "Winter Storm Watch",
-                 "Winter Weather Advisory" -> {
-                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516775492042794/wintershovel.png";
-            }
+        else if (event.contains("Heat")) return "https://i.imgur.com/cbXxlFp.png";
 
-            case "Freeze Warning", "Freeze Watch", "Frost Advisory", "Hard Freeze Warning",
-                 "Hard Freeze Watch" -> {
-                return "https://cdn.discordapp.com/attachments/335445132520194058/1049516775810801664/frost-texture-frozen-glass-surfaces-blue-ice-sheet-white-marks-frosty-crystal-winter-pattern-transparent-water-crystals-196937681.png";
-            }
+        else if (event.contains("Snow") || event.contains("Winter")) return "https://i.imgur.com/WIuOQ7q.png";
 
-            case "Severe Thunderstorm Warning", "Storm Watch", "Storm Warning", "Special Weather Statement",
-                 "Severe Weather Statement", "Severe Thunderstorm Watch" -> {
-                return "https://cdn.discordapp.com/attachments/335445132520194058/1049519190614228992/StormAlerts.png";
-            }
+        else if (event.toLowerCase().contains("storm") || event.contains("Weather Statement"))
+            return "https://i.imgur.com/ZetclP9.png";
 
-            default -> {
-                return "https://media.discordapp.net/attachments/421827334534856705/871617342210203689/Warning.png?width=714&height=676";
-            }
-        }
+        else return "https://i.imgur.com/IknTfHZ.png";
     }
 }
