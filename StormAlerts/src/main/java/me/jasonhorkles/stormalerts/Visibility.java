@@ -4,7 +4,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,7 +12,7 @@ import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
 import me.jasonhorkles.stormalerts.Utils.LogUtils;
 
 public class Visibility {
-    public void checkConditions() throws IOException, URISyntaxException {
+    public void checkConditions() throws IOException {
         System.out.println(new LogUtils().getTime(LogUtils.LogColor.YELLOW) + "Checking visibility...");
 
         JSONObject input;
