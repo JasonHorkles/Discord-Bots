@@ -18,7 +18,6 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,7 +44,7 @@ public class Alerts {
     private final String nwf = Secrets.Area.NWF.area();
     private final String da = Secrets.Area.DA.area();
 
-    public void checkAlerts() throws IOException, URISyntaxException {
+    public void checkAlerts() throws IOException {
         LogUtils logUtils = new LogUtils();
         System.out.println(logUtils.getTime(LogUtils.LogColor.YELLOW) + "Checking alerts...");
 
@@ -107,11 +106,14 @@ public class Alerts {
                 da
             };
             boolean irrelevantLoc = true;
-            for (String location : locations)
-                if (description.toLowerCase().contains(location.toLowerCase())) {
+            for (String location : locations) {
+                String locationLower = location.toLowerCase();
+                if (area.toLowerCase().contains(locationLower) || description.toLowerCase().contains(
+                    locationLower)) {
                     irrelevantLoc = false;
                     break;
                 }
+            }
             if (irrelevantLoc) continue;
 
             // Format small headers
