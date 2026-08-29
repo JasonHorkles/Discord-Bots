@@ -16,7 +16,7 @@ public class Messages extends ListenerAdapter {
         Message message = event.getMessage();
         String strippedMsg = message.getContentStripped().toLowerCase();
         if (strippedMsg.contains("role call") || strippedMsg.contains("roll call"))
-            message.addReaction(Emoji.fromUnicode("👍")).queue(_ -> message.addReaction(Emoji.fromUnicode("👎"))
-                .queue());
+            message.addReaction(Emoji.fromUnicode("👍")).queue(_ -> message.addReaction(Emoji.fromUnicode("🤷"))
+                .queue(_ -> message.addReaction(Emoji.fromUnicode("👎")).queue()));
     }
 }
