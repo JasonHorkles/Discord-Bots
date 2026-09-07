@@ -81,11 +81,10 @@ public class SlashCommands extends ListenerAdapter {
                         if (event.getOption("show") != null)
                             ephemeral = !event.getOption("show").getAsBoolean();
 
-                    event.deferReply(ephemeral).queue();
                     MessageEmbed embed = new Wordle().getLeaderboard(event.getGuild());
-                    if (embed == null)
-                        event.getHook().editOriginal("No one has earned any points this month!").queue();
-                    else event.getHook().editOriginalEmbeds().queue();
+                    if (embed == null) event.reply("No one has earned any points this month!").setEphemeral(
+                        ephemeral).queue();
+                    else event.replyEmbeds(embed).setEphemeral(ephemeral).queue();
                 }
             }
         }
@@ -93,20 +92,13 @@ public class SlashCommands extends ListenerAdapter {
 
     public static void createGame(Member member, InteractionHook hook) {
         try {
-            TextChannel gameChannel = new Wordle().startGame(
-                member,
-                null,
-                false,
-                false,
-                null);
+            TextChannel gameChannel = new Wordle().startGame(member, null, false, false, null);
             if (gameChannel == null) hook.editOriginal(
                     "Either you already have an ongoing game with that word or you have too many games active at once!")
                 .queue();
-            else
-                hook.editOriginal("Game created in " + gameChannel.getAsMention()).queue();
+            else hook.editOriginal("Game created in " + gameChannel.getAsMention()).queue();
         } catch (IOException e) {
-            hook.editOriginal("Couldn't generate a random word! Please try again later.")
-                .queue();
+            hook.editOriginal("Couldn't generate a random word! Please try again later.").queue();
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
         }
