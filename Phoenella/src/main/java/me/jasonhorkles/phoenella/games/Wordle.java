@@ -250,7 +250,7 @@ public class Wordle extends ListenerAdapter {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
 
-            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Couldn't check if word is in dictionary; using local file...");
+            System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Couldn't check if word is in dictionary; using local file...");
             // https://raw.githubusercontent.com/meetDeveloper/freeDictionaryAPI/refs/heads/master/meta/wordList/english.txt
             // Not using this as the main word list because we want to use the curated list for the game to choose from as the answer
             try {
