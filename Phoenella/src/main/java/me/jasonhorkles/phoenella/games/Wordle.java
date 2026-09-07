@@ -238,27 +238,34 @@ public class Wordle extends ListenerAdapter {
                 .openConnection();
             conn.setConnectTimeout(7000);
             conn.setReadTimeout(8000);
+            conn.setRequestMethod("GET");
 
             int code = conn.getResponseCode();
+            conn.disconnect();
+
             if (code == 200) wordRequest(input.toUpperCase(), event.getMember());
             else if (code == 404) {
                 sendTempReply(message, "**" + input + "** isn't in the dictionary!", 4);
                 return;
+            } else {
+                message.reply("<@277291758503723010> `Response returned code " + code + "`").queue();
+                message.delete().queueAfter(150, TimeUnit.MILLISECONDS);
+                return;
             }
 
         } catch (IOException | URISyntaxException e) {
+            // Fallback to local file if the dictionary API is down or unreachable
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
 
             System.out.println(new Utils().getTime(Utils.LogColor.YELLOW) + "Couldn't check if word is in dictionary; using local file...");
             // https://raw.githubusercontent.com/meetDeveloper/freeDictionaryAPI/refs/heads/master/meta/wordList/english.txt
             // Not using this as the main word list because we want to use the curated list for the game to choose from as the answer
-            try {
-                List<String> dictWords = Files.readAllLines(
-                    Path.of("Phoenella/Wordle/dictionary-words.txt"),
-                    StandardCharsets.UTF_8);
+            Path dictPath = Path.of("Phoenella/Wordle/dictionary-words.txt");
+            try (Stream<String> lines = Files.lines(dictPath, StandardCharsets.UTF_8)) {
+                boolean nonExistent = lines.noneMatch(line -> line.equalsIgnoreCase(input));
 
-                if (!dictWords.contains(input.toLowerCase())) {
+                if (nonExistent) {
                     sendTempReply(message, "**" + input + "** isn't in the dictionary!", 4);
                     return;
                 }
