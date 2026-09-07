@@ -153,7 +153,7 @@ public class Messages extends ListenerAdapter {
 
         String msg = "Well dadgum, something went wrong!";
 
-        if ((text.length() == 3 || text.length() == 4) && !text.equals("ily")) return;
+        if (text.equalsIgnoreCase("lol") || text.equalsIgnoreCase("lmao")) return;
 
         // Message cooldowns
         for (String s : messageCooldown)
