@@ -236,8 +236,8 @@ public class Wordle extends ListenerAdapter {
             HttpURLConnection conn = (HttpURLConnection) new URI(
                 "https://api.dictionaryapi.dev/api/v2/entries/en/" + input.toLowerCase()).toURL()
                 .openConnection();
-            conn.setConnectTimeout(5000);
-            conn.setReadTimeout(5000);
+            conn.setConnectTimeout(7000);
+            conn.setReadTimeout(8000);
 
             int code = conn.getResponseCode();
             if (code == 200) wordRequest(input.toUpperCase(), event.getMember());
