@@ -420,7 +420,7 @@ public class Wordle extends ListenerAdapter {
                     TimeUnit.MINUTES);
             }
 
-            sendRetryMsg(channel, "Well done!", answer, false);
+            sendRetryMsg(channel, "Well done!", answer);
         }
 
         // Fail
@@ -445,7 +445,7 @@ public class Wordle extends ListenerAdapter {
                         }
                     });
 
-            sendRetryMsg(channel, "The word was **" + answer.toLowerCase() + "**!", answer, false);
+            sendRetryMsg(channel, "The word was **" + answer.toLowerCase() + "**!", answer);
         }
     }
 
@@ -468,16 +468,6 @@ public class Wordle extends ListenerAdapter {
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         switch (event.getComponentId()) {
-            case "endgame:wordle" -> {
-                event.editButton(event.getButton().asDisabled()).queue();
-
-                sendRetryMsg(
-                    event.getChannel().asTextChannel(),
-                    "The word was **" + answers.get(event.getChannel().asTextChannel()).toLowerCase() + "**!",
-                    answers.get(event.getChannel().asTextChannel()),
-                    true);
-            }
-
             case "restartgame:wordle" -> {
                 event.deferReply().queue();
                 SlashCommands.createGame(event.getMember(), event.getHook());
@@ -625,7 +615,7 @@ public class Wordle extends ListenerAdapter {
         new GameManager().deleteGame(channel);
     }
 
-    private void sendRetryMsg(TextChannel channel, String message, String answer, boolean gaveUp) {
+    private void sendRetryMsg(TextChannel channel, String message, String answer) {
         channel.upsertPermissionOverride(players.get(channel)).setDenied(Permission.MESSAGE_SEND).queue();
 
         List<Button> buttons = new ArrayList<>();
@@ -636,7 +626,7 @@ public class Wordle extends ListenerAdapter {
                 .withEmoji(Emoji.fromUnicode("❔")));
         }
         buttons.add(Button.success("restartgame:wordle", "New word").withEmoji(Emoji.fromUnicode("🔁")));
-        if (daily.get(channel) && !gaveUp) buttons.add(Button.secondary("sharewordlescore", "Share score")
+        if (daily.get(channel)) buttons.add(Button.secondary("sharewordlescore", "Share score")
             .withEmoji(Emoji.fromUnicode("📤")));
 
         channel.sendMessage(message).addComponents(ActionRow.of(buttons)).queue();

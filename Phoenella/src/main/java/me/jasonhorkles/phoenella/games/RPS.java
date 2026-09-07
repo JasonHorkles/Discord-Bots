@@ -135,11 +135,6 @@ public class RPS extends ListenerAdapter {
                     Button.primary("rps:scissors", Emoji.fromUnicode("✂️")))).queueAfter(1, TimeUnit.SECONDS);
             }
         }
-
-        if (event.getComponentId().equals("endgame:rps")) {
-            event.deferEdit().queue();
-            endGame(channel);
-        }
     }
 
     private void endGame(TextChannel channel) {

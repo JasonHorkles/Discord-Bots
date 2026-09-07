@@ -1,11 +1,8 @@
 package me.jasonhorkles.phoenella;
 
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.components.actionrow.ActionRow;
-import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.ErrorResponse;
@@ -26,20 +23,12 @@ public class GameManager extends ListenerAdapter {
             channel.upsertPermissionOverride(player).setAllowed(Permission.VIEW_CHANNEL)
                 .setDenied(Permission.MESSAGE_SEND).queue();
 
-        sendEndGameMessage(channel, game);
-
         return channel;
     }
 
     public enum Game {
         RPS,
         WORDLE
-    }
-
-    public void sendEndGameMessage(TextChannel channel, Game game) {
-        channel.sendMessage("**Click the button below to end the game.**").addComponents(ActionRow.of(Button
-            .danger("endgame:" + game.toString().toLowerCase(), "End game")
-            .withEmoji(Emoji.fromUnicode("🗑️")))).complete();
     }
 
     public void deleteGame(TextChannel channel) {
