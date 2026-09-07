@@ -21,10 +21,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -229,10 +231,17 @@ public class Wordle extends ListenerAdapter {
         }
 
         if (!isNonReal.get(channel)) if (!wordList.toString().contains(input)) try {
-            URL url = new URI("https://api.dictionaryapi.dev/api/v2/entries/en/" + input.toLowerCase()).toURL();
-            try (InputStream ignored1 = url.openStream()) {
-                wordRequest(input.toUpperCase(), event.getMember());
-            } catch (FileNotFoundException ignored) {
+            channel.sendTyping().queue();
+
+            HttpURLConnection conn = (HttpURLConnection) new URI(
+                "https://api.dictionaryapi.dev/api/v2/entries/en/" + input.toLowerCase()).toURL()
+                .openConnection();
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(5000);
+
+            int code = conn.getResponseCode();
+            if (code == 200) wordRequest(input.toUpperCase(), event.getMember());
+            else if (code == 404) {
                 sendTempReply(message, "**" + input + "** isn't in the dictionary!", 4);
                 return;
             }
