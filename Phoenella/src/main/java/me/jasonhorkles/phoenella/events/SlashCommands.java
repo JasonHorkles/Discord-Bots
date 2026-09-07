@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.modals.Modal;
 
 import java.io.IOException;
@@ -63,24 +64,7 @@ public class SlashCommands extends ListenerAdapter {
 
             case "play" -> {
                 event.reply("Creating a game...").setEphemeral(true).queue();
-                try {
-                    TextChannel gameChannel = new Wordle().startGame(
-                        event.getMember(),
-                        null,
-                        false,
-                        false,
-                        null);
-                    if (gameChannel == null) event.getHook().editOriginal(
-                            "Either you already have an ongoing game with that word or you have too many games active at once!")
-                        .queue();
-                    else
-                        event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
-                } catch (IOException e) {
-                    event.getHook().editOriginal("Couldn't generate a random word! Please try again later.")
-                        .queue();
-                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                    e.printStackTrace();
-                }
+                createGame(event.getMember(), event.getHook());
             }
 
             case "daily" -> {
@@ -104,6 +88,27 @@ public class SlashCommands extends ListenerAdapter {
                     else event.getHook().editOriginalEmbeds().queue();
                 }
             }
+        }
+    }
+
+    public static void createGame(Member member, InteractionHook hook) {
+        try {
+            TextChannel gameChannel = new Wordle().startGame(
+                member,
+                null,
+                false,
+                false,
+                null);
+            if (gameChannel == null) hook.editOriginal(
+                    "Either you already have an ongoing game with that word or you have too many games active at once!")
+                .queue();
+            else
+                hook.editOriginal("Game created in " + gameChannel.getAsMention()).queue();
+        } catch (IOException e) {
+            hook.editOriginal("Couldn't generate a random word! Please try again later.")
+                .queue();
+            System.out.print(new Utils().getTime(Utils.LogColor.RED));
+            e.printStackTrace();
         }
     }
 }

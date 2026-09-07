@@ -26,6 +26,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -37,6 +39,7 @@ import java.util.stream.Stream;
 import me.jasonhorkles.phoenella.GameManager;
 import me.jasonhorkles.phoenella.Phoenella;
 import me.jasonhorkles.phoenella.Utils;
+import me.jasonhorkles.phoenella.events.SlashCommands;
 
 public class Wordle extends ListenerAdapter {
     private static final ArrayList<String> wordList = new ArrayList<>();
@@ -216,14 +219,12 @@ public class Wordle extends ListenerAdapter {
         String answer = answers.get(channel);
 
         if (input.length() != answer.length()) {
-            message.reply("Invalid length!").queue(del -> del.delete().queueAfter(3, TimeUnit.SECONDS));
-            message.delete().queueAfter(150, TimeUnit.MILLISECONDS);
+            sendTempReply(message, "Invalid length!", 3);
             return;
         }
 
         if (new Utils().containsBadWord(input)) {
-            message.reply("Nope not doing that").queue(del -> del.delete().queueAfter(3, TimeUnit.SECONDS));
-            message.delete().queueAfter(150, TimeUnit.MILLISECONDS);
+            sendTempReply(message, "Nope not doing that", 3);
             return;
         }
 
@@ -232,9 +233,7 @@ public class Wordle extends ListenerAdapter {
             try (InputStream ignored1 = url.openStream()) {
                 wordRequest(input.toUpperCase(), event.getMember());
             } catch (FileNotFoundException ignored) {
-                message.reply("**" + input + "** isn't in the dictionary!").queue(del -> del.delete()
-                    .queueAfter(4, TimeUnit.SECONDS));
-                message.delete().queueAfter(150, TimeUnit.MILLISECONDS);
+                sendTempReply(message, "**" + input + "** isn't in the dictionary!", 4);
                 return;
             }
 
@@ -242,9 +241,26 @@ public class Wordle extends ListenerAdapter {
             System.out.print(new Utils().getTime(Utils.LogColor.RED));
             e.printStackTrace();
 
-            message.reply("<@277291758503723010> `" + e + "`").queue();
-            message.delete().queueAfter(150, TimeUnit.MILLISECONDS);
-            return;
+            System.out.println(new Utils().getTime(Utils.LogColor.RED) + "Couldn't check if word is in dictionary; using local file...");
+            // https://raw.githubusercontent.com/meetDeveloper/freeDictionaryAPI/refs/heads/master/meta/wordList/english.txt
+            // Not using this as the main word list because we want to use the curated list for the game to choose from as the answer
+            try {
+                List<String> dictWords = Files.readAllLines(
+                    Path.of("Phoenella/Wordle/dictionary-words.txt"),
+                    StandardCharsets.UTF_8);
+
+                if (!dictWords.contains(input.toLowerCase())) {
+                    sendTempReply(message, "**" + input + "** isn't in the dictionary!", 4);
+                    return;
+                }
+
+                wordRequest(input.toUpperCase(), event.getMember());
+
+            } catch (IOException e1) {
+                message.reply("<@277291758503723010> `" + e1 + "`").queue();
+                message.delete().queueAfter(150, TimeUnit.MILLISECONDS);
+                throw new RuntimeException(e1);
+            }
         }
 
         message.delete().queueAfter(150, TimeUnit.MILLISECONDS);
@@ -424,6 +440,11 @@ public class Wordle extends ListenerAdapter {
         }
     }
 
+    private void sendTempReply(Message message, String input, int delay) {
+        message.reply(input).queue(del -> del.delete().queueAfter(delay, TimeUnit.SECONDS));
+        message.delete().queueAfter(150, TimeUnit.MILLISECONDS);
+    }
+
     @SuppressWarnings("DataFlowIssue")
     @NotNull
     private static EmbedBuilder getEmbedBuilder(MessageEmbed embed, String embed1, String embed2, String fails) {
@@ -450,25 +471,7 @@ public class Wordle extends ListenerAdapter {
 
             case "restartgame:wordle" -> {
                 event.deferReply().queue();
-
-                try {
-                    TextChannel gameChannel = new Wordle().startGame(
-                        event.getMember(),
-                        null,
-                        false,
-                        false,
-                        null);
-                    if (gameChannel == null) event.getHook().editOriginal(
-                            "Either you already have an ongoing game with that word or you have too many games active at once!")
-                        .queue();
-                    else
-                        event.getHook().editOriginal("Game created in " + gameChannel.getAsMention()).queue();
-                } catch (IOException e) {
-                    event.getHook().editOriginal("Couldn't generate a random word! Please try again later.")
-                        .queue();
-                    System.out.print(new Utils().getTime(Utils.LogColor.RED));
-                    e.printStackTrace();
-                }
+                SlashCommands.createGame(event.getMember(), event.getHook());
 
                 new Thread(
                     () -> {
