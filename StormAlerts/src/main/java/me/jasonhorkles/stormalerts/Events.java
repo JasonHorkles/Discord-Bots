@@ -20,8 +20,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
-import me.jasonhorkles.stormalerts.Utils.MessageUtils;
+import me.jasonhorkles.stormalerts.utils.ChannelUtils;
+import me.jasonhorkles.stormalerts.utils.MessageUtils;
 
 public class Events extends ListenerAdapter {
     @Override

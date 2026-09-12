@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.*;
 
-import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
-import me.jasonhorkles.stormalerts.Utils.LogUtils;
-import me.jasonhorkles.stormalerts.Utils.MessageUtils;
+import me.jasonhorkles.stormalerts.utils.ChannelUtils;
+import me.jasonhorkles.stormalerts.utils.LogUtils;
+import me.jasonhorkles.stormalerts.utils.MessageUtils;
 
 public class StormAlerts extends ListenerAdapter {
     public static final List<ScheduledFuture<?>> scheduledTimers = new ArrayList<>();

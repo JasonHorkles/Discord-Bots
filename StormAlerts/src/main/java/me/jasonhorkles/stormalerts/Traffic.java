@@ -17,7 +17,7 @@ import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import me.jasonhorkles.stormalerts.Utils.LogUtils;
+import me.jasonhorkles.stormalerts.utils.LogUtils;
 
 public class Traffic {
     public void checkTraffic(boolean north) {

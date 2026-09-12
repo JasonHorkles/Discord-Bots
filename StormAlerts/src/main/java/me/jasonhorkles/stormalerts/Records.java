@@ -9,9 +9,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
-import me.jasonhorkles.stormalerts.Utils.LogUtils;
-import me.jasonhorkles.stormalerts.Utils.MessageUtils;
+import me.jasonhorkles.stormalerts.utils.ChannelUtils;
+import me.jasonhorkles.stormalerts.utils.LogUtils;
+import me.jasonhorkles.stormalerts.utils.MessageUtils;
 
 public class Records {
     // Stats

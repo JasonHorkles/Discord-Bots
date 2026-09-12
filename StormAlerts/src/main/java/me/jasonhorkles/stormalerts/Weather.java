@@ -1,6 +1,6 @@
 package me.jasonhorkles.stormalerts;
 
-import static me.jasonhorkles.stormalerts.Utils.ChannelUtils.*;
+import static me.jasonhorkles.stormalerts.utils.ChannelUtils.*;
 
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
@@ -27,9 +27,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import me.jasonhorkles.stormalerts.Utils.ChannelUtils;
-import me.jasonhorkles.stormalerts.Utils.LogUtils;
-import me.jasonhorkles.stormalerts.Utils.MessageUtils;
+import me.jasonhorkles.stormalerts.utils.ChannelUtils;
+import me.jasonhorkles.stormalerts.utils.LogUtils;
+import me.jasonhorkles.stormalerts.utils.MessageUtils;
 
 public class Weather {
     public Weather() {

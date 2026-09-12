@@ -56,7 +56,7 @@ public class Reactions extends ListenerAdapter {
                     }
 
                     member.timeoutFor(10, TimeUnit.MINUTES).queue(
-                        (na) -> event.getChannel()
+                        (_) -> event.getChannel()
                             .sendMessage(new Utils().getFirstName(member) + " just got shushed!")
                             .queue(del -> {
                                 del.delete().queueAfter(
@@ -71,7 +71,7 @@ public class Reactions extends ListenerAdapter {
                                         null,
                                         new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE)));
                             }),
-                        (na1) -> event.getChannel()
+                        (_) -> event.getChannel()
                             .sendMessage(event.getMember().getAsMention() + ", I can't shush that person!")
                             .queue((del) -> del.delete().queueAfter(
                                 5,

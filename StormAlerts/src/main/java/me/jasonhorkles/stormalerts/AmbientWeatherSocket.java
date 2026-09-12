@@ -7,7 +7,7 @@ import java.net.URI;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
-import me.jasonhorkles.stormalerts.Utils.LogUtils;
+import me.jasonhorkles.stormalerts.utils.LogUtils;
 
 public class AmbientWeatherSocket {
     private final Socket socket;

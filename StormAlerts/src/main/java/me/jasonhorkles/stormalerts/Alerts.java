@@ -1,6 +1,6 @@
 package me.jasonhorkles.stormalerts;
 
-import static me.jasonhorkles.stormalerts.Utils.ChannelUtils.alertChannel;
+import static me.jasonhorkles.stormalerts.utils.ChannelUtils.alertChannel;
 
 import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import me.jasonhorkles.stormalerts.Utils.LogUtils;
+import me.jasonhorkles.stormalerts.utils.LogUtils;
 
 public class Alerts {
     public static final String historyDir = "StormAlerts/Alert History";

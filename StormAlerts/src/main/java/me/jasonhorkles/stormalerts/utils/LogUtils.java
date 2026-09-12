@@ -1,4 +1,4 @@
-package me.jasonhorkles.stormalerts.Utils;
+package me.jasonhorkles.stormalerts.utils;
 
 import org.jetbrains.annotations.Nullable;
 
