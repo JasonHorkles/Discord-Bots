@@ -44,7 +44,7 @@ public class AQI {
         int highestAqiIndex = -1;
         int highestAqi = -1;
         for (int x = 0; x < input.length(); x++) {
-            int aqi = input.getJSONObject(x).getInt("AQI");
+            int aqi = input.getJSONObject(x).getInt("nowcastAQI");
             if (aqi > highestAqi) {
                 highestAqiIndex = x;
                 highestAqi = aqi;
@@ -52,9 +52,20 @@ public class AQI {
         }
 
         JSONObject topPollutantInfo = input.getJSONObject(highestAqiIndex);
-        int catNumber = topPollutantInfo.getJSONObject("Category").getInt("Number");
-        String topPollutant = topPollutantInfo.getString("ParameterName");
-        if (topPollutant.equals("O3")) topPollutant = "Ozone";
+        String catName = topPollutantInfo.getString("aqiCategoryName");
+        String topPollutant = topPollutantInfo.getString("parameterName");
+        if (topPollutant.equals("OZONE")) topPollutant = "Ozone";
+
+        int catNumber = switch (catName) {
+            case "Good" -> 1;
+            case "Moderate" -> 2;
+            case "Unhealthy for Sensitive Groups" -> 3;
+            case "Unhealthy" -> 4;
+            case "Very Unhealthy" -> 5;
+            case "Hazardous" -> 6;
+            case "Unavailable" -> 7;
+            default -> 8; // Unknown value
+        };
 
         String airQualityName = switch (catNumber) {
             case 1 -> "Good 🟢";
